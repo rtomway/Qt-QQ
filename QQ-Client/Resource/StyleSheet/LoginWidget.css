@@ -1,0 +1,59 @@
+
+
+/*QLineEdit {
+    background-color: green;
+      border: 1px solid #211c1c;
+    border: none;
+    border-radius: 5px;
+    height: 30px;
+    width: 120px;
+    padding: 5px 15px;
+}*/
+
+QWidget#login{
+    border: none;
+    border-radius: 10px;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #ecc1f7,stop:1 #9cdeec) !important;
+}
+
+QPushButton#top{
+    border: none;
+    background-color: transparent;
+    border-radius: 4px;
+    height: 27px;
+    padding: 5px 15px;
+}
+QPushButton#end {
+    border: none;
+    background-color: transparent;
+    border-radius: 4px;
+    height: 27px;
+    padding: 5px 15px;
+    color:#4eb4d3;
+    font-size:15px;
+}
+QPushButton{
+    border: none;
+    background-color:cornflowerblue;
+    border-radius: 4px;
+    height: 27px;
+    padding: 5px 15px;
+}
+QMenu{
+    border: none;
+    border-radius: 8px;
+    background-color: white;
+}
+
+QMenu::item {
+    padding: 10px 20px;
+    font-size: 13px;
+}
+QMenu::item:selected {
+    background-color: #D3D3D3;
+}
+
+
+
+
+

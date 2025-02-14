@@ -1,0 +1,108 @@
+
+/*窗口*/
+QWidget {
+    background-color: rgb(240,240,240);
+}
+/*按钮*/
+QPushButton{
+    border:none;
+    icon-size:24px;
+
+}
+QPushButton#hideBtn:hover,#expandBtn:hover,#exitBtn:hover {
+    background-color:#bab6b6;
+}
+/*按钮图片*/
+    QPushButton#callphoneBtn {
+        border-image: url(:/icon/Resource/Icon/phone.png);
+    }
+        QPushButton#callphoneBtn:hover {
+            border-image: url(:/icon/Resource/Icon/phone_hover.png);
+        }
+    QPushButton#callviewBtn {
+        border-image: url(:/icon/Resource/Icon/callview.png);
+    }
+        QPushButton#callviewBtn:hover {
+            border-image: url(:/icon/Resource/Icon/callview_hover.png);
+        }
+    QPushButton#otherBtn_1 {
+        border-image: url(:/icon/Resource/Icon/screenshare.png);
+    }
+        QPushButton#otherBtn_1:hover {
+            border-image: url(:/icon/Resource/Icon/screenshare_hover.png);
+        }
+    QPushButton#otherBtn_2 {
+        border-image: url(:/icon/Resource/Icon/grouptool.png);
+    }
+        QPushButton#otherBtn_2:hover {
+            border-image: url(:/icon/Resource/Icon/grouptool_hover.png);
+        }
+    QPushButton#inviteBtn {
+        border-image: url(:/icon/Resource/Icon/addgroup.png);
+    }
+        QPushButton#inviteBtn:hover {
+            border-image: url(:/icon/Resource/Icon/addgroup_hover.png);
+        }
+    QPushButton#moreBtn {
+        border-image: url(:/icon/Resource/Icon/more_2.png);
+    }
+        QPushButton#moreBtn:hover {
+            border-image: url(:/icon/Resource/Icon/more_2_hover.png);
+        }
+    QPushButton#expressBtn {
+        border-image: url(:/icon/Resource/Icon/expression.png);
+    }
+        QPushButton#expressBtn:hover {
+            border-image: url(:/icon/Resource/Icon/expression_hover.png);
+        }
+    QPushButton#screenshotBtn {
+        border-image: url(:/icon/Resource/Icon/screenshot.png);
+    }
+        QPushButton#screenshotBtn:hover {
+            border-image: url(:/icon/Resource/Icon/screenshot_hover.png);
+        }
+    QPushButton#fileBtn {
+        border-image: url(:/icon/Resource/Icon/file_2.png);
+    }
+        QPushButton#fileBtn:hover {
+            border-image: url(:/icon/Resource/Icon/file_2_hover.png);
+        }
+    QPushButton#pictureBtn {
+        border-image: url(:/icon/Resource/Icon/picture.png);
+    }
+        QPushButton#pictureBtn:hover {
+            border-image: url(:/icon/Resource/Icon/picture_hover.png);
+        }
+    QPushButton#moneyBtn {
+        border-image: url(:/icon/Resource/Icon/money.png);
+    }
+        QPushButton#moneyBtn:hover {
+            border-image: url(:/icon/Resource/Icon/money_hover.png);
+        }
+    QPushButton#voiceBtn {
+        border-image: url(:/icon/Resource/Icon/voice.png);
+    }
+        QPushButton#voiceBtn:hover {
+            border-image: url(:/icon/Resource/Icon/voice_hover.png);
+        }
+    QPushButton#messagerecordBtn {
+        border-image: url(:/icon/Resource/Icon/messagerecord.png);
+    }
+
+        QPushButton#messagerecordBtn:hover {
+            border-image: url(:/icon/Resource/Icon/messagerecord_hover.png);
+        }
+
+
+QListWidget#messageListWidget{
+    border:none;
+}
+QTextEdit#messageTextEdit {
+    background-color: rgb(240,240,240);
+    border: none;
+}
+
+QPushButton#sendBtn{
+    background-color:aqua;
+    border-radius:4px;
+}

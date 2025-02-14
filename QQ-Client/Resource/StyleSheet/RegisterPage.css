@@ -1,0 +1,56 @@
+QWidget#this {
+    border: none;
+    border-radius: 10px;
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #edadef,stop:1 #8edaee);
+}
+QLineEdit{
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 15px;
+    height:40px;
+}
+    QLineEdit#verifyEdit {
+        background-color: white;
+        border: none;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        padding: 5px 15px;
+        height: 40px;
+    }
+
+QPushButton {
+    background-color: white;
+    border-radius: 4px;
+    height: 40px;
+    padding: 5px 15px;
+    font-size:20px;
+}
+    QPushButton#verifyBtn {
+        background-color: white;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        height: 40px;
+        padding: 5px 15px;
+        color: #75c4f5;
+        font-size:12px;
+    }
+    QPushButton#verifyBtn:hover {
+        font-size:12px;
+        color:#3daff6;
+    }
+QLabel#title{
+    font-size: 26px;
+    background-color: transparent;
+    color: qlineargradient(x1:0,y1:0, x2:0, y2:1, stop:0 #edadef,stop:1 #8edaee);
+}
+
+QLabel#header {
+    font-size: 26px;
+}
+
+

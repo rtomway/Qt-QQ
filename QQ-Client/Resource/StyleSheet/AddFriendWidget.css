@@ -1,0 +1,71 @@
+QWidget{
+    background-color:white;
+}
+QPushButton {
+    border: none;
+    background-color: white;
+    border-radius: 5px;
+    height:30px;
+}
+
+QPushButton#userBtn:hover{
+    background-color: rgb(240,240,240);
+}
+QPushButton#groupBtn:hover {
+    background-color: rgb(240,240,240);
+}
+
+QPushButton#searchidBtn{
+    border: 1px solid #808080;
+    background-color: white;
+    border-radius: 5px;
+    height:30px;
+}
+QPushButton#searchidBtn:hover {
+    background-color: rgb(240,240,240);
+    border-radius: 5px;
+}
+QPushButton#searchBtn{
+    border: none;
+    background-color: rgb(240,240,240);
+    border-radius: 5px;
+}
+QFrame#searchFrame{
+    border: none;
+    background-color: rgb(240,240,240);
+    height: 50px;
+    border-radius: 5px;
+}
+    QFrame#searchFrame:hover {
+        border: 1px solid #00ffff
+    }
+QLineEdit {
+    border: none;
+    background-color: rgb(240,240,240);
+    border-radius: 5px;
+}
+
+QListWidget {
+    background-color: white;
+    border: none;
+    outline: 0px;
+}
+
+QListWidget::item {
+    background-color: transparent;
+}
+QListWidget::item:hover {
+    background-color: rgb(240,240,240);
+}
+QListWidget QWidget{
+    background-color: transparent;
+}
+QListWidget QPushButton {
+    border: 1px solid rgb(230, 229, 229);
+    border-radius:5px;
+    background-color: white;
+}
+QListWidget QPushButton:hover{
+    background-color: rgb(230, 229, 229);
+}
+

@@ -1,0 +1,118 @@
+/*窗口*/
+QWidget#MainWidget{
+    border-radius:10px;
+}
+QWidget#leftWidget {
+    background-color: rgb(240,240,240);
+}
+QWidget#contactWidget{
+    background-color: white;
+}
+QWidget#rightWidget {
+    background-color: rgb(240,240,240);
+}
+QListWidget#listWidget {
+    border: none;
+    background-color: rgb(240,240,240);
+    color: black;
+    outline: 0px;
+    padding: 0px;
+    font-size: 14px;
+}
+
+/*按钮*/
+QPushButton{
+    border:none;
+}
+QPushButton#addBtn {
+    border-radius:4px;
+    background-color: rgb(240,240,240);
+}
+QPushButton#addBtn:hover{
+    background-color: #edebeb;
+}
+QLineEdit#searchEdit {
+    border: none;
+    background-color: rgb(240,240,240);
+}
+QPushButton#hideBtn:hover {
+   background-color:#ccc3c3
+}
+QPushButton#expandBtn:hover {
+    background-color: #ccc3c3
+}
+QPushButton#exitBtn:hover {
+    background-color: red
+}
+QPushButton#fileBtn {
+    border-image: url(:/icon/Resource/Icon/file_2.png);
+}
+    QPushButton#fileBtn:hover {
+        border-image: url(:/icon/Resource/Icon/file_2_hover.png);
+    }
+QPushButton#collectBtn {
+    border-image: url(:/icon/Resource/Icon/collect.png);
+}
+    QPushButton#collectBtn:hover {
+        border-image: url(:/icon/Resource/Icon/collect_hover.png);
+    }
+QPushButton#otherBtn {
+    border-image: url(:/icon/Resource/Icon/more_1.png);
+}
+    QPushButton#otherBtn:hover {
+        border-image: url(:/icon/Resource/Icon/more_1_hover.png);
+    }
+
+/*菜单*/
+QMenu {
+    border: none;
+    border-radius: 10px;
+    background-color: white;
+}
+QMenu::item {
+    padding: 10px 20px;
+    font-size: 13px;
+}
+QMenu::item:selected {
+    background-color: #D3D3D3;
+}
+/*ListWidget*/
+QListWidget::item {
+    background-color: transparent;
+    border-radius: 31px;
+    font-size: 18px;
+}
+QListWidget#MessageList {
+    border: none;
+    outline: 0px;
+}
+QListWidget#MessageList::item {
+    border: none;
+    border-radius: 0px;
+}
+QListWidget#MessageList::item:hover {
+    background-color: rgb(240,240,240);
+}
+    QListWidget#MessageList::item:selected {
+        background-color: #0096FF;
+    }
+/*QlistWidget里的滚动条*/
+    QListWidget#MessageList QScrollBar:vertical {
+        border: none;
+        background-color: transparent;
+        width: 8px;
+    }
+QListWidget#MessageList QScrollBar::handle:vertical {
+    border: none;
+    background-color: #edebeb;
+    border-radius: 3px;
+    min-height: 2px;
+}
+QListWidget#MessageList QScrollBar::add-line:vertical {
+    border: 0px;
+    height: 0px;
+}
+QListWidget#MessageList QScrollBar::sub-line:vertical {
+    border: 0px;
+    height: 0px;
+}

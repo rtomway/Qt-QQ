@@ -1,0 +1,75 @@
+QWidget#ContactPage{
+    background-color: white;
+}
+QLabel#nameLab{
+    font-size:18px;
+}
+QPushButton#onlineBtn{
+    border-radius:4px;
+    height:20px;
+   border:none;
+   padding-left:0px;
+   padding:0px,0px,0px,0px;
+}
+QPushButton#onlineBtn:hover{
+    background-color: rgb(240,240,240);
+}
+QToolButton#likeBtn {
+    border: none;
+    background-color: white;
+    border-radius: 4px;
+}
+QToolButton#likeBtn:hover {
+    background-color: rgb(240,240,240);
+}
+QPushButton#editdetailBtn {
+    border: 1px solid gray;
+    border-radius: 4px;
+    height: 35px;
+    font-size:14px;
+}
+QPushButton#editdetailBtn:hover {
+    background-color: rgb(240,240,240);
+}
+QPushButton#sendmessageBtn {
+    border: none;
+    background-color:#0096FF;
+    border-radius: 4px;
+    color: white;
+    height: 35px;
+    font-size: 14px;
+}
+QPushButton#sendmessageBtn:hover {
+    background-color: #048eee;
+}
+
+QComboBox {
+    border: 1px solid #dddddd;
+    width: 70px;
+    height:30px;
+    border-radius: 4px;
+}
+QComboBox::drop-down {
+    border: none;
+}
+ QComboBox::down-arrow {
+     image: url(:/icon/Resource/Icon/down-drop.png);
+     height: 15px;
+     width: 15px;
+     border-radius: 4px;
+ }
+ QComboBox QAbstractItemView {
+     border-radius: 4px;
+     background-color: white;
+     outline:none;
+ }
+ QComboBox QAbstractItemView::item{
+    height:20px;
+ }
+ QComboBox QAbstractItemView::item:selected {
+     background-color: rgb(240,240,240); 
+     padding-right: 25px;
+     color:black;
+ }
+
+

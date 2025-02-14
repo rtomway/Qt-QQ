@@ -1,0 +1,78 @@
+QLineEdit {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    background-color: red;
+    height: 40px;
+    padding-bottom:5px;
+}
+QPushButton {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    background-color: white;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    height: 40px;
+    padding: 5px 15px;
+}
+QWidget {
+    background-color: white;
+     border: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-radius: 10px;
+}
+QLabel#preLab{
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    background-color: white;
+    height: 40px;
+    padding-right:10px;
+}
+QLabel#lastLab{
+    border: 0px;
+    margin: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    background-color: white;
+}
+QMenu {
+    border: 0px;
+    padding: 0px;
+    margin: 0px;
+    border-radius:10px;
+}
+
+QMenu {
+    background-color: rgb(255, 255, 255); 
+    border: 1px solid rgb(240,240,240); /*整个菜单区域的边框粗细、样式、颜色*/ 
+    border-radius: 4px;
+}
+QMenu::item { 
+    background-color: transparent; 
+    padding:3px 4px;/*设置菜单项文字上下和左右的内边距，效果就是菜单中的条目左右上下有了间隔*/ 
+    margin:5px 5px;/*设置菜单项的外边距: 长(height) 宽(width)*/
+    border-radius:5px;
+    height:20px;
+}
+QMenu::item:selected {
+    background-color: rgb(240,240,240);
+}
+
+
+
+
