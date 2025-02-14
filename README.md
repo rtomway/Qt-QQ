@@ -2,7 +2,7 @@
 基于Qt6的仿QQ应用,采用C/S架构,后端模块使用QWebSocketServer通信,使用Json传输、解析数据,采用数据库连接池实现MySql连接复用和负载均衡
 登录界面
 
-<img src="ResultPicture/login.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/login.png" alt="Example Image" width="400" height="700">
 搜索添加界面
 
 <img src="ResultPicture/add.png" alt="Example Image" width="700" height="500">
