@@ -10,14 +10,13 @@ class Client :public QObject
 {
 	Q_OBJECT
 public:
-	Client(QObject*parent=nullptr);
 	~Client();
 	//初始化映射表
 	void initRequestHash();
-	
-
 	static Client* instance();
-
+private:
+	Client(QObject* parent = nullptr);
+public:
     //链式调用
 	Client* connectToServer(const QString&url);
 	Client* sendMessage(const QString& type,const QVariantMap& params = {});
@@ -29,7 +28,6 @@ public:
 
 	void disconnect();
 private:
-	static Client* m_instance;
 	QWebSocket* m_client;
 	bool m_isConnected;
 

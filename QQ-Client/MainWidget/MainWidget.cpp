@@ -15,6 +15,8 @@
 #include "SMaskWidget.h"
 #include "Client.h"
 #include "AddFriendWidget.h"
+#include "NoticeWidget.h"
+#include "ContactList.h"
 
 
 MainWidget::MainWidget(QWidget* parent)
@@ -23,7 +25,6 @@ MainWidget::MainWidget(QWidget* parent)
 	, m_addpersonMenu(new QMenu(this))
 	, m_moreMenu(new QMenu(this))
 	,m_messageList(new QListWidget(this))
-	,m_contactList(new ContactList(this))
 	,m_messagePage(new MessagePage(this))
 	,m_contactPage(new ContactPage(this))
 	,m_emptyWidget(new QWidget(this))
@@ -87,10 +88,6 @@ void MainWidget::init()
 
 	ui->qqLab->setAlignment(Qt::AlignCenter);
 	//个人信息头像
-	/*ui->headLab->setPixmap(QPixmap(":/picture/Resource/Picture/qq.png"));
-	ui->headLab->setFixedSize(40, 40);
-	ui->headLab->setScaledContents(true);
-	ui->headLab->setMask(QRegion(ui->headLab->rect(), QRegion::RegionType::Ellipse));*/
 	ui->headLab->setPixmap(ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40)));
 	//列表按钮组
 	m_btn_Itemgroup = new QButtonGroup(this);
@@ -117,7 +114,7 @@ void MainWidget::init()
 				ui->messageStackedWidget->setCurrentWidget(m_emptyWidget);
 				break;
 			case -3:
-				ui->listStackedWidget->setCurrentWidget(m_contactList);
+				ui->listStackedWidget->setCurrentWidget(ContactList::instance());
 				ui->messageStackedWidget->setCurrentWidget(m_emptyWidget);
 				break;
 			case -4:
@@ -131,7 +128,7 @@ void MainWidget::init()
 
 	//中下 listwidget
 	ui->listStackedWidget->addWidget(m_messageList);
-	ui->listStackedWidget->addWidget(m_contactList);
+	ui->listStackedWidget->addWidget(ContactList::instance());
 	ui->listStackedWidget->setCurrentWidget(m_messageList);
 	m_messageList->setObjectName("MessageList");
 	//for (int i = 0; i < 10; i++)
@@ -141,6 +138,7 @@ void MainWidget::init()
 	ui->messageStackedWidget->addWidget(m_messagePage);
 	ui->messageStackedWidget->addWidget(m_contactPage);
 	ui->messageStackedWidget->addWidget(m_emptyWidget);
+	ui->messageStackedWidget->addWidget(NoticeWidget::instance());
 	//点击用户消息项 进入会话界面（加载用户信息）
 	connect(m_messageList, &QListWidget::itemClicked,this,[=](QListWidgetItem*item)
 		{
@@ -150,10 +148,18 @@ void MainWidget::init()
 			m_messagePage->setUser(itemWidget->getUser());
 			//
 		});
-	connect(m_contactList, &ContactList::clicked, this, [=]()
+	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=]()
 		{
 			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
 			ui->rightWidget->setStyleSheet("background-color:white");
+		});
+	connect(ContactList::instance(), &ContactList::friendNotice, this, [=]
+		{
+			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
+		});
+	connect(ContactList::instance(), &ContactList::groupNotice, this, [=]
+		{
+			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
 		});
 
 	ui->hideBtn->setIcon(QIcon(":/icon/Resource/Icon/hide.png"));

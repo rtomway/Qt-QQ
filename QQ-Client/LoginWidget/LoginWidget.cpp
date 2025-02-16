@@ -138,6 +138,7 @@ void LoginWidget::init()
 			//auto registerPage = new RegisterPage;
 			QPointer<RegisterPage>registerPage = new RegisterPage;
 			registerPage->show();
+			registerPage->close();
 			connect(registerPage, &RegisterPage::destroyed, [registerPage]() {
 				qDebug() << "窗口已销毁";
 				});
@@ -195,8 +196,8 @@ void LoginWidget::init()
 								config->setValue("password", password);
 
 								//当前登录用户信息
-								User::getInstance().setUserId(user_id);
-								User::getInstance().setUserName(user_name);
+								User::instance()->setUserId(user_id);
+								User::instance()->setUserName(user_name);
 								emit Loginsuccess();
 							}
 							else

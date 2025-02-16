@@ -12,9 +12,14 @@ public:
 		MiddleWidget,
 		RightWidget,
 	};
-public:
+private:
 	SMaskWidget(QWidget* parent = nullptr);
+public:
 	static SMaskWidget* instance();
+	// 防止复制和赋值
+	SMaskWidget(const SMaskWidget&) = delete;
+	SMaskWidget& operator=(const SMaskWidget&) = delete;
+
 	void setMainWidget(QWidget* widget);
 	void addDialog(QWidget* dialog);
 	void popUp(QWidget* dialog);

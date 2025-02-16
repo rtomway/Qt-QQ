@@ -1,10 +1,11 @@
-#include "ContactList.h"
 #pragma once
 #include "ContactList.h"
 #include "ui_ContactList.h"
 #include <QFile>
 #include <QLabel>
 #include <QBoxLayout>
+#include <QMutex>
+#include <QMutexLocker>
 
 
 #include "ItemWidget.h"
@@ -37,6 +38,15 @@ ContactList::~ContactList()
 	delete ui;
 }
 
+ContactList* ContactList::instance()
+{
+	//保证互斥量唯一
+	/*static QMutex mutex;
+	QMutexLocker locker(&mutex);*/
+	static ContactList *ins=new ContactList;
+	return ins;
+}
+
 void ContactList::init()
 {
 	m_friendList->setHeaderHidden(true);
@@ -56,7 +66,7 @@ void ContactList::init()
 	addFriendListItem(QString("家人"));
 
 	addFriendItem(getFriendTopItem(QString("我的好友")),QString("哈哈哈"));
-	addFriendItem(getFriendTopItem(QString("我的好友")), QString("哈哈哈"));
+	//addFriendItem(getFriendTopItem(QString("我的好友")), QString("哈哈哈"));
 
 	addGroupListItem(QString("置顶群聊"));
 	addGroupListItem(QString("我创建的群聊"));
@@ -89,7 +99,7 @@ void ContactList::init()
 			}
 			else     //点击用户 弹出用户信息
 			{
-				emit clicked();
+				emit clickedFriend();
 			}
 
 		});
@@ -184,11 +194,13 @@ bool ContactList::eventFilter(QObject* obj, QEvent* event)
 	// 监听子窗口的鼠标点击事件
 	if (obj == ui->fInformWidget && event->type() == QEvent::MouseButtonPress) {
 		qDebug() << "子窗口被点击!";
+		emit friendNotice();
 		return true; // 事件已处理，不再继续传递
 	}
 	 if (obj == ui->gInformWidget && event->type() == QEvent::MouseButtonPress)
 	{
 		qDebug() << "子窗口被点击!";
+		emit groupNotice();
 		return true; // 事件已处理，不再继续传递
 	}
 	return false; // 传递给基类处理其他事件

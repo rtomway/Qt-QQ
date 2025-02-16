@@ -2,7 +2,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-Client* Client::m_instance = nullptr;
 
 Client::Client(QObject* parent)
     :QObject(parent), m_client(new QWebSocket()), m_isConnected(false)
@@ -26,11 +25,12 @@ void Client::initRequestHash(){
 
 Client* Client::instance()
 {
-    if (!m_instance)
+    static Client* ins;
+    if (!ins)
     {
-        m_instance = new Client();
+        ins = new Client();
     }
-    return m_instance;
+    return ins;
 }
 
 Client* Client::connectToServer(const QString& url)

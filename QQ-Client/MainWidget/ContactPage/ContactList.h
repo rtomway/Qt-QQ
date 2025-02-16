@@ -5,7 +5,6 @@
 #include <QTreeWidget>
 #include <QStringList>
 #include <QButtonGroup>
-
 #include "TopItemWidget.h"
 
 namespace Ui { class ContactList; }
@@ -13,10 +12,15 @@ class ContactList :public QWidget
 {
 	Q_OBJECT
 public:
-	ContactList(QWidget* parent = nullptr);
 	~ContactList();
 	static ContactList* instance();
+	// 防止复制和赋值
+	ContactList(const ContactList&) = delete;
+	ContactList& operator=(const ContactList&) = delete;
+
 	void init();
+private:
+	ContactList(QWidget* parent = nullptr);
 private:
 	Ui::ContactList* ui{};
 private:
@@ -39,7 +43,9 @@ public:
 protected:
 	bool eventFilter(QObject* obj, QEvent* event) override;
 signals:
-	void clicked();
+	void clickedFriend();
+	void friendNotice();
+	void groupNotice();
 };
 
 #endif // !CONTACTLIST_H_

@@ -61,7 +61,7 @@ void AddWidget::init()
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
 			QVariantMap paramsObject;
-			paramsObject["user_id"] = User::getInstance().getUserId();
+			paramsObject["user_id"] = User::instance()->getUserId();
 			paramsObject["to"] = m_user_id;
 			paramsObject["message"] = ui->messageEdit->text();
 			Client::instance()->sendMessage("addFriend", paramsObject);

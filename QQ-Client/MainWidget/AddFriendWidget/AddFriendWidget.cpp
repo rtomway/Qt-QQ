@@ -87,7 +87,7 @@ void AddFriendWidget::init()
 			{
 				QVariantMap serach;
 				serach["search_id"] = search_id;
-				serach["user_id"] = User::getInstance().getUserId();
+				serach["user_id"] = User::instance()->getUserId();
 				Client::instance()->sendMessage("searchUser", serach)
 					->ReciveMessage([=](const QString& message)
 						{
@@ -124,7 +124,7 @@ void AddFriendWidget::init()
 			{
 				QVariantMap serach;
 				serach["search_id"] = search_id;
-				serach["user_id"] = User::getInstance().getUserId();
+				serach["user_id"] = User::instance()->getUserId();
 				Client::instance()->sendMessage("searchGroup", serach)
 					->ReciveMessage([=](const QString& message)
 						{

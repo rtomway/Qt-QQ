@@ -11,7 +11,7 @@
 #include <QStackedWidget>
 #include <QMenu>
 
-#include "ContactList.h"
+
 #include "MessagePage.h"
 #include "ContactPage.h"
 #include "AngleRoundedWidget.h"
@@ -31,7 +31,6 @@ private:
 	Ui::MainWidget* ui{};
 private:
 	QListWidget* m_messageList{};
-	ContactList* m_contactList{};
 	QButtonGroup* m_btn_Itemgroup{};
 	QMenu* m_moreMenu{};
 	QMenu* m_addpersonMenu{};
