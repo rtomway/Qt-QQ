@@ -32,7 +32,8 @@ void Server::initRequestHash()
 	requestHash["searchUser"] = &Server::handle_searchUser;
 	requestHash["searchGroup"] = &Server::handle_searchGroup;
 	requestHash["addFriend"] = &Server::handle_addFriend;
-	requestHash["addGroup"] = &Server::handle_addGroup;
+	requestHash["addGroup"] = &Server::handle_addGroup; 
+	requestHash["resultOfAddFriend"] = &Server::handle_resultOfAddFriend;
 }
 
 //通信连接
@@ -262,7 +263,7 @@ void Server::handle_addFriend(const QJsonObject& paramsObject)
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
 	QJsonObject jsondate;
-	jsondate["type"] = "communication";
+	jsondate["type"] = "addFriend";
 	jsondate["params"] = paramsObject;
 	auto receive_id = paramsObject["to"].toString();
 	auto receive_message = paramsObject["message"].toString(); 
@@ -275,4 +276,19 @@ void Server::handle_addFriend(const QJsonObject& paramsObject)
 void Server::handle_addGroup(const QJsonObject& paramsObject)
 {
 
+}
+
+//拒绝添加
+void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject)
+{
+	qDebug() << "发送方:" << paramsObject["user_id"].toString();
+	qDebug() << "接受方:" << paramsObject["to"].toString();
+	QJsonObject jsondate;
+	jsondate["type"] = "resultOfAddFriend";
+	jsondate["params"] = paramsObject;
+	auto receive_id = paramsObject["to"].toString();
+	auto client = m_clients[receive_id];
+	QJsonDocument doc(jsondate);
+	QString data = QString(doc.toJson(QJsonDocument::Compact));
+	client->sendTextMessage(data);
 }

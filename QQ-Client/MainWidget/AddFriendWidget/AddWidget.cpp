@@ -62,8 +62,10 @@ void AddWidget::init()
 		{
 			QVariantMap paramsObject;
 			paramsObject["user_id"] = User::instance()->getUserId();
+			paramsObject["username"] = User::instance()->getUserName();
 			paramsObject["to"] = m_user_id;
 			paramsObject["message"] = ui->messageEdit->text();
+			paramsObject["addFriend"] = "请求加为好友";
 			Client::instance()->sendMessage("addFriend", paramsObject);
 			this->close();
 		});

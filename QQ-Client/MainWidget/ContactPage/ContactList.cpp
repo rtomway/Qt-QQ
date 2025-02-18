@@ -7,8 +7,8 @@
 #include <QMutex>
 #include <QMutexLocker>
 
-
 #include "ItemWidget.h"
+#include "Client.h"
 
 QStringList ContactList::m_fNamelist{};
 QStringList ContactList::m_gNamelist{};
@@ -66,7 +66,6 @@ void ContactList::init()
 	addFriendListItem(QString("家人"));
 
 	addFriendItem(getFriendTopItem(QString("我的好友")),QString("哈哈哈"));
-	//addFriendItem(getFriendTopItem(QString("我的好友")), QString("哈哈哈"));
 
 	addGroupListItem(QString("置顶群聊"));
 	addGroupListItem(QString("我创建的群聊"));
@@ -103,8 +102,20 @@ void ContactList::init()
 			}
 
 		});
-	//好友添加通知界面
-	
+	//好友添加通知未读数量更新
+	connect(Client::instance(), &Client::addFriend, this, [=]
+		{
+			m_fNoticeUnreadCount++;
+			ui->friendNoticeCountLab->setText(QString::number(m_fNoticeUnreadCount));
+			ui->friendNoticeCountLab->setStyleSheet(R"(		
+					color:red;
+			)");
+		});
+	//好友添加成功
+	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject&obj)
+		{
+
+		});
 }
 
 QStringList ContactList::getfGrouping()
@@ -194,13 +205,22 @@ bool ContactList::eventFilter(QObject* obj, QEvent* event)
 	// 监听子窗口的鼠标点击事件
 	if (obj == ui->fInformWidget && event->type() == QEvent::MouseButtonPress) {
 		qDebug() << "子窗口被点击!";
+		//点击好友申请通知 清空未读
 		emit friendNotice();
+		m_fNoticeUnreadCount = 0;
+		/*ui->friendNoticeCountLab->setStyleSheet(R"(
+					QLabel{background-color:white;}
+					QLabel:hover{background-color:rgb(240,240,240);}
+			)");*/
+		ui->friendNoticeCountLab->clear();
 		return true; // 事件已处理，不再继续传递
 	}
 	 if (obj == ui->gInformWidget && event->type() == QEvent::MouseButtonPress)
 	{
 		qDebug() << "子窗口被点击!";
+		//点击群聊申请通知 清空未读
 		emit groupNotice();
+		m_gNoticeUnreadCount = 0;
 		return true; // 事件已处理，不再继续传递
 	}
 	return false; // 传递给基类处理其他事件

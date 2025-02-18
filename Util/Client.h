@@ -49,9 +49,14 @@ private:
 private:
 	//各种消息处理函数
 	void handle_communication(const QJsonObject& paramsObject);
+	void handle_addFriend(const QJsonObject& paramsObject);
+	void handle_resultOfAddFriend(const QJsonObject& paramsObject);
 signals:   //接受到消息发送信号通知UI界面更新同步
 	void communication(const QJsonObject& paramsObject);
-
+	void addFriend(const QJsonObject& paramsObject);
+	void addGroup(const QJsonObject& paramsObject);
+	void rejectAddFriend(const QJsonObject& paramsObject);
+	void agreeAddFriend(const QJsonObject& paramsObject);
 };
 
 

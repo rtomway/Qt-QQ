@@ -71,6 +71,11 @@ MainWidget::MainWidget(QWidget* parent)
 				addmessageListItem(obj);
 			}
 		});
+	//好友添加成功
+	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject& obj)
+		{
+			addmessageListItem(obj);
+		});
 }
 
 MainWidget::~MainWidget()

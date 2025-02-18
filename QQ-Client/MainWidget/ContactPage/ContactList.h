@@ -7,6 +7,7 @@
 #include <QButtonGroup>
 #include "TopItemWidget.h"
 
+class NoticeWidget;
 namespace Ui { class ContactList; }
 class ContactList :public QWidget
 {
@@ -17,7 +18,6 @@ public:
 	// 防止复制和赋值
 	ContactList(const ContactList&) = delete;
 	ContactList& operator=(const ContactList&) = delete;
-
 	void init();
 private:
 	ContactList(QWidget* parent = nullptr);
@@ -29,6 +29,9 @@ private:
 	static QStringList m_fNamelist;
 	static QStringList m_gNamelist;
 	QButtonGroup m_buttonGroup{};
+private:
+	int m_fNoticeUnreadCount = 0;
+	int m_gNoticeUnreadCount = 0;
 public:
 	static QStringList getfGrouping();
 	static QStringList getgGrouping();

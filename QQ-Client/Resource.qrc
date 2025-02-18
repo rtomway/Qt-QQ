@@ -80,5 +80,6 @@
         <file>Resource/StyleSheet/ContactList.css</file>
         <file>Resource/StyleSheet/ContactPage.css</file>
         <file>Resource/StyleSheet/AddFriendWidget.css</file>
+        <file>Resource/StyleSheet/NoticeWidget.css</file>
     </qresource>
 </RCC>

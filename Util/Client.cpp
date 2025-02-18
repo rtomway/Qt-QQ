@@ -19,8 +19,11 @@ Client::~Client()
     delete m_client;
 }
 
-void Client::initRequestHash(){
+void Client::initRequestHash()
+{
     requestHash["communication"] = &Client::handle_communication;
+    requestHash["addFriend"] = &Client::handle_addFriend;
+    requestHash["resultOfAddFriend"] = &Client::handle_resultOfAddFriend;
 }
 
 Client* Client::instance()
@@ -163,4 +166,22 @@ void Client::handle_communication(const QJsonObject& paramsObject)
     auto adverse_message = paramsObject["message"].toString();
     auto time = paramsObject["time"].toString();
     emit communication(paramsObject);
+}
+void Client::handle_addFriend(const QJsonObject& paramsObject)
+{
+    auto adverse_id = paramsObject["user_id"].toString();
+    auto adverse_message = paramsObject["message"].toString();
+    auto time = paramsObject["time"].toString();
+    emit addFriend(paramsObject);
+}
+void Client::handle_resultOfAddFriend(const QJsonObject& paramsObject)
+{
+    if (paramsObject["result"].toBool())
+    {
+        emit agreeAddFriend(paramsObject);
+    }
+    else
+    {
+        emit rejectAddFriend(paramsObject);
+    }
 }

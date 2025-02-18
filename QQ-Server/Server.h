@@ -33,6 +33,7 @@ private:
 	void handle_searchGroup(const QJsonObject& paramsObject);
 	void handle_addFriend(const QJsonObject& paramsObject);
 	void handle_addGroup(const QJsonObject& paramsObject);
+	void handle_resultOfAddFriend(const QJsonObject& paramsObject);
 };
 
 #endif // !SERVER_H_

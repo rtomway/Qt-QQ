@@ -59,6 +59,7 @@ QTreeWidget QScrollBar:vertical {
     border: none;
     background-color: transparent;
     width: 8px;
+   
 }
 QTreeWidget QScrollBar::handle:vertical {
     border: none;

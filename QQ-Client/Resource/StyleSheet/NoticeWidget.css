@@ -1,0 +1,24 @@
+QListWidget{
+    outline:0px;
+    border:none;
+}
+QListWidget::item {
+    margin-top: 5px; /* 上间距 */
+    margin-bottom: 5px; /* 下间距 */
+}
+QLabel#titleLabel{
+    font-size: 22px;
+}
+QListWidget QWidget{
+    background-color:white;
+    border-radius:10px;
+}
+QListWidget QPushButton {
+    border: 1px solid rgb(230, 229, 229);
+    border-radius: 5px;
+    background-color: white;
+    height:30px;
+}
+QListWidget QPushButton:hover {
+    background-color: rgb(230, 229, 229);
+}
