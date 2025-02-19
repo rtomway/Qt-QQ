@@ -2,6 +2,7 @@
 #define ITEMWIDGET_H_
 
 #include <QWidget>
+#include <QJsonObject>
 
 namespace Ui { class ItemWidget; }
 class ItemWidget :public QWidget
@@ -13,8 +14,10 @@ public:
 	void init();
 private:
 	Ui::ItemWidget* ui{};
+	QJsonObject m_json{};
 public:
-	void setName(QString name);
+	void setUser(const QJsonObject& obj);
+	const QJsonObject& getUser();
 };
 
 #endif // !ITEMWIDGET_H_

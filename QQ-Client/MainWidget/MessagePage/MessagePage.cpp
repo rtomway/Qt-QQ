@@ -78,7 +78,7 @@ void MessagePage::init()
 			
 			QVariantMap messageMap;
 			messageMap["message"] = msg;
-			//messageMap["user_id"]= config->value("user_id");
+			messageMap["username"]= User::instance()->getUserName();
 			messageMap["user_id"] = User::instance()->getUserId();
 			messageMap["to"] = m_user_id;
 			qDebug()<< "当前用户id" << config->value("user_id");

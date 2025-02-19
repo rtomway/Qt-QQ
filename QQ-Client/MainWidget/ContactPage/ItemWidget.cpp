@@ -25,9 +25,19 @@ void ItemWidget::init()
 	ui->headLab->setPixmap(pixmap);
 }
 
-void ItemWidget::setName(QString name)
+void ItemWidget::setUser(const QJsonObject& obj)
 {
-	ui->nameLab->setText(name);
+	m_json = obj;
+	ui->nameLab->setText(m_json["username"].toString());
 }
+
+const QJsonObject& ItemWidget::getUser()
+{
+	return m_json;
+}
+
+
+
+
 
 

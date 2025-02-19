@@ -21,6 +21,9 @@ private:
 	QString m_userName{};
 	QString m_user_id{};
 	QPixmap m_userHead{};
+	bool m_isSend{};
+signals:
+	
 };
 
 

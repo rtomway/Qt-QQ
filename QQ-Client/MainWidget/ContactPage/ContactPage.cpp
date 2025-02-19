@@ -1,9 +1,11 @@
 #include "ContactPage.h"
+#include "ContactPage.h"
 #include "ui_ContactPage.h"
 #include "ImageUtil.h"
 #include <QFile>
 #include <QToolButton>
 #include "SMaskWidget.h"
+#include "User.h"
 
 
 ContactPage::ContactPage(QWidget* parent)
@@ -62,4 +64,15 @@ void ContactPage::init()
 			int y = (mainWidgetSize.height() - m_detailEditWidget->height()) / 2;
 			SMaskWidget::instance()->setPopGeometry(QRect(x,y,this->width(),this->height()));
 		});
+}
+
+void ContactPage::setUser(const QJsonObject& obj)
+{
+	if (User::instance()->getUserId() != obj["user_id"].toString())
+	{
+		ui->editdetailBtn->setVisible(false);
+	}
+	m_json = obj;
+	ui->nameLab->setText(obj["username"].toString());
+
 }

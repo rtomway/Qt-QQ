@@ -76,6 +76,11 @@ MainWidget::MainWidget(QWidget* parent)
 		{
 			addmessageListItem(obj);
 		});
+	//同意好友添加
+	connect(ContactList::instance(), &ContactList::agreeAddFriend, this, [=](const QJsonObject& obj)
+		{
+			addmessageListItem(obj);
+		});
 }
 
 MainWidget::~MainWidget()
@@ -153,7 +158,7 @@ void MainWidget::init()
 			m_messagePage->setUser(itemWidget->getUser());
 			//
 		});
-	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=]()
+	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& obj)
 		{
 			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
 			ui->rightWidget->setStyleSheet("background-color:white");

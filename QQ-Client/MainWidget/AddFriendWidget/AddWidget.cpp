@@ -57,16 +57,30 @@ void AddWidget::init()
 		m_grouping->addMenuItem(name);
 	}
 	ui->groupWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	//添加好友,发送信息
+	//好友添加界面
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
-			QVariantMap paramsObject;
-			paramsObject["user_id"] = User::instance()->getUserId();
-			paramsObject["username"] = User::instance()->getUserName();
-			paramsObject["to"] = m_user_id;
-			paramsObject["message"] = ui->messageEdit->text();
-			paramsObject["addFriend"] = "请求加为好友";
-			Client::instance()->sendMessage("addFriend", paramsObject);
+			if (m_isSend)//申请
+			{
+				QVariantMap paramsObject;
+				paramsObject["user_id"] = User::instance()->getUserId();
+				paramsObject["username"] = User::instance()->getUserName();
+				paramsObject["to"] = m_user_id;
+				paramsObject["message"] = ui->messageEdit->text();
+				paramsObject["addFriend"] = "请求加为好友";
+				Client::instance()->sendMessage("addFriend", paramsObject);
+			}
+			else  //添加
+			{
+				//用户信息
+				QJsonObject friendObject;
+				friendObject["username"] = m_userName;
+				friendObject["user_id"] = m_user_id;
+				friendObject["grouping"] = m_grouping->getLineEdit();
+				// 好友列表添加
+				ContactList::instance()->newlyFriendItem(friendObject);
+				
+			}
 			this->close();
 		});
 	connect(ui->cancelBtn, &QPushButton::clicked, [=]
@@ -82,4 +96,15 @@ void AddWidget::setUser(const QJsonObject& obj)
 	m_user_id = obj["user_id"].toString();
 	ui->nameLab->setText(m_userName);
 	ui->idLab->setText(m_user_id);
+	if (!obj["isSend"].toBool())
+	{
+		m_isSend = false;
+		ui->sendBtn->setText("确认");
+		ui->messageEdit->setVisible(false);
+		ui->messageLab->setVisible(false);
+	}
+	else
+	{
+		m_isSend = true; m_grouping->getLineEdit();
+	}
 }

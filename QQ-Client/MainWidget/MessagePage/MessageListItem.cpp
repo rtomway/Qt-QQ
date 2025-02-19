@@ -35,7 +35,7 @@ void MessageListItem::setUser(const QJsonObject& obj)
 	m_username = obj["username"].toString();
 	m_user_id = obj["user_id"].toString();
 	m_unReadMessage.append(obj["message"].toString());
-
+	qDebug() << "name" << m_username << m_user_id;
 	//信息更新到界面
 	updateItemWidget();
 }

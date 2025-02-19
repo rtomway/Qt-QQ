@@ -22,7 +22,7 @@ SearchItemWidget::~SearchItemWidget()
 
 void SearchItemWidget::init()
 {
-	connect(ui->pushButton, &QPushButton::clicked, [=]
+	connect(ui->addBtn, &QPushButton::clicked, [=]
 		{
 			QPointer<AddWidget>addWidget = new AddWidget();
 			addWidget->setUser(this->getUser());
@@ -36,7 +36,7 @@ void SearchItemWidget::setUser(const QJsonObject& obj)
 	m_user_id = obj["user_id"].toString();
 	ui->nameLab->setText(m_userName);
 	ui->idLab->setText(m_user_id);
-	ui->pushButton->setText("添加");
+	ui->addBtn->setText("添加");
 }
 
 QJsonObject SearchItemWidget::getUser()
@@ -44,6 +44,7 @@ QJsonObject SearchItemWidget::getUser()
 	QJsonObject obj;
 	obj["user_id"] = m_user_id;
 	obj["username"] = m_userName;
+	obj["isSend"] = true;
 	return obj;
 }
 
@@ -53,5 +54,5 @@ void SearchItemWidget::setGroup(const QJsonObject& obj)
 	m_groupName = obj["group_name"].toString();
 	ui->idLab->setText(m_group_id);
 	ui->nameLab->setText(m_groupName);
-	ui->pushButton->setText("加入");
+	ui->addBtn->setText("加入");
 }

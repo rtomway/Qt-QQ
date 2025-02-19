@@ -1,3 +1,4 @@
+#include "ContactList.h"
 #pragma once
 #include "ContactList.h"
 #include "ui_ContactList.h"
@@ -6,9 +7,12 @@
 #include <QBoxLayout>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QJsonObject>
 
 #include "ItemWidget.h"
 #include "Client.h"
+#include "FriendNoticeItemWidget.h"
+
 
 QStringList ContactList::m_fNamelist{};
 QStringList ContactList::m_gNamelist{};
@@ -65,7 +69,6 @@ void ContactList::init()
 	addFriendListItem(QString("我的好友"));
 	addFriendListItem(QString("家人"));
 
-	addFriendItem(getFriendTopItem(QString("我的好友")),QString("哈哈哈"));
 
 	addGroupListItem(QString("置顶群聊"));
 	addGroupListItem(QString("我创建的群聊"));
@@ -98,7 +101,9 @@ void ContactList::init()
 			}
 			else     //点击用户 弹出用户信息
 			{
-				emit clickedFriend();
+				auto itemWidget= qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
+				auto obj = itemWidget->getUser();
+				emit clickedFriend(obj);
 			}
 
 		});
@@ -111,11 +116,13 @@ void ContactList::init()
 					color:red;
 			)");
 		});
-	//好友添加成功
+	//申请添加好友成功 更新好友列表
 	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject&obj)
 		{
-
+			addFriendItem(getFriendTopItem(QString("我的好友")),obj);
 		});
+	//同意好友申请 更新好友列表
+	
 }
 
 QStringList ContactList::getfGrouping()
@@ -142,14 +149,14 @@ TopItemWidget* ContactList::addFriendListItem(QString friendName)
 	return topItemWidget;
 }
 
-void ContactList::addFriendItem(QTreeWidgetItem* firendList,QString friendName)
+void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& obj)
 {
 	auto friendItem = new QTreeWidgetItem(firendList);
 	friendItem->setSizeHint(0,QSize(m_friendList->width(),60));
 
 	//自定义Item
 	ItemWidget* itemWidget =new ItemWidget(this);
-	itemWidget->setName(friendName);
+	itemWidget->setUser(obj);
 	m_friendList->setItemWidget(friendItem, 0, itemWidget);
 
 	//通过itemwidget找到自定义的小部件
@@ -198,6 +205,14 @@ void ContactList::addGroupItem(QTreeWidgetItem* groupListItem, QString groupName
 QTreeWidgetItem* ContactList::getGroupTopItem(QString groupName)
 {
 	return nullptr;
+}
+
+void ContactList::newlyFriendItem(const QJsonObject& obj)
+{
+	auto grouping= getFriendTopItem(obj["grouping"].toString());
+	addFriendItem(grouping, obj);
+	//消息框添加
+	emit agreeAddFriend(obj);
 }
 
 bool ContactList::eventFilter(QObject* obj, QEvent* event)

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "ContactDetailWidget.h"
+#include <QJsonObject>
 
 
 namespace Ui { class ContactPage; }
@@ -20,6 +21,9 @@ private:
 	int m_likeCount{0};
 	QString m_name;
 	ContactDetailWidget* m_detailEditWidget{};
+	QJsonObject m_json{};
+public:
+	void setUser(const QJsonObject&obj);
 };
 
 

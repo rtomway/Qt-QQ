@@ -37,18 +37,20 @@ public:
 	static QStringList getgGrouping();
 public:
 	TopItemWidget* addFriendListItem(QString friendName);
-	void addFriendItem(QTreeWidgetItem*firendList,QString friendName);
+	void addFriendItem(QTreeWidgetItem*firendList,const QJsonObject&obj);
 	QTreeWidgetItem* getFriendTopItem(QString friendName);
 
 	TopItemWidget* addGroupListItem(QString groupName);
 	void addGroupItem(QTreeWidgetItem* groupList, QString groupName);
 	QTreeWidgetItem* getGroupTopItem(QString groupName);
+	void newlyFriendItem(const QJsonObject& obj);
 protected:
 	bool eventFilter(QObject* obj, QEvent* event) override;
 signals:
-	void clickedFriend();
+	void clickedFriend(const QJsonObject&obj);
 	void friendNotice();
 	void groupNotice();
+	void agreeAddFriend(const QJsonObject& obj);
 };
 
 #endif // !CONTACTLIST_H_

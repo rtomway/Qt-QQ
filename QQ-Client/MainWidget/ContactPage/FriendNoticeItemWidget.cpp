@@ -4,6 +4,8 @@
 #include <QJsonObject>
 #include "User.h"
 #include "Client.h"
+#include <memory>
+
 
 FriendNoticeItemWidget::FriendNoticeItemWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -20,6 +22,7 @@ void FriendNoticeItemWidget::init()
 	//好友申请是否同意
 	connect(ui->okBtn, &QPushButton::clicked, [=]
 		{
+			//回复对方同意申请
 			QVariantMap paramsObject;
 			paramsObject["user_id"] = User::instance()->getUserId();
 			paramsObject["username"] = User::instance()->getUserName();
@@ -27,10 +30,21 @@ void FriendNoticeItemWidget::init()
 			paramsObject["addFriend"] = "加为好友";
 			paramsObject["result"] = true;
 			Client::instance()->sendMessage("resultOfAddFriend", paramsObject);
-
+			//更新申请界面
 			ui->cancelBtn->setVisible(false);
 			ui->okBtn->setText("已同意");
 			ui->okBtn->setEnabled(false);
+			//发送新增好友信号
+			QJsonObject friendObj;
+			friendObj["username"] = m_userName;
+			friendObj["user_id"] = m_user_id;
+			friendObj["isSend"] = false;
+			m_addWidget = std::make_unique<AddWidget>(); // 使用智能指针
+			m_addWidget->setUser(friendObj);
+			m_addWidget->show();
+			
+			//emit newlyFriend(friendObj);
+			
 		});
 	connect(ui->cancelBtn, &QPushButton::clicked, [=]
 		{
