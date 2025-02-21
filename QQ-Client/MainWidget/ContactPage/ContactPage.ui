@@ -122,7 +122,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label">
+                <widget class="QLabel" name="idLab">
                  <property name="text">
                   <string>2841544011</string>
                  </property>
@@ -244,6 +244,12 @@
          </property>
          <item>
           <widget class="QPushButton" name="genderBtn">
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="text">
             <string>PushButton</string>
            </property>

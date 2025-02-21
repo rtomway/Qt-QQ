@@ -34,6 +34,7 @@ void Server::initRequestHash()
 	requestHash["addFriend"] = &Server::handle_addFriend;
 	requestHash["addGroup"] = &Server::handle_addGroup; 
 	requestHash["resultOfAddFriend"] = &Server::handle_resultOfAddFriend;
+	requestHash["queryUserDetail"] = &Server::handle_queryUserDetail;
 }
 
 //通信连接
@@ -121,8 +122,8 @@ void Server::handle_login(const QJsonObject& paramsObject)
 				qDebug() << query.record().fieldName(i);
 				qDebug() << query.value(i).toString();
 			}
-			qDebug() << "password:" << query.value(5).toString();
-			if (password == query.value(6).toString())
+			qDebug() << "password:" << query.value(6).toString();
+			if (password == query.value(7).toString())
 			{
 				qDebug() << "登陆成功";
 				QJsonObject jsonData;
@@ -290,4 +291,42 @@ void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject)
 	QJsonDocument doc(jsondate);
 	QString data = QString(doc.toJson(QJsonDocument::Compact));
 	client->sendTextMessage(data);
+}
+
+void Server::handle_queryUserDetail(const QJsonObject& paramsObject)
+{
+	//客户端
+	auto user_id = paramsObject["user_id"].toString();
+	auto client = m_clients[user_id]; qDebug() << "&&&&&&&&&" << paramsObject;
+	//查询用户信息
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+	auto query_id = paramsObject["query_id"].toString();
+	query.prepare("select * from user where user_id=?");
+	query.addBindValue(query_id);
+	qDebug() << "-------------" << query.exec();
+	if (query.exec())
+	{
+		QJsonObject obj;
+		while (query.next())
+		{	
+			for (size_t i = 0; i < 8; i++)
+			{
+				qDebug()<< query.value(i).toString();
+			}
+			obj["user_id"] = query.value(1).toString();
+			obj["username"] = query.value(2).toString();
+			obj["gender"] = query.value(3).toBool();
+			obj["age"] = query.value(4).toInt();
+			obj["phone_number"] = query.value(5).toString();
+			obj["email"] = query.value(6).toString();
+			obj["avatar"] = query.value(8).toString();
+		}
+		client->sendTextMessage(SResult::success(obj));
+	}
+	else
+	{
+		qDebug() << query.lastError();
+	}
+
 }

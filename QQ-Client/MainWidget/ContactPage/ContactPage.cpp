@@ -1,5 +1,4 @@
 #include "ContactPage.h"
-#include "ContactPage.h"
 #include "ui_ContactPage.h"
 #include "ImageUtil.h"
 #include <QFile>
@@ -68,11 +67,25 @@ void ContactPage::init()
 
 void ContactPage::setUser(const QJsonObject& obj)
 {
-	if (User::instance()->getUserId() != obj["user_id"].toString())
+	m_json = obj;
+	if (User::instance()->getUserId() != m_json["user_id"].toString())
 	{
 		ui->editdetailBtn->setVisible(false);
 	}
-	m_json = obj;
-	ui->nameLab->setText(obj["username"].toString());
+	if (m_json["birthday"].toString().isEmpty())
+	{
+		ui->line_3->setVisible(false);
+		ui->birthdayLab->setVisible(false);
+	}
+	if (m_json["resident"].toString().isEmpty())
+	{
+		ui->line_4->setVisible(false);
+		ui->label_2->setVisible(false);
+		ui->residentLab->setVisible(false);
+	}
+	ui->nameLab->setText(m_json["username"].toString());
+	ui->idLab->setText(m_json["user_id"].toString());
+	ui->genderBtn->setText(m_json["gender"].toBool() ? "男" : "女");
+	ui->ageLab->setText(QString::number(m_json["age"].toInt()) + "岁");
 
 }

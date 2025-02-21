@@ -9,6 +9,8 @@
 #include <QMouseEvent>
 #include <memory>
 #include <QPointer>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "User.h"
 #include "ImageUtil.h"
@@ -170,8 +172,32 @@ void MainWidget::init()
 	//点击好友查看好友信息
 	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& obj)
 		{
+			//查询用户各项信息
+			QVariantMap queryUser;
+			queryUser["user_id"] = User::instance()->getUserId();
+			queryUser["query_id"] = obj["user_id"].toString();
+
+			Client::instance()->sendMessage("queryUserDetail", queryUser)
+				->ReciveMessage([=](const QString& message)
+					{
+						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
+						if (doc.isObject())
+						{
+							auto obj = doc.object();
+							auto data = obj["data"].toObject();
+							if (obj["code"].toInt() == 0)//查询成功 将用户信息加载至界面
+							{
+								m_contactPage->setUser(data);
+							}
+							else
+							{
+								qDebug() << obj["message"].toString();
+							}
+						}
+					});
 			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
 			ui->rightWidget->setStyleSheet("background-color:white");
+			
 		});
 	//点击通知 进入通知界面
 	connect(ContactList::instance(), &ContactList::friendNotice, this, [=]
@@ -182,7 +208,6 @@ void MainWidget::init()
 		{
 			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
 		});
-
 
 	ui->hideBtn->setIcon(QIcon(":/icon/Resource/Icon/hide.png"));
 	ui->expandBtn->setIcon(QIcon(":/icon/Resource/Icon/expand.png"));

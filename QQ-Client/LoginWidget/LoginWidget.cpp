@@ -82,10 +82,6 @@ void LoginWidget::init()
 	m_account->setPlaceholderText("输入QQ账号");
 	m_account->setEditPosition(Qt::AlignCenter);
 	m_account->setclearBtn();
-	/*m_account->setComboBox();
-	m_account->addMenuItem("1");
-	m_account->addMenuItem("2");
-	m_account->addMenuItem("3");*/
 	m_password->setPlaceholderText("输入QQ密码");
 	m_password->setEchoMode();
 	m_password->setEditPosition(Qt::AlignCenter);

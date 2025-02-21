@@ -1,4 +1,3 @@
-#include "ContactList.h"
 #pragma once
 #include "ContactList.h"
 #include "ui_ContactList.h"
@@ -69,7 +68,6 @@ void ContactList::init()
 	addFriendListItem(QString("我的好友"));
 	addFriendListItem(QString("家人"));
 
-
 	addGroupListItem(QString("置顶群聊"));
 	addGroupListItem(QString("我创建的群聊"));
 	addGroupListItem(QString("我管理的群聊"));
@@ -124,17 +122,17 @@ void ContactList::init()
 	//同意好友申请 更新好友列表
 	
 }
-
+//获取分组
 QStringList ContactList::getfGrouping()
 {
 	return m_fNamelist;
 }
-
 QStringList ContactList::getgGrouping()
 {
 	return m_gNamelist;
 }
 
+//添加分组item
 TopItemWidget* ContactList::addFriendListItem(QString friendName)
 {
 	auto friendListItem = new QTreeWidgetItem(m_friendList);
@@ -148,7 +146,7 @@ TopItemWidget* ContactList::addFriendListItem(QString friendName)
 	m_friendList->setItemWidget(friendListItem,0,topItemWidget);
 	return topItemWidget;
 }
-
+//添加子item
 void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& obj)
 {
 	auto friendItem = new QTreeWidgetItem(firendList);
@@ -163,7 +161,7 @@ void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& 
 	auto topItemWidget= qobject_cast<TopItemWidget*>(m_friendList->itemWidget(firendList, 0));
 	topItemWidget->setCount(firendList->childCount());
 }
-
+//获取分组item
 QTreeWidgetItem* ContactList::getFriendTopItem(QString friendName)
 {
 	int id = 0;
@@ -206,15 +204,15 @@ QTreeWidgetItem* ContactList::getGroupTopItem(QString groupName)
 {
 	return nullptr;
 }
-
+//新增好友
 void ContactList::newlyFriendItem(const QJsonObject& obj)
 {
 	auto grouping= getFriendTopItem(obj["grouping"].toString());
 	addFriendItem(grouping, obj);
-	//消息框添加
+	//消息项添加
 	emit agreeAddFriend(obj);
 }
-
+//事件重写
 bool ContactList::eventFilter(QObject* obj, QEvent* event)
 {
 	// 监听子窗口的鼠标点击事件

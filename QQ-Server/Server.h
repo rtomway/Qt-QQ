@@ -34,6 +34,7 @@ private:
 	void handle_addFriend(const QJsonObject& paramsObject);
 	void handle_addGroup(const QJsonObject& paramsObject);
 	void handle_resultOfAddFriend(const QJsonObject& paramsObject);
+	void handle_queryUserDetail(const QJsonObject& paramsObject);
 };
 
 #endif // !SERVER_H_
