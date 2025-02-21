@@ -5,9 +5,17 @@
 
 <img src="ResultPicture/login.png" alt="Example Image" width="400" height="700">
 
+通信界面
+
+<img src="ResultPicture/communication.png" alt="Example Image" width="400" height="700">
+
 搜索添加界面
 
 <img src="ResultPicture/add.png" alt="Example Image" width="700" height="500">
+
+通知界面
+
+<img src="ResultPicture/notice.png" alt="Example Image" width="700" height="500">
 
 好友界面
 
