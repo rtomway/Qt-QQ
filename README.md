@@ -7,7 +7,7 @@
 
 通信界面
 
-<img src="ResultPicture/communication.png" alt="Example Image" width="400" height="700">
+<img src="ResultPicture/communication.png" alt="Example Image" width="700" height="500">
 
 搜索添加界面
 
