@@ -277,7 +277,6 @@ void Server::handle_addGroup(const QJsonObject& paramsObject)
 {
 
 }
-
 //拒绝添加
 void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject)
 {

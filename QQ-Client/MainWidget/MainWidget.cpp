@@ -10,7 +10,7 @@
 #include <memory>
 #include <QPointer>
 
-
+#include "User.h"
 #include "ImageUtil.h"
 #include "SMaskWidget.h"
 #include "Client.h"
@@ -51,34 +51,45 @@ MainWidget::MainWidget(QWidget* parent)
 	connect(Client::instance(), &Client::communication, this, [=](const QJsonObject& obj)
 		{
 			qDebug() << "接受消息";
-			auto user_id = obj["user_id"].toString();
-			auto item= findListItem(user_id);
+			auto m_user_id = User::instance()->getUserId();
+			auto friend_id = obj["user_id"].toString();
+			auto message = obj["message"].toString();
+			auto item= findListItem(friend_id);
+			//接收信息加入聊天记录
+			m_messagePage->updateChatMessage(friend_id, m_user_id, message);
 			if (item)
 			{
-				//判断当下是否是该user_id会话界面
-				if (m_messagePage->getCurrentID() == user_id)
-				{
-					auto message = obj["message"].toString();
-					m_messagePage->updateReciveMessage(message);
-				}
 				//有消息项 追加消息内容
 				auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
+
+				//判断当下是否是该user_id会话界面
+				if (m_messagePage->getCurrentID() == friend_id)
+				{
+					m_messagePage->updateReciveMessage(message);
+					itemWidget->updateUnreadMessage();
+				}
 				itemWidget->setUser(obj);
 			}
 			else
 			{
 				//没有消息项创建一个
-				addmessageListItem(obj);
+				auto item= addmessageListItem(obj);
+				auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
+				itemWidget->setUser(obj);
 			}
 		});
 	//好友添加成功
 	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject& obj)
 		{
+			//新增好友聊天记录并添加消息项
+			m_messagePage->setUser(obj);
 			addmessageListItem(obj);
 		});
 	//同意好友添加
 	connect(ContactList::instance(), &ContactList::agreeAddFriend, this, [=](const QJsonObject& obj)
 		{
+			//新增好友聊天记录并添加消息项
+			m_messagePage->setUser(obj);
 			addmessageListItem(obj);
 		});
 }
@@ -127,10 +138,6 @@ void MainWidget::init()
 				ui->listStackedWidget->setCurrentWidget(ContactList::instance());
 				ui->messageStackedWidget->setCurrentWidget(m_emptyWidget);
 				break;
-			case -4:
-				break;
-			case -5:
-				break;
 			default:
 				break;
 			}
@@ -141,8 +148,6 @@ void MainWidget::init()
 	ui->listStackedWidget->addWidget(ContactList::instance());
 	ui->listStackedWidget->setCurrentWidget(m_messageList);
 	m_messageList->setObjectName("MessageList");
-	//for (int i = 0; i < 10; i++)
-	//	addmessageListItem();
 
 	//右边界面
 	ui->messageStackedWidget->addWidget(m_messagePage);
@@ -152,17 +157,23 @@ void MainWidget::init()
 	//点击用户消息项 进入会话界面（加载用户信息）
 	connect(m_messageList, &QListWidget::itemClicked,this,[=](QListWidgetItem*item)
 		{
+			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
+			//已经处于当前用户会话界面
+			if (m_messagePage->getCurrentID() == itemWidget->getId())
+				return;
 			ui->messageStackedWidget->setCurrentWidget(m_messagePage);
-			//将用户信息加载到会话界面
-			auto itemWidget =qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
-			m_messagePage->setUser(itemWidget->getUser());
-			//
+			//清空界面
+			m_messagePage->clearMessageWidget();
+			//将当前用户信息以及聊天记录加载到会话界面
+			m_messagePage->setCurrentUser(itemWidget->getUser());
 		});
+	//点击好友查看好友信息
 	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& obj)
 		{
 			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
 			ui->rightWidget->setStyleSheet("background-color:white");
 		});
+	//点击通知 进入通知界面
 	connect(ContactList::instance(), &ContactList::friendNotice, this, [=]
 		{
 			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
@@ -171,6 +182,7 @@ void MainWidget::init()
 		{
 			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
 		});
+
 
 	ui->hideBtn->setIcon(QIcon(":/icon/Resource/Icon/hide.png"));
 	ui->expandBtn->setIcon(QIcon(":/icon/Resource/Icon/expand.png"));
@@ -268,7 +280,7 @@ void MainWidget::additemCenter(const QString& src)
 }
 
 //创建消息通知项并设置标识id
-void MainWidget::addmessageListItem(const QJsonObject& obj)
+QListWidgetItem* MainWidget::addmessageListItem(const QJsonObject& obj)
 {
 	//为item设置用户id
 	auto item = new QListWidgetItem(m_messageList);
@@ -280,6 +292,8 @@ void MainWidget::addmessageListItem(const QJsonObject& obj)
 	itemWidget->setUser(obj);
 	//关联item和widget
 	m_messageList->setItemWidget(item, itemWidget);
+
+	return item;
 
 }
 

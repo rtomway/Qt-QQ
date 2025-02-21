@@ -1,3 +1,4 @@
+#include "MessageListItem.h"
 #pragma once
 #include "MessageListItem.h"
 #include "ui_MessageListItem.h"
@@ -68,5 +69,10 @@ void MessageListItem::updateItemWidget()
 	auto newMessage = m_unReadMessage.last();
 	ui->messageLab->setText(newMessage);
 	ui->countLab->setText(QString::number(m_unReadMessage.count()));
+}
+
+void MessageListItem::updateUnreadMessage()
+{
+	m_unReadMessage.clear();
 }
 

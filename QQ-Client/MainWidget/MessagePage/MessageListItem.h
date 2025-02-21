@@ -15,6 +15,7 @@ public:
 	void setUser(const QJsonObject&obj);
 	QJsonObject getUser();
 	QString getId();
+	void updateUnreadMessage();
 private:
 	void updateItemWidget();
 private:

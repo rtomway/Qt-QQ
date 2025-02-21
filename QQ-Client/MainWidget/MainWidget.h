@@ -40,7 +40,7 @@ private:
 	QWidget* m_emptyWidget{};
 public:
 	void additemCenter(const QString& src);
-	void addmessageListItem(const QJsonObject& obj);
+	QListWidgetItem* addmessageListItem(const QJsonObject& obj);
 	QListWidgetItem* findListItem(const QString&user_id);
 signals:
 	void quitsuccess();
