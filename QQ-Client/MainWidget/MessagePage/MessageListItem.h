@@ -18,6 +18,7 @@ public:
 	void updateUnreadMessage();
 private:
 	void updateItemWidget();
+	QString covertToChinese(const QString& date);
 private:
 	QWidget* m_leftWidget{};
 	QWidget* m_messageAttention{};

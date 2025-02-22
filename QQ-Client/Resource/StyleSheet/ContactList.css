@@ -34,9 +34,20 @@ QLabel{
 QLabel:hover {
     background-color: rgb(240,240,240);
 }
-
+QLabel#friendNoticeCountLab {
+    border: none;
+    border-radius: 9px;
+    color: white;
+    background-color: red;
+}
+QLabel#groupNoticeCountLab {
+    border: none;
+    border-radius: 9px;
+    color: white;
+    background-color: red;
+}
 /*QTreeWidget*/
-QTreeWidget{
+QTreeWidget {
     outline: none;
     border: none;
     font: 15px;

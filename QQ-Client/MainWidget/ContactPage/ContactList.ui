@@ -120,7 +120,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="groubNoticeCountLab">
+       <widget class="QLabel" name="groupNoticeCountLab">
         <property name="text">
          <string/>
         </property>

@@ -78,6 +78,13 @@ void ContactList::init()
 	m_buttonGroup.setExclusive(true);
 	m_buttonGroup.button(-2)->setChecked(true);
 
+	ui->friendNoticeCountLab->setFixedSize(18, 18);
+	ui->groupNoticeCountLab->setFixedSize(18, 18);
+	ui->friendNoticeCountLab->setVisible(false);
+	ui->groupNoticeCountLab->setVisible(false);
+	ui->friendNoticeCountLab->setAlignment(Qt::AlignCenter);
+	ui->groupNoticeCountLab->setAlignment(Qt::AlignCenter);
+
 	//列表切换
 	connect(&m_buttonGroup,&QButtonGroup::idClicked,this,[=](int id)
 	{
@@ -109,10 +116,8 @@ void ContactList::init()
 	connect(Client::instance(), &Client::addFriend, this, [=]
 		{
 			m_fNoticeUnreadCount++;
+			ui->friendNoticeCountLab->setVisible(true);
 			ui->friendNoticeCountLab->setText(QString::number(m_fNoticeUnreadCount));
-			ui->friendNoticeCountLab->setStyleSheet(R"(		
-					color:red;
-			)");
 		});
 	//申请添加好友成功 更新好友列表
 	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject&obj)
@@ -221,11 +226,8 @@ bool ContactList::eventFilter(QObject* obj, QEvent* event)
 		//点击好友申请通知 清空未读
 		emit friendNotice();
 		m_fNoticeUnreadCount = 0;
-		/*ui->friendNoticeCountLab->setStyleSheet(R"(
-					QLabel{background-color:white;}
-					QLabel:hover{background-color:rgb(240,240,240);}
-			)");*/
 		ui->friendNoticeCountLab->clear();
+		ui->friendNoticeCountLab->setVisible(false);
 		return true; // 事件已处理，不再继续传递
 	}
 	 if (obj == ui->gInformWidget && event->type() == QEvent::MouseButtonPress)
@@ -234,6 +236,8 @@ bool ContactList::eventFilter(QObject* obj, QEvent* event)
 		//点击群聊申请通知 清空未读
 		emit groupNotice();
 		m_gNoticeUnreadCount = 0;
+		ui->groupNoticeCountLab->clear();
+		ui->groupNoticeCountLab->setVisible(false);
 		return true; // 事件已处理，不再继续传递
 	}
 	return false; // 传递给基类处理其他事件

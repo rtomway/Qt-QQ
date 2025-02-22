@@ -1,5 +1,3 @@
-#include "MessagePage.h"
-#include "MessagePage.h"
 #pragma once
 #include "MessagePage.h"
 #include "ui_MessagePage.h"
@@ -121,12 +119,12 @@ void MessagePage::setUser(const QJsonObject& obj)
 	m_friend_id = obj["user_id"].toString();
 	m_chats.insert(m_friend_id, ChatMessage(User::instance()->getUserId(), m_friend_id));
 }
-
+//获取当前会话id
 QString MessagePage::getCurrentID()
 {
 	return m_currentID;
 }
-
+//更新会话界面信息
 void MessagePage::updateMessageWidget()
 {
 	ui->nameLab->setText(m_friend_username);

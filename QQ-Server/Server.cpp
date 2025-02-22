@@ -292,7 +292,7 @@ void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject)
 	QString data = QString(doc.toJson(QJsonDocument::Compact));
 	client->sendTextMessage(data);
 }
-
+//查询用户信息
 void Server::handle_queryUserDetail(const QJsonObject& paramsObject)
 {
 	//客户端

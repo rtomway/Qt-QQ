@@ -63,14 +63,14 @@ MainWidget::MainWidget(QWidget* parent)
 			{
 				//有消息项 追加消息内容
 				auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
-
+				itemWidget->setUser(obj);
 				//判断当下是否是该user_id会话界面
 				if (m_messagePage->getCurrentID() == friend_id)
 				{
 					m_messagePage->updateReciveMessage(message);
 					itemWidget->updateUnreadMessage();
 				}
-				itemWidget->setUser(obj);
+				
 			}
 			else
 			{
@@ -160,6 +160,7 @@ void MainWidget::init()
 	connect(m_messageList, &QListWidget::itemClicked,this,[=](QListWidgetItem*item)
 		{
 			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
+			itemWidget->updateUnreadMessage();
 			//已经处于当前用户会话界面
 			if (m_messagePage->getCurrentID() == itemWidget->getId())
 				return;

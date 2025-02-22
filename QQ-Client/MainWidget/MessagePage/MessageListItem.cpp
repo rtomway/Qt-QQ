@@ -1,4 +1,5 @@
 #include "MessageListItem.h"
+#include "MessageListItem.h"
 #pragma once
 #include "MessageListItem.h"
 #include "ui_MessageListItem.h"
@@ -15,7 +16,14 @@ MessageListItem::MessageListItem(QWidget* parent)
 {
 	ui->setupUi(this);
 	init();
-	
+	ui->countLab->setFixedSize(18,18);
+	ui->countLab->setStyleSheet(R"(
+				border:none;
+				border-radius:9px;
+				color:white;
+				background-color:red;
+			)");
+	ui->countLab->setAlignment(Qt::AlignCenter);
 }
 
 void MessageListItem::init()
@@ -35,7 +43,11 @@ void MessageListItem::setUser(const QJsonObject& obj)
 {
 	m_username = obj["username"].toString();
 	m_user_id = obj["user_id"].toString();
-	m_unReadMessage.append(obj["message"].toString());
+
+	if (obj.contains("message")&&!obj["message"].isNull()&&obj["message"].isString())
+	{
+		m_unReadMessage.append(obj["message"].toString());
+	}
 	qDebug() << "name" << m_username << m_user_id;
 	//信息更新到界面
 	updateItemWidget();
@@ -66,13 +78,39 @@ QString MessageListItem::getId()
 void MessageListItem::updateItemWidget()
 {
 	ui->usernameLab->setText(m_username);
-	auto newMessage = m_unReadMessage.last();
-	ui->messageLab->setText(newMessage);
-	ui->countLab->setText(QString::number(m_unReadMessage.count()));
+	if (m_unReadMessage.count())
+	{
+		ui->countLab->setVisible(true);
+		ui->countLab->setText(QString::number(m_unReadMessage.count()));
+		ui->countLab->adjustSize();
+		auto newMessage = m_unReadMessage.last();
+		ui->messageLab->setText(newMessage);
+		ui->timeLab->setText(covertToChinese(QDateTime::currentDateTime().toString()));
+	}
+	else
+	{
+		ui->countLab->setVisible(false);
+	}
+}
+
+QString MessageListItem::covertToChinese(const QString& date)	
+{
+	// 英文日期字符串转换为 QDateTime 对象
+	QDateTime dateTime = QDateTime::fromString(date, "ddd MMM dd hh:mm:ss yyyy");
+	if (dateTime.isValid())
+	{
+		qDebug() << dateTime;
+	}
+	// 设置本地化为中文
+	QLocale locale(QLocale::Chinese);
+	qDebug() <<"时间" << locale.toString(dateTime, "yyyy年MM月dd日 hh:mm");
+	// 转换为中文格式，并控制到分钟
+	return locale.toString(dateTime, "M月dd日 hh:mm");
 }
 
 void MessageListItem::updateUnreadMessage()
 {
 	m_unReadMessage.clear();
+	updateItemWidget();
 }
 

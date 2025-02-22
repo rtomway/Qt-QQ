@@ -33,14 +33,14 @@
       <item>
        <widget class="QLabel" name="usernameLab">
         <property name="text">
-         <string>aaaaaaa</string>
+         <string/>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="messageLab">
         <property name="text">
-         <string>bbbbbb</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -72,6 +72,12 @@
       </item>
       <item>
        <widget class="QLabel" name="countLab">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
          <string>24</string>
         </property>
