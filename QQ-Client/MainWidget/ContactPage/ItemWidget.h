@@ -17,6 +17,7 @@ private:
 	QJsonObject m_json{};
 public:
 	void setUser(const QJsonObject& obj);
+	void setGrouping(const QString& grouping);
 	const QJsonObject& getUser();
 };
 

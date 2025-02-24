@@ -18,6 +18,7 @@ protected:
 	void onDisConnection();
 	void onTextMessageReceived(const QString& data);
 	QString findUserName(QWebSocket* client);
+	QString generateUserID();
 private:
 	QWebSocketServer* m_server{};
 	//客户端
@@ -28,6 +29,7 @@ private:
 	//各种消息处理函数
 	void handle_login(const QJsonObject& paramsObject);
 	void handle_register(const QJsonObject& paramsObject);
+	QString getRandomID(int length);
 	void handle_communication(const QJsonObject& paramsObject);
 	void handle_searchUser(const QJsonObject& paramsObject);
 	void handle_searchGroup(const QJsonObject& paramsObject);

@@ -1,4 +1,5 @@
 #include "TopItemWidget.h"
+#include "TopItemWidget.h"
 #include <QCoreApplication>
 #include <QMouseEvent>
 
@@ -31,14 +32,19 @@ void TopItemWidget::init()
 	//m_headLab->setStyleSheet(QString("QLabel:hover{background-color:white;}"));
 }
 
-void TopItemWidget::setCount(int x)
+void TopItemWidget::setCount(const int& x)
 {
 	m_countLab->setText(QString::number(x));
 }
 
-void TopItemWidget::setName(QString name)
+void TopItemWidget::setName(const QString& name)
 {
 	m_nameLab->setText(name);
+}
+
+QString TopItemWidget::getName()const
+{
+	return m_nameLab->text();
 }
 
 void TopItemWidget::setItem(QTreeWidgetItem* item)

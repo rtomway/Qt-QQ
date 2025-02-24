@@ -171,12 +171,12 @@ void MainWidget::init()
 			m_messagePage->setCurrentUser(itemWidget->getUser());
 		});
 	//点击好友查看好友信息
-	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& obj)
+	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& object)
 		{
 			//查询用户各项信息
 			QVariantMap queryUser;
 			queryUser["user_id"] = User::instance()->getUserId();
-			queryUser["query_id"] = obj["user_id"].toString();
+			queryUser["query_id"] = object["user_id"].toString();
 
 			Client::instance()->sendMessage("queryUserDetail", queryUser)
 				->ReciveMessage([=](const QString& message)
@@ -186,6 +186,7 @@ void MainWidget::init()
 						{
 							auto obj = doc.object();
 							auto data = obj["data"].toObject();
+							data["grouping"] = object["grouping"];
 							if (obj["code"].toInt() == 0)//查询成功 将用户信息加载至界面
 							{
 								m_contactPage->setUser(data);

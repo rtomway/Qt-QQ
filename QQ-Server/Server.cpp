@@ -3,6 +3,7 @@
 #include <QJsonObject>
 #include "SSqlConnectionPool.h"
 #include "SResultCode.h"
+#include <QRandomGenerator>
 
 Server::Server(QObject*parent)
 	:QObject(parent)
@@ -67,9 +68,19 @@ void Server::onTextMessageReceived(const QString& data)
 	if (doc.isObject())
 	{
 		QJsonObject obj = doc.object();
+		QString client_id;
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
-		auto client_id = paramsObject["user_id"].toString();
+		if (paramsObject["user_id"].toString().isEmpty())
+		{
+			//注册时没有user_id服务器产生
+			client_id = generateUserID();
+			paramsObject["user_id"] = client_id;
+		}
+		else
+		{
+			 client_id = paramsObject["user_id"].toString();
+		}
 		m_clients[client_id] = dynamic_cast<QWebSocket*>(sender());
 		qDebug() << "客户端发来消息:" << m_clients[client_id]<<"type:"<<type<< requestHash.contains(type);
 		//根据类型给处理函数处理
@@ -96,6 +107,46 @@ QString Server::findUserName(QWebSocket* client)
 		}
 	}
 	return QString("user not exist!");
+}
+
+QString Server::getRandomID(int length)
+{
+	QString user_id;
+	QRandomGenerator randomID;
+	while (user_id.size() < length)
+	{
+		int ram = randomID.bounded(0, 9);
+		user_id.append(QString::number(ram));
+	}
+	qDebug() << "RandomID:" << user_id;
+	return user_id;
+}
+QString Server::generateUserID()
+{
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+	QString user_id;
+	//auto username = paramsObject["username"].toString();
+	//auto password = paramsObject["password"].toString();
+	//注册唯一id
+	while (true) {
+		//服务器随机生成10位数用户id
+		user_id = getRandomID(10);
+		//先查询生成id是否已存在
+		query.prepare("select user_id from user where user_id=? ");
+		query.addBindValue(user_id);
+		if (!query.exec())
+		{
+			qDebug() << query.lastError();
+			return nullptr;
+		}
+		//未找到，id唯一跳出
+		if (!query.next())
+		{
+			break;
+		}
+	}
+	return user_id;
 }
 
 //消息请求处理函数
@@ -146,8 +197,25 @@ void Server::handle_login(const QJsonObject& paramsObject)
 //注册
 void Server::handle_register(const QJsonObject& paramsObject)
 {
-	auto user_id = paramsObject["user_id"].toString();
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+	QString user_id = paramsObject["user_id"].toString();
+	auto client = m_clients[user_id];
+	QString username = paramsObject["username"].toString();
+	QString password = paramsObject["password"].toString();
+	query.prepare("insert into user (user_id,username,password)values(?,?,?)");
+	query.addBindValue(user_id);
+	query.addBindValue(username);
+	query.addBindValue(password);
+	if (!query.exec())
+	{
+		qDebug() << query.lastError();
+		return;
+	}
+	//注册成功后返回该用户账号与密码
+	client->sendTextMessage(SResult::success(paramsObject));
 }
+
 //通信转发
 void Server::handle_communication(const QJsonObject& paramsObject)
 {

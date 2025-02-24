@@ -6,7 +6,7 @@
 #include <QPalette>
 #include <QSpacerItem>
 #include <QMenu>
-#include "RegisterPage.h"
+
 #include "ImageUtil.h"
 #include "RoundLabel.h"
 #include <QPainter>
@@ -20,6 +20,7 @@
 #include "User.h"
 #include <memory>
 #include <QPointer>
+#include "RegisterPage.h"
 
 LoginWidget::LoginWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -131,15 +132,20 @@ void LoginWidget::init()
 	auto moreMenu = new QMenu(this);
 	moreMenu->addAction("注册账号", this, [=]
 		{
-			//auto registerPage = new RegisterPage;
-			QPointer<RegisterPage>registerPage = new RegisterPage;
-			registerPage->show();
-			registerPage->close();
-			connect(registerPage, &RegisterPage::destroyed, [registerPage]() {
-				qDebug() << "窗口已销毁";
-				});
-			connect(registerPage, &QObject::destroyed, []() {
-				qDebug() << "对象被销毁";  // 确认对象是否销毁
+			//QPointer<RegisterPage>registerPage = new RegisterPage;
+			m_registerPage = std::make_unique<RegisterPage>();
+			m_registerPage->show();
+			//registerPage->close();
+			//connect(registerPage, &RegisterPage::destroyed, [registerPage]() {
+			//	qDebug() << "窗口已销毁";
+			//	});
+			//connect(registerPage, &QObject::destroyed, []() {
+			//	qDebug() << "对象被销毁";  // 确认对象是否销毁
+			//	});
+			connect(m_registerPage.get(), &RegisterPage::registerSuccess, this, [=](const QJsonObject& obj)
+				{
+					m_account->setText(obj["user_id"].toString());
+					m_password->setText(obj["password"].toString());
 				});
 		});
 	
@@ -166,6 +172,7 @@ void LoginWidget::init()
 		m_account->setText(config->value("user_id").toString());
 		m_password->setText(config->value("password").toString());
 	}
+	
 	//登录
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{

@@ -7,6 +7,8 @@
 #include <QPushButton>
 #include <QPoint>
 #include "AngleRoundedWidget.h"
+#include <memory>
+#include "RegisterPage.h"
 
 class LoginWidget :public AngleRoundedWidget
 {
@@ -29,6 +31,7 @@ private:
 	QPushButton* m_scanBtn{};
 	QPushButton* m_moreBtn{};
 	QPoint m_pressPos{};
+	std::unique_ptr<RegisterPage> m_registerPage{};
 };
 
 

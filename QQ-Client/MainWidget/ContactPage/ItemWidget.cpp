@@ -31,6 +31,11 @@ void ItemWidget::setUser(const QJsonObject& obj)
 	ui->nameLab->setText(m_json["username"].toString());
 }
 
+void ItemWidget::setGrouping(const QString& grouping)
+{
+	m_json["grouping"] = grouping;
+}
+
 const QJsonObject& ItemWidget::getUser()
 {
 	return m_json;

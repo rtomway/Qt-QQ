@@ -108,6 +108,7 @@ void ContactList::init()
 			{
 				auto itemWidget= qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				auto obj = itemWidget->getUser();
+				qDebug() << "clikedobj" << obj["grouping"].toString();
 				emit clickedFriend(obj);
 			}
 
@@ -124,7 +125,7 @@ void ContactList::init()
 		{
 			addFriendItem(getFriendTopItem(QString("我的好友")),obj);
 		});
-	//同意好友申请 更新好友列表
+	
 	
 }
 //获取分组
@@ -165,6 +166,10 @@ void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& 
 	//通过itemwidget找到自定义的小部件
 	auto topItemWidget= qobject_cast<TopItemWidget*>(m_friendList->itemWidget(firendList, 0));
 	topItemWidget->setCount(firendList->childCount());
+
+	itemWidget->setGrouping(topItemWidget->getName());
+	qDebug() << topItemWidget->getName();
+	
 }
 //获取分组item
 QTreeWidgetItem* ContactList::getFriendTopItem(QString friendName)

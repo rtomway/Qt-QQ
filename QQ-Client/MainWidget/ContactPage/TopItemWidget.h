@@ -22,8 +22,9 @@ private:
 	QLabel* m_countLab{};
 	QTreeWidgetItem* m_item{};
 public:
-	void setCount(int x);
-	void setName(QString name);
+	void setCount(const int& x);
+	void setName(const QString& name);
+	QString getName()const;
 	void setItem(QTreeWidgetItem* item);
 	QTreeWidgetItem* item();
 	void setAgale();

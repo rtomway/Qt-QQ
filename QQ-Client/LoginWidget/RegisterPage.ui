@@ -93,6 +93,13 @@
        <widget class="QLineEdit" name="passwordEdit"/>
       </item>
       <item>
+       <widget class="QLabel" name="passwordLab">
+        <property name="text">
+         <string>不能包含空格，长度为8-16个字符</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLineEdit" name="phoneEdit"/>
       </item>
       <item>

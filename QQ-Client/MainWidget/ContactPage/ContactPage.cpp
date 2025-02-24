@@ -5,6 +5,7 @@
 #include <QToolButton>
 #include "SMaskWidget.h"
 #include "User.h"
+#include "ContactList.h"
 
 
 ContactPage::ContactPage(QWidget* parent)
@@ -49,11 +50,12 @@ void ContactPage::init()
 	ui->ageLab->setText(QString("25")+"岁");
 	ui->friendGroupBtn->setIcon(QIcon(":/icon/Resource/Icon/friendgroup.png"));
 	ui->signaltureBtn->setIcon(QIcon(":/icon/Resource/Icon/signalture.png"));
-	ui->groupcomBox->addItem("我的好友");
-		ui->groupcomBox->addItem("我的好友1");
-	ui->groupcomBox->addItem("我的好友2");
-	ui->groupcomBox->addItem("我的好友3");
 
+	auto groupingName = ContactList::instance()->getfGrouping();
+	for (auto name : groupingName)
+	{
+		ui->groupcomBox->addItem(name);
+	}
 
 	connect(ui->editdetailBtn, &QPushButton::clicked, [=]()
 		{
@@ -87,5 +89,6 @@ void ContactPage::setUser(const QJsonObject& obj)
 	ui->idLab->setText(m_json["user_id"].toString());
 	ui->genderBtn->setText(m_json["gender"].toBool() ? "男" : "女");
 	ui->ageLab->setText(QString::number(m_json["age"].toInt()) + "岁");
-
+	ui->groupcomBox->setCurrentText(obj["grouping"].toString());
+	qDebug() << "obj:" << obj["grouping"].toString();
 }
