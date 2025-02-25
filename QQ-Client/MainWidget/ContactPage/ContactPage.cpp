@@ -9,7 +9,7 @@
 
 
 ContactPage::ContactPage(QWidget* parent)
-	:QWidget(parent)
+	:AngleRoundedWidget(parent)
 	,ui(new Ui::ContactPage)
 	,m_detailEditWidget(new ContactDetailWidget)
 {
@@ -24,7 +24,7 @@ ContactPage::ContactPage(QWidget* parent)
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
-	
+	this->setWindowFlag(Qt::FramelessWindowHint);
 }
 
 ContactPage::~ContactPage()
@@ -59,6 +59,11 @@ void ContactPage::init()
 
 	connect(ui->editdetailBtn, &QPushButton::clicked, [=]()
 		{
+			if (!this->parent())
+			{
+				this->hide();
+
+			}
 			SMaskWidget::instance()->popUp(m_detailEditWidget);
 			auto mainWidgetSize= SMaskWidget::instance()->getMainWidgetSize();
 			int x = (mainWidgetSize.width() - m_detailEditWidget->width()) / 2;
@@ -70,20 +75,36 @@ void ContactPage::init()
 void ContactPage::setUser(const QJsonObject& obj)
 {
 	m_json = obj;
+	//未设置信息隐藏
 	if (User::instance()->getUserId() != m_json["user_id"].toString())
 	{
 		ui->editdetailBtn->setVisible(false);
+	}
+	else
+	{
+		ui->editdetailBtn->setVisible(true);
 	}
 	if (m_json["birthday"].toString().isEmpty())
 	{
 		ui->line_3->setVisible(false);
 		ui->birthdayLab->setVisible(false);
 	}
+	else
+	{
+		ui->line_3->setVisible(true);
+		ui->birthdayLab->setVisible(true);
+	}
 	if (m_json["resident"].toString().isEmpty())
 	{
 		ui->line_4->setVisible(false);
 		ui->label_2->setVisible(false);
 		ui->residentLab->setVisible(false);
+	}
+	else
+	{
+		ui->line_4->setVisible(true);
+		ui->label_2->setVisible(true);
+		ui->residentLab->setVisible(true);
 	}
 	ui->nameLab->setText(m_json["username"].toString());
 	ui->idLab->setText(m_json["user_id"].toString());

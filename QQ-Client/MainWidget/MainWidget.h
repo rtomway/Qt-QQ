@@ -38,6 +38,7 @@ private:
 	MessagePage* m_messagePage{};
 	ContactPage* m_contactPage{};
 	QWidget* m_emptyWidget{};
+	std::unique_ptr<ContactPage> m_contactWidget{};
 public:
 	void additemCenter(const QString& src);
 	QListWidgetItem* addmessageListItem(const QJsonObject& obj);
@@ -49,6 +50,7 @@ signals:
 	void exitWidget();
 protected:
 	void resizeEvent(QResizeEvent* event)override;
+	bool eventFilter(QObject* watched, QEvent* event)override;
 };
 
 

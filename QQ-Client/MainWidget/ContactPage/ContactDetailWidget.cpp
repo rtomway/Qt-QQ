@@ -1,6 +1,12 @@
 #include "ContactDetailWidget.h"
+#include "ContactDetailWidget.h"
+#include "ContactDetailWidget.h"
 #include <QBoxLayout>
 #include "ImageUtil.h"
+#include <QFileDialog>
+#include <QStandardPaths>
+#include <QDir>
+#include "User.h"
 
 ContactDetailWidget::ContactDetailWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -16,7 +22,7 @@ ContactDetailWidget::ContactDetailWidget(QWidget* parent)
     ,m_areaEdit(new LineEditwithButton(this))
 {
     this->setStyleSheet(R"(QWidget{background-color:rgb(240,240,240);border-radius: 10px;})");
-   
+    m_headLab->installEventFilter(this);
     qDebug() << "size:" << this->size();
    // this->setWindowFlag(Qt::FramelessWindowHint);
     init();
@@ -76,8 +82,8 @@ void ContactDetailWidget::init()
     toplayout->addWidget(m_exitBtn);
     mlayout->addLayout(toplayout);
 
-    auto pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/h1.jpg"), QSize(80, 80));
-    m_headLab->setPixmap(pixmap);
+    m_headPix = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/h1.jpg"), QSize(80, 80));
+    m_headLab->setPixmap(m_headPix);
     m_headLab->setFixedHeight(90);
 
     QWidget* headWidget = new QWidget(this);
@@ -168,4 +174,55 @@ void ContactDetailWidget::init()
         {
             this->hide();
         });
+    connect(okBtn, &QPushButton::clicked, [=]
+        {
+            saveAvatarToLocal(m_avatarPath, User::instance()->getUserId());
+            this->hide();
+        });
+   
+}
+
+QString ContactDetailWidget::getAvatarFolderPath()
+{
+    //保存目录
+    QString avatarFolder = QStandardPaths::writableLocation
+                    (QStandardPaths::AppDataLocation)+ "/avatars";
+    // 如果目录不存在，则创建
+    QDir dir;
+    if (!dir.exists(avatarFolder)) {
+        dir.mkpath(avatarFolder); 
+    }
+    return avatarFolder;
+}
+
+bool ContactDetailWidget::saveAvatarToLocal(const QString& avatarPath,const QString& user_id)
+{
+    QString avatarFolderPath = getAvatarFolderPath();
+    // 使用用户 ID 来命名头像文件
+    QString avatarFileName = avatarFolderPath + "/" + user_id + ".png";
+
+    QPixmap avatar(avatarPath);
+    if (avatar.isNull()) {
+        qWarning() << "头像加载失败!";
+        return false;
+    }
+    // 保存头像
+    return avatar.save(avatarFileName);
+}
+
+bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == m_headLab && event->type() == QEvent::MouseButtonPress)
+    {
+        m_avatarPath = QFileDialog::getOpenFileName(this, "选择头像", "",
+                     "Images(*.jpg *.png *.jpeg *.bnp)");
+        qDebug() << "选择头像"<< m_avatarPath;
+        if (!m_avatarPath.isEmpty())
+        {
+            QPixmap avatar(m_avatarPath);
+            m_headPix = ImageUtils::roundedPixmap(avatar, QSize(80, 80));
+            m_headLab->setPixmap(m_headPix);
+        }
+    }
+    return false;
 }

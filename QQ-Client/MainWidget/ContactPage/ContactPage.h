@@ -4,11 +4,12 @@
 #include <QWidget>
 #include "ContactDetailWidget.h"
 #include <QJsonObject>
+#include "AngleRoundedWidget.h"
 
 
 namespace Ui { class ContactPage; }
 
-class ContactPage :public QWidget
+class ContactPage :public AngleRoundedWidget
 {
 	Q_OBJECT
 public:

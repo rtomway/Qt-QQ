@@ -35,6 +35,8 @@ MainWidget::MainWidget(QWidget* parent)
 	init();
 	initMoreMenu();
 	this->setWindowFlag(Qt::FramelessWindowHint);
+	ui->headLab->installEventFilter(this);
+	this->installEventFilter(this);
 	
 	this->setObjectName("MainWidget");
 	this->setStyleSheet(R"(QWidget#MainWidget{border-radius: 10px;})");
@@ -199,6 +201,7 @@ void MainWidget::init()
 					});
 			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
 			ui->rightWidget->setStyleSheet("background-color:white");
+			qDebug() << m_contactPage->parent();
 			
 		});
 	//点击通知 进入通知界面
@@ -342,6 +345,28 @@ QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 void MainWidget::resizeEvent(QResizeEvent* event)
 {
 	
+}
+
+bool MainWidget::eventFilter(QObject* watched, QEvent* event)
+{
+	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
+	{
+		//弹出个人信息小窗口
+		m_contactWidget = std::make_unique<ContactPage>();
+		m_contactWidget->setUser(User::instance()->getUser());
+		auto position = ui->headLab->mapToGlobal(QPoint(0, 0));
+		m_contactWidget->setGeometry(position.x(),position.y(), 0, 0);
+		m_contactWidget->show();
+		qDebug() << m_contactWidget->parent();
+		return true;
+	}
+	else if(event->type() == QEvent::MouseButtonPress)
+	{
+		//隐藏个人信息小窗口
+		if(m_contactWidget)
+			m_contactWidget->hide();
+	}
+	return false;
 }
 
 

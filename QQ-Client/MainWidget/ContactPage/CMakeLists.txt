@@ -9,7 +9,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED Widgets WebSockets)
+find_package(Qt6 REQUIRED Core Widgets WebSockets)
 
 
 file(GLOB CONTACTPAEGE_SOURCES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
@@ -24,5 +24,5 @@ add_library(${PROJECT_NAME} STATIC ${CONTACTPAEGE_FILE})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../AddFriendWidget)
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE  Qt6::Widgets Qt6::WebSockets Util)
+target_link_libraries(${PROJECT_NAME} PRIVATE  Qt6::Core Qt6::Widgets Qt6::WebSockets Util)
 

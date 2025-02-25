@@ -1,5 +1,6 @@
 QWidget#ContactPage{
-    background-color: white;
+    background-color: rgb(251, 249, 249);
+    border-radius:10px;
 }
 QLabel#nameLab{
     font-size:18px;
@@ -10,6 +11,9 @@ QPushButton#onlineBtn{
    border:none;
    padding-left:0px;
    padding:0px,0px,0px,0px;
+}
+QPushButton{
+    border:none;
 }
 QPushButton#onlineBtn:hover{
     background-color: rgb(240,240,240);

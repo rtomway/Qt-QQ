@@ -11,6 +11,7 @@
 #include "ItemWidget.h"
 #include "Client.h"
 #include "FriendNoticeItemWidget.h"
+#include "User.h"
 
 
 QStringList ContactList::m_fNamelist{};
@@ -85,6 +86,13 @@ void ContactList::init()
 	ui->friendNoticeCountLab->setAlignment(Qt::AlignCenter);
 	ui->groupNoticeCountLab->setAlignment(Qt::AlignCenter);
 
+	//个人信息
+	connect(User::instance(), &User::setUserSuccess,this, [=]
+		{
+			addFriendItem(getFriendTopItem("我的好友"), User::instance()->getUser());
+		});
+	
+
 	//列表切换
 	connect(&m_buttonGroup,&QButtonGroup::idClicked,this,[=](int id)
 	{
@@ -157,7 +165,7 @@ void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& 
 {
 	auto friendItem = new QTreeWidgetItem(firendList);
 	friendItem->setSizeHint(0,QSize(m_friendList->width(),60));
-
+	qDebug() << "username:" << obj["username"].toString();
 	//自定义Item
 	ItemWidget* itemWidget =new ItemWidget(this);
 	itemWidget->setUser(obj);

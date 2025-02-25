@@ -15,8 +15,6 @@ public:
 	~ContactDetailWidget();
 	void init();
 private:
-	Ui::ContactDetailWidget* ui{};
-private:
 	QLabel* m_editDetail{};
 	QPushButton* m_exitBtn{};
 	QLabel* m_headLab{};
@@ -27,6 +25,14 @@ private:
 	LineEditwithButton* m_countryEdit{};
 	LineEditwithButton* m_provinceEdit{};
 	LineEditwithButton* m_areaEdit{};
+private:
+	QPixmap m_headPix;
+	QString m_avatarPath;
+private:
+	QString getAvatarFolderPath();
+	bool saveAvatarToLocal(const QString& avatarPath,const QString&user_id);
+protected:
+	bool eventFilter(QObject* watched, QEvent* event)override;
 };
 
 
