@@ -1,4 +1,4 @@
-#ifndef USER_H_
+﻿#ifndef USER_H_
 #define USER_H_
 
 #include <QJsonObject>

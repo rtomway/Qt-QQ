@@ -10,6 +10,9 @@ public:
 	const QString getFriendId()const;
 	void setFriend(const QJsonObject& obj);
 	const QJsonObject getFriend()const;
+
+	void loadAvatar();
+	const QPixmap getAvatar()const;
 private:
 	QString m_userID{};
 	QString m_userName{};

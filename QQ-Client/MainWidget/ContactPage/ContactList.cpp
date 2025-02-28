@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ContactList.h"
 #include "ui_ContactList.h"
 #include <QFile>

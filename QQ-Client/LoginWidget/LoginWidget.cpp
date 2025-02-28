@@ -1,4 +1,4 @@
-#include "LoginWidget.h"
+﻿#include "LoginWidget.h"
 #include <QBoxLayout>
 #include <QLabel>
 #include <QFile>
@@ -6,21 +6,23 @@
 #include <QPalette>
 #include <QSpacerItem>
 #include <QMenu>
-
-#include "ImageUtil.h"
-#include "RoundLabel.h"
 #include <QPainter>
 #include<QPixmap>
 #include<QBitmap>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <memory>
+#include <QPointer>
+#include <QSharedPointer>
 
+#include "ImageUtil.h"
+#include "RoundLabel.h"
 #include "Client.h"
 #include "SConfigFile.h"
 #include "User.h"
-#include <memory>
-#include <QPointer>
 #include "RegisterPage.h"
+#include "FriendManager.h"
+#include "Friend.h"
 
 LoginWidget::LoginWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -201,6 +203,14 @@ void LoginWidget::init()
 								//当前登录用户信息
 								User::instance()->setUserId(user_id);
 								User::instance()->setUserName(user_name);
+
+								//将登录信息加入管理中心
+								auto user= QSharedPointer<Friend>::create();
+								user->setFriend(data);
+								FriendManager::instance()->addFriend(user);
+								FriendManager::instance()->setOneselfID(user_id);
+								FriendManager::instance()->loadAvatar(user_id);
+
 								emit Loginsuccess();
 							}
 							else

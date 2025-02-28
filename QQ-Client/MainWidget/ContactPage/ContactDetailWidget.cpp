@@ -1,6 +1,4 @@
-#include "ContactDetailWidget.h"
-#include "ContactDetailWidget.h"
-#include "ContactDetailWidget.h"
+﻿#include "ContactDetailWidget.h"
 #include <QBoxLayout>
 #include "ImageUtil.h"
 #include <QFileDialog>
@@ -187,6 +185,7 @@ QString ContactDetailWidget::getAvatarFolderPath()
     //保存目录
     QString avatarFolder = QStandardPaths::writableLocation
                     (QStandardPaths::AppDataLocation)+ "/avatars";
+
     // 如果目录不存在，则创建
     QDir dir;
     if (!dir.exists(avatarFolder)) {

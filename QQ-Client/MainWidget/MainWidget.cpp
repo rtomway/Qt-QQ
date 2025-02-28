@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "MainWidget.h"
 #include "ui_MainWidget.h"
 #include <QFile>
@@ -19,7 +19,8 @@
 #include "AddFriendWidget.h"
 #include "NoticeWidget.h"
 #include "ContactList.h"
-
+#include "Friend.h"
+#include "FriendManager.h"
 
 MainWidget::MainWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -113,7 +114,13 @@ void MainWidget::init()
 
 	ui->qqLab->setAlignment(Qt::AlignCenter);
 	//个人信息头像
-	ui->headLab->setPixmap(ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40)));
+	auto oneselfID = FriendManager::instance()->getOneselfID();
+	auto oneself= FriendManager::instance()->findFriend(oneselfID);
+	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
+		{
+			ui->headLab->setPixmap(avatar);
+		});
+	
 	//列表按钮组
 	m_btn_Itemgroup = new QButtonGroup(this);
 	

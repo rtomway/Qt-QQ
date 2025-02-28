@@ -20,12 +20,20 @@ add_subdirectory(MessagePage)
 add_subdirectory(ContactPage)
 
 
-list(APPEND MAINWIDGET_FILE ${MAIN_SOURCES_CPP} ${MAIN_SOURCES_QRC}${ADDFRIENDWIDGET_CPP})
+list(APPEND MAINWIDGET_FILE
+	${MAIN_SOURCES_CPP} 
+	${MAIN_SOURCES_QRC}
+	${ADDFRIENDWIDGET_CPP}
+)
 
 add_library(${PROJECT_NAME} STATIC ${MAINWIDGET_FILE})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} AddFriendWidget MessagePage ContactPage)
-
+target_include_directories(${PROJECT_NAME} 
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} 
+	AddFriendWidget 
+	MessagePage
+	ContactPage
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE  Qt6::Core Qt6::Widgets Qt6::WebSockets MessagePage ContactPage Util)
 

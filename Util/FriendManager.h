@@ -17,9 +17,12 @@ public:
     //当前客户端登录用户
     static QString m_oneselfID;
     static void setOneselfID(const QString& id);
+    const QString getOneselfID()const;
 
     void addFriend(const QSharedPointer<Friend>& user);
     QSharedPointer<Friend>findFriend(const QString& id)const;
+
+    void loadAvatar(const QString&user_id);
 
 private:
     // 私有构造函数，防止外部实例化
@@ -27,8 +30,9 @@ private:
     //管理所有用户
     QHash<QString, QSharedPointer<Friend>>m_user;
 signals:
-    void setUserSuccess();
-
+   // void setOneselfSuccess();
+    void UserAvatarLoaded(const QPixmap& avatar);
+    void FriendAvatarLoaded(const QPixmap& avatar);
 };
 
 

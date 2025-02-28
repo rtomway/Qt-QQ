@@ -1,4 +1,4 @@
-#include "Server.h"
+﻿#include "Server.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "SSqlConnectionPool.h"
@@ -173,13 +173,18 @@ void Server::handle_login(const QJsonObject& paramsObject)
 				qDebug() << query.record().fieldName(i);
 				qDebug() << query.value(i).toString();
 			}
-			qDebug() << "password:" << query.value(6).toString();
+			qDebug() << "password:" << query.value(7).toString();
 			if (password == query.value(7).toString())
 			{
 				qDebug() << "登陆成功";
 				QJsonObject jsonData;
 				jsonData["user_id"]= query.value(1).toString();
 				jsonData["username"] = query.value(2).toString();
+				jsonData["gender"] = query.value(3).toInt();
+				jsonData["age"] = query.value(4).toInt();
+				jsonData["phone_number"] = query.value(5).toString();
+				jsonData["email"] = query.value(6).toString();
+				jsonData["avatar_path"] = query.value(8).toString();
 				client->sendTextMessage(SResult::success(jsonData));
 				
 			}
