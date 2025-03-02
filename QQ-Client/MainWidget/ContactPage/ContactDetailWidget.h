@@ -1,9 +1,10 @@
-#ifndef CONTACTDETAILWIDGET_H_
+﻿#ifndef CONTACTDETAILWIDGET_H_
 #define CONTACTDETAILWIDGET_H_
 
 #include <QWidget>
 #include "LineEditwithButton.h"
 #include "AngleRoundedWidget.h"
+#include <QJsonObject>
 
 namespace Ui { class ContactDetailWidget; }
 
@@ -28,6 +29,9 @@ private:
 private:
 	QPixmap m_headPix;
 	QString m_avatarPath;
+	QJsonObject m_json{};
+public:
+	void setUser(const QJsonObject& obj);
 private:
 	QString getAvatarFolderPath();
 	bool saveAvatarToLocal(const QString& avatarPath,const QString&user_id);

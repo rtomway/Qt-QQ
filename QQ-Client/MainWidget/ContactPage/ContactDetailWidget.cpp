@@ -1,10 +1,13 @@
 ﻿#include "ContactDetailWidget.h"
+#include "ContactDetailWidget.h"
 #include <QBoxLayout>
 #include "ImageUtil.h"
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QDir>
 #include "User.h"
+#include "Friend.h"
+#include "FriendManager.h"
 
 ContactDetailWidget::ContactDetailWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -178,6 +181,18 @@ void ContactDetailWidget::init()
             this->hide();
         });
    
+}
+
+void ContactDetailWidget::setUser(const QJsonObject& obj)
+{
+    m_json = obj;
+    QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(obj["user_id"].toString());
+    auto pixmap = ImageUtils::roundedPixmap(myfriend->getAvatar(), QSize(80, 80));
+    m_headLab->setPixmap(pixmap);
+    m_nickNameEdit->setText(m_json["username"].toString());
+    m_genderEdit->setText(m_json["gender"].toInt()==1 ? "男" : "女");
+    m_birthdayEdit->setText(m_json["birthday"].toString());
+    qDebug() << "编辑资料json:" << m_json;
 }
 
 QString ContactDetailWidget::getAvatarFolderPath()

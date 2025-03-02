@@ -5,13 +5,13 @@
 #include "SResultCode.h"
 #include <QRandomGenerator>
 
-Server::Server(QObject*parent)
+Server::Server(QObject* parent)
 	:QObject(parent)
 {
 	//设定服务器监听端口
 	if (!m_server)
 	{
-		m_server = new QWebSocketServer("QQ-Server",QWebSocketServer::SslMode::NonSecureMode,this);
+		m_server = new QWebSocketServer("QQ-Server", QWebSocketServer::SslMode::NonSecureMode, this);
 		connect(m_server, &QWebSocketServer::newConnection, this, &Server::onNewConnection);
 	}
 	m_server->listen(QHostAddress::Any, 8888);
@@ -27,13 +27,13 @@ Server::~Server()
 //初始化消息处理映射表
 void Server::initRequestHash()
 {
-	requestHash["login"] =&Server::handle_login;
+	requestHash["login"] = &Server::handle_login;
 	requestHash["register"] = &Server::handle_register;
 	requestHash["communication"] = &Server::handle_communication;
 	requestHash["searchUser"] = &Server::handle_searchUser;
 	requestHash["searchGroup"] = &Server::handle_searchGroup;
 	requestHash["addFriend"] = &Server::handle_addFriend;
-	requestHash["addGroup"] = &Server::handle_addGroup; 
+	requestHash["addGroup"] = &Server::handle_addGroup;
 	requestHash["resultOfAddFriend"] = &Server::handle_resultOfAddFriend;
 	requestHash["queryUserDetail"] = &Server::handle_queryUserDetail;
 }
@@ -48,7 +48,7 @@ void Server::onNewConnection()
 		qDebug() << client;
 		connect(client, &QWebSocket::disconnected, this, &Server::onDisConnection);
 		connect(client, &QWebSocket::textMessageReceived, this, &Server::onTextMessageReceived);
-		
+
 	}
 }
 void Server::onDisConnection()
@@ -79,14 +79,14 @@ void Server::onTextMessageReceived(const QString& data)
 		}
 		else
 		{
-			 client_id = paramsObject["user_id"].toString();
+			client_id = paramsObject["user_id"].toString();
 		}
 		m_clients[client_id] = dynamic_cast<QWebSocket*>(sender());
-		qDebug() << "客户端发来消息:" << m_clients[client_id]<<"type:"<<type<< requestHash.contains(type);
+		qDebug() << "客户端发来消息:" << m_clients[client_id] << "type:" << type << requestHash.contains(type);
 		//根据类型给处理函数处理
 		if (requestHash.contains(type))
 		{
-			auto handle=requestHash[type];
+			auto handle = requestHash[type];
 			(this->*handle)(paramsObject);
 		}
 		else
@@ -112,7 +112,7 @@ QString Server::findUserName(QWebSocket* client)
 QString Server::getRandomID(int length)
 {
 	QString user_id;
-	QRandomGenerator randomID;
+	QRandomGenerator randomID = QRandomGenerator::securelySeeded(); // 手动初始化种子;
 	while (user_id.size() < length)
 	{
 		int ram = randomID.bounded(0, 9);
@@ -126,12 +126,11 @@ QString Server::generateUserID()
 	SConnectionWrap wrap;
 	QSqlQuery query(wrap.openConnection());
 	QString user_id;
-	//auto username = paramsObject["username"].toString();
-	//auto password = paramsObject["password"].toString();
 	//注册唯一id
 	while (true) {
 		//服务器随机生成10位数用户id
 		user_id = getRandomID(10);
+		qDebug() << "RandomID后的:" << user_id;
 		//先查询生成id是否已存在
 		query.prepare("select user_id from user where user_id=? ");
 		query.addBindValue(user_id);
@@ -171,22 +170,24 @@ void Server::handle_login(const QJsonObject& paramsObject)
 			for (int i = 0; i < count; i++)
 			{
 				qDebug() << query.record().fieldName(i);
-				qDebug() << query.value(i).toString();
+				qDebug() << i << query.value(i).toString();
 			}
 			qDebug() << "password:" << query.value(7).toString();
 			if (password == query.value(7).toString())
 			{
 				qDebug() << "登陆成功";
 				QJsonObject jsonData;
-				jsonData["user_id"]= query.value(1).toString();
+				jsonData["user_id"] = query.value(1).toString();
 				jsonData["username"] = query.value(2).toString();
 				jsonData["gender"] = query.value(3).toInt();
 				jsonData["age"] = query.value(4).toInt();
 				jsonData["phone_number"] = query.value(5).toString();
 				jsonData["email"] = query.value(6).toString();
 				jsonData["avatar_path"] = query.value(8).toString();
+				jsonData["birthday"] = query.value(9).toDate().toString("MM-dd");
+				jsonData["signature"] = query.value(10).toString();
 				client->sendTextMessage(SResult::success(jsonData));
-				
+
 			}
 			else
 			{
@@ -208,6 +209,7 @@ void Server::handle_register(const QJsonObject& paramsObject)
 	auto client = m_clients[user_id];
 	QString username = paramsObject["username"].toString();
 	QString password = paramsObject["password"].toString();
+	//用户表
 	query.prepare("insert into user (user_id,username,password)values(?,?,?)");
 	query.addBindValue(user_id);
 	query.addBindValue(username);
@@ -217,14 +219,31 @@ void Server::handle_register(const QJsonObject& paramsObject)
 		qDebug() << query.lastError();
 		return;
 	}
+
+	//好友表 自己和自己是好友
+	query.prepare("insert into friendship (user_id,friend_id,create_time,Fgrouping)values(?,?,?,?)");
+	query.addBindValue(user_id);
+	auto friend_id = user_id;
+	query.addBindValue(friend_id);
+	query.addBindValue(QDateTime::currentDateTime());
+	query.addBindValue("好友");
+	if (!query.exec())
+	{
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+
+		return;
+	}
+
 	//注册成功后返回该用户账号与密码
 	client->sendTextMessage(SResult::success(paramsObject));
+
 }
 
 //通信转发
 void Server::handle_communication(const QJsonObject& paramsObject)
 {
-	qDebug()<<"发送方:"<< paramsObject["user_id"].toString();
+	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
 	QJsonObject jsondate;
 	jsondate["type"] = "communication";
@@ -254,22 +273,21 @@ void Server::handle_searchUser(const QJsonObject& paramsObject)
 		{
 			qDebug() << "用户存在";
 			QJsonArray allData;
-				do {
-					auto count = query.record().count();
-					qDebug() << "count:" << count;
-					QJsonObject userData;
-					for (int i = 0; i < count; i++)
-					{
-						qDebug() << query.record().fieldName(i);
-						qDebug() << query.value(i).toString();
-						userData[query.record().fieldName(i)] = query.value(i).toString();
-					}
-					allData.append(userData);
-				} while (query.next());
-				QJsonObject jsonResponse;
-				//jsonResponse[""] = allData;
-				jsonResponse["search_data"] = allData;
-				client->sendTextMessage(SResult::success(jsonResponse));
+			do {
+				auto count = query.record().count();
+				qDebug() << "count:" << count;
+				QJsonObject userData;
+				for (int i = 0; i < count; i++)
+				{
+					qDebug() << query.record().fieldName(i);
+					qDebug() << query.value(i).toString();
+					userData[query.record().fieldName(i)] = query.value(i).toString();
+				}
+				allData.append(userData);
+			} while (query.next());
+			QJsonObject jsonResponse;
+			jsonResponse["search_data"] = allData;
+			client->sendTextMessage(SResult::success(jsonResponse));
 		}
 		else
 		{
@@ -340,7 +358,7 @@ void Server::handle_addFriend(const QJsonObject& paramsObject)
 	jsondate["type"] = "addFriend";
 	jsondate["params"] = paramsObject;
 	auto receive_id = paramsObject["to"].toString();
-	auto receive_message = paramsObject["message"].toString(); 
+	auto receive_message = paramsObject["message"].toString();
 	auto client = m_clients[receive_id];
 	QJsonDocument doc(jsondate);
 	QString data = QString(doc.toJson(QJsonDocument::Compact));
@@ -382,14 +400,14 @@ void Server::handle_queryUserDetail(const QJsonObject& paramsObject)
 	{
 		QJsonObject obj;
 		while (query.next())
-		{	
+		{
 			for (size_t i = 0; i < 8; i++)
 			{
-				qDebug()<< query.value(i).toString();
+				qDebug() << query.value(i).toString();
 			}
 			obj["user_id"] = query.value(1).toString();
 			obj["username"] = query.value(2).toString();
-			obj["gender"] = query.value(3).toBool();
+			obj["gender"] = query.value(3).toInt();
 			obj["age"] = query.value(4).toInt();
 			obj["phone_number"] = query.value(5).toString();
 			obj["email"] = query.value(6).toString();

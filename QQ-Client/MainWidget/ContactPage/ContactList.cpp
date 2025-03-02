@@ -7,21 +7,23 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QJsonObject>
+#include <QSharedPointer>
 
 #include "ItemWidget.h"
 #include "Client.h"
 #include "FriendNoticeItemWidget.h"
 #include "User.h"
-
+#include "FriendManager.h"
+#include "Friend.h"
 
 QStringList ContactList::m_fNamelist{};
 QStringList ContactList::m_gNamelist{};
 
 ContactList::ContactList(QWidget* parent)
 	:QWidget(parent)
-	,ui(new Ui::ContactList)
-	,m_friendList(new QTreeWidget(this))
-	,m_groupList(new QTreeWidget(this))
+	, ui(new Ui::ContactList)
+	, m_friendList(new QTreeWidget(this))
+	, m_groupList(new QTreeWidget(this))
 {
 	ui->setupUi(this);
 	init();
@@ -31,7 +33,7 @@ ContactList::ContactList(QWidget* parent)
 		setStyleSheet(file.readAll());
 	}
 	else {
-		qDebug() <<file.fileName()<< "样式表打开失败";
+		qDebug() << file.fileName() << "样式表打开失败";
 	}
 	ui->fInformWidget->installEventFilter(this);
 	ui->gInformWidget->installEventFilter(this);
@@ -47,7 +49,7 @@ ContactList* ContactList::instance()
 	//保证互斥量唯一
 	/*static QMutex mutex;
 	QMutexLocker locker(&mutex);*/
-	static ContactList *ins=new ContactList;
+	static ContactList* ins = new ContactList;
 	return ins;
 }
 
@@ -73,7 +75,7 @@ void ContactList::init()
 	addGroupListItem(QString("我创建的群聊"));
 	addGroupListItem(QString("我管理的群聊"));
 	addGroupListItem(QString("我加入的群聊"));
-	
+
 	m_buttonGroup.addButton(ui->friendBtn);
 	m_buttonGroup.addButton(ui->groupBtn);
 	m_buttonGroup.setExclusive(true);
@@ -86,21 +88,24 @@ void ContactList::init()
 	ui->friendNoticeCountLab->setAlignment(Qt::AlignCenter);
 	ui->groupNoticeCountLab->setAlignment(Qt::AlignCenter);
 
+
 	//个人信息
-	connect(User::instance(), &User::setUserSuccess,this, [=]
+	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
 		{
-			addFriendItem(getFriendTopItem("我的好友"), User::instance()->getUser());
+			auto oneselfId = FriendManager::instance()->getOneselfID();
+			auto oneself = FriendManager::instance()->findFriend(oneselfId);
+			addFriendItem(getFriendTopItem("我的好友"), oneself->getFriend());
 		});
-	
+
 
 	//列表切换
-	connect(&m_buttonGroup,&QButtonGroup::idClicked,this,[=](int id)
-	{
+	connect(&m_buttonGroup, &QButtonGroup::idClicked, this, [=](int id)
+		{
 			if (id == -2)
 				ui->stackedWidget->setCurrentWidget(m_friendList);
-			else if(id==-3)
+			else if (id == -3)
 				ui->stackedWidget->setCurrentWidget(m_groupList);
-	});
+		});
 	//topitemWidget展开
 	connect(m_friendList, &QTreeWidget::itemClicked, [=](QTreeWidgetItem* item)
 		{
@@ -114,7 +119,7 @@ void ContactList::init()
 			}
 			else     //点击用户 弹出用户信息
 			{
-				auto itemWidget= qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
+				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				auto obj = itemWidget->getUser();
 				qDebug() << "clikedobj" << obj["grouping"].toString();
 				emit clickedFriend(obj);
@@ -129,12 +134,10 @@ void ContactList::init()
 			ui->friendNoticeCountLab->setText(QString::number(m_fNoticeUnreadCount));
 		});
 	//申请添加好友成功 更新好友列表
-	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject&obj)
+	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject& obj)
 		{
-			addFriendItem(getFriendTopItem(QString("我的好友")),obj);
+			addFriendItem(getFriendTopItem(QString("我的好友")), obj);
 		});
-	
-	
 }
 //获取分组
 QStringList ContactList::getfGrouping()
@@ -145,7 +148,6 @@ QStringList ContactList::getgGrouping()
 {
 	return m_gNamelist;
 }
-
 //添加分组item
 TopItemWidget* ContactList::addFriendListItem(QString friendName)
 {
@@ -157,27 +159,27 @@ TopItemWidget* ContactList::addFriendListItem(QString friendName)
 	TopItemWidget* topItemWidget = new TopItemWidget(m_friendList);
 	topItemWidget->setName(friendName);
 	topItemWidget->setItem(friendListItem);
-	m_friendList->setItemWidget(friendListItem,0,topItemWidget);
+	m_friendList->setItemWidget(friendListItem, 0, topItemWidget);
 	return topItemWidget;
 }
 //添加子item
 void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& obj)
 {
 	auto friendItem = new QTreeWidgetItem(firendList);
-	friendItem->setSizeHint(0,QSize(m_friendList->width(),60));
+	friendItem->setSizeHint(0, QSize(m_friendList->width(), 60));
 	qDebug() << "username:" << obj["username"].toString();
 	//自定义Item
-	ItemWidget* itemWidget =new ItemWidget(this);
+	ItemWidget* itemWidget = new ItemWidget(this);
 	itemWidget->setUser(obj);
 	m_friendList->setItemWidget(friendItem, 0, itemWidget);
 
 	//通过itemwidget找到自定义的小部件
-	auto topItemWidget= qobject_cast<TopItemWidget*>(m_friendList->itemWidget(firendList, 0));
+	auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(firendList, 0));
 	topItemWidget->setCount(firendList->childCount());
 
 	itemWidget->setGrouping(topItemWidget->getName());
 	qDebug() << topItemWidget->getName();
-	
+
 }
 //获取分组item
 QTreeWidgetItem* ContactList::getFriendTopItem(QString friendName)
@@ -225,7 +227,7 @@ QTreeWidgetItem* ContactList::getGroupTopItem(QString groupName)
 //新增好友
 void ContactList::newlyFriendItem(const QJsonObject& obj)
 {
-	auto grouping= getFriendTopItem(obj["grouping"].toString());
+	auto grouping = getFriendTopItem(obj["grouping"].toString());
 	addFriendItem(grouping, obj);
 	//消息项添加
 	emit agreeAddFriend(obj);
@@ -243,7 +245,7 @@ bool ContactList::eventFilter(QObject* obj, QEvent* event)
 		ui->friendNoticeCountLab->setVisible(false);
 		return true; // 事件已处理，不再继续传递
 	}
-	 if (obj == ui->gInformWidget && event->type() == QEvent::MouseButtonPress)
+	if (obj == ui->gInformWidget && event->type() == QEvent::MouseButtonPress)
 	{
 		qDebug() << "子窗口被点击!";
 		//点击群聊申请通知 清空未读

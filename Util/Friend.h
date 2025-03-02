@@ -22,6 +22,9 @@ private:
 	QString m_email{};
 	QPixmap m_avatar{};
 	QString m_avatarPath{};
+	QDate m_birthday{};
+	QString m_signature{};
+	QString m_grouping{};
 	bool m_status{};
 	QJsonObject m_json{};
 

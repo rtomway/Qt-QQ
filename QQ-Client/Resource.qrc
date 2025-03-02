@@ -70,6 +70,7 @@
         <file>Resource/Icon/friendgroup.png</file>
         <file>Resource/Icon/down-drop.png</file>
         <file>Resource/Icon/selected.png</file>
+        <file>Resource/Icon/nogender.png</file>
     </qresource>
     <qresource prefix="/stylesheet">
         <file>Resource/StyleSheet/LineEditwithButton.css</file>

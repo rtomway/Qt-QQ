@@ -62,13 +62,6 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="statusLab">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="signatureLab">
            <property name="text">
             <string>TextLabel</string>
