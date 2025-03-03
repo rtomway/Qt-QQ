@@ -23,16 +23,27 @@ void Friend::setFriend(const QJsonObject& obj)
 	m_phoneNumber = obj["phone_number"].toString();
 	m_email = obj["email"].toString();
 	m_avatarPath = obj["avatar_path"].toString();
-	m_birthday = QDate::fromString(obj["birthday"].toString(),"MM-dd");
+	m_birthday = QDate::fromString(obj["birthday"].toString(), "MM-dd");
 	m_signature = obj["signature"].toString();
 	m_status = obj["status"].toBool();
-	
+	m_grouping = obj["grouping"].toString();
 
 }
 
 const QJsonObject Friend::getFriend()const
 {
 	return m_json;
+}
+
+void Friend::setGrouping(QString& grouping)
+{
+	m_grouping = grouping;
+	m_json["grouping"] = m_grouping;
+}
+
+const QString Friend::getGrouping() const
+{
+	return m_grouping;
 }
 
 void Friend::loadAvatar()

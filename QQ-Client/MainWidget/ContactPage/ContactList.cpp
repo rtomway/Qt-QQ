@@ -92,9 +92,16 @@ void ContactList::init()
 	//个人信息
 	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
 		{
-			auto oneselfId = FriendManager::instance()->getOneselfID();
+			/*auto oneselfId = FriendManager::instance()->getOneselfID();
 			auto oneself = FriendManager::instance()->findFriend(oneselfId);
-			addFriendItem(getFriendTopItem("我的好友"), oneself->getFriend());
+			addFriendItem(getFriendTopItem("我的好友"), oneself->getFriend());*/
+			auto friends = FriendManager::instance()->getFriends();
+			for (auto it = friends.begin(); it != friends.end(); ++it) {
+				const QSharedPointer<Friend>& friendInfo = it.value();
+				auto grouping = friendInfo->getGrouping();
+				qDebug() << "分组" << grouping;
+				addFriendItem(getFriendTopItem(grouping), friendInfo->getFriend());
+			}
 		});
 
 

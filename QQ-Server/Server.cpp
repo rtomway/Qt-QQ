@@ -158,9 +158,12 @@ void Server::handle_login(const QJsonObject& paramsObject)
 	SConnectionWrap wrap;
 	QSqlQuery query(wrap.openConnection());
 	//查询数据验证
+	QJsonObject obj; //存放返回客户端的所有信息
+	QJsonArray jarray;
+	auto client = m_clients[user_id];
+	//查询登录用户
 	query.prepare(QString("select * from user where user_id=?"));
 	query.addBindValue(user_id);
-	auto client = m_clients[user_id];
 	if (query.exec())
 	{
 		while (query.next())
@@ -178,6 +181,7 @@ void Server::handle_login(const QJsonObject& paramsObject)
 				qDebug() << "登陆成功";
 				QJsonObject jsonData;
 				jsonData["user_id"] = query.value(1).toString();
+				jsonData["grouping"] = "我的好友";
 				jsonData["username"] = query.value(2).toString();
 				jsonData["gender"] = query.value(3).toInt();
 				jsonData["age"] = query.value(4).toInt();
@@ -186,18 +190,59 @@ void Server::handle_login(const QJsonObject& paramsObject)
 				jsonData["avatar_path"] = query.value(8).toString();
 				jsonData["birthday"] = query.value(9).toDate().toString("MM-dd");
 				jsonData["signature"] = query.value(10).toString();
-				client->sendTextMessage(SResult::success(jsonData));
-
+				obj["loginUser"] = jsonData;
 			}
 			else
 			{
 				client->sendTextMessage(SResult::failure(SResultCode::UserLoginError));
+				return;
 			}
 		}
 	}
 	else
 	{
 		qDebug() << query.lastError();
+		return;
+	}
+	//查询好友
+	query.prepare(
+		QString("select f.friend_id,f.Fgrouping,user.* from friendship f \
+			join user ON f.friend_id = user.user_id \
+	where f.user_id=? and f.friend_id!=f.user_id"));
+	query.addBindValue(user_id);
+	if (query.exec())
+	{
+		while (query.next())
+		{
+			auto count = query.record().count();
+			qDebug() << "count:" << count;
+			for (int i = 0; i < count; i++)
+			{
+				qDebug() << query.record().fieldName(i);
+				qDebug() << i << query.value(i).toString();
+			}
+			QJsonObject jsonData;
+			jsonData["user_id"] = query.value(0).toString();
+			jsonData["grouping"] = query.value(1).toString();
+			jsonData["username"] = query.value(4).toString();
+			jsonData["gender"] = query.value(5).toInt();
+			jsonData["age"] = query.value(6).toInt();
+			jsonData["phone_number"] = query.value(7).toString();
+			jsonData["email"] = query.value(8).toString();
+			jsonData["avatar_path"] = query.value(10).toString();
+			jsonData["birthday"] = query.value(11).toDate().toString("MM-dd");
+			jsonData["signature"] = query.value(12).toString();
+			jarray.append(jsonData);
+			qDebug() << "好友列表：" << jsonData;
+		}
+		obj["friendArray"] = jarray;
+		client->sendTextMessage(SResult::success(obj));
+	}
+	else
+	{
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+		return;
 	}
 }
 //注册

@@ -11,6 +11,7 @@
 #include<QBitmap>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <memory>
 #include <QPointer>
 #include <QSharedPointer>
@@ -26,14 +27,14 @@
 
 LoginWidget::LoginWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
-	,m_account(new LineEditwithButton(this))
-	,m_password(new LineEditwithButton(this))
-	,m_loginBtn(new QPushButton("登录",this))
-	,m_setBtn(new QPushButton(this))
-	,m_exitBtn(new QPushButton(this))
-	,m_scanBtn(new QPushButton("扫码登录", this))
-	,m_moreBtn(new QPushButton("更多选项", this))
-	,m_attentionRBtn(new QRadioButton("已阅读并同意协议", this))
+	, m_account(new LineEditwithButton(this))
+	, m_password(new LineEditwithButton(this))
+	, m_loginBtn(new QPushButton("登录", this))
+	, m_setBtn(new QPushButton(this))
+	, m_exitBtn(new QPushButton(this))
+	, m_scanBtn(new QPushButton("扫码登录", this))
+	, m_moreBtn(new QPushButton("更多选项", this))
+	, m_attentionRBtn(new QRadioButton("已阅读并同意协议", this))
 {
 	this->setObjectName("login");
 	init();
@@ -46,7 +47,7 @@ LoginWidget::LoginWidget(QWidget* parent)
 	}
 	else
 	{
-			qDebug() << file.fileName() << "打开失败";
+		qDebug() << file.fileName() << "打开失败";
 	}
 	this->installEventFilter(this);
 	qDebug() << "loginWidget:" << size();
@@ -74,7 +75,7 @@ void LoginWidget::init()
 	headerlayout->addStretch();
 	auto header = new QLabel(this);
 	header->setFixedSize(80, 80);
-	
+
 	QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(80, 80));
 	header->setPixmap(pixmap);
 	headerlayout->addWidget(header);
@@ -89,7 +90,7 @@ void LoginWidget::init()
 	m_password->setEchoMode();
 	m_password->setEditPosition(Qt::AlignCenter);
 	m_password->setclearBtn();
-	
+
 	auto a_layout = new QHBoxLayout;
 	a_layout->addSpacerItem(new QSpacerItem(30, m_account->height()));
 	a_layout->addWidget(m_account);
@@ -128,32 +129,24 @@ void LoginWidget::init()
 
 	mlayout->addStretch();
 	mlayout->addLayout(lastLayout);
-	
+
 
 	//更多的菜单
 	auto moreMenu = new QMenu(this);
 	moreMenu->addAction("注册账号", this, [=]
 		{
-			//QPointer<RegisterPage>registerPage = new RegisterPage;
 			m_registerPage = std::make_unique<RegisterPage>();
 			m_registerPage->show();
-			//registerPage->close();
-			//connect(registerPage, &RegisterPage::destroyed, [registerPage]() {
-			//	qDebug() << "窗口已销毁";
-			//	});
-			//connect(registerPage, &QObject::destroyed, []() {
-			//	qDebug() << "对象被销毁";  // 确认对象是否销毁
-			//	});
 			connect(m_registerPage.get(), &RegisterPage::registerSuccess, this, [=](const QJsonObject& obj)
 				{
 					m_account->setText(obj["user_id"].toString());
 					m_password->setText(obj["password"].toString());
 				});
 		});
-	
+
 	moreMenu->addAction("忘记密码", this, [=]
 		{
-			
+
 		});
 
 	connect(m_exitBtn, &QPushButton::clicked, [=]
@@ -164,7 +157,7 @@ void LoginWidget::init()
 	//点击别处使lineedit失去焦点
 	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
 	connect(this, &LoginWidget::editfinish, m_password, &LineEditwithButton::editfinished);
-	
+
 	auto config = new SConfigFile("config.ini");
 	QFile configFile("config.ini");
 	qDebug() << configFile.exists();
@@ -174,7 +167,7 @@ void LoginWidget::init()
 		m_account->setText(config->value("user_id").toString());
 		m_password->setText(config->value("password").toString());
 	}
-	
+
 	//登录
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{
@@ -184,15 +177,17 @@ void LoginWidget::init()
 			loginParams["user_id"] = user_id;
 			loginParams["password"] = password;
 			Client::instance()->sendMessage("login", loginParams)
-				->ReciveMessage([=](const QString&message)
+				->ReciveMessage([=](const QString& message)
 					{
 						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
 						if (doc.isObject())
 						{
 							QJsonObject obj = doc.object();
 							QJsonObject data = obj["data"].toObject();
-							auto user_name = data["username"].toString();
-							qDebug() << obj["code"]<< data["username"].toString();
+							QJsonObject loginUser = data["loginUser"].toObject();
+							QJsonArray friendArray = data["friendArray"].toArray();
+							auto user_name = loginUser["username"].toString();
+							qDebug() << obj["code"] << loginUser["username"].toString();
 							if (obj["code"].toInt() == 0)
 							{
 								//登录成功 用户信息写入配置文件
@@ -205,12 +200,20 @@ void LoginWidget::init()
 								User::instance()->setUserName(user_name);
 
 								//将登录信息加入管理中心
-								auto user= QSharedPointer<Friend>::create();
-								user->setFriend(data);
+								auto user = QSharedPointer<Friend>::create();
+								user->setFriend(loginUser);
 								FriendManager::instance()->addFriend(user);
 								FriendManager::instance()->setOneselfID(user_id);
-								FriendManager::instance()->loadAvatar(user_id);
 
+								//加载好友信息
+								for (const QJsonValue& value : friendArray)
+								{
+									QJsonObject friendObject = value.toObject();
+									auto friendUser = QSharedPointer<Friend>::create();
+									friendUser->setFriend(friendObject);
+									FriendManager::instance()->addFriend(friendUser);
+								}
+								FriendManager::instance()->loadAvatar(user_id);
 								emit Loginsuccess();
 							}
 							else
@@ -220,15 +223,15 @@ void LoginWidget::init()
 
 						}
 					});
-			
+
 		});
 
 	//点击更多弹出菜单
 	connect(m_moreBtn, &QPushButton::clicked, [=]
 		{
-			moreMenu->popup(mapToGlobal(QPoint(m_moreBtn->geometry().x(), m_moreBtn->geometry().y()-70)));
+			moreMenu->popup(mapToGlobal(QPoint(m_moreBtn->geometry().x(), m_moreBtn->geometry().y() - 70)));
 		});
-	
+
 }
 
 
@@ -240,6 +243,6 @@ bool LoginWidget::eventFilter(QObject* watched, QEvent* event)
 	{
 		emit editfinish();
 	}
-	
+
 	return false;
 }

@@ -10,6 +10,8 @@ public:
 	const QString getFriendId()const;
 	void setFriend(const QJsonObject& obj);
 	const QJsonObject getFriend()const;
+	void setGrouping(QString& grouping);
+	const QString getGrouping()const;
 
 	void loadAvatar();
 	const QPixmap getAvatar()const;
