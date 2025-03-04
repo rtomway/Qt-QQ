@@ -21,6 +21,10 @@
 
 <img src="ResultPicture/contact.png" alt="Example Image" width="700" height="500">
 
+个人信息编辑界面
+
+<img src="ResultPicture/editMessage.png" alt="Example Image" width="700" height="500">
+
 个人小窗口
 
 <img src="ResultPicture/personMessage.png" alt="Example Image" width="700" height="500">
