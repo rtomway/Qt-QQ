@@ -121,6 +121,12 @@ void MainWidget::init()
 			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
 			ui->headLab->setPixmap(pixmap);
 		});
+	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
+		{
+			auto user = FriendManager::instance()->findFriend(user_id);
+			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
+			ui->headLab->setPixmap(pixmap);
+		});
 
 	//列表按钮组
 	m_btn_Itemgroup = new QButtonGroup(this);
