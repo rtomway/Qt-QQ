@@ -269,8 +269,14 @@ void MainWidget::init()
 
 void MainWidget::initMoreMenu()
 {
+	//账号退出清空数据
 	m_moreMenu->addAction(QIcon(":/icon/Resource/Icon/quit.png"), "退出账号", [=]
 		{
+			FriendManager::instance()->clearFriendManager();
+			ContactList::instance()->clearContactList();
+			m_btn_Itemgroup->button(-2)->setChecked(true);
+			ui->listStackedWidget->setCurrentWidget(m_messageList);
+			ui->messageStackedWidget->setCurrentWidget(m_emptyWidget);
 			emit quitsuccess();
 		});
 	m_moreMenu->addAction(QIcon(":/icon/Resource/Icon/about.png"), "关于", [=]

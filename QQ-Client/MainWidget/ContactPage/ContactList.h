@@ -1,11 +1,13 @@
-#ifndef CONTACTLIST_H_
+﻿#ifndef CONTACTLIST_H_
 #define CONTACTLIST_H_
 
 #include <QWidget>
 #include <QTreeWidget>
 #include <QStringList>
 #include <QButtonGroup>
+#include <memory>
 #include "TopItemWidget.h"
+#include "CreateFriendgrouping.h"
 
 class NoticeWidget;
 namespace Ui { class ContactList; }
@@ -29,6 +31,7 @@ private:
 	static QStringList m_fNamelist;
 	static QStringList m_gNamelist;
 	QButtonGroup m_buttonGroup{};
+	std::unique_ptr<CreateFriendgrouping>m_createFriendgrouping{};
 private:
 	int m_fNoticeUnreadCount = 0;
 	int m_gNoticeUnreadCount = 0;
@@ -39,11 +42,14 @@ public:
 	TopItemWidget* addFriendListItem(QString friendName);
 	void addFriendItem(QTreeWidgetItem*firendList,const QJsonObject&obj);
 	QTreeWidgetItem* getFriendTopItem(QString friendName);
+	QTreeWidgetItem* findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId);
 
 	TopItemWidget* addGroupListItem(QString groupName);
 	void addGroupItem(QTreeWidgetItem* groupList, QString groupName);
 	QTreeWidgetItem* getGroupTopItem(QString groupName);
 	void newlyFriendItem(const QJsonObject& obj);
+
+	void clearContactList();
 protected:
 	bool eventFilter(QObject* obj, QEvent* event) override;
 signals:
@@ -51,6 +57,7 @@ signals:
 	void friendNotice();
 	void groupNotice();
 	void agreeAddFriend(const QJsonObject& obj);
+	void updateFriendgrouping();
 };
 
 #endif // !CONTACTLIST_H_

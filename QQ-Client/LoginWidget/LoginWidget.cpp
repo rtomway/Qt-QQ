@@ -171,14 +171,14 @@ void LoginWidget::init()
 	//登录
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{
-			auto user_id = m_account->getLineEdit();
-			auto password = m_password->getLineEdit();
+			auto user_id = m_account->getLineEditText();
+			auto password = m_password->getLineEditText();
 			QVariantMap loginParams;
 			loginParams["user_id"] = user_id;
 			loginParams["password"] = password;
 			Client::instance()->sendMessage("login", loginParams)
 				->ReciveMessage([=](const QString& message)
-					{
+				{
 						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
 						if (doc.isObject())
 						{
@@ -222,7 +222,7 @@ void LoginWidget::init()
 							}
 
 						}
-					});
+				});
 
 		});
 

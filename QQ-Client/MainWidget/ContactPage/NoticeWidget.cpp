@@ -1,5 +1,4 @@
-#include "NoticeWidget.h"
-#include "NoticeWidget.h"
+﻿#include "NoticeWidget.h"
 #include <QBoxLayout>
 #include "FriendNoticeItemWidget.h"
 #include <QFile>

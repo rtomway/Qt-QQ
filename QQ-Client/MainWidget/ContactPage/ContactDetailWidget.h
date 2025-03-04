@@ -5,6 +5,9 @@
 #include "LineEditwithButton.h"
 #include "AngleRoundedWidget.h"
 #include <QJsonObject>
+#include <memory>
+#include<QCalendarWidget>
+#include<QWidgetAction>
 
 namespace Ui { class ContactDetailWidget; }
 
@@ -30,8 +33,11 @@ private:
 	QPixmap m_headPix;
 	QString m_avatarPath;
 	QJsonObject m_json{};
+	std::unique_ptr<QWidgetAction>m_calendarAction;
+	std::unique_ptr<QCalendarWidget>m_calendarWidget;
 public:
 	void setUser(const QJsonObject& obj);
+	const QJsonObject& getUser()const;
 private:
 	QString getAvatarFolderPath();
 	bool saveAvatarToLocal(const QString& avatarPath,const QString&user_id);

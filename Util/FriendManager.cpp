@@ -61,4 +61,10 @@ void FriendManager::loadAvatar(const QString& user_id)
 }
 
 
+void FriendManager::clearFriendManager()
+{
+	m_oneselfID = QString();
+	m_user.clear();
+}
+
 

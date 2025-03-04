@@ -1,5 +1,4 @@
 ﻿#include "ContactDetailWidget.h"
-#include "ContactDetailWidget.h"
 #include <QBoxLayout>
 #include "ImageUtil.h"
 #include <QFileDialog>
@@ -8,6 +7,8 @@
 #include "User.h"
 #include "Friend.h"
 #include "FriendManager.h"
+#include <QDateEdit>
+
 
 ContactDetailWidget::ContactDetailWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -177,10 +178,64 @@ void ContactDetailWidget::init()
         });
     connect(okBtn, &QPushButton::clicked, [=]
         {
-            saveAvatarToLocal(m_avatarPath, User::instance()->getUserId());
+            //信息更新
+            auto user_id = FriendManager::instance()->getOneselfID();
+            saveAvatarToLocal(m_avatarPath, user_id);
+            m_json["username"] = m_nickNameEdit->getLineEditText();
+            m_json["signature"] = m_signaltureEdit->getLineEditText();
+            if(!m_genderEdit->getLineEditText().isEmpty())
+            m_json["gender"] = m_genderEdit->getLineEditText() == "男" ? 1 : 2;
+            m_json["birthday"] = m_birthdayEdit->getLineEditText();
+            auto user= FriendManager::instance()->findFriend(user_id);
+            user->setFriend(m_json);
+            //发送更新信号
+            emit FriendManager::instance()->UpdateFriendMessage(user_id);
             this->hide();
         });
-   
+    connect(m_birthdayEdit, &LineEditwithButton::clicked, this, [=]
+        {
+            qDebug() << "选择生日";
+            auto menu = m_birthdayEdit->getMenu();
+            if (!m_calendarAction)
+            {
+              m_calendarAction = std::make_unique<QWidgetAction>(menu);
+            }
+            // 创建 QCalendarWidget 并放入菜单
+            if (!m_calendarWidget)
+            {
+                m_calendarWidget = std::make_unique<QCalendarWidget>();
+                m_calendarWidget->setGridVisible(true);
+                m_calendarWidget->setNavigationBarVisible(true);
+                //m_calendarWidget->setVerticalHeaderFormat(QCalendarWidget::NoVerticalHeader);
+                // 让 QCalendarWidget 宽度和 m_birthdayEdit 相同
+                m_calendarWidget->setFixedWidth(m_birthdayEdit->width());
+            }
+            m_calendarWidget->setStyleSheet(R"(
+            QCalendarWidget QWidget {
+                background-color: #f0f0f0;
+                border: none;
+            }
+            QCalendarWidget QToolButton {
+                border: none;
+                color: black;
+                font-size: 16px;
+                padding: 5px;
+            }
+            QCalendarWidget QToolButton
+          {
+                color: black;
+                font-size: 16px;
+                font-weight: bold;
+            }
+        )");
+            m_calendarAction->setDefaultWidget(m_calendarWidget.get());
+            menu->addAction(m_calendarAction.get());
+            menu->popup(m_birthdayEdit->mapToGlobal(QPoint(0, m_birthdayEdit->height()-10)));
+            connect(m_calendarWidget.get(), &QCalendarWidget::clicked, this, [=](const QDate& date) {
+                m_birthdayEdit->setText(date.toString("MM-dd"));
+                menu->close();  // 关闭菜单
+                });
+        });
 }
 
 void ContactDetailWidget::setUser(const QJsonObject& obj)
@@ -192,7 +247,13 @@ void ContactDetailWidget::setUser(const QJsonObject& obj)
     m_nickNameEdit->setText(m_json["username"].toString());
     m_genderEdit->setText(m_json["gender"].toInt()==1 ? "男" : "女");
     m_birthdayEdit->setText(m_json["birthday"].toString());
+    m_signaltureEdit->setText(m_json["signature"].toString());
     qDebug() << "编辑资料json:" << m_json;
+}
+
+const QJsonObject& ContactDetailWidget::getUser() const
+{
+    return m_json;
 }
 
 QString ContactDetailWidget::getAvatarFolderPath()
@@ -238,5 +299,6 @@ bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
             m_headLab->setPixmap(m_headPix);
         }
     }
+
     return false;
 }

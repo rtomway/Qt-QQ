@@ -53,11 +53,21 @@ void ContactPage::init()
 	ui->friendGroupBtn->setIcon(QIcon(":/icon/Resource/Icon/friendgroup.png"));
 	ui->signaltureBtn->setIcon(QIcon(":/icon/Resource/Icon/signalture.png"));
 
+	
 	auto groupingName = ContactList::instance()->getfGrouping();
 	for (auto name : groupingName)
 	{
 		ui->groupcomBox->addItem(name);
 	}
+	connect(ContactList::instance(), &ContactList::updateFriendgrouping, this, [=]
+		{
+			ui->groupcomBox->clear();
+			auto groupingName = ContactList::instance()->getfGrouping();
+			for (auto name : groupingName)
+			{
+				ui->groupcomBox->addItem(name);
+			}
+		});
 
 	connect(ui->editdetailBtn, &QPushButton::clicked, [=]()
 		{
@@ -71,6 +81,11 @@ void ContactPage::init()
 			int x = (mainWidgetSize.width() - m_detailEditWidget->width()) / 2;
 			int y = (mainWidgetSize.height() - m_detailEditWidget->height()) / 2;
 			SMaskWidget::instance()->setPopGeometry(QRect(x, y, this->width(), this->height()));
+		});
+	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
+		{
+			auto user = FriendManager::instance()->findFriend(user_id);
+			this->setUser(user->getFriend());
 		});
 }
 

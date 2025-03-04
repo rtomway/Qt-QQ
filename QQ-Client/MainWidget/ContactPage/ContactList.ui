@@ -15,13 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QPushButton" name="friendmanage">
-     <property name="text">
-      <string>好友管理器</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QWidget" name="fInformWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="spacing">
@@ -127,6 +120,13 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="friendmanage">
+     <property name="text">
+      <string>好友分组添加</string>
+     </property>
     </widget>
    </item>
    <item>

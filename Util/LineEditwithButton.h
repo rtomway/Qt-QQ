@@ -1,4 +1,4 @@
-#ifndef LINEEDITWITHBUTTON
+﻿#ifndef LINEEDITWITHBUTTON
 #define LINEEDITWITHBUTTON
 
 #include <QLineEdit>
@@ -40,7 +40,8 @@ public:
 	void setclearBtn();
 	void setWidth(int width);
 	void addMenuItem(QString item);
-	QString getLineEdit();
+	 QString getLineEditText();
+	 QMenu* getMenu()const;
 	bool m_isCombobox{false};
 	bool m_isclear{ false };
 signals:

@@ -1,5 +1,4 @@
-#include "TopItemWidget.h"
-#include "TopItemWidget.h"
+﻿#include "TopItemWidget.h"
 #include <QCoreApplication>
 #include <QMouseEvent>
 
@@ -47,15 +46,15 @@ QString TopItemWidget::getName()const
 	return m_nameLab->text();
 }
 
-void TopItemWidget::setItem(QTreeWidgetItem* item)
-{
-	m_item = item;
-}
-
-QTreeWidgetItem* TopItemWidget::item()
-{
-	return m_item;
-}
+//void TopItemWidget::setItem(QTreeWidgetItem* item)
+//{
+//	m_item = item;
+//}
+//
+//QTreeWidgetItem* TopItemWidget::item()
+//{
+//	return m_item;
+//}
 
 void TopItemWidget::setAgale()
 {

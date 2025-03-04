@@ -1,4 +1,4 @@
-#ifndef TOPITEMWIDGET_H_
+﻿#ifndef TOPITEMWIDGET_H_
 #define TOPITEMWIDGET_H_
 
 #include <QWidget>
@@ -25,8 +25,8 @@ public:
 	void setCount(const int& x);
 	void setName(const QString& name);
 	QString getName()const;
-	void setItem(QTreeWidgetItem* item);
-	QTreeWidgetItem* item();
+	/*void setItem(QTreeWidgetItem* item);
+	QTreeWidgetItem* item();*/
 	void setAgale();
 };
 

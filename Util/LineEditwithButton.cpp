@@ -1,4 +1,4 @@
-#include "LineEditwithButton.h"
+﻿#include "LineEditwithButton.h"
 #include <QFile>
 #include <QPoint>
 #include <QSpacerItem>
@@ -174,20 +174,17 @@ void LineEditwithButton::setWidth(int width)
 
 void LineEditwithButton::addMenuItem(QString item)
 {
-	/*QPushButton* btn = new QPushButton(this);
-	btn->setText(QString(item));
-	btn->setStyleSheet(QSS);
-	QWidgetAction* action = new QWidgetAction(m_comboboxMenu);
-	action->setDefaultWidget(btn);
-	action->setText(QString(item));*/
 	m_comboboxMenu->addAction(item);
 }
 
-QString LineEditwithButton::getLineEdit()
+ QString LineEditwithButton::getLineEditText()
 {
 	return m_lineEdit->text();
 }
-
+QMenu* LineEditwithButton::getMenu() const
+{
+	return m_comboboxMenu;
+}
 
 bool LineEditwithButton::eventFilter(QObject* watched, QEvent* event)
 {
@@ -196,6 +193,7 @@ bool LineEditwithButton::eventFilter(QObject* watched, QEvent* event)
 	if (event->type() == QEvent::MouseButtonPress)
 	{
 		emit clicked();
+		return true;
 	}
 	 /*if (event->type() == QEvent::FocusOut)
 	{

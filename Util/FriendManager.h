@@ -24,6 +24,8 @@ public:
 	const QHash<QString, QSharedPointer<Friend>>& getFriends()const;
 	void loadAvatar(const QString& user_id);
 
+	void clearFriendManager();
+
 private:
 	// 私有构造函数，防止外部实例化
 	FriendManager() {};
@@ -34,6 +36,7 @@ signals:
 	// void setOneselfSuccess();
 	void UserAvatarLoaded(const QPixmap& avatar);
 	void FriendAvatarLoaded(const QPixmap& avatar);
+	void UpdateFriendMessage(const QString&user_id);
 };
 
 

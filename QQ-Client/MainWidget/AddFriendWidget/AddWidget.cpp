@@ -81,7 +81,7 @@ void AddWidget::init()
 				QJsonObject friendObject;
 				friendObject["username"] = m_userName;
 				friendObject["user_id"] = m_user_id;
-				friendObject["grouping"] = m_grouping->getLineEdit();
+				friendObject["grouping"] = m_grouping->getLineEditText();
 				// 好友列表添加
 				ContactList::instance()->newlyFriendItem(friendObject);
 				
@@ -110,6 +110,6 @@ void AddWidget::setUser(const QJsonObject& obj)
 	}
 	else
 	{
-		m_isSend = true; m_grouping->getLineEdit();
+		m_isSend = true; m_grouping->getLineEditText();
 	}
 }
