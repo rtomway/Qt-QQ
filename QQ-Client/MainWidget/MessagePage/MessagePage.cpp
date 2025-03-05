@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "MessagePage.h"
 #include "ui_MessagePage.h"
 #include <QFile>
@@ -12,6 +12,8 @@
 #include <QJsonArray>
 #include"SConfigFile.h"
 #include "User.h"
+#include "FriendManager.h"
+#include "Friend.h"
 
 MessagePage::MessagePage(QWidget* parent)
 	:QWidget(parent)
@@ -49,27 +51,30 @@ MessagePage::~MessagePage()
 void MessagePage::init()
 {
 	m_friend_headPix = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(100, 100), 66);
-	/*QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(100,100), 66);
-	MessageBubble* b = new MessageBubble(pixmap, "hahaha");
-	ui->messageListWidget->addItem(b);
-	ui->messageListWidget->setItemWidget(b, b);
 
-	MessageBubble* a = new MessageBubble(pixmap, "hahaha",MessageBubble::BubbleLeft);
-	ui->messageListWidget->addItem(a);
-	ui->messageListWidget->setItemWidget(a, a);*/
-
+	
+	
 	//设置输入字体大小
 	QFont font = ui->messageTextEdit->font();
 	font.setPointSize(13); 
 	ui->messageTextEdit->setFont(font);
+	//在自己信息中心加载完成后读取
+	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=]
+		{
+			auto user_id = FriendManager::instance()->getOneselfID();
+			m_oneself = FriendManager::instance()->findFriend(user_id);
+			m_oneself->loadAvatar();
+		});
+	
 	//发送文字消息
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
+			auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100), 66);
 			QString msg = ui->messageTextEdit->toPlainText();
 			if (msg.isEmpty())
 				return;
 			//消息显示至聊天框
-			MessageBubble* messageBubble = new MessageBubble(m_friend_headPix,msg,MessageBubble::BubbleRight);
+			MessageBubble* messageBubble = new MessageBubble(pixmap,msg,MessageBubble::BubbleRight);
 			ui->messageListWidget->addItem(messageBubble);
 			ui->messageListWidget->setItemWidget(messageBubble, messageBubble);
 			//将消息加入至聊天记录中

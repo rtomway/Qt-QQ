@@ -1,10 +1,12 @@
-#ifndef MESSAGEPAGE_H_
+﻿#ifndef MESSAGEPAGE_H_
 #define MESSAGEPAGE_H_
 
 #include <QWidget>
 #include <QMenu>
 #include <QPixmap>
 #include "ChatMessage.h"
+#include "Friend.h"
+#include <memory>
 namespace Ui { class MessagePage; }
 
 class MessagePage :public QWidget
@@ -29,6 +31,7 @@ private:
 	QString m_friend_id{};
 	QString m_currentID{};
 	QHash<QString, ChatMessage> m_chats;
+	QSharedPointer<Friend>m_oneself{};
 private:
 	Ui::MessagePage* ui{};
 };

@@ -146,6 +146,7 @@ void MainWidget::init()
 	connect(m_btn_Itemgroup, &QButtonGroup::idClicked, this, [=](int id)
 		{
 			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
+			m_messageList->clearSelection();
 			switch (id)
 			{
 			case -2:
@@ -177,8 +178,8 @@ void MainWidget::init()
 		{
 			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
 			itemWidget->updateUnreadMessage();
-			//已经处于当前用户会话界面
-			if (m_messagePage->getCurrentID() == itemWidget->getId())
+			//已经处于当前用户会话界面并且是显示状态
+			if (m_messagePage==ui->messageStackedWidget->currentWidget() && m_messagePage->getCurrentID() == itemWidget->getId())
 				return;
 			ui->messageStackedWidget->setCurrentWidget(m_messagePage);
 			//清空界面
@@ -219,6 +220,36 @@ void MainWidget::init()
 			qDebug() << m_contactPage->parent();
 
 		});
+	//好友信息更新,消息项相关信息更新
+	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString&user_id)
+		{
+			qDebug() << "信息更新"<<user_id;
+			auto messageItem= findListItem(user_id);
+			if (messageItem)
+			{
+				qDebug() << "信息更新";
+				auto user = FriendManager::instance()->findFriend(user_id);
+				auto Item = qobject_cast<MessageListItem*>(m_messageList->itemWidget(messageItem));
+				Item->setUser(user->getFriend());
+			}
+		});
+	//好友信息界面跳转到会话界面
+	connect(m_contactPage, &ContactPage::sendMessage, this, [=](const QString&user_id)
+		{
+			m_btn_Itemgroup->button(-2)->setChecked(true);
+			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
+			ui->listStackedWidget->setCurrentWidget(m_messageList);
+			auto messageItem = findListItem(user_id);
+			if (!messageItem) //判断消息项是否存在
+			{
+				auto user = FriendManager::instance()->findFriend(user_id);
+				messageItem = addmessageListItem(user->getFriend());
+			}
+			m_messageList->setCurrentItem(messageItem);
+			emit m_messageList->itemClicked(messageItem);
+
+		});
+	
 	//点击通知 进入通知界面
 	connect(ContactList::instance(), &ContactList::friendNotice, this, [=]
 		{
@@ -269,7 +300,6 @@ void MainWidget::init()
 	connect(ui->hideBtn, &QPushButton::clicked, this, &MainWidget::hideWidget);
 	connect(ui->expandBtn, &QPushButton::clicked, this, &MainWidget::expandWidget);
 	connect(ui->exitBtn, &QPushButton::clicked, this, &MainWidget::exitWidget);
-
 
 }
 

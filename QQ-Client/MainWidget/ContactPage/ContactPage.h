@@ -1,4 +1,4 @@
-#ifndef CONTACTPAGE_H_
+﻿#ifndef CONTACTPAGE_H_
 #define CONTACTPAGE_H_
 
 #include <QWidget>
@@ -25,6 +25,8 @@ private:
 	QJsonObject m_json{};
 public:
 	void setUser(const QJsonObject&obj);
+signals:
+	void sendMessage(const QString& user_id);
 };
 
 

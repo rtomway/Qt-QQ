@@ -1,12 +1,12 @@
-#include "MessageListItem.h"
-#include "MessageListItem.h"
-#pragma once
+﻿#pragma once
 #include "MessageListItem.h"
 #include "ui_MessageListItem.h"
 #include <QBoxLayout>
 #include <QLabel>
 #include "ImageUtil.h"
 #include <QJsonArray>
+#include "Friend.h"
+#include "FriendManager.h"
 
 MessageListItem::MessageListItem(QWidget* parent)
 	:QWidget(parent)
@@ -49,6 +49,10 @@ void MessageListItem::setUser(const QJsonObject& obj)
 		m_unReadMessage.append(obj["message"].toString());
 	}
 	qDebug() << "name" << m_username << m_user_id;
+	auto user = FriendManager::instance()->findFriend(m_user_id);
+	user->loadAvatar();
+	auto pixmap= ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
+	ui->headLab->setPixmap(pixmap);
 	//信息更新到界面
 	updateItemWidget();
 }

@@ -53,7 +53,7 @@ void ContactPage::init()
 	ui->friendGroupBtn->setIcon(QIcon(":/icon/Resource/Icon/friendgroup.png"));
 	ui->signaltureBtn->setIcon(QIcon(":/icon/Resource/Icon/signalture.png"));
 
-	
+	//获取好友分组
 	auto groupingName = ContactList::instance()->getfGrouping();
 	for (auto name : groupingName)
 	{
@@ -68,7 +68,7 @@ void ContactPage::init()
 				ui->groupcomBox->addItem(name);
 			}
 		});
-
+	//信息编辑
 	connect(ui->editdetailBtn, &QPushButton::clicked, [=]()
 		{
 			if (!this->parent())
@@ -82,10 +82,16 @@ void ContactPage::init()
 			int y = (mainWidgetSize.height() - m_detailEditWidget->height()) / 2;
 			SMaskWidget::instance()->setPopGeometry(QRect(x, y, this->width(), this->height()));
 		});
+	//更新信息
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
 			this->setUser(user->getFriend());
+		});
+	//发消息
+	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
+		{
+			emit sendMessage(m_json["user_id"].toString());
 		});
 }
 
