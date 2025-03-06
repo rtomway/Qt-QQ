@@ -363,9 +363,15 @@ void MainWidget::additemCenter(const QString& src)
 //创建消息通知项并设置标识id
 QListWidgetItem* MainWidget::addmessageListItem(const QJsonObject& obj)
 {
-	//为item设置用户id
-	auto item = new QListWidgetItem(m_messageList);
 	auto user_id = obj["user_id"].toString();
+	auto item= findListItem(user_id);
+	if (item!=nullptr)
+	{
+		qDebug() << "消息项已存在" << user_id;
+		return nullptr;
+	}
+	//为item设置用户id
+	item = new QListWidgetItem(m_messageList);
 	item->setData(Qt::UserRole, user_id);
 	item->setSizeHint(QSize(m_messageList->width(), 70));
 	//将用户相关信息添加到item关联窗口
@@ -386,10 +392,12 @@ QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 		auto item = m_messageList->item(i);
 		if (user_id == item->data(Qt::UserRole).toString())
 		{
+			qDebug() << "消息项？";
 			return item;
 			break;
 		}
 	}
+	qDebug() << "消息项没有";
 	return nullptr;
 }
 

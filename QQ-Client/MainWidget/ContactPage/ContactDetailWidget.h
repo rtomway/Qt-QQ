@@ -31,7 +31,9 @@ private:
 	LineEditwithButton* m_areaEdit{};
 private:
 	QPixmap m_headPix;
-	QString m_avatarPath;
+	QString m_avatarOldPath{};
+	QString m_avatarNewPath{};
+	bool m_avatarIsChange{false};
 	QJsonObject m_json{};
 	std::unique_ptr<QWidgetAction>m_calendarAction;
 	std::unique_ptr<QCalendarWidget>m_calendarWidget;

@@ -24,11 +24,14 @@ public:
 	const QHash<QString, QSharedPointer<Friend>>& getFriends()const;
 	void loadAvatar(const QString& user_id);
 
+	void updateUserMessageToServer(const QJsonObject&obj);
+	void updateUserAvatarToServer(const QPixmap&pixmap);
+
 	void clearFriendManager();
 
 private:
 	// 私有构造函数，防止外部实例化
-	FriendManager() {};
+	FriendManager();
 	//管理所有用户
 	QHash<QString, QSharedPointer<Friend>>m_user;
 	QHash<QString, QString>m_grouping;

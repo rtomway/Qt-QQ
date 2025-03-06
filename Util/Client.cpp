@@ -1,4 +1,4 @@
-#include "Client.h"
+﻿#include "Client.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 
@@ -24,6 +24,7 @@ void Client::initRequestHash()
     requestHash["communication"] = &Client::handle_communication;
     requestHash["addFriend"] = &Client::handle_addFriend;
     requestHash["resultOfAddFriend"] = &Client::handle_resultOfAddFriend;
+    requestHash["updateUserMessage"] = &Client::handle_updateUserMessage;
 }
 
 Client* Client::instance()
@@ -70,6 +71,41 @@ Client* Client::sendMessage(const QString& type,const QVariantMap&params)
     {
         qWarning() << "数据发送失败 连接已断开......";
     }
+    return this;
+}
+Client* Client::sendBinaryMessage(const QString& type,const QVariantMap& params,const QByteArray& data)
+{
+    // 1️⃣ 构造 JSON 头部（metadata）
+    QJsonObject jsonData;
+    jsonData["type"] = type;
+
+    QJsonObject paramsObject;
+    for (auto it = params.begin(); it != params.end(); ++it) {
+        paramsObject[it.key()] = QJsonValue::fromVariant(it.value());
+    }
+    jsonData["params"] = paramsObject;
+
+    QJsonDocument doc(jsonData);
+    QByteArray headerData = doc.toJson(QJsonDocument::Compact);
+
+    // 2️⃣ 组合数据包（头部长度 + 头部 JSON + 二进制数据）
+    QByteArray packet;
+    QDataStream stream(&packet, QIODevice::WriteOnly);
+    stream.setVersion(QDataStream::Qt_6_5);
+
+    // 先写入 JSON 头部大小
+    stream << qint32(headerData.size());
+
+    // 再写入 JSON 头部
+    stream.writeRawData(headerData.constData(), headerData.size());
+
+    // 最后写入二进制数据
+    stream.writeRawData(data.constData(), data.size());
+
+    // 3️⃣ 发送数据包
+    m_client->sendBinaryMessage(packet);
+
+    qDebug() << "发送二进制数据：" << type << "，头部大小：" << headerData.size() << "，数据大小：" << data.size();
     return this;
 }
 
@@ -184,4 +220,8 @@ void Client::handle_resultOfAddFriend(const QJsonObject& paramsObject)
     {
         emit rejectAddFriend(paramsObject);
     }
+}
+void Client::handle_updateUserMessage(const QJsonObject& paramsObject)
+{
+    emit updateUserMessage(paramsObject);
 }

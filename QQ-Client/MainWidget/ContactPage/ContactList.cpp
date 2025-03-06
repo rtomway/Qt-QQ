@@ -194,8 +194,15 @@ TopItemWidget* ContactList::addFriendListItem(QString friendName)
 //添加子item
 void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& obj)
 {
-	auto friendItem = new QTreeWidgetItem(firendList);
-	friendItem->setData(0, Qt::UserRole, obj["user_id"].toString());
+	auto user_id = obj["user_id"].toString();
+	auto friendItem = findItemByIdInGroup(firendList, user_id);
+	if(friendItem!=nullptr)
+	{
+		qDebug() << "该好友已存在";
+		return;
+	}
+    friendItem = new QTreeWidgetItem(firendList);
+	friendItem->setData(0, Qt::UserRole,user_id );
 	friendItem->setSizeHint(0, QSize(m_friendList->width(), 60));
 	qDebug() << "username:" << obj["username"].toString();
 	//自定义Item

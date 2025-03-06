@@ -36,6 +36,7 @@ void Server::initRequestHash()
 	requestHash["addGroup"] = &Server::handle_addGroup;
 	requestHash["resultOfAddFriend"] = &Server::handle_resultOfAddFriend;
 	requestHash["queryUserDetail"] = &Server::handle_queryUserDetail;
+	requestHash["updateUserMessage"] = &Server::handle_updateUserMessage;
 }
 
 //通信连接
@@ -48,7 +49,7 @@ void Server::onNewConnection()
 		qDebug() << client;
 		connect(client, &QWebSocket::disconnected, this, &Server::onDisConnection);
 		connect(client, &QWebSocket::textMessageReceived, this, &Server::onTextMessageReceived);
-
+		connect(client, &QWebSocket::binaryMessageReceived, this, &Server::onBinaryMessageReceived);
 	}
 }
 void Server::onDisConnection()
@@ -81,18 +82,54 @@ void Server::onTextMessageReceived(const QString& data)
 		{
 			client_id = paramsObject["user_id"].toString();
 		}
+		QByteArray data;
 		m_clients[client_id] = dynamic_cast<QWebSocket*>(sender());
 		qDebug() << "客户端发来消息:" << m_clients[client_id] << "type:" << type << requestHash.contains(type);
 		//根据类型给处理函数处理
 		if (requestHash.contains(type))
 		{
 			auto handle = requestHash[type];
-			(this->*handle)(paramsObject);
+			(this->*handle)(paramsObject, data);
 		}
 		else
 		{
 
 		}
+
+	}
+}
+void Server::onBinaryMessageReceived(const QByteArray& message)
+{
+	QDataStream stream(message);
+	stream.setVersion(QDataStream::Qt_6_5);
+
+	// 读取 JSON 头部的大小
+	qint32 headerSize;
+	stream >> headerSize;  // 从数据流中读取头部大小
+
+	// 读取头部数据（即 JSON）
+	QByteArray headerData(headerSize, Qt::Uninitialized);
+	stream.readRawData(headerData.data(), headerSize);  // 读取头部的内容
+
+	// 将头部数据转换为 QJsonObject
+	QJsonDocument doc = QJsonDocument::fromJson(headerData);
+	QJsonObject json = doc.object();
+
+	// 获取 'type' 和 'params'
+	QString type = json["type"].toString();
+	QJsonObject paramsObject = json["params"].toObject();
+	// 读取二进制数据（即文件、图片等）
+	qint32 dataSize = paramsObject["size"].toInt();  // 获取二进制数据的大小
+	QByteArray data(dataSize, Qt::Uninitialized);
+	stream.readRawData(data.data(), dataSize);  // 读取二进制数据
+	//根据类型给处理函数处理
+	if (requestHash.contains(type))
+	{
+		auto handle = requestHash[type];
+		(this->*handle)(paramsObject,data);
+	}
+	else
+	{
 
 	}
 }
@@ -150,7 +187,7 @@ QString Server::generateUserID()
 
 //消息请求处理函数
 //登录
-void Server::handle_login(const QJsonObject& paramsObject)
+void Server::handle_login(const QJsonObject& paramsObject,const QByteArray& data)
 {
 	auto user_id = paramsObject["user_id"].toString();
 	auto password = paramsObject["password"].toString();
@@ -246,7 +283,7 @@ void Server::handle_login(const QJsonObject& paramsObject)
 	}
 }
 //注册
-void Server::handle_register(const QJsonObject& paramsObject)
+void Server::handle_register(const QJsonObject& paramsObject,const QByteArray& data)
 {
 	SConnectionWrap wrap;
 	QSqlQuery query(wrap.openConnection());
@@ -276,7 +313,6 @@ void Server::handle_register(const QJsonObject& paramsObject)
 	{
 		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
 		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
-
 		return;
 	}
 
@@ -284,9 +320,8 @@ void Server::handle_register(const QJsonObject& paramsObject)
 	client->sendTextMessage(SResult::success(paramsObject));
 
 }
-
 //通信转发
-void Server::handle_communication(const QJsonObject& paramsObject)
+void Server::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
@@ -297,11 +332,11 @@ void Server::handle_communication(const QJsonObject& paramsObject)
 	auto client = m_clients[receive_id];
 
 	QJsonDocument doc(jsondate);
-	QString data = QString(doc.toJson(QJsonDocument::Compact));
-	client->sendTextMessage(data);
+	QString message = QString(doc.toJson(QJsonDocument::Compact));
+	client->sendTextMessage(message);
 }
 //搜索用户
-void Server::handle_searchUser(const QJsonObject& paramsObject)
+void Server::handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data )
 {
 	qDebug() << paramsObject;
 	auto user_id = paramsObject["user_id"].toString();
@@ -347,7 +382,7 @@ void Server::handle_searchUser(const QJsonObject& paramsObject)
 
 }
 //搜索群组
-void Server::handle_searchGroup(const QJsonObject& paramsObject)
+void Server::handle_searchGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << paramsObject;
 	auto user_id = paramsObject["user_id"].toString();
@@ -395,7 +430,7 @@ void Server::handle_searchGroup(const QJsonObject& paramsObject)
 
 }
 //添加好友
-void Server::handle_addFriend(const QJsonObject& paramsObject)
+void Server::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data )
 {
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
@@ -406,16 +441,16 @@ void Server::handle_addFriend(const QJsonObject& paramsObject)
 	auto receive_message = paramsObject["message"].toString();
 	auto client = m_clients[receive_id];
 	QJsonDocument doc(jsondate);
-	QString data = QString(doc.toJson(QJsonDocument::Compact));
-	client->sendTextMessage(data);
+	QString message = QString(doc.toJson(QJsonDocument::Compact));
+	client->sendTextMessage(message);
 }
 //添加群组
-void Server::handle_addGroup(const QJsonObject& paramsObject)
+void Server::handle_addGroup(const QJsonObject& paramsObject, const QByteArray& data )
 {
 
 }
 //拒绝添加
-void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject)
+void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
@@ -425,11 +460,11 @@ void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject)
 	auto receive_id = paramsObject["to"].toString();
 	auto client = m_clients[receive_id];
 	QJsonDocument doc(jsondate);
-	QString data = QString(doc.toJson(QJsonDocument::Compact));
-	client->sendTextMessage(data);
+	QString message = QString(doc.toJson(QJsonDocument::Compact));
+	client->sendTextMessage(message);
 }
 //查询用户信息
-void Server::handle_queryUserDetail(const QJsonObject& paramsObject)
+void Server::handle_queryUserDetail(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	//客户端
 	auto user_id = paramsObject["user_id"].toString();
@@ -466,3 +501,75 @@ void Server::handle_queryUserDetail(const QJsonObject& paramsObject)
 	}
 
 }
+//更新用户信息
+void Server::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	//客户端
+	auto user_id = paramsObject["user_id"].toString();
+	auto client = m_clients[user_id];
+
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+
+	auto username= paramsObject["username"].toString();
+	auto gender = paramsObject["gender"].toInt();
+	auto age = paramsObject["age"].toInt();
+	auto phone_number = paramsObject["phone_number"].toString();
+	auto email = paramsObject["email"].toString();
+	auto birthday =QDate::fromString(paramsObject["birthday"].toString(),"yyyy-MM-dd");
+	auto signature = paramsObject["signature"].toString();
+
+	QJsonObject jsondata;
+	QString dataObj;
+
+	query.prepare("UPDATE user SET username=?, \
+		gender = ?, age =?, phone_number = ? , \
+		email = ? , birthday = ? , signature = ? \
+		WHERE user_id = ? ");
+	query.addBindValue(username);
+	query.addBindValue(gender);
+	query.addBindValue(age);
+	query.addBindValue(phone_number);
+	query.addBindValue(email);
+	query.addBindValue(birthday);
+	query.addBindValue(signature);
+	query.addBindValue(user_id);
+	if (!query.exec())
+	{ 
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+		return;
+	}else
+	{
+		jsondata["type"] = "updateUserMessage";
+		jsondata["params"] = paramsObject;
+		QJsonDocument doc(jsondata);
+		dataObj = QString(doc.toJson(QJsonDocument::Compact));
+	}
+	query.prepare("select friend_id from friendship where user_id=?");
+	query.addBindValue(user_id);
+	if (query.exec())
+	{
+
+		while (query.next())
+		{
+			auto friend_id = query.value(0).toString();
+			qDebug() << "好友id:" << friend_id<<data;
+			if(m_clients.contains(friend_id))
+			m_clients[friend_id]->sendTextMessage(data);
+		}
+	}
+	else
+	{
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+		return;
+	}
+}
+
+void Server::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+
+}
+

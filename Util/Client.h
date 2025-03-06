@@ -1,4 +1,4 @@
-#ifndef CLIENT_H_
+﻿#ifndef CLIENT_H_
 #define CLIENT_H_
 
 #include <QWebSocket>
@@ -20,6 +20,7 @@ public:
     //链式调用
 	Client* connectToServer(const QString&url);
 	Client* sendMessage(const QString& type,const QVariantMap& params = {});
+	Client* sendBinaryMessage(const QString& type, const QVariantMap& params,const QByteArray&data);
 	//事件回调
 	Client* ReciveMessage(std::function<void(const QString&)>callback);
 	Client* Error(std::function<void(const QString&)>callback);
@@ -51,12 +52,14 @@ private:
 	void handle_communication(const QJsonObject& paramsObject);
 	void handle_addFriend(const QJsonObject& paramsObject);
 	void handle_resultOfAddFriend(const QJsonObject& paramsObject);
+	void handle_updateUserMessage(const QJsonObject& paramsObject);
 signals:   //接受到消息发送信号通知UI界面更新同步
 	void communication(const QJsonObject& paramsObject);
 	void addFriend(const QJsonObject& paramsObject);
 	void addGroup(const QJsonObject& paramsObject);
 	void rejectAddFriend(const QJsonObject& paramsObject);
 	void agreeAddFriend(const QJsonObject& paramsObject);
+	void updateUserMessage(const QJsonObject& paramsObject);
 };
 
 

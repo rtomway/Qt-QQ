@@ -178,7 +178,7 @@ void LoginWidget::init()
 			loginParams["password"] = password;
 			Client::instance()->sendMessage("login", loginParams)
 				->ReciveMessage([=](const QString& message)
-				{
+					{
 						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
 						if (doc.isObject())
 						{
@@ -222,7 +222,7 @@ void LoginWidget::init()
 							}
 
 						}
-				});
+					});
 
 		});
 

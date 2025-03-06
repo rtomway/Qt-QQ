@@ -1,11 +1,27 @@
 ﻿#include "FriendManager.h"
 #include "ImageUtil.h"
+#include "Client.h"
+#include <QBuffer>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QVariantMap>
 
 FriendManager* FriendManager::instance() {
 	static FriendManager instance;
 	return &instance;
 }
 QString FriendManager::m_oneselfID = QString();
+
+FriendManager::FriendManager()
+{
+	connect(Client::instance(), &Client::updateUserMessage, this, [=](const QJsonObject& obj)
+		{
+			auto user_id = obj["user_id"].toString();
+			auto user = findFriend(user_id);
+			user->setFriend(obj);
+			emit UpdateFriendMessage(user_id);
+		});
+}
 
 //设置当前用户id
 void FriendManager::setOneselfID(const QString& id)
@@ -60,7 +76,43 @@ void FriendManager::loadAvatar(const QString& user_id)
 	}
 }
 
+//用户信息更新向服务端发送
+void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
+{
+	QVariantMap friendObj=obj.toVariantMap();
+	qDebug() << "用户更新的信息json：" << friendObj;
+	Client::instance()->sendMessage("updateUserMessage", friendObj);
+}
 
+//用户头像更新向服务端发送
+void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
+{
+	if (pixmap.isNull()) {
+		qDebug() << "Avatar is empty, no update needed.";
+		return;
+	}
+
+	QByteArray byteArray;
+	QBuffer buffer(&byteArray);
+	buffer.open(QIODevice::WriteOnly);
+
+	// 将 QPixmap 转换为 PNG 并存入 QByteArray
+	if (!pixmap.save(&buffer, "PNG")) {
+		qDebug() << "Failed to convert avatar to PNG format.";
+		return;
+	}
+	QVariantMap params;
+	params["user_id"] = m_oneselfID;
+	params["size"] = byteArray.size();
+
+	Client::instance()->sendBinaryMessage("updateUserAvatar", params, byteArray);
+
+}
+
+//接受到其他用户信息更新信号
+
+
+//将好友中心清空(切换用户)
 void FriendManager::clearFriendManager()
 {
 	m_oneselfID = QString();

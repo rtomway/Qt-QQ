@@ -1,4 +1,4 @@
-#ifndef MESSAGEBUBBLE_H_
+﻿#ifndef MESSAGEBUBBLE_H_
 #define MESSAGEBUBBLE_H_
 
 #include <QLabel>
@@ -17,7 +17,9 @@ public:
 	MessageBubble(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleRight, QWidget* parent = nullptr);
 	void init();
 	void setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleLeft);
+	void setHeadImage(const QPixmap& newHeadImg);
 	int textHeight()const;
+	MessageBubble::BubbleType getType();
 protected:
 	void paintEvent(QPaintEvent* ev)override;
 	void resizeEvent(QResizeEvent* ev)override;

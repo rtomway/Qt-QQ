@@ -27,6 +27,7 @@ void Friend::setFriend(const QJsonObject& obj)
 	m_signature = obj["signature"].toString();
 	m_status = obj["status"].toBool();
 	m_grouping = obj["grouping"].toString();
+	loadAvatar();
 
 }
 

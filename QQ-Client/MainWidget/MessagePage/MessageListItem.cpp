@@ -10,13 +10,13 @@
 
 MessageListItem::MessageListItem(QWidget* parent)
 	:QWidget(parent)
-	,ui(new Ui::MessageListItem)
-	,m_leftWidget(new QWidget)
-	,m_messageAttention(new QWidget)
+	, ui(new Ui::MessageListItem)
+	, m_leftWidget(new QWidget)
+	, m_messageAttention(new QWidget)
 {
 	ui->setupUi(this);
 	init();
-	ui->countLab->setFixedSize(18,18);
+	ui->countLab->setFixedSize(18, 18);
 	ui->countLab->setStyleSheet(R"(
 				border:none;
 				border-radius:9px;
@@ -28,7 +28,7 @@ MessageListItem::MessageListItem(QWidget* parent)
 
 void MessageListItem::init()
 {
-	QPixmap pixmap= ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40));
+	QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40));
 	//ui->headLab->setPixmap(QPixmap(":/picture/Resource/Picture/qq.png"));
 	//pixmap.setDevicePixelRatio(this->devicePixelRatioF());
 	//ui->headLab->setPixmap(pixmap.scaled(size() * devicePixelRatioF(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -36,7 +36,7 @@ void MessageListItem::init()
 	ui->headLab->setPixmap(pixmap);
 	ui->headLab->setScaledContents(true);
 	//ui->headLab->setMask(QRegion(ui->headLab->rect(), QRegion::RegionType::Ellipse));
-	
+
 }
 
 void MessageListItem::setUser(const QJsonObject& obj)
@@ -44,14 +44,14 @@ void MessageListItem::setUser(const QJsonObject& obj)
 	m_username = obj["username"].toString();
 	m_user_id = obj["user_id"].toString();
 
-	if (obj.contains("message")&&!obj["message"].isNull()&&obj["message"].isString())
+	if (obj.contains("message") && !obj["message"].isNull() && obj["message"].isString())
 	{
 		m_unReadMessage.append(obj["message"].toString());
 	}
 	qDebug() << "name" << m_username << m_user_id;
 	auto user = FriendManager::instance()->findFriend(m_user_id);
-	user->loadAvatar();
-	auto pixmap= ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
+	//user->loadAvatar();
+	auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
 	ui->headLab->setPixmap(pixmap);
 	//信息更新到界面
 	updateItemWidget();
@@ -97,7 +97,7 @@ void MessageListItem::updateItemWidget()
 	}
 }
 
-QString MessageListItem::covertToChinese(const QString& date)	
+QString MessageListItem::covertToChinese(const QString& date)
 {
 	// 英文日期字符串转换为 QDateTime 对象
 	QDateTime dateTime = QDateTime::fromString(date, "ddd MMM dd hh:mm:ss yyyy");
@@ -107,7 +107,7 @@ QString MessageListItem::covertToChinese(const QString& date)
 	}
 	// 设置本地化为中文
 	QLocale locale(QLocale::Chinese);
-	qDebug() <<"时间" << locale.toString(dateTime, "yyyy年MM月dd日 hh:mm");
+	qDebug() << "时间" << locale.toString(dateTime, "yyyy年MM月dd日 hh:mm");
 	// 转换为中文格式，并控制到分钟
 	return locale.toString(dateTime, "M月dd日 hh:mm");
 }
