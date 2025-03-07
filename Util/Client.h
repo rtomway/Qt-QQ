@@ -40,19 +40,21 @@ private:
 
 private slots:
 	void onTextMessageReceived(const QString& message);
+	void onBinaryMessageReceived(const QByteArray& data);
 	void onErrorOccurred(QAbstractSocket::SocketError error);
 	void onConnected();
 	void onDisconnected();
 
 private:
 	//消息处理函数表
-	QHash<QString, void(Client::*)(const QJsonObject&)>requestHash{};
+	QHash<QString, void(Client::*)(const QJsonObject&, const QByteArray&)>requestHash{};
 private:
 	//各种消息处理函数
-	void handle_communication(const QJsonObject& paramsObject);
-	void handle_addFriend(const QJsonObject& paramsObject);
-	void handle_resultOfAddFriend(const QJsonObject& paramsObject);
-	void handle_updateUserMessage(const QJsonObject& paramsObject);
+	void handle_communication(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 signals:   //接受到消息发送信号通知UI界面更新同步
 	void communication(const QJsonObject& paramsObject);
 	void addFriend(const QJsonObject& paramsObject);
@@ -60,6 +62,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void rejectAddFriend(const QJsonObject& paramsObject);
 	void agreeAddFriend(const QJsonObject& paramsObject);
 	void updateUserMessage(const QJsonObject& paramsObject);
+	void updateUserAvatar(const QString&user_id,const QPixmap&pixmap);
 };
 
 

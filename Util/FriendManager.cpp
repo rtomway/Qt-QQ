@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QVariantMap>
+#include <QStandardPaths>
 
 FriendManager* FriendManager::instance() {
 	static FriendManager instance;
@@ -20,6 +21,21 @@ FriendManager::FriendManager()
 			auto user = findFriend(user_id);
 			user->setFriend(obj);
 			emit UpdateFriendMessage(user_id);
+		});
+	connect(Client::instance(), &Client::updateUserAvatar, this, [=](const QString& user_id,const QPixmap&pixmap)
+		{
+			auto user = findFriend(user_id);
+			qDebug() << "----------F好友头像更新-----------";
+			//保存目录
+			QString avatarFolder = QStandardPaths::writableLocation
+			(QStandardPaths::AppDataLocation)+"/avatars";
+			auto avatarPath = avatarFolder + "/" + user_id +".png";
+			auto isSave= pixmap.save(avatarPath);
+			if (isSave)
+			{
+				user->loadAvatar();
+				emit UpdateFriendMessage(user_id);
+			}
 		});
 }
 
@@ -103,6 +119,7 @@ void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
 	}
 	QVariantMap params;
 	params["user_id"] = m_oneselfID;
+
 	params["size"] = byteArray.size();
 
 	Client::instance()->sendBinaryMessage("updateUserAvatar", params, byteArray);

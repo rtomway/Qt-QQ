@@ -4,6 +4,9 @@
 #include "SSqlConnectionPool.h"
 #include "SResultCode.h"
 #include <QRandomGenerator>
+#include <QStandardPaths>
+#include <QImage>
+#include <QDir>
 
 Server::Server(QObject* parent)
 	:QObject(parent)
@@ -37,6 +40,7 @@ void Server::initRequestHash()
 	requestHash["resultOfAddFriend"] = &Server::handle_resultOfAddFriend;
 	requestHash["queryUserDetail"] = &Server::handle_queryUserDetail;
 	requestHash["updateUserMessage"] = &Server::handle_updateUserMessage;
+	requestHash["updateUserAvatar"] = &Server::handle_updateUserAvatar;
 }
 
 //通信连接
@@ -122,6 +126,7 @@ void Server::onBinaryMessageReceived(const QByteArray& message)
 	qint32 dataSize = paramsObject["size"].toInt();  // 获取二进制数据的大小
 	QByteArray data(dataSize, Qt::Uninitialized);
 	stream.readRawData(data.data(), dataSize);  // 读取二进制数据
+	qDebug() << "客户端发来消息:" << "type:" << type << requestHash.contains(type);
 	//根据类型给处理函数处理
 	if (requestHash.contains(type))
 	{
@@ -501,6 +506,32 @@ void Server::handle_queryUserDetail(const QJsonObject& paramsObject, const QByte
 	}
 
 }
+//查询好友id
+QStringList Server::getFriendId(const QString& user_id)
+{
+	QStringList friendIdList;
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+
+	query.prepare("select friend_id from friendship where user_id=?");
+	query.addBindValue(user_id);
+	if (query.exec())
+	{
+		while (query.next())
+		{
+			auto friend_id = query.value(0).toString();
+			qDebug() << "好友id:" << friend_id ;
+			friendIdList.append(friend_id);
+		}
+	}
+	else
+	{
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+		return QStringList();
+	}
+	return friendIdList;
+}
 //更新用户信息
 void Server::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -519,10 +550,14 @@ void Server::handle_updateUserMessage(const QJsonObject& paramsObject, const QBy
 	auto birthday =QDate::fromString(paramsObject["birthday"].toString(),"yyyy-MM-dd");
 	auto signature = paramsObject["signature"].toString();
 
+	phone_number = phone_number.isEmpty() ? QVariant(QVariant::String).toString() : phone_number;
+	 email = email.isEmpty() ? QVariant(QVariant::String).toString() : email;
+	 signature = signature.isEmpty() ? QVariant(QVariant::String).toString() : signature;
+
 	QJsonObject jsondata;
 	QString dataObj;
 
-	query.prepare("UPDATE user SET username=?, \
+	query.prepare("UPDATE user SET username=?,\
 		gender = ?, age =?, phone_number = ? , \
 		email = ? , birthday = ? , signature = ? \
 		WHERE user_id = ? ");
@@ -546,30 +581,91 @@ void Server::handle_updateUserMessage(const QJsonObject& paramsObject, const QBy
 		QJsonDocument doc(jsondata);
 		dataObj = QString(doc.toJson(QJsonDocument::Compact));
 	}
-	query.prepare("select friend_id from friendship where user_id=?");
-	query.addBindValue(user_id);
-	if (query.exec())
+	QStringList friendIdList = getFriendId(user_id);
+	for (auto friend_id : friendIdList)
 	{
-
-		while (query.next())
+		if (m_clients.contains(friend_id))
 		{
-			auto friend_id = query.value(0).toString();
-			qDebug() << "好友id:" << friend_id<<data;
-			if(m_clients.contains(friend_id))
-			m_clients[friend_id]->sendTextMessage(data);
+			m_clients[friend_id]->sendTextMessage(dataObj);
 		}
 	}
-	else
+	
+}
+//更新用户头像
+void Server::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	//更新数据库
+	auto user_id = paramsObject["user_id"].toString();
+	auto avatarPath = user_id + ".png";
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+
+	query.prepare("update user set avatar_path=? where user_id=?");
+	query.addBindValue(avatarPath);
+	query.addBindValue(user_id);
+	if (!query.exec())
 	{
 		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
 		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
 		return;
 	}
-}
+	//将头像存储到服务器中
+	//保存目录
+	QString avatarFolder = QStandardPaths::writableLocation
+	(QStandardPaths::AppDataLocation)+"/avatars";
+	// 如果目录不存在，则创建
+	QDir dir;
+	if (!dir.exists(avatarFolder)) {
+		dir.mkpath(avatarFolder);
+	}
+	qDebug() << "avatarFolder:" << avatarFolder;
+	auto avatar_Path = avatarFolder + "/" + user_id + ".png";
+	QImage image;
+	if (!image.loadFromData(data))  // 从二进制数据加载图片
+	{
+		qWarning() << "Failed to load avatar for user:" << user_id;
+		return;
+	}
+	if (!image.save(avatar_Path))
+	{
+		qWarning() << "Failed to save avatar for user:" << user_id;
+		return;
+	}
+	
+	//二进制数据
+	// 1️⃣ 构造 JSON 头部（metadata）
+	QJsonObject jsonData;
+	jsonData["type"] = "updateUserAvatar"; // 消息类型
 
-void Server::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
+	// 复制原始参数
+	jsonData["params"] = paramsObject;
 
+	// 序列化 JSON 数据
+	QJsonDocument doc(jsonData);
+	QByteArray headerData = doc.toJson(QJsonDocument::Compact);
+
+	// 2️⃣ 组合数据包（头部长度 + 头部 JSON + 二进制数据）
+	QByteArray packet;
+	QDataStream stream(&packet, QIODevice::WriteOnly);
+	stream.setVersion(QDataStream::Qt_6_5);
+
+	// 先写入 JSON 头部大小（固定 4 字节，qint32）
+	stream << qint32(headerData.size());
+
+	// 再写入 JSON 头部
+	stream.writeRawData(headerData.constData(), headerData.size());
+
+	// 最后写入头像二进制数据
+	stream.writeRawData(data.constData(), data.size());
+	qDebug() << "----------S好友头像更新-----------";
+	// 3️⃣ 发送数据包
+	QStringList friendIdList = getFriendId(user_id);
+	for (const auto& friend_id : friendIdList)
+	{
+		if (m_clients.contains(friend_id))
+		{
+			m_clients[friend_id]->sendBinaryMessage(packet);
+		}
+	}
 }
 

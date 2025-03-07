@@ -155,6 +155,7 @@ void ContactList::init()
 	//信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
+			qDebug() << "用户信息更新99999999999999999999999999";
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto groupingItem = getFriendTopItem(user->getGrouping());
 			auto item= findItemByIdInGroup(groupingItem, user_id);

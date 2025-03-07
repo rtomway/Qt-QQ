@@ -1,5 +1,6 @@
 ﻿#include "Friend.h"
 #include "ImageUtil.h"
+#include <QStandardPaths>
 
 
 Friend::Friend(const QString& id)
@@ -51,8 +52,12 @@ void Friend::loadAvatar()
 {
 	if (!m_avatarPath.isEmpty())
 	{
+		QString avatarFolder = QStandardPaths::writableLocation
+		(QStandardPaths::AppDataLocation)+"/avatars";
+		auto avatarPath = avatarFolder + "/" + m_avatarPath;
+
 		// 加载图片
-		QPixmap pixmap(m_avatarPath);
+		QPixmap pixmap(avatarPath);
 
 		// 检查图片是否加载成功
 		if (!pixmap.isNull()) {

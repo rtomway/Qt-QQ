@@ -183,9 +183,10 @@ void ContactDetailWidget::init()
 			saveAvatarToLocal(m_avatarNewPath, user_id);
 			if (m_avatarIsChange)//头像更改更新到服务端
 			{
+				qDebug() << "头像更改更新到服务端";
 				FriendManager::instance()->updateUserAvatarToServer(m_headPix);
 			}
-			m_json["avatar_path"] = m_avatarNewPath;
+			m_json["avatar_path"] = user_id+".png";
 			m_json["username"] = m_nickNameEdit->getLineEditText();
 			m_json["signature"] = m_signaltureEdit->getLineEditText();
 			if (!m_genderEdit->getLineEditText().isEmpty())

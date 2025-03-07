@@ -40,6 +40,7 @@ signals:
 	void UserAvatarLoaded(const QPixmap& avatar);
 	void FriendAvatarLoaded(const QPixmap& avatar);
 	void UpdateFriendMessage(const QString&user_id);
+	void UpdateFriendAvatar(const QString& user_id);
 };
 
 

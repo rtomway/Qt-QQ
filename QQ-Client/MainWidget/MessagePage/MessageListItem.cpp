@@ -29,13 +29,9 @@ MessageListItem::MessageListItem(QWidget* parent)
 void MessageListItem::init()
 {
 	QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40));
-	//ui->headLab->setPixmap(QPixmap(":/picture/Resource/Picture/qq.png"));
-	//pixmap.setDevicePixelRatio(this->devicePixelRatioF());
-	//ui->headLab->setPixmap(pixmap.scaled(size() * devicePixelRatioF(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	ui->headLab->setFixedSize(40, 40);
 	ui->headLab->setPixmap(pixmap);
 	ui->headLab->setScaledContents(true);
-	//ui->headLab->setMask(QRegion(ui->headLab->rect(), QRegion::RegionType::Ellipse));
 
 }
 

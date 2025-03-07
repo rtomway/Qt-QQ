@@ -123,6 +123,8 @@ void MainWidget::init()
 		});
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
+			if (user_id != FriendManager::instance()->getOneselfID())
+				return;
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
 			ui->headLab->setPixmap(pixmap);

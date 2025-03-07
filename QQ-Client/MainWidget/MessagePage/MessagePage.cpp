@@ -31,16 +31,6 @@ MessagePage::MessagePage(QWidget* parent)
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
-	//QPalette palette = this->palette();
-	//QColor backgroundColor = palette.color(QPalette::Window);
-
-	//qDebug() << "Background color:" << backgroundColor;
-	//// 获取RGB值
-	//int red = backgroundColor.red();
-	//int green = backgroundColor.green();
-	//int blue = backgroundColor.blue();
-
-	//qDebug() << "Background color in RGB:" << red << green << blue;
 }
 
 MessagePage::~MessagePage()
@@ -60,38 +50,12 @@ void MessagePage::init()
 		{
 			auto user_id = FriendManager::instance()->getOneselfID();
 			m_oneself = FriendManager::instance()->findFriend(user_id);
-			//m_oneself->loadAvatar();
 		});
 	//用户信息更新后
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(100, 100), 66);
-			/*if (user_id == m_oneself->getFriendId())
-			{
-				qDebug() << "自己的头像更新";
-				m_oneself = user;
-				for (int i = 0; i < ui->messageListWidget->count(); i++)
-				{
-					auto item = dynamic_cast<MessageBubble*>(ui->messageListWidget->item(i));
-					if (item->getType() == MessageBubble::BubbleRight)
-					{
-						item->setHeadImage(pixmap);
-						qDebug() << "之前消息的更新";
-					}
-				}
-			}
-			else if (user_id == m_currentID)
-			{
-				for (int i = 0; i < ui->messageListWidget->count(); i++)
-				{
-					auto item = dynamic_cast<MessageBubble*>(ui->messageListWidget->item(i));
-					if (item->getType() == MessageBubble::BubbleLeft)
-					{
-						item->setHeadImage(pixmap);
-					}
-				}
-			}*/
 			if (user_id == m_oneself->getFriendId())
 			{
 				qDebug() << "自己的头像更新";
@@ -99,7 +63,6 @@ void MessagePage::init()
 			}
 			//刷新界面
 			setCurrentUser(user->getFriend());
-
 		});
 
 	//发送文字消息
@@ -139,6 +102,8 @@ void MessagePage::setCurrentUser(const QJsonObject& obj)
 	m_friend_username = obj["username"].toString();
 	m_friend_id = obj["user_id"].toString();
 	m_currentID = m_friend_id;
+	auto pixmap= FriendManager::instance()->findFriend(m_currentID)->getAvatar();
+	m_friend_headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100), 66);
 
 	auto chatMessage = m_chats[m_friend_id];
 	//加载聊天记录
@@ -147,11 +112,6 @@ void MessagePage::setCurrentUser(const QJsonObject& obj)
 	//信息更新到界面
 	updateMessageWidget();
 
-	//QJsonArray messageArray = obj["message"].toArray();
-	//for (const QJsonValue& jsonvalue : messageArray)
-	//{
-	//	updateReciveMessage(jsonvalue.toString());
-	//}
 
 }
 //新增好友聊天

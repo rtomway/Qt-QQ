@@ -38,6 +38,7 @@ private:
 	void handle_addGroup(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_queryUserDetail(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	QStringList getFriendId(const QString& user_id);
 	void handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 };

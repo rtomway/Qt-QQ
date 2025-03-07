@@ -62,13 +62,11 @@ void AddWidget::init()
 	//好友添加界面
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
-			
 			if (m_isSend)//申请
 			{
 				auto oneselfID = FriendManager::instance()->getOneselfID();
 				auto oneself = FriendManager::instance()->findFriend(oneselfID);
 				auto paramsObject = oneself->getFriend().toVariantMap();
-				//QVariantMap paramsObject;
 				paramsObject["to"] = m_user_id;
 				paramsObject["message"] = ui->messageEdit->text();
 				paramsObject["addFriend"] = "请求加为好友";

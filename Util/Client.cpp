@@ -1,6 +1,7 @@
 ﻿#include "Client.h"
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <Qpixmap>
 
 
 Client::Client(QObject* parent)
@@ -8,6 +9,7 @@ Client::Client(QObject* parent)
 {
     //客户端接受信号
     connect(m_client, &QWebSocket::textMessageReceived, this, &Client::onTextMessageReceived);
+    connect(m_client, &QWebSocket::binaryMessageReceived, this, &Client::onBinaryMessageReceived);
     connect(m_client, &QWebSocket::errorOccurred, this, &Client::onErrorOccurred);
     connect(m_client, &QWebSocket::connected, this, &Client::onConnected);
     connect(m_client, &QWebSocket::disconnected, this, &Client::onDisconnected);
@@ -25,6 +27,7 @@ void Client::initRequestHash()
     requestHash["addFriend"] = &Client::handle_addFriend;
     requestHash["resultOfAddFriend"] = &Client::handle_resultOfAddFriend;
     requestHash["updateUserMessage"] = &Client::handle_updateUserMessage;
+    requestHash["updateUserAvatar"] = &Client::handle_updateUserAvatar;
 }
 
 Client* Client::instance()
@@ -73,6 +76,7 @@ Client* Client::sendMessage(const QString& type,const QVariantMap&params)
     }
     return this;
 }
+//发送二进制数据
 Client* Client::sendBinaryMessage(const QString& type,const QVariantMap& params,const QByteArray& data)
 {
     // 1️⃣ 构造 JSON 头部（metadata）
@@ -144,11 +148,11 @@ void Client::onTextMessageReceived(const QString& message)
         auto type = obj["type"].toString();
         auto paramsObject = obj["params"].toObject();
         qDebug() << type<< requestHash.contains(type);
-
+        QByteArray data;
         if (requestHash.contains(type))
         {
             auto handle = requestHash[type];
-            (this->*handle)(paramsObject);
+            (this->*handle)(paramsObject, data);
         }
         else
         {
@@ -161,6 +165,42 @@ void Client::onTextMessageReceived(const QString& message)
         //auto client_id = paramsObject["user_id"].toString();
 
        
+    }
+}
+void Client::onBinaryMessageReceived(const QByteArray& message)
+{
+    qDebug() << "接受到服务端的消息:二进制";
+    QDataStream stream(message);
+    stream.setVersion(QDataStream::Qt_6_5);
+
+    // 读取 JSON 头部的大小
+    qint32 headerSize;
+    stream >> headerSize;  // 从数据流中读取头部大小
+
+    // 读取头部数据（即 JSON）
+    QByteArray headerData(headerSize, Qt::Uninitialized);
+    stream.readRawData(headerData.data(), headerSize);  // 读取头部的内容
+
+    // 将头部数据转换为 QJsonObject
+    QJsonDocument doc = QJsonDocument::fromJson(headerData);
+    QJsonObject json = doc.object();
+
+    // 获取 'type' 和 'params'
+    QString type = json["type"].toString();
+    QJsonObject paramsObject = json["params"].toObject();
+    // 读取二进制数据（即文件、图片等）
+    qint32 dataSize = paramsObject["size"].toInt();  // 获取二进制数据的大小
+    QByteArray data(dataSize, Qt::Uninitialized);
+    stream.readRawData(data.data(), dataSize);  // 读取二进制数据
+    //根据类型给处理函数处理
+    if (requestHash.contains(type))
+    {
+        auto handle = requestHash[type];
+        (this->*handle)(paramsObject, data);
+    }
+    else
+    {
+
     }
 }
 
@@ -195,7 +235,7 @@ void Client::disconnect()
     }
 }
 
-void Client::handle_communication(const QJsonObject& paramsObject)
+void Client::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
 {
     qDebug() << "communication";
     auto adverse_id = paramsObject["user_id"].toString();
@@ -203,14 +243,14 @@ void Client::handle_communication(const QJsonObject& paramsObject)
     auto time = paramsObject["time"].toString();
     emit communication(paramsObject);
 }
-void Client::handle_addFriend(const QJsonObject& paramsObject)
+void Client::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
     auto adverse_id = paramsObject["user_id"].toString();
     auto adverse_message = paramsObject["message"].toString();
     auto time = paramsObject["time"].toString();
     emit addFriend(paramsObject);
 }
-void Client::handle_resultOfAddFriend(const QJsonObject& paramsObject)
+void Client::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
     if (paramsObject["result"].toBool())
     {
@@ -221,7 +261,21 @@ void Client::handle_resultOfAddFriend(const QJsonObject& paramsObject)
         emit rejectAddFriend(paramsObject);
     }
 }
-void Client::handle_updateUserMessage(const QJsonObject& paramsObject)
+void Client::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
 {
     emit updateUserMessage(paramsObject);
+}
+void Client::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
+{
+    auto user_id = paramsObject["user_id"].toString();
+    qDebug() << "----------C好友头像更新-----------";
+    // 1️⃣ 把 QByteArray 转换成 QPixmap
+    QPixmap avatar;
+    if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+    {
+        qWarning() << "Failed to load avatar for user:" << user_id;
+        return;
+    }
+   
+    emit updateUserAvatar(user_id, avatar);
 }
