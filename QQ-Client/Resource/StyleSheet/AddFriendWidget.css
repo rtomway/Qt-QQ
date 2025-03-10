@@ -1,4 +1,4 @@
-QWidget{
+﻿QWidget{
     background-color:white;
 }
 QPushButton {
@@ -68,4 +68,27 @@ QListWidget QPushButton {
 QListWidget QPushButton:hover{
     background-color: rgb(230, 229, 229);
 }
+
+    QListWidget QScrollBar:vertical {
+        border: none;
+        background-color: transparent;
+        width: 8px;
+    }
+
+    QListWidget QScrollBar::handle:vertical {
+        border: none;
+        background-color: rgb(229, 227, 227);
+        border-radius: 3px;
+        min-height: 2px;
+    }
+
+    QListWidget QScrollBar::add-line:vertical {
+        border: 0px;
+        height: 0px;
+    }
+
+    QListWidget QScrollBar::sub-line:vertical {
+        border: 0px;
+        height: 0px;
+    }
 

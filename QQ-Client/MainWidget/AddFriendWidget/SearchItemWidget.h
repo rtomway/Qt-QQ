@@ -1,4 +1,4 @@
-#ifndef SEARCHITEMWIDGET
+﻿#ifndef SEARCHITEMWIDGET
 #define SEARCHITEMWIDGET
 
 #include <QWidget>
@@ -13,6 +13,7 @@ public:
 	void init();
 	void setUser(const QJsonObject&obj);
 	QJsonObject getUser();
+	void setPixmap(const QPixmap&pixmap);
 	void setGroup(const QJsonObject& obj);
 private:
 	Ui::SearchItemWidget* ui{};

@@ -1,4 +1,4 @@
-#ifndef ADDFRIENDWIDGET_H_
+﻿#ifndef ADDFRIENDWIDGET_H_
 #define ADDFRIENDWIDGET_H_
 
 #include "AngleRoundedWidget.h"
@@ -26,7 +26,7 @@ private:
 	QListWidget* m_userList{};
 	QListWidget* m_groupList{};
 private:
-	void addListWidgetItem(QListWidget*list,const QJsonObject&obj);
+	void addListWidgetItem(QListWidget*list,const QJsonObject&obj, const QPixmap& pixmap);
 private:
 	Ui::AddFriendWidget* ui{};
 	

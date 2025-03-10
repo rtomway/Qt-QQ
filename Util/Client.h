@@ -17,10 +17,10 @@ public:
 private:
 	Client(QObject* parent = nullptr);
 public:
-    //链式调用
-	Client* connectToServer(const QString&url);
-	Client* sendMessage(const QString& type,const QVariantMap& params = {});
-	Client* sendBinaryMessage(const QString& type, const QVariantMap& params,const QByteArray&data);
+	//链式调用
+	Client* connectToServer(const QString& url);
+	Client* sendMessage(const QString& type, const QVariantMap& params = {});
+	Client* sendBinaryMessage(const QString& type, const QVariantMap& params, const QByteArray& data);
 	//事件回调
 	Client* ReciveMessage(std::function<void(const QString&)>callback);
 	Client* Error(std::function<void(const QString&)>callback);
@@ -53,16 +53,18 @@ private:
 	void handle_communication(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 signals:   //接受到消息发送信号通知UI界面更新同步
 	void communication(const QJsonObject& paramsObject);
-	void addFriend(const QJsonObject& paramsObject);
+	void addFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void addGroup(const QJsonObject& paramsObject);
-	void rejectAddFriend(const QJsonObject& paramsObject);
+	void rejectAddFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void agreeAddFriend(const QJsonObject& paramsObject);
+	void searchUser(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void updateUserMessage(const QJsonObject& paramsObject);
-	void updateUserAvatar(const QString&user_id,const QPixmap&pixmap);
+	void updateUserAvatar(const QString& user_id, const QPixmap& pixmap);
 };
 
 

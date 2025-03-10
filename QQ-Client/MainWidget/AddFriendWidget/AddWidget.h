@@ -1,9 +1,10 @@
-#ifndef ADDWIDGET_H_
+﻿#ifndef ADDWIDGET_H_
 #define ADDWIDGET_H_
 
 #include <QWidget>
 #include <QJsonObject>
 #include "LineEditwithButton.h"
+#include <QPixmap>
 
 namespace Ui { class AddWidget; }
 
@@ -14,7 +15,7 @@ public:
 	AddWidget(QWidget* parent = nullptr);
 	~AddWidget();
 	void init();
-	void setUser(const QJsonObject&obj);
+	void setUser(const QJsonObject& obj, const QPixmap& pixmap);
 private:
 	Ui::AddWidget* ui{};
 	LineEditwithButton* m_grouping{};
@@ -23,7 +24,7 @@ private:
 	QPixmap m_userHead{};
 	bool m_isSend{};
 signals:
-	
+
 };
 
 

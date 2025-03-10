@@ -1,4 +1,4 @@
-#ifndef NOTICEWIDGET_H_
+﻿#ifndef NOTICEWIDGET_H_
 #define NOTICEWIDGET_H_
 
 
@@ -18,7 +18,7 @@ private:
 	NoticeWidget(QWidget* parent = nullptr);
 	~NoticeWidget();
 private:
-	void addFreindNoticeItem(const QJsonObject& obj);
+	void addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap);
 private:
 	QStackedWidget* m_stackedWidget{};
 	QListWidget* m_friendNoticeList{};

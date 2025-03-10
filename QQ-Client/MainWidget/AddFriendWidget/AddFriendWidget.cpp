@@ -1,4 +1,4 @@
-#include "AddFriendWidget.h"
+﻿#include "AddFriendWidget.h"
 #include "ui_AddFriendWidget.h"
 #include <QMouseEvent>
 #include <QFile>
@@ -9,11 +9,11 @@
 #include <QJSonObject>
 #include <QJSonArray>
 
-AddFriendWidget::AddFriendWidget(QWidget*parent)
+AddFriendWidget::AddFriendWidget(QWidget* parent)
 	:QWidget(parent)
-	,ui(new Ui::AddFriendWidget)
-	,m_userList(new QListWidget(this))
-	,m_groupList(new QListWidget(this))
+	, ui(new Ui::AddFriendWidget)
+	, m_userList(new QListWidget(this))
+	, m_groupList(new QListWidget(this))
 {
 	//this->setWindowFlag(Qt::FramelessWindowHint);
 	resize(500, 500);
@@ -24,17 +24,9 @@ AddFriendWidget::AddFriendWidget(QWidget*parent)
 	{
 		this->setStyleSheet(file.readAll());
 	}
-	/*m_userList->setStyleSheet(R"(
-	QListWidget::item {
-               background-color: transparent; 
-     }
-    QListWidget::item:hover {
-      background-color: rgb(240,240,240); 
-    }
-    QWidget {
-     background-color: transparent;  
-    }
-			)");*/
+	m_userList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_groupList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 }
 AddFriendWidget::~AddFriendWidget()
 {
@@ -72,7 +64,7 @@ void AddFriendWidget::init()
 	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
 	ui->searchBtn->setCheckable(false);
 	ui->searchBtn->setIcon(QIcon(":/icon/Resource/Icon/search.png"));
-	
+
 	//搜索栏
 	connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
 		{
@@ -88,30 +80,34 @@ void AddFriendWidget::init()
 				QVariantMap serach;
 				serach["search_id"] = search_id;
 				serach["user_id"] = User::instance()->getUserId();
-				Client::instance()->sendMessage("searchUser", serach)
-					->ReciveMessage([=](const QString& message)
+				Client::instance()->sendMessage("searchUser", serach);
+				/*->ReciveMessage([=](const QString& message)
+					{
+						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
+						QJsonObject obj = doc.object();
+						if (obj["code"] == 0)
 						{
-							QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-							QJsonObject obj = doc.object();
-							if (obj["code"] == 0)
+							QJsonObject data = obj["data"].toObject();
+							QJsonArray alldata= data["search_data"].toArray();
+							for (auto object : alldata)
 							{
-								QJsonObject data = obj["data"].toObject();
-								QJsonArray alldata= data["search_data"].toArray();
-								for (auto object : alldata)
-								{
-									auto user = object.toObject();
-									addListWidgetItem(m_userList, user);
-								}
+								auto user = object.toObject();
+								addListWidgetItem(m_userList, user);
 							}
-							else
-							{
-								qDebug() << obj["message"].toString();
-							}
-						});
+						}
+						else
+						{
+							qDebug() << obj["message"].toString();
+						}
+					});*/
 			}
-
 		});
-	connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
+	connect(Client::instance(), &Client::searchUser, this, [=](const QJsonObject& paramsObject, const QPixmap& pixmap)
+		{
+			qDebug() << "搜索返回：";
+			addListWidgetItem(m_userList, paramsObject, pixmap);
+		});
+	/*connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
 		{
 			qDebug() << type;
 			if (type == search_type::User)
@@ -147,22 +143,27 @@ void AddFriendWidget::init()
 						});
 			}
 
-		});
+		});*/
 }
 
 //查询结果返回添加到对应list上
-void AddFriendWidget::addListWidgetItem(QListWidget* list,const QJsonObject& obj)
+void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& obj, const QPixmap& pixmap)
 {
 	//为item设置用户id
 	auto item = new QListWidgetItem(list);
 	item->setSizeHint(QSize(list->width(), 70));
 	//将用户相关信息添加到item关联窗口
 	auto itemWidget = new SearchItemWidget(list);
-
-	if(list==m_userList)
-	itemWidget->setUser(obj);
+	if (list == m_userList)
+	{
+		itemWidget->setUser(obj);
+		itemWidget->setPixmap(pixmap);
+	}
 	else
-	itemWidget->setGroup(obj);
+	{
+		itemWidget->setGroup(obj);
+	}
+
 
 	//关联item和widget
 	list->setItemWidget(item, itemWidget);

@@ -119,7 +119,6 @@ void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
 	}
 	QVariantMap params;
 	params["user_id"] = m_oneselfID;
-
 	params["size"] = byteArray.size();
 
 	Client::instance()->sendBinaryMessage("updateUserAvatar", params, byteArray);

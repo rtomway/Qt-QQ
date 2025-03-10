@@ -172,34 +172,6 @@ void ContactDetailWidget::init()
 		{
 			this->hide();
 		});
-	connect(cancelBtn, &QPushButton::clicked, [=]
-		{
-			this->hide();
-		});
-	connect(okBtn, &QPushButton::clicked, [=]
-		{
-			//信息更新
-			auto user_id = FriendManager::instance()->getOneselfID();
-			saveAvatarToLocal(m_avatarNewPath, user_id);
-			if (m_avatarIsChange)//头像更改更新到服务端
-			{
-				qDebug() << "头像更改更新到服务端";
-				FriendManager::instance()->updateUserAvatarToServer(m_headPix);
-			}
-			m_json["avatar_path"] = user_id+".png";
-			m_json["username"] = m_nickNameEdit->getLineEditText();
-			m_json["signature"] = m_signaltureEdit->getLineEditText();
-			if (!m_genderEdit->getLineEditText().isEmpty())
-				m_json["gender"] = m_genderEdit->getLineEditText() == "男" ? 1 : 2;
-			m_json["birthday"] = m_birthdayEdit->getLineEditText();
-			auto user = FriendManager::instance()->findFriend(user_id);
-			user->setFriend(m_json);
-			//向客户端其他控件更新信号
-			emit FriendManager::instance()->UpdateFriendMessage(user_id);
-			//向服务端发送更新信息
-			FriendManager::instance()->updateUserMessageToServer(user->getFriend());
-			this->hide();
-		});
 	connect(m_birthdayEdit, &LineEditwithButton::clicked, this, [=]
 		{
 			qDebug() << "选择生日";
@@ -244,6 +216,35 @@ void ContactDetailWidget::init()
 				menu->close();  // 关闭菜单
 				});
 		});
+	connect(cancelBtn, &QPushButton::clicked, [=]
+		{
+			this->hide();
+		});
+	connect(okBtn, &QPushButton::clicked, [=]
+		{
+			//信息更新
+			auto user_id = FriendManager::instance()->getOneselfID();
+			saveAvatarToLocal(m_avatarNewPath, user_id);
+			if (m_avatarIsChange)//头像更改更新到服务端
+			{
+				qDebug() << "头像更改更新到服务端";
+				FriendManager::instance()->updateUserAvatarToServer(m_headPix);
+			}
+			m_json["avatar_path"] = user_id+".png";
+			m_json["username"] = m_nickNameEdit->getLineEditText();
+			m_json["signature"] = m_signaltureEdit->getLineEditText();
+			if (!m_genderEdit->getLineEditText().isEmpty())
+				m_json["gender"] = m_genderEdit->getLineEditText() == "男" ? 1 : 2;
+			m_json["birthday"] = m_birthdayEdit->getLineEditText();
+			auto user = FriendManager::instance()->findFriend(user_id);
+			user->setFriend(m_json);
+			//向客户端其他控件更新信号
+			emit FriendManager::instance()->UpdateFriendMessage(user_id);
+			//向服务端发送更新信息
+			FriendManager::instance()->updateUserMessageToServer(user->getFriend());
+			this->hide();
+		});
+	
 }
 
 void ContactDetailWidget::setUser(const QJsonObject& obj)
@@ -308,8 +309,8 @@ bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
 				return false;
 			}
 			QPixmap avatar(m_avatarNewPath);
-			m_headPix = ImageUtils::roundedPixmap(avatar, QSize(80, 80));
-			m_headLab->setPixmap(m_headPix);
+			m_headPix = avatar;
+			m_headLab->setPixmap(ImageUtils::roundedPixmap(avatar, QSize(80, 80)));
 			m_avatarOldPath = m_avatarNewPath;
 			m_avatarIsChange = true;
 		}

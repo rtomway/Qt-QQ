@@ -1,18 +1,19 @@
-#include "SearchItemWidget.h"
+﻿#include "SearchItemWidget.h"
 #include "ui_SearchItemWidget.h"
 #include "QJsonObject"
 #include <QPointer>
 #include "AddWidget.h"
+#include "ImageUtil.h"
 
 
 SearchItemWidget::SearchItemWidget(QWidget* parent)
 	:QWidget(parent)
-	,ui(new Ui::SearchItemWidget)
+	, ui(new Ui::SearchItemWidget)
 {
 	ui->setupUi(this);
 	init();
-	
-	
+
+
 }
 
 SearchItemWidget::~SearchItemWidget()
@@ -25,7 +26,7 @@ void SearchItemWidget::init()
 	connect(ui->addBtn, &QPushButton::clicked, [=]
 		{
 			QPointer<AddWidget>addWidget = new AddWidget();
-			addWidget->setUser(this->getUser());
+			addWidget->setUser(this->getUser(), m_userHead);
 			addWidget->show();
 		});
 }
@@ -46,6 +47,13 @@ QJsonObject SearchItemWidget::getUser()
 	obj["username"] = m_userName;
 	obj["isSend"] = true;
 	return obj;
+}
+
+void SearchItemWidget::setPixmap(const QPixmap& pixmap)
+{
+	m_userHead = pixmap;
+	auto headPix = ImageUtils::roundedPixmap(m_userHead, QSize(40, 40));
+	ui->headLab->setPixmap(headPix);
 }
 
 void SearchItemWidget::setGroup(const QJsonObject& obj)

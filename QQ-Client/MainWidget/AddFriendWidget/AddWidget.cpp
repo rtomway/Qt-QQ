@@ -7,12 +7,13 @@
 #include "Client.h"
 #include "Friend.h"
 #include "FriendManager.h"
+#include "ImageUtil.h"
 
 
 AddWidget::AddWidget(QWidget* parent)
 	:QWidget(parent)
 	, ui(new Ui::AddWidget)
-	,m_grouping(new LineEditwithButton)
+	, m_grouping(new LineEditwithButton)
 {
 	ui->setupUi(this);
 	this->setFixedSize(350, 500);
@@ -36,7 +37,7 @@ AddWidget::AddWidget(QWidget* parent)
 				font-size:14px;
 			}
 			)");
-	
+
 }
 
 AddWidget::~AddWidget()
@@ -48,13 +49,13 @@ void AddWidget::init()
 {
 	m_grouping->setParent(ui->groupWidget);
 	m_grouping->setFixedHeight(50);
-	m_grouping->setFixedWidth(this->width()-10);
+	m_grouping->setFixedWidth(this->width() - 10);
 	ui->messageEdit->setFixedWidth(this->width() - 20);
 	ui->nicknameEdit->setFixedWidth(this->width() - 20);
 	m_grouping->setComboBox();
 	m_grouping->setText("我的好友");
 	auto groupingList = ContactList::getfGrouping();
-	for (const auto&name : groupingList)
+	for (const auto& name : groupingList)
 	{
 		m_grouping->addMenuItem(name);
 	}
@@ -82,7 +83,7 @@ void AddWidget::init()
 				friendObject["grouping"] = m_grouping->getLineEditText();
 				// 好友列表添加
 				ContactList::instance()->newlyFriendItem(friendObject);
-				
+
 			}
 			this->close();
 		});
@@ -93,18 +94,21 @@ void AddWidget::init()
 
 }
 
-void AddWidget::setUser(const QJsonObject& obj)
+void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 {
 	m_userName = obj["username"].toString();
 	m_user_id = obj["user_id"].toString();
 	ui->nameLab->setText(m_userName);
 	ui->idLab->setText(m_user_id);
+	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(60, 60));
+	ui->headLab->setPixmap(headPix);
 	if (!obj["isSend"].toBool())
 	{
 		m_isSend = false;
 		ui->sendBtn->setText("确认");
 		ui->messageEdit->setVisible(false);
 		ui->messageLab->setVisible(false);
+		ui->cancelBtn->setVisible(false);
 	}
 	else
 	{
