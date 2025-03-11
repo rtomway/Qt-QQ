@@ -37,6 +37,23 @@ FriendManager::FriendManager()
 				emit UpdateFriendMessage(user_id);
 			}
 		});
+	connect(Client::instance(), &Client::newFriend, this, [=](const QJsonObject& obj, const QPixmap&pixmap)
+		{
+			auto user = QSharedPointer<Friend>::create();
+			user->setFriend(obj);
+			auto user_id = user->getFriendId();
+			//保存目录
+			QString avatarFolder = QStandardPaths::writableLocation
+			(QStandardPaths::AppDataLocation)+"/avatars";
+			auto avatarPath = avatarFolder + "/" + user_id + ".png";
+			auto isSave = pixmap.save(avatarPath);
+			if (isSave)
+			{
+				user->loadAvatar();
+			}
+			this->addFriend(user);
+			emit NewFriend(user_id);
+		});
 }
 
 //设置当前用户id

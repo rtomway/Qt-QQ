@@ -25,7 +25,9 @@ void Client::initRequestHash()
 {
 	requestHash["communication"] = &Client::handle_communication;
 	requestHash["addFriend"] = &Client::handle_addFriend;
-	requestHash["resultOfAddFriend"] = &Client::handle_resultOfAddFriend;
+	requestHash["newFriend"] = &Client::handle_newFriend;
+	requestHash["rejectAddFriend"] = &Client::handle_rejectAddFriend;
+	//requestHash["resultOfAddFriend"] = &Client::handle_resultOfAddFriend;
 	requestHash["searchUser"] = &Client::handle_searchUser;
 	requestHash["updateUserMessage"] = &Client::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &Client::handle_updateUserAvatar;
@@ -297,27 +299,31 @@ void Client::handle_addFriend(const QJsonObject& paramsObject, const QByteArray&
 	};
 	emit addFriend(paramsObject, pixmap);
 }
-void Client::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
+void Client::handle_newFriend(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	QPixmap avatar;
+	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+	{
+		qWarning() << "Failed to load avatar";
+		avatar = QPixmap(":/picture/Resource/Picture/qq.png");
+	}
+	emit newFriend(paramsObject, avatar);
+}
+void Client::handle_rejectAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	QPixmap pixmap;
 	if (data.isEmpty())
 	{
 		qDebug() << "无数据";
 		pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
+		emit rejectAddFriend(paramsObject, pixmap);
 	}
 	if (!pixmap.loadFromData(data))
 	{
 		qDebug() << "client-头像加载失败";
 		return;
 	};
-	if (paramsObject["result"].toBool())
-	{
-		emit agreeAddFriend(paramsObject);
-	}
-	else
-	{
-		emit rejectAddFriend(paramsObject, pixmap);
-	}
+	emit rejectAddFriend(paramsObject, pixmap);
 }
 void Client::handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data)
 {

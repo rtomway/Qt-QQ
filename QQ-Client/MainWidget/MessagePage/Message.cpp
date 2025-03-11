@@ -1,6 +1,4 @@
-#include "Message.h"
-#include "Message.h"
-#pragma once
+﻿#pragma once
 #include "Message.h"
 
 Message::Message(QString sender, QString receiver, QString message, QDateTime time)

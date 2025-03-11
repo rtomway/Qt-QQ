@@ -2,6 +2,7 @@
 #define FRIENDNOTICEITEMWIDGET_H_
 
 #include <QWidget>
+
 #include "AngleRoundedWidget.h"
 #include "AddWidget.h"
 

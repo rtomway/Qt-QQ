@@ -6,10 +6,11 @@
 #include <QStringList>
 #include <QButtonGroup>
 #include <memory>
+
 #include "TopItemWidget.h"
 #include "CreateFriendgrouping.h"
 
-class NoticeWidget;
+
 namespace Ui { class ContactList; }
 class ContactList :public QWidget
 {
@@ -47,7 +48,8 @@ public:
 	TopItemWidget* addGroupListItem(QString groupName);
 	void addGroupItem(QTreeWidgetItem* groupList, QString groupName);
 	QTreeWidgetItem* getGroupTopItem(QString groupName);
-	void newlyFriendItem(const QJsonObject& obj);
+
+	void updateFriendNoticeCount();
 
 	void clearContactList();
 protected:
@@ -56,7 +58,6 @@ signals:
 	void clickedFriend(const QJsonObject&obj);
 	void friendNotice();
 	void groupNotice();
-	void agreeAddFriend(const QJsonObject& obj);
 	void updateFriendgrouping();
 };
 

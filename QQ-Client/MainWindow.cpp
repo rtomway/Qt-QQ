@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+﻿#include "MainWindow.h"
 #include <QFile>
 #define MARGIN 5//四个角的长度
 
@@ -42,22 +42,10 @@ void MainWindow::init()
             if (this->size() == this->screen()->size())
             {
                 this->setGeometry(288,107,m_mainWidget->width(),m_mainWidget->height());
-                /*m_expandAnimation->setStartValue(QRect(0, 0, this->screen()->size().width(),
-                    this->screen()->size().height()));
-                m_expandAnimation->setEndValue(QRect(288, 107, m_mainWidget->width(),
-                    m_mainWidget->height()));
-                m_expandAnimation->start();
-                m_expandAnimation->setDuration(200);*/
             }
             else
             {
                 this->setGeometry(this->screen()->geometry());
-               /* m_expandAnimation->setStartValue(QRect(288, 107, m_mainWidget->width(),
-                    m_mainWidget->height()));
-                m_expandAnimation->setEndValue(QRect(0, 0, this->screen()->size().width(),
-                    this->screen()->size().height()));
-                m_expandAnimation->start();
-                m_expandAnimation->setDuration(200);*/
             }
         });
     connect(m_mainWidget, &MainWidget::exitWidget, [=]

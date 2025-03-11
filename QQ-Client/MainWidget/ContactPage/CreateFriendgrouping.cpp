@@ -6,7 +6,6 @@ CreateFriendgrouping::CreateFriendgrouping(QWidget* parent)
 	:QWidget(parent)
 	,ui(new Ui::CreateFriendgrouping)
 {
-	//this->setFixedSize(200, 50);
 	ui->setupUi(this);
 	init();
 	this->setStyleSheet(R"(
@@ -34,10 +33,12 @@ CreateFriendgrouping::CreateFriendgrouping(QWidget* parent)
 
 void CreateFriendgrouping::init()
 {
+	//取消
 	connect(ui->cancelBtn, &QPushButton::clicked, this, [=]
 		{
 			this->close();
 		});
+	//创建分组
 	connect(ui->createBtn, &QPushButton::clicked, this, [=]
 		{
 			if (ui->groupingEdit->text().isEmpty())

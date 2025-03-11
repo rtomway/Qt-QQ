@@ -1,4 +1,4 @@
-#ifndef LOGINWIDGET_H_
+﻿#ifndef LOGINWIDGET_H_
 #define LOGINWIDGET_H_
 
 #include <QWidget>
@@ -6,8 +6,9 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QPoint>
-#include "AngleRoundedWidget.h"
 #include <memory>
+
+#include "AngleRoundedWidget.h"
 #include "RegisterPage.h"
 
 class LoginWidget :public AngleRoundedWidget

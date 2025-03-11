@@ -1,5 +1,4 @@
-#include "RotationLabel.h"
-
+﻿#include "RotationLabel.h"
 
 RotationLabel::RotationLabel(QWidget* parent)
 	:QLabel(parent)

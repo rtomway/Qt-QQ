@@ -41,6 +41,7 @@ signals:
 	void FriendAvatarLoaded(const QPixmap& avatar);
 	void UpdateFriendMessage(const QString&user_id);
 	void UpdateFriendAvatar(const QString& user_id);
+	void NewFriend(const QString& user_id);
 };
 
 

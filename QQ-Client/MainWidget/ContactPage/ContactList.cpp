@@ -45,11 +45,8 @@ ContactList::~ContactList()
 
 ContactList* ContactList::instance()
 {
-	//保证互斥量唯一
-	/*static QMutex mutex;
-	QMutexLocker locker(&mutex);*/
-	static ContactList* ins = new ContactList;
-	return ins;
+	static ContactList instance;
+	return &instance;
 }
 
 void ContactList::init()
@@ -65,10 +62,6 @@ void ContactList::init()
 	ui->stackedWidget->addWidget(m_friendList);
 	ui->stackedWidget->addWidget(m_groupList);
 	ui->stackedWidget->setCurrentWidget(m_friendList);
-
-	/*addFriendListItem(QString("特别关心"));
-	addFriendListItem(QString("我的好友"));
-	addFriendListItem(QString("家人"));*/
 
 	addGroupListItem(QString("置顶群聊"));
 	addGroupListItem(QString("我创建的群聊"));
@@ -140,17 +133,12 @@ void ContactList::init()
 			}
 
 		});
-	//好友添加通知未读数量更新
-	connect(Client::instance(), &Client::addFriend, this, [=]
+	//新增好友
+	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id)
 		{
-			m_fNoticeUnreadCount++;
-			ui->friendNoticeCountLab->setVisible(true);
-			ui->friendNoticeCountLab->setText(QString::number(m_fNoticeUnreadCount));
-		});
-	//申请添加好友成功 更新好友列表
-	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject& obj)
-		{
-			addFriendItem(getFriendTopItem(QString("我的好友")), obj);
+			auto myfriend = FriendManager::instance()->findFriend(user_id);
+			auto grouping = myfriend->getGrouping();
+			addFriendItem(getFriendTopItem(grouping), myfriend->getFriend());
 		});
 	//信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
@@ -251,7 +239,6 @@ QTreeWidgetItem* ContactList::findItemByIdInGroup(QTreeWidgetItem* group, const 
 	return nullptr;  // 没找到
 }
 
-
 TopItemWidget* ContactList::addGroupListItem(QString groupName)
 {
 	auto groupListItem = new QTreeWidgetItem(m_groupList);
@@ -265,23 +252,20 @@ TopItemWidget* ContactList::addGroupListItem(QString groupName)
 	m_groupList->setItemWidget(groupListItem, 0, topItemWidget);
 	return topItemWidget;
 }
-
 void ContactList::addGroupItem(QTreeWidgetItem* groupListItem, QString groupName)
 {
 	//auto groupItem = new QTreeWidgetItem(groupListItem, groupName);
 }
-
 QTreeWidgetItem* ContactList::getGroupTopItem(QString groupName)
 {
 	return nullptr;
 }
-//新增好友
-void ContactList::newlyFriendItem(const QJsonObject& obj)
+//通知数量更新
+void ContactList::updateFriendNoticeCount()
 {
-	auto grouping = getFriendTopItem(obj["grouping"].toString());
-	addFriendItem(grouping, obj);
-	//消息项添加
-	emit agreeAddFriend(obj);
+	m_fNoticeUnreadCount++;
+	ui->friendNoticeCountLab->setVisible(true);
+	ui->friendNoticeCountLab->setText(QString::number(m_fNoticeUnreadCount));
 }
 //退出清除前一个账户信息
 void ContactList::clearContactList()

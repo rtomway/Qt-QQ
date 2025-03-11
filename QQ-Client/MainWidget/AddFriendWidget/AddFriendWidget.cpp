@@ -2,12 +2,14 @@
 #include "ui_AddFriendWidget.h"
 #include <QMouseEvent>
 #include <QFile>
-#include "SearchItemWidget.h"
-#include "Client.h"
-#include "User.h"
 #include <QJSonDocument>
 #include <QJSonObject>
 #include <QJSonArray>
+
+#include "SearchItemWidget.h"
+#include "Client.h"
+#include "User.h"
+
 
 AddFriendWidget::AddFriendWidget(QWidget* parent)
 	:QWidget(parent)
@@ -15,7 +17,6 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	, m_userList(new QListWidget(this))
 	, m_groupList(new QListWidget(this))
 {
-	//this->setWindowFlag(Qt::FramelessWindowHint);
 	resize(500, 500);
 	ui->setupUi(this);
 	init();
@@ -24,9 +25,7 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	{
 		this->setStyleSheet(file.readAll());
 	}
-	m_userList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	m_groupList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
+	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
 }
 AddFriendWidget::~AddFriendWidget()
 {
@@ -34,11 +33,14 @@ AddFriendWidget::~AddFriendWidget()
 }
 void AddFriendWidget::init()
 {
+	ui->searchLine->setPlaceholderText("用户搜索");
 	ui->stackedWidget->addWidget(m_userList);
 	ui->stackedWidget->addWidget(m_groupList);
 	ui->stackedWidget->setCurrentWidget(m_userList);
-	ui->searchLine->setPlaceholderText("用户搜索");
+	m_userList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_groupList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	//选择搜索
+	//用户
 	connect(ui->userBtn, &QPushButton::clicked, [=]
 		{
 			m_groupList->clear();
@@ -49,6 +51,7 @@ void AddFriendWidget::init()
 				QPushButton:hover{background-color:rgb(240,240,240)}");
 			ui->groupBtn->setStyleSheet("QPushButton{background-color:white}");
 		});
+	//群组
 	connect(ui->groupBtn, &QPushButton::clicked, [=]
 		{
 			m_userList->clear();
@@ -59,19 +62,15 @@ void AddFriendWidget::init()
 				QPushButton:hover{background-color:rgb(240,240,240)}");
 			ui->userBtn->setStyleSheet("QPushButton{background-color:white}");
 		});
-
-
-	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
+	//搜索图标
 	ui->searchBtn->setCheckable(false);
 	ui->searchBtn->setIcon(QIcon(":/icon/Resource/Icon/search.png"));
-
 	//搜索栏
 	connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
 		{
 			qDebug() << type;
 			if (type == search_type::Grouop)
 				return;
-
 			m_userList->clear();
 			auto search_id = ui->searchLine->text();
 			qDebug() << "text:" << search_id;
@@ -81,71 +80,15 @@ void AddFriendWidget::init()
 				serach["search_id"] = search_id;
 				serach["user_id"] = User::instance()->getUserId();
 				Client::instance()->sendMessage("searchUser", serach);
-				/*->ReciveMessage([=](const QString& message)
-					{
-						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-						QJsonObject obj = doc.object();
-						if (obj["code"] == 0)
-						{
-							QJsonObject data = obj["data"].toObject();
-							QJsonArray alldata= data["search_data"].toArray();
-							for (auto object : alldata)
-							{
-								auto user = object.toObject();
-								addListWidgetItem(m_userList, user);
-							}
-						}
-						else
-						{
-							qDebug() << obj["message"].toString();
-						}
-					});*/
+			
 			}
 		});
+	//搜索结果
 	connect(Client::instance(), &Client::searchUser, this, [=](const QJsonObject& paramsObject, const QPixmap& pixmap)
 		{
-			qDebug() << "搜索返回：";
 			addListWidgetItem(m_userList, paramsObject, pixmap);
 		});
-	/*connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
-		{
-			qDebug() << type;
-			if (type == search_type::User)
-				return;
-
-			m_groupList->clear();
-			auto search_id = ui->searchLine->text();
-			qDebug() << "text:" << search_id;
-			if (!search_id.isEmpty())
-			{
-				QVariantMap serach;
-				serach["search_id"] = search_id;
-				serach["user_id"] = User::instance()->getUserId();
-				Client::instance()->sendMessage("searchGroup", serach)
-					->ReciveMessage([=](const QString& message)
-						{
-							QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-							QJsonObject obj = doc.object();
-							if (obj["code"] == 0)
-							{
-								QJsonObject data = obj["data"].toObject();
-								QJsonArray alldata = data["search_data"].toArray();
-								for (auto object : alldata)
-								{
-									auto group = object.toObject();
-									addListWidgetItem(m_groupList, group);
-								}
-							}
-							else
-							{
-								qDebug() << obj["message"].toString();
-							}
-						});
-			}
-
-		});*/
 }
-
 //查询结果返回添加到对应list上
 void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& obj, const QPixmap& pixmap)
 {
@@ -163,9 +106,6 @@ void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& ob
 	{
 		itemWidget->setGroup(obj);
 	}
-
-
 	//关联item和widget
 	list->setItemWidget(item, itemWidget);
-
 }

@@ -1,10 +1,10 @@
-#include "RegisterPage.h"
-#include "RegisterPage.h"
+﻿#include "RegisterPage.h"
 #include "ui_RegisterPage.h"
 #include <QFile>
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QJsonDocument>
+
 #include "Client.h"
 
 RegisterPage::RegisterPage(QWidget* parent)
@@ -23,27 +23,21 @@ RegisterPage::RegisterPage(QWidget* parent)
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
-	connect(this, &RegisterPage::destroyed, [=]
-		{
-			qDebug() << "kkkkk";
-		});
 }
 
 RegisterPage::~RegisterPage()
 {
-	qDebug() << "kkkkk";
 	delete ui;
 }
 
 void RegisterPage::init()
 {
+	//窗口初始化
 	this->setFocus();
-	
 	ui->titleLab->setObjectName("title");
 	ui->headerLab->setObjectName("header");
 	this->setObjectName("this");
 	ui->nickNameEdit->setPlaceholderText("输入昵称");
-	//ui->nickNameEdit->setFocusPolicy(Qt::NoFocus);
 	ui->passwordEdit->setPlaceholderText("输入密码");
 	ui->phoneEdit->setPlaceholderText("输入手机号码");
 	ui->verifyEdit->setPlaceholderText("输入短信验证码");
@@ -54,7 +48,7 @@ void RegisterPage::init()
 	ui->verifyEdit->setObjectName("verifyEdit");
 	ui->veriftBtn->setObjectName("verifyBtn");
 	ui->passwordLab->setVisible(false);
-
+	//注册
 	connect(ui->registerBtn, &QPushButton::clicked, this, [=]
 		{
 			if (ui->nickNameEdit->text().isEmpty())
@@ -67,7 +61,6 @@ void RegisterPage::init()
 				QMessageBox::warning(this, "警告", "密码不能为空");
 				return;
 			}
-			
 			//向服务器发送注册信息
 			QVariantMap registerMap;
 			registerMap["username"] = ui->nickNameEdit->text();
@@ -94,9 +87,8 @@ void RegisterPage::init()
 					});
 			this->hide();
 		});
-
 }
-
+//控件事件重写
 bool RegisterPage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == ui->passwordEdit && event->type() == QEvent::FocusIn)

@@ -2,8 +2,9 @@
 #define CONTACTPAGE_H_
 
 #include <QWidget>
-#include "ContactDetailWidget.h"
 #include <QJsonObject>
+
+#include "ContactDetailWidget.h"
 #include "AngleRoundedWidget.h"
 
 

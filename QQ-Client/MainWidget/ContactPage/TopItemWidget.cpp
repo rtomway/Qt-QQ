@@ -20,15 +20,10 @@ TopItemWidget::~TopItemWidget()
 
 void TopItemWidget::init()
 {
-	//m_headLab->setPixmap(QPixmap(":/icon/Resource/Icon/rightarrow.png"));
-	//m_headLab->setFixedSize(15, 15);
-	//m_headLab->setScaledContents(true);
 	m_hLayout->addWidget(m_headLab);
 	m_hLayout->addWidget(m_nameLab);
 	m_hLayout->addStretch();
 	m_hLayout->addWidget(m_countLab);
-
-	//m_headLab->setStyleSheet(QString("QLabel:hover{background-color:white;}"));
 }
 
 void TopItemWidget::setCount(const int& x)
@@ -45,16 +40,6 @@ QString TopItemWidget::getName()const
 {
 	return m_nameLab->text();
 }
-
-//void TopItemWidget::setItem(QTreeWidgetItem* item)
-//{
-//	m_item = item;
-//}
-//
-//QTreeWidgetItem* TopItemWidget::item()
-//{
-//	return m_item;
-//}
 
 void TopItemWidget::setAgale()
 {

@@ -150,7 +150,7 @@ QString Server::findUserName(QWebSocket* client)
 	}
 	return QString("user not exist!");
 }
-
+//用户id生成
 QString Server::getRandomID(int length)
 {
 	QString user_id;
@@ -244,12 +244,22 @@ QByteArray Server::loadImage(const QString& user_id)
 	auto avatarPath = avatarFolder + "/" + user_id + ".png";
 
 	qDebug() << "Attempting to load image from:" << avatarPath;
-
+	
+	
 	// 加载图片
 	QFile file(avatarPath);
 	if (!file.exists()) {
 		qDebug() << "File does not exist:" << avatarPath;
-		return QByteArray();
+
+		QImage image(":/picture/Resource/Picture/qq.png");
+		// 创建一个 QByteArray 来保存图像数据
+		QByteArray byteArray;
+
+		// 将 QImage 保存到 QByteArray，指定格式为 PNG（你也可以选择其他格式）
+		QBuffer buffer(&byteArray);
+		buffer.open(QIODevice::WriteOnly);
+		image.save(&buffer, "PNG"); // 这里可以更换为 "JPG", "BMP" 等格式
+		return byteArray;
 	}
 
 	if (!file.open(QIODevice::ReadOnly)) {
@@ -273,6 +283,7 @@ QByteArray Server::loadImage(const QString& user_id)
 
 	return imageData;
 }
+//所有数据包
 QByteArray Server::allBinaryPacket(const QByteArray& packet)
 {
 	QByteArray allData;
@@ -286,7 +297,8 @@ QByteArray Server::allBinaryPacket(const QByteArray& packet)
 	stream.writeRawData(packet.constData(), packet.size()); // 再写入用户数据
 	return allData;
 }
-QJsonObject Server::getUserJson(const QString& user_id)
+//用户个人信息
+QVariantMap Server::getUserMessage(const QString& user_id)
 {
 	//查询用户信息
 	SConnectionWrap wrap;
@@ -296,7 +308,7 @@ QJsonObject Server::getUserJson(const QString& user_id)
 	qDebug() << "-------------" << query.exec();
 	if (query.exec())
 	{
-		QJsonObject obj;
+		QVariantMap obj;
 		while (query.next())
 		{
 			for (size_t i = 0; i < 8; i++)
@@ -319,7 +331,7 @@ QJsonObject Server::getUserJson(const QString& user_id)
 	{
 		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
 		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
-		return QJsonObject();
+		return QVariantMap();
 	}
 }
 //打包二进制数据
@@ -371,7 +383,7 @@ void Server::handle_login(const QJsonObject& paramsObject, const QByteArray& dat
 	QJsonArray jarray;
 	auto client = m_clients[user_id];
 	//查询登录用户
-	query.prepare(QString("select * from user where user_id=?"));
+	query.prepare(QString("select f.Fgrouping,u.* from user u join friendship f on u.user_id=f.user_id where u.user_id=?"));
 	query.addBindValue(user_id);
 	if (query.exec())
 	{
@@ -384,21 +396,21 @@ void Server::handle_login(const QJsonObject& paramsObject, const QByteArray& dat
 				qDebug() << query.record().fieldName(i);
 				qDebug() << i << query.value(i).toString();
 			}
-			qDebug() << "password:" << query.value(7).toString();
-			if (password == query.value(7).toString())
+			qDebug() << "password:" << query.value(8).toString();
+			if (password == query.value(8).toString())
 			{
 				qDebug() << "登陆成功";
 				QJsonObject jsonData;
-				jsonData["user_id"] = query.value(1).toString();
-				jsonData["grouping"] = "我的好友";
-				jsonData["username"] = query.value(2).toString();
-				jsonData["gender"] = query.value(3).toInt();
-				jsonData["age"] = query.value(4).toInt();
-				jsonData["phone_number"] = query.value(5).toString();
-				jsonData["email"] = query.value(6).toString();
-				jsonData["avatar_path"] = query.value(8).toString();
-				jsonData["birthday"] = query.value(9).toDate().toString("MM-dd");
-				jsonData["signature"] = query.value(10).toString();
+				jsonData["grouping"] = query.value(0).toString();
+				jsonData["user_id"] = query.value(2).toString();
+				jsonData["username"] = query.value(3).toString();
+				jsonData["gender"] = query.value(4).toInt();
+				jsonData["age"] = query.value(5).toInt();
+				jsonData["phone_number"] = query.value(6).toString();
+				jsonData["email"] = query.value(7).toString();
+				jsonData["avatar_path"] = query.value(9).toString();
+				jsonData["birthday"] = query.value(10).toDate().toString("MM-dd");
+				jsonData["signature"] = query.value(11).toString();
 				obj["loginUser"] = jsonData;
 			}
 			else
@@ -612,18 +624,21 @@ void Server::handle_searchGroup(const QJsonObject& paramsObject, const QByteArra
 //添加好友
 void Server::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
+	qDebug() << "添加好友";
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
-	auto user_id = paramsObject["user_id"].toString();
+	auto send_id = paramsObject["user_id"].toString();
 	auto receive_id = paramsObject["to"].toString();
+	//保存分组信息
+	m_sendGrouping= paramsObject["grouping"].toString();
 	//数据包装入信息
 	QVariantMap senderMessage;
-	senderMessage["user_id"] = paramsObject["to"].toString();
+	senderMessage["user_id"] = send_id;
 	senderMessage["message"] = paramsObject["message"].toString();
 	senderMessage["username"] = paramsObject["username"].toString();
 	senderMessage["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 	senderMessage["addFriend"] = "请求加为好友";
-	auto imageData = loadImage(user_id);
+	auto imageData = loadImage(send_id);
 	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = binaryPacket("addFriend", senderMessage, imageData);
@@ -647,9 +662,10 @@ void Server::handle_addGroup(const QJsonObject& paramsObject, const QByteArray& 
 {
 
 }
-//拒绝添加
+//好友添加结果
 void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
+	qDebug() << "好友添加结果";
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
 	auto send_id = paramsObject["user_id"].toString();
@@ -657,23 +673,90 @@ void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QBy
 	auto result = paramsObject["result"].toBool();
 	if (result)
 	{
-		auto client_1 = m_clients[receive_id];
-		auto client_2 = m_clients[send_id];
-		QJsonObject client_1_json = getUserJson(receive_id);
-		QJsonObject client_2_json = getUserJson(send_id);
+		auto client_receive = m_clients[receive_id];
+		auto client_send = m_clients[send_id];
+		//保存分组信息
+		m_receiveGrouping= paramsObject["grouping"].toString();
+		//好友列表新增
+		SConnectionWrap wrap;
+		QSqlQuery query(wrap.openConnection());
+		query.prepare("insert into friendship (user_id,friend_id,Fgrouping)values(?,?,?),(?,?,?)");
+		query.addBindValue(send_id);
+		query.addBindValue(receive_id);
+		query.addBindValue(m_receiveGrouping);
+		query.addBindValue(receive_id);
+		query.addBindValue(send_id);
+		query.addBindValue(m_sendGrouping);
+		if (!query.exec())
+		{
+			qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+			qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+			return;
+		}
+		//通知两边客户端
+		QVariantMap receiveMap = getUserMessage(receive_id);
+		receiveMap["grouping"] = m_sendGrouping;
+		QVariantMap sendMap = getUserMessage(send_id);
+		sendMap["grouping"] = m_receiveGrouping;
+		auto reveiveImage = loadImage(receive_id);
+		auto sendImage = loadImage(send_id);
+		receiveMap["size"] = reveiveImage.size();
+		sendMap["size"] = sendImage.size();
+		//打包
+		auto receivePacket = binaryPacket("newFriend", receiveMap, reveiveImage);
+		QByteArray receiveData;
+		qint32 receivepacketSize = receivePacket.size();
+		QByteArray receivepacketSizeBytes;
+		QDataStream receivesizeStream(&receivepacketSizeBytes, QIODevice::WriteOnly);
+		receivesizeStream.setVersion(QDataStream::Qt_6_5);
+		receivesizeStream.setByteOrder(QDataStream::BigEndian);
+		receivesizeStream << receivepacketSize;
+		receiveData.append(receivepacketSizeBytes);  // 先加上包长度
+		receiveData.append(receivePacket);       // 再加上包数据
+
+		auto sendPacket = binaryPacket("newFriend", sendMap, sendImage);
+		QByteArray sendData;
+		qint32 sendpacketSize = sendPacket.size();
+		QByteArray sendpacketSizeBytes;
+		QDataStream sendsizeStream(&sendpacketSizeBytes, QIODevice::WriteOnly);
+		sendsizeStream.setVersion(QDataStream::Qt_6_5);
+		sendsizeStream.setByteOrder(QDataStream::BigEndian);
+		sendsizeStream << sendpacketSize;
+		sendData.append(sendpacketSizeBytes);  // 先加上包长度
+		sendData.append(sendPacket);       // 再加上包数据
+		auto receiveAllData = allBinaryPacket(receiveData);
+		auto sendAllData = allBinaryPacket(sendData);
+		//发送
+		client_receive->sendBinaryMessage(sendAllData);
+		client_send->sendBinaryMessage(receiveAllData);
 	}
 	else
 	{
+		//数据包装入信息
+		QVariantMap senderMessage;
+		senderMessage["user_id"] = send_id;
+		senderMessage["username"] = paramsObject["username"].toString();
+		senderMessage["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+		senderMessage["addFriend"] = "拒绝了你的好友申请";
+		auto imageData = loadImage(send_id);
+		senderMessage["size"] = imageData.size();
+		//包装数据包
+		auto userPacket = binaryPacket("rejectAddFriend", senderMessage, imageData);
+		qint32 packetSize = userPacket.size();
+		QByteArray packetSizeBytes;
+		QDataStream sizeStream(&packetSizeBytes, QIODevice::WriteOnly);
+		sizeStream.setVersion(QDataStream::Qt_6_5);
+		sizeStream.setByteOrder(QDataStream::BigEndian);
+		sizeStream << packetSize;
+		QByteArray userData;
+		userData.append(packetSizeBytes);  // 先加上包长度
+		userData.append(userPacket);  // 再加上包数据
+		auto allData = allBinaryPacket(userData);
+		//发送数据
 		auto client = m_clients[receive_id];
+		client->sendBinaryMessage(allData);
 	}
-	QJsonObject jsondate;
-	jsondate["type"] = "resultOfAddFriend";
-	jsondate["params"] = paramsObject;
 
-	auto client = m_clients[receive_id];
-	QJsonDocument doc(jsondate);
-	QString message = QString(doc.toJson(QJsonDocument::Compact));
-	client->sendTextMessage(message);
 }
 //查询用户信息
 void Server::handle_queryUserDetail(const QJsonObject& paramsObject, const QByteArray& data)
@@ -801,12 +884,17 @@ void Server::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByt
 
 	//转发头像信息
 	QByteArray userData;
-	auto packet = binaryPacket("updateUserAvatar", paramsObject.toVariantMap(), data);
-	userData.append(packet.size(), sizeof(int));
-	userData.append(packet);
-	QByteArray allData;
-	allData.append(userData.size(), sizeof(int));
-	allData.append(userData);
+	auto userPacket = binaryPacket("updateUserAvatar", paramsObject.toVariantMap(), data);
+	qint32 packetSize = userPacket.size();
+	QByteArray packetSizeBytes;
+	QDataStream sizeStream(&packetSizeBytes, QIODevice::WriteOnly);
+	sizeStream.setVersion(QDataStream::Qt_6_5);
+	sizeStream.setByteOrder(QDataStream::BigEndian);
+	sizeStream << packetSize;
+
+	userData.append(packetSizeBytes);  // 先加上包长度
+	userData.append(userPacket);       // 再加上包数据
+	auto allData= allBinaryPacket(userData);
 
 	QStringList friendIdList = getFriendId(user_id);
 	for (const auto& friend_id : friendIdList)

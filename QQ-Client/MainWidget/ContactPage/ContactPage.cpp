@@ -1,8 +1,9 @@
 ﻿#include "ContactPage.h"
 #include "ui_ContactPage.h"
-#include "ImageUtil.h"
 #include <QFile>
 #include <QToolButton>
+
+#include "ImageUtil.h"
 #include "SMaskWidget.h"
 #include "User.h"
 #include "ContactList.h"
@@ -52,13 +53,13 @@ void ContactPage::init()
 	ui->ageLab->setText(QString("25") + "岁");
 	ui->friendGroupBtn->setIcon(QIcon(":/icon/Resource/Icon/friendgroup.png"));
 	ui->signaltureBtn->setIcon(QIcon(":/icon/Resource/Icon/signalture.png"));
-
 	//获取好友分组
 	auto groupingName = ContactList::instance()->getfGrouping();
 	for (auto name : groupingName)
 	{
 		ui->groupcomBox->addItem(name);
 	}
+	//更新好友分组
 	connect(ContactList::instance(), &ContactList::updateFriendgrouping, this, [=]
 		{
 			ui->groupcomBox->clear();
@@ -143,8 +144,7 @@ void ContactPage::setUser(const QJsonObject& obj)
 		ui->label_2->setVisible(true);
 		ui->residentLab->setVisible(true);
 	}
-
-
+	//控件信息更新
 	ui->nameLab->setText(m_json["username"].toString());
 	ui->idLab->setText(m_json["user_id"].toString());
 	ui->genderBtn->setText(m_json["gender"].toInt() == 1 ? "男" : (m_json["gender"].toInt() == 2 ? "女" : "未知"));
@@ -165,5 +165,4 @@ void ContactPage::setUser(const QJsonObject& obj)
 	auto pixmap = ImageUtils::roundedPixmap(myfriend->getAvatar(), QSize(100, 100));
 	ui->headLab->setPixmap(pixmap);
 	ui->signaltureLab->setText(m_json["signature"].toString());
-	qDebug() << "obj:" << obj["grouping"].toString();
 }

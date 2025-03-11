@@ -1,13 +1,15 @@
 ﻿#include "ContactDetailWidget.h"
 #include <QBoxLayout>
-#include "ImageUtil.h"
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QDir>
+#include <QDateEdit>
+
 #include "User.h"
+#include "ImageUtil.h"
 #include "Friend.h"
 #include "FriendManager.h"
-#include <QDateEdit>
+
 
 
 ContactDetailWidget::ContactDetailWidget(QWidget* parent)
@@ -25,25 +27,17 @@ ContactDetailWidget::ContactDetailWidget(QWidget* parent)
 {
 	this->setStyleSheet(R"(QWidget{background-color:rgb(240,240,240);border-radius: 10px;})");
 	m_headLab->installEventFilter(this);
-	qDebug() << "size:" << this->size();
-	// this->setWindowFlag(Qt::FramelessWindowHint);
 	init();
 	setAttribute(Qt::WA_StyledBackground);
 	setAttribute(Qt::WA_StyleSheet);
-	//  this->setFixedSize(480, 600);
-}
-
-ContactDetailWidget::~ContactDetailWidget()
-{
-
 }
 
 void ContactDetailWidget::init()
 {
+	//窗口初始化
 	auto mlayout = new QVBoxLayout(this);
 	mlayout->setSpacing(0);
 	mlayout->setContentsMargins(20, 0, 0, 0);
-
 	m_editDetail->setText("编辑资料");
 	m_nickNameEdit->setPreLab("昵称");
 	m_signaltureEdit->setPreLab("个签");
@@ -100,7 +94,6 @@ void ContactDetailWidget::init()
 
 	QWidget* editWidget = new QWidget(this);
 	auto editLayout = new QVBoxLayout(editWidget);
-	//editLayout->setSpacing(20);
 	editLayout->setContentsMargins(0, 0, 0, 0);
 
 	editLayout->addWidget(m_nickNameEdit);
@@ -108,12 +101,6 @@ void ContactDetailWidget::init()
 	editLayout->addWidget(m_genderEdit);
 	editLayout->addWidget(m_birthdayEdit);
 	editLayout->addWidget(m_countryEdit);
-
-	/* mlayout->addWidget(m_nickNameEdit);
-	 mlayout->addWidget(m_signaltureEdit);
-	 mlayout->addWidget(m_genderEdit);
-	 mlayout->addWidget(m_birthdayEdit);
-	 mlayout->addWidget(m_countryEdit);*/
 
 	auto hlayout = new QHBoxLayout;
 	hlayout->addWidget(m_provinceEdit);
@@ -186,7 +173,6 @@ void ContactDetailWidget::init()
 				m_calendarWidget = std::make_unique<QCalendarWidget>();
 				m_calendarWidget->setGridVisible(true);
 				m_calendarWidget->setNavigationBarVisible(true);
-				//m_calendarWidget->setVerticalHeaderFormat(QCalendarWidget::NoVerticalHeader);
 				// 让 QCalendarWidget 宽度和 m_birthdayEdit 相同
 				m_calendarWidget->setFixedWidth(m_birthdayEdit->width());
 			}

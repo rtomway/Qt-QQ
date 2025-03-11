@@ -118,7 +118,7 @@ void MessagePage::setCurrentUser(const QJsonObject& obj)
 void MessagePage::setUser(const QJsonObject& obj)
 {
 	m_friend_id = obj["user_id"].toString();
-	m_chats.insert(m_friend_id, ChatMessage(User::instance()->getUserId(), m_friend_id));
+	m_chats.insert(m_friend_id, ChatMessage(FriendManager::instance()->getOneselfID(), m_friend_id));
 }
 //获取当前会话id
 QString MessagePage::getCurrentID()

@@ -16,7 +16,6 @@ class ContactDetailWidget :public AngleRoundedWidget
 	Q_OBJECT
 public:
 	ContactDetailWidget(QWidget* parent = nullptr);
-	~ContactDetailWidget();
 	void init();
 private:
 	QLabel* m_editDetail{};

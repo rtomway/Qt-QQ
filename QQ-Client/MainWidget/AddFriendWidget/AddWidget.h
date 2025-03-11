@@ -19,9 +19,9 @@ public:
 private:
 	Ui::AddWidget* ui{};
 	LineEditwithButton* m_grouping{};
-	QString m_userName{};
-	QString m_user_id{};
-	QPixmap m_userHead{};
+	QString m_friendName{};
+	QString m_friendId{};
+	QPixmap m_friendHead{};
 	bool m_isSend{};
 signals:
 

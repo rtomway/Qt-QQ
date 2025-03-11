@@ -1,13 +1,14 @@
 ﻿#include "AddWidget.h"
 #include "ui_AddWidget.h"
 #include <QBoxLayout>
-#include "ContactList.h"
-#include "User.h"
 #include <QJsonObject>
+
 #include "Client.h"
 #include "Friend.h"
 #include "FriendManager.h"
 #include "ImageUtil.h"
+#include "ContactList.h"
+#include "User.h"
 
 
 AddWidget::AddWidget(QWidget* parent)
@@ -37,12 +38,11 @@ AddWidget::AddWidget(QWidget* parent)
 				font-size:14px;
 			}
 			)");
-
 }
 
 AddWidget::~AddWidget()
 {
-
+	delete ui;
 }
 
 void AddWidget::init()
@@ -54,6 +54,7 @@ void AddWidget::init()
 	ui->nicknameEdit->setFixedWidth(this->width() - 20);
 	m_grouping->setComboBox();
 	m_grouping->setText("我的好友");
+	//获取分组列表
 	auto groupingList = ContactList::getfGrouping();
 	for (const auto& name : groupingList)
 	{
@@ -61,6 +62,7 @@ void AddWidget::init()
 	}
 	ui->groupWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	//好友添加界面
+	//发送
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
 			if (m_isSend)//申请
@@ -68,38 +70,39 @@ void AddWidget::init()
 				auto oneselfID = FriendManager::instance()->getOneselfID();
 				auto oneself = FriendManager::instance()->findFriend(oneselfID);
 				auto paramsObject = oneself->getFriend().toVariantMap();
-				paramsObject["to"] = m_user_id;
+				paramsObject["to"] = m_friendId;
 				paramsObject["message"] = ui->messageEdit->text();
 				paramsObject["addFriend"] = "请求加为好友";
+				paramsObject["grouping"] = m_grouping->getLineEditText();
 				Client::instance()->sendMessage("addFriend", paramsObject);
 				qDebug() << "申请的json:" << paramsObject;
 			}
 			else  //添加
 			{
 				//用户信息
-				QJsonObject friendObject;
-				friendObject["username"] = m_userName;
-				friendObject["user_id"] = m_user_id;
-				friendObject["grouping"] = m_grouping->getLineEditText();
-				// 好友列表添加
-				ContactList::instance()->newlyFriendItem(friendObject);
-
+				QVariantMap friendMap;
+				friendMap["to"] = m_friendId;
+				friendMap["user_id"] = FriendManager::instance()->getOneselfID();
+				friendMap["grouping"] = m_grouping->getLineEditText();
+				friendMap["result"] = true;
+				Client::instance()->sendMessage("resultOfAddFriend", friendMap);
 			}
 			this->close();
 		});
+	//取消
 	connect(ui->cancelBtn, &QPushButton::clicked, [=]
 		{
 			this->close();
 		});
 
 }
-
+//用户信息
 void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 {
-	m_userName = obj["username"].toString();
-	m_user_id = obj["user_id"].toString();
-	ui->nameLab->setText(m_userName);
-	ui->idLab->setText(m_user_id);
+	m_friendName = obj["username"].toString();
+	m_friendId = obj["user_id"].toString();
+	ui->nameLab->setText(m_friendName);
+	ui->idLab->setText(m_friendId);
 	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(60, 60));
 	ui->headLab->setPixmap(headPix);
 	if (!obj["isSend"].toBool())
@@ -112,6 +115,7 @@ void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 	}
 	else
 	{
-		m_isSend = true; m_grouping->getLineEditText();
+		m_isSend = true; 
+		m_grouping->getLineEditText();
 	}
 }

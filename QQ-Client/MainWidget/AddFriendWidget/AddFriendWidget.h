@@ -1,10 +1,10 @@
 ﻿#ifndef ADDFRIENDWIDGET_H_
 #define ADDFRIENDWIDGET_H_
 
-#include "AngleRoundedWidget.h"
 #include <QWidget>
 #include <QPoint>
 #include <QListWidget>
+
 
 enum search_type{
 	User,

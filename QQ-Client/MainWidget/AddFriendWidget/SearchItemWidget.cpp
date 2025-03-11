@@ -1,7 +1,8 @@
 ﻿#include "SearchItemWidget.h"
 #include "ui_SearchItemWidget.h"
-#include "QJsonObject"
+#include <QJsonObject>
 #include <QPointer>
+
 #include "AddWidget.h"
 #include "ImageUtil.h"
 
@@ -12,8 +13,6 @@ SearchItemWidget::SearchItemWidget(QWidget* parent)
 {
 	ui->setupUi(this);
 	init();
-
-
 }
 
 SearchItemWidget::~SearchItemWidget()
@@ -23,6 +22,7 @@ SearchItemWidget::~SearchItemWidget()
 
 void SearchItemWidget::init()
 {
+	//添加好友
 	connect(ui->addBtn, &QPushButton::clicked, [=]
 		{
 			QPointer<AddWidget>addWidget = new AddWidget();
@@ -30,7 +30,7 @@ void SearchItemWidget::init()
 			addWidget->show();
 		});
 }
-
+//设置用户信息
 void SearchItemWidget::setUser(const QJsonObject& obj)
 {
 	m_userName = obj["username"].toString();
@@ -39,7 +39,7 @@ void SearchItemWidget::setUser(const QJsonObject& obj)
 	ui->idLab->setText(m_user_id);
 	ui->addBtn->setText("添加");
 }
-
+//用户信息获取
 QJsonObject SearchItemWidget::getUser()
 {
 	QJsonObject obj;
@@ -48,14 +48,14 @@ QJsonObject SearchItemWidget::getUser()
 	obj["isSend"] = true;
 	return obj;
 }
-
+//设置头像
 void SearchItemWidget::setPixmap(const QPixmap& pixmap)
 {
 	m_userHead = pixmap;
 	auto headPix = ImageUtils::roundedPixmap(m_userHead, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 }
-
+//设置分组
 void SearchItemWidget::setGroup(const QJsonObject& obj)
 {
 	m_group_id = obj["group_id"].toString();

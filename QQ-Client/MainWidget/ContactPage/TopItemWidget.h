@@ -25,8 +25,6 @@ public:
 	void setCount(const int& x);
 	void setName(const QString& name);
 	QString getName()const;
-	/*void setItem(QTreeWidgetItem* item);
-	QTreeWidgetItem* item();*/
 	void setAgale();
 };
 

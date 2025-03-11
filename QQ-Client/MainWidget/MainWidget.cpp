@@ -49,9 +49,84 @@ MainWidget::MainWidget(QWidget* parent)
 	else {
 		qDebug() << "样式表打开失败";
 	}
-
+	//编辑信息蒙层主窗口
 	SMaskWidget::instance()->setMainWidget(this);
+	//个人信息头像加载
+	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
+		{
+			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
+			ui->headLab->setPixmap(pixmap);
+		});
+	//好友信息更新
+	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
+		{
+			if (user_id != FriendManager::instance()->getOneselfID())
+				return;
+			auto user = FriendManager::instance()->findFriend(user_id);
+			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
+			ui->headLab->setPixmap(pixmap);
+		});
+	//点击用户消息项 进入会话界面（加载用户信息）
+	connect(m_messageList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item)
+		{
+			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
+			itemWidget->updateUnreadMessage();
+			//已经处于当前用户会话界面并且是显示状态
+			if (m_messagePage == ui->messageStackedWidget->currentWidget() && m_messagePage->getCurrentID() == itemWidget->getId())
+				return;
+			ui->messageStackedWidget->setCurrentWidget(m_messagePage);
+			//清空界面
+			m_messagePage->clearMessageWidget();
+			//将当前用户信息以及聊天记录加载到会话界面
+			m_messagePage->setCurrentUser(itemWidget->getUser());
+		});
+	//点击好友查看好友信息
+	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& obj)
+		{
+			m_contactPage->setUser(obj);
+			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
+			ui->rightWidget->setStyleSheet("background-color:white");
+			qDebug() << m_contactPage->parent();
 
+		});
+	//好友信息更新,消息项相关信息更新
+	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
+		{
+			qDebug() << "信息更新" << user_id;
+			auto messageItem = findListItem(user_id);
+			if (messageItem)
+			{
+				qDebug() << "信息更新";
+				auto user = FriendManager::instance()->findFriend(user_id);
+				auto Item = qobject_cast<MessageListItem*>(m_messageList->itemWidget(messageItem));
+				Item->setUser(user->getFriend());
+			}
+		});
+	//好友信息界面跳转到会话界面
+	connect(m_contactPage, &ContactPage::sendMessage, this, [=](const QString& user_id)
+		{
+			m_btn_Itemgroup->button(-2)->setChecked(true);
+			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
+			ui->listStackedWidget->setCurrentWidget(m_messageList);
+			auto messageItem = findListItem(user_id);
+			if (!messageItem) //判断消息项是否存在
+			{
+				auto user = FriendManager::instance()->findFriend(user_id);
+				messageItem = addmessageListItem(user->getFriend());
+			}
+			m_messageList->setCurrentItem(messageItem);
+			emit m_messageList->itemClicked(messageItem);
+
+		});
+	//点击通知 进入通知界面
+	connect(ContactList::instance(), &ContactList::friendNotice, this, [=]
+		{
+			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
+		});
+	connect(ContactList::instance(), &ContactList::groupNotice, this, [=]
+		{
+			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
+		});
 	//接受到消息 用户消息项更新
 	connect(Client::instance(), &Client::communication, this, [=](const QJsonObject& obj)
 		{
@@ -83,21 +158,29 @@ MainWidget::MainWidget(QWidget* parent)
 				itemWidget->setUser(obj);
 			}
 		});
-	//好友添加成功
-	connect(Client::instance(), &Client::agreeAddFriend, this, [=](const QJsonObject& obj)
+	//新增好友
+	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id)
 		{
-			qDebug() << "添加好友json:" << obj;
-			//新增好友聊天记录并添加消息项
-			m_messagePage->setUser(obj);
-			addmessageListItem(obj);
+			auto myfriend = FriendManager::instance()->findFriend(user_id);
+			auto friendObj = myfriend->getFriend();
+			m_messagePage->setUser(friendObj);
+			addmessageListItem(friendObj);
 		});
-	//同意好友添加
-	connect(ContactList::instance(), &ContactList::agreeAddFriend, this, [=](const QJsonObject& obj)
+	//好友申请通知
+	connect(Client::instance(), &Client::addFriend, this, [=]
 		{
-			qDebug() << "添加好友json:" << obj;
-			//新增好友聊天记录并添加消息项
-			m_messagePage->setUser(obj);
-			addmessageListItem(obj);
+			if (ui->messageStackedWidget->currentWidget() != NoticeWidget::instance())
+			{
+				ContactList::instance()->updateFriendNoticeCount();
+			}
+		});
+	//被拒通知
+	connect(Client::instance(), &Client::rejectAddFriend, this, [=]
+		{
+			if (ui->messageStackedWidget->currentWidget() != NoticeWidget::instance())
+			{
+				ContactList::instance()->updateFriendNoticeCount();
+			}
 		});
 }
 
@@ -109,31 +192,14 @@ MainWidget::~MainWidget()
 void MainWidget::init()
 {
 	resize(1080, 680);
-
+	//界面按钮列表
 	ui->listWidget->setFixedWidth(60);
 	ui->listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	ui->listWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-	ui->qqLab->setAlignment(Qt::AlignCenter);
-	//个人信息头像
-	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
-		{
-			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
-			ui->headLab->setPixmap(pixmap);
-		});
-	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
-		{
-			if (user_id != FriendManager::instance()->getOneselfID())
-				return;
-			auto user = FriendManager::instance()->findFriend(user_id);
-			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
-			ui->headLab->setPixmap(pixmap);
-		});
-
 	//列表按钮组
 	m_btn_Itemgroup = new QButtonGroup(this);
-
-	//左上列表添加项
+	//界面按钮列表图标
+	ui->qqLab->setAlignment(Qt::AlignCenter);
 	additemCenter(QString(":/icon/Resource/Icon/message.png"));
 	additemCenter(QString(":/icon/Resource/Icon/contact.png"));
 	additemCenter(QString(":/icon/Resource/Icon/QQspace.png"));
@@ -142,8 +208,6 @@ void MainWidget::init()
 	additemCenter(QString(":/icon/Resource/Icon/shortview.png"));
 	additemCenter(QString(":/icon/Resource/Icon/more_2.png"));
 	ui->listWidget->setIconSize(QSize(50, 50));
-	ui->addBtn->setIcon(QIcon(":/icon/Resource/Icon/add.png"));
-
 	//页面切换
 	connect(m_btn_Itemgroup, &QButtonGroup::idClicked, this, [=](int id)
 		{
@@ -163,132 +227,54 @@ void MainWidget::init()
 				break;
 			}
 		});
-
-	//中下 listwidget
+	//好友列表与消息项
 	ui->listStackedWidget->addWidget(m_messageList);
 	ui->listStackedWidget->addWidget(ContactList::instance());
 	ui->listStackedWidget->setCurrentWidget(m_messageList);
 	m_messageList->setObjectName("MessageList");
-
-	//右边界面
+	//会话,通知，信息界面
 	ui->messageStackedWidget->addWidget(m_messagePage);
 	ui->messageStackedWidget->addWidget(m_contactPage);
 	ui->messageStackedWidget->addWidget(m_emptyWidget);
 	ui->messageStackedWidget->addWidget(NoticeWidget::instance());
-	//点击用户消息项 进入会话界面（加载用户信息）
-	connect(m_messageList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item)
-		{
-			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
-			itemWidget->updateUnreadMessage();
-			//已经处于当前用户会话界面并且是显示状态
-			if (m_messagePage==ui->messageStackedWidget->currentWidget() && m_messagePage->getCurrentID() == itemWidget->getId())
-				return;
-			ui->messageStackedWidget->setCurrentWidget(m_messagePage);
-			//清空界面
-			m_messagePage->clearMessageWidget();
-			//将当前用户信息以及聊天记录加载到会话界面
-			m_messagePage->setCurrentUser(itemWidget->getUser());
-		});
-	//点击好友查看好友信息
-	connect(ContactList::instance(), &ContactList::clickedFriend, this, [=](const QJsonObject& obj)
-		{
-			//查询用户各项信息
-			//QVariantMap queryUser;
-			//queryUser["user_id"] = User::instance()->getUserId();
-			//queryUser["query_id"] = object["user_id"].toString();
-
-			//Client::instance()->sendMessage("queryUserDetail", queryUser)
-			//	->ReciveMessage([=](const QString& message)
-			//		{
-			//			QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-			//			if (doc.isObject())
-			//			{
-			//				auto obj = doc.object();
-			//				auto data = obj["data"].toObject();
-			//				data["grouping"] = object["grouping"];
-			//				if (obj["code"].toInt() == 0)//查询成功 将用户信息加载至界面
-			//				{
-			//					m_contactPage->setUser(data);
-			//				}
-			//				else
-			//				{
-			//					qDebug() << obj["message"].toString();
-			//				}
-			//			}
-			//		});
-			m_contactPage->setUser(obj);
-			ui->messageStackedWidget->setCurrentWidget(m_contactPage);
-			ui->rightWidget->setStyleSheet("background-color:white");
-			qDebug() << m_contactPage->parent();
-
-		});
-	//好友信息更新,消息项相关信息更新
-	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString&user_id)
-		{
-			qDebug() << "信息更新"<<user_id;
-			auto messageItem= findListItem(user_id);
-			if (messageItem)
-			{
-				qDebug() << "信息更新";
-				auto user = FriendManager::instance()->findFriend(user_id);
-				auto Item = qobject_cast<MessageListItem*>(m_messageList->itemWidget(messageItem));
-				Item->setUser(user->getFriend());
-			}
-		});
-	//好友信息界面跳转到会话界面
-	connect(m_contactPage, &ContactPage::sendMessage, this, [=](const QString&user_id)
-		{
-			m_btn_Itemgroup->button(-2)->setChecked(true);
-			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
-			ui->listStackedWidget->setCurrentWidget(m_messageList);
-			auto messageItem = findListItem(user_id);
-			if (!messageItem) //判断消息项是否存在
-			{
-				auto user = FriendManager::instance()->findFriend(user_id);
-				messageItem = addmessageListItem(user->getFriend());
-			}
-			m_messageList->setCurrentItem(messageItem);
-			emit m_messageList->itemClicked(messageItem);
-
-		});
-	
-	//点击通知 进入通知界面
-	connect(ContactList::instance(), &ContactList::friendNotice, this, [=]
-		{
-			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
-		});
-	connect(ContactList::instance(), &ContactList::groupNotice, this, [=]
-		{
-			ui->messageStackedWidget->setCurrentWidget(NoticeWidget::instance());
-		});
-
+	//窗口操作
 	ui->hideBtn->setIcon(QIcon(":/icon/Resource/Icon/hide.png"));
 	ui->expandBtn->setIcon(QIcon(":/icon/Resource/Icon/expand.png"));
 	ui->exitBtn->setIcon(QIcon(":/icon/Resource/Icon/x.png"));
-
-
-	//左上列表选项组
+	connect(ui->hideBtn, &QPushButton::clicked, this, [=]
+		{
+			emit hideWidget();
+		});
+	connect(ui->expandBtn, &QPushButton::clicked, this, [=]
+		{
+			emit expandWidget();
+		});
+	connect(ui->exitBtn, &QPushButton::clicked, this, [=]
+		{
+			emit exitWidget();
+		});
+	//界面按钮
 	m_btn_Itemgroup->button(-2)->setChecked(true);
 	connect(m_btn_Itemgroup, &QButtonGroup::idPressed, [=](int id)
 		{
 
 		});
-
-	//左下按钮组
+	//更多（菜单）
 	connect(ui->otherBtn, &QPushButton::clicked, [=]
 		{
 			m_moreMenu->popup(mapToGlobal(QPoint(ui->otherBtn->geometry().x() + 30, ui->otherBtn->geometry().y() + 400)));
 		});
-
-	//中上搜索添加
+	//好友搜索框
+	ui->searchEdit->setPlaceholderText("搜索");
+	//+号(添加好友或群组)
 	auto creatGroup = m_addpersonMenu->addAction(QIcon(":/icon/Resource/Icon/createGroup.png"), "创建群聊");
 	auto addFriend = m_addpersonMenu->addAction(QIcon(":/icon/Resource/Icon/addperson.png"), "加好友/群");
-	//+号
+	//+  弹出添加菜单
+	ui->addBtn->setIcon(QIcon(":/icon/Resource/Icon/add.png"));
 	connect(ui->addBtn, &QPushButton::clicked, [=]
 		{
 			m_addpersonMenu->popup(mapToGlobal(QPoint(ui->addBtn->geometry().x() + 70, ui->addBtn->geometry().y() + 30)));
 		});
-
 	//添加好友
 	connect(addFriend, &QAction::triggered, [=]
 		{
@@ -296,13 +282,6 @@ void MainWidget::init()
 			QPointer<AddFriendWidget>addfriendWidget = new AddFriendWidget;
 			addfriendWidget->show();
 		});
-	ui->searchEdit->setPlaceholderText("搜索");
-
-	//右上按钮
-	connect(ui->hideBtn, &QPushButton::clicked, this, &MainWidget::hideWidget);
-	connect(ui->expandBtn, &QPushButton::clicked, this, &MainWidget::expandWidget);
-	connect(ui->exitBtn, &QPushButton::clicked, this, &MainWidget::exitWidget);
-
 }
 
 void MainWidget::initMoreMenu()
@@ -381,9 +360,7 @@ QListWidgetItem* MainWidget::addmessageListItem(const QJsonObject& obj)
 	itemWidget->setUser(obj);
 	//关联item和widget
 	m_messageList->setItemWidget(item, itemWidget);
-
 	return item;
-
 }
 
 //通过用户id找到用户消息项item
@@ -401,11 +378,6 @@ QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 	}
 	qDebug() << "消息项没有";
 	return nullptr;
-}
-
-void MainWidget::resizeEvent(QResizeEvent* event)
-{
-
 }
 
 bool MainWidget::eventFilter(QObject* watched, QEvent* event)

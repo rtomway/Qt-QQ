@@ -7,8 +7,8 @@
 #include <QSpacerItem>
 #include <QMenu>
 #include <QPainter>
-#include<QPixmap>
-#include<QBitmap>
+#include <QPixmap>
+#include <QBitmap>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -57,7 +57,6 @@ void LoginWidget::init()
 {
 	//布局
 	auto mlayout = new QVBoxLayout(this);
-
 	auto toplayout = new QHBoxLayout;
 	m_setBtn->setIcon(QIcon(":/icon/Resource/Icon/set.png"));
 	m_setBtn->setFixedWidth(15);
@@ -130,7 +129,6 @@ void LoginWidget::init()
 	mlayout->addStretch();
 	mlayout->addLayout(lastLayout);
 
-
 	//更多的菜单
 	auto moreMenu = new QMenu(this);
 	moreMenu->addAction("注册账号", this, [=]
@@ -143,21 +141,20 @@ void LoginWidget::init()
 					m_password->setText(obj["password"].toString());
 				});
 		});
-
+	//密码更新
 	moreMenu->addAction("忘记密码", this, [=]
 		{
 
 		});
-
+	//窗口关闭
 	connect(m_exitBtn, &QPushButton::clicked, [=]
 		{
 			hide();
 		});
-
 	//点击别处使lineedit失去焦点
 	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
 	connect(this, &LoginWidget::editfinish, m_password, &LineEditwithButton::editfinished);
-
+	//个人信息配置
 	auto config = new SConfigFile("config.ini");
 	QFile configFile("config.ini");
 	qDebug() << configFile.exists();
@@ -167,7 +164,6 @@ void LoginWidget::init()
 		m_account->setText(config->value("user_id").toString());
 		m_password->setText(config->value("password").toString());
 	}
-
 	//登录
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{
@@ -190,6 +186,7 @@ void LoginWidget::init()
 							qDebug() << obj["code"] << loginUser["username"].toString();
 							if (obj["code"].toInt() == 0)
 							{
+								qDebug() << "登录用户：" << loginUser;
 								//登录成功 用户信息写入配置文件
 								auto config = new SConfigFile("config.ini");
 								config->setValue("user_id", user_id);
@@ -223,17 +220,13 @@ void LoginWidget::init()
 
 						}
 					});
-
 		});
-
 	//点击更多弹出菜单
 	connect(m_moreBtn, &QPushButton::clicked, [=]
 		{
 			moreMenu->popup(mapToGlobal(QPoint(m_moreBtn->geometry().x(), m_moreBtn->geometry().y() - 70)));
 		});
-
 }
-
 
 bool LoginWidget::eventFilter(QObject* watched, QEvent* event)
 {

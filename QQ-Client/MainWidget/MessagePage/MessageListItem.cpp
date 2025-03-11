@@ -3,10 +3,11 @@
 #include "ui_MessageListItem.h"
 #include <QBoxLayout>
 #include <QLabel>
-#include "ImageUtil.h"
 #include <QJsonArray>
+
 #include "Friend.h"
 #include "FriendManager.h"
+#include "ImageUtil.h"
 
 MessageListItem::MessageListItem(QWidget* parent)
 	:QWidget(parent)

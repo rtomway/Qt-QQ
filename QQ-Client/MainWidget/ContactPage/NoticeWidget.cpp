@@ -1,7 +1,8 @@
 ﻿#include "NoticeWidget.h"
 #include <QBoxLayout>
-#include "FriendNoticeItemWidget.h"
 #include <QFile>
+
+#include "FriendNoticeItemWidget.h"
 #include "Client.h"
 #include "ContactList.h"
 
@@ -23,18 +24,10 @@ NoticeWidget::NoticeWidget(QWidget* parent)
 	}
 
 }
-NoticeWidget::~NoticeWidget()
-{
-
-}
 NoticeWidget* NoticeWidget::instance()
 {
-	static NoticeWidget* ins;
-	if (!ins)
-	{
-		ins = new NoticeWidget;
-	}
-	return ins;
+	static NoticeWidget ins;
+	return &ins;
 }
 
 void NoticeWidget::init()
@@ -77,7 +70,6 @@ void NoticeWidget::initStackedWidget()
 	m_stackedWidget->addWidget(m_friendNoticeList);
 	m_stackedWidget->addWidget(m_groupNoticeList);
 }
-
 
 void NoticeWidget::addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap)
 {

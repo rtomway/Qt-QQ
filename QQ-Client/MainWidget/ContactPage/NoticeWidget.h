@@ -16,7 +16,6 @@ public:
 	void initStackedWidget();
 private:
 	NoticeWidget(QWidget* parent = nullptr);
-	~NoticeWidget();
 private:
 	void addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap);
 private:

@@ -1,4 +1,4 @@
-#ifndef MAINWIDGET_H_
+﻿#ifndef MAINWIDGET_H_
 #define MAINWIDGET_H_
 
 #include <QWidget>
@@ -49,7 +49,6 @@ signals:
 	void expandWidget();
 	void exitWidget();
 protected:
-	void resizeEvent(QResizeEvent* event)override;
 	bool eventFilter(QObject* watched, QEvent* event)override;
 };
 
