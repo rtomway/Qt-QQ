@@ -6,7 +6,6 @@
 #include "ImageUtil.h"
 #include "SMaskWidget.h"
 #include "ContactList.h"
-#include "Friend.h"
 #include "FriendManager.h"
 
 
@@ -14,6 +13,7 @@ ContactPage::ContactPage(QWidget* parent)
 	:AngleRoundedWidget(parent)
 	, ui(new Ui::ContactPage)
 	, m_detailEditWidget(new ContactDetailWidget)
+	, m_oneself(nullptr)
 {
 	ui->setupUi(this);
 	init();
@@ -37,6 +37,9 @@ ContactPage::~ContactPage()
 void ContactPage::init()
 {
 	this->setObjectName("ContactPage");
+	//还未初始化禁止信号
+	ui->groupcomBox->blockSignals(true);
+
 	ui->headLab->setPixmap(ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/h2.jpg"), QSize(100, 100)));
 	ui->nameLab->setText("哈哈");
 	ui->onlineBtn->setIcon(QIcon(":/icon/Resource/Icon/online.png"));
@@ -93,11 +96,38 @@ void ContactPage::init()
 		{
 			emit sendMessage(m_json["user_id"].toString());
 		});
+	//分组改变
+	connect(ui->groupcomBox, &QComboBox::currentIndexChanged, [=](int index)
+		{
+			auto grouping = ui->groupcomBox->itemText(index);
+			qDebug() << "分组改变" << grouping;
+			if (m_oneself && !grouping.isEmpty())
+			{
+				qDebug() << "分组" << grouping;
+				auto oldGrouping = m_oneself->getGrouping();
+				m_oneself->setGrouping(grouping);
+				auto friend_id = m_oneself->getFriendId();
+				FriendManager::instance()->emit updateFriendGrouping(friend_id, oldGrouping);
+				//发送给服务端
+				auto user_id = FriendManager::instance()->getOneselfID();
+				FriendManager::instance()->updateUserGroupingToServer(user_id, friend_id, grouping);
+			}
+		});
 }
 
 void ContactPage::setUser(const QJsonObject& obj)
 {
 	m_json = obj;
+	m_userId = obj["user_id"].toString();
+	ui->groupcomBox->blockSignals(false);
+	//m_oneself为空或id不等,存入新的Friend
+	if (!m_oneself || m_oneself->getFriendId() != m_userId)
+	{
+		m_oneself = FriendManager::instance()->findFriend(m_userId);
+		qDebug() << "id不同------------";
+	}
+	//获取friend信息
+	m_json = m_oneself->getFriend();
 	qDebug() << "个人信息json:" << m_json;
 	//未设置信息隐藏
 	//可编辑
@@ -164,4 +194,12 @@ void ContactPage::setUser(const QJsonObject& obj)
 	auto pixmap = ImageUtils::roundedPixmap(myfriend->getAvatar(), QSize(100, 100));
 	ui->headLab->setPixmap(pixmap);
 	ui->signaltureLab->setText(m_json["signature"].toString());
+}
+
+void ContactPage::clearWidget()
+{
+	m_detailEditWidget = nullptr;
+	m_oneself = nullptr;
+	//退出后禁止信号
+	ui->groupcomBox->blockSignals(true);
 }

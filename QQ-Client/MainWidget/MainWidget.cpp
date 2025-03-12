@@ -129,7 +129,7 @@ MainWidget::MainWidget(QWidget* parent)
 	//接受到消息 用户消息项更新
 	connect(Client::instance(), &Client::communication, this, [=](const QJsonObject& obj)
 		{
-			qDebug() << "接受消息json:"<<obj;
+			qDebug() << "接受消息json:" << obj;
 			auto m_user_id = FriendManager::instance()->getOneselfID();
 			auto friend_id = obj["user_id"].toString();
 			auto message = obj["message"].toString();
@@ -142,7 +142,7 @@ MainWidget::MainWidget(QWidget* parent)
 				auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
 				itemWidget->setUser(obj);
 				//判断当下是否是该user_id会话界面
-				if (m_messagePage->getCurrentID() == friend_id&&ui->messageStackedWidget->currentWidget() == m_messagePage)
+				if (m_messagePage->getCurrentID() == friend_id && ui->messageStackedWidget->currentWidget() == m_messagePage)
 				{
 					m_messagePage->updateReciveMessage(message);
 					itemWidget->updateUnreadMessage();
@@ -288,6 +288,7 @@ void MainWidget::initMoreMenu()
 		{
 			FriendManager::instance()->clearFriendManager();
 			ContactList::instance()->clearContactList();
+			m_contactPage->clearWidget();
 			m_btn_Itemgroup->button(-2)->setChecked(true);
 			ui->listStackedWidget->setCurrentWidget(m_messageList);
 			ui->messageStackedWidget->setCurrentWidget(m_emptyWidget);
@@ -341,8 +342,8 @@ void MainWidget::additemCenter(const QString& src)
 QListWidgetItem* MainWidget::addmessageListItem(const QJsonObject& obj)
 {
 	auto user_id = obj["user_id"].toString();
-	auto item= findListItem(user_id);
-	if (item!=nullptr)
+	auto item = findListItem(user_id);
+	if (item != nullptr)
 	{
 		qDebug() << "消息项已存在" << user_id;
 		return nullptr;
@@ -381,7 +382,7 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 	{
 		//弹出个人信息小窗口
 		m_contactWidget = std::make_unique<ContactPage>();
-		auto oneselfID= FriendManager::instance()->getOneselfID();
+		auto oneselfID = FriendManager::instance()->getOneselfID();
 		auto oneself = FriendManager::instance()->findFriend(oneselfID);
 		m_contactWidget->setUser(oneself->getFriend());
 		auto position = ui->headLab->mapToGlobal(QPoint(0, 0));

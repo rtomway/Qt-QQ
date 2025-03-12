@@ -112,7 +112,7 @@ void FriendManager::loadAvatar(const QString& user_id)
 //用户信息更新向服务端发送
 void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
 {
-	QVariantMap friendObj=obj.toVariantMap();
+	QVariantMap friendObj = obj.toVariantMap();
 	qDebug() << "用户更新的信息json：" << friendObj;
 	Client::instance()->sendMessage("updateUserMessage", friendObj);
 }
@@ -139,6 +139,15 @@ void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
 
 	Client::instance()->sendBinaryMessage("updateUserAvatar", params, byteArray);
 
+}
+//好友分组修改
+void FriendManager::updateUserGroupingToServer(const QString& user_id, const QString& friend_id, const QString& grouping)
+{
+	QVariantMap groupingMap;
+	groupingMap["user_id"] = user_id;
+	groupingMap["friend_id"] = friend_id;
+	groupingMap["grouping"] = grouping;
+	Client::instance()->sendMessage("updateUserGrouping", groupingMap);
 }
 //接受到其他用户信息更新信号
 

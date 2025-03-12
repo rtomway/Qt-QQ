@@ -41,11 +41,17 @@ void ItemWidget::setUser(const QJsonObject& obj)
 void ItemWidget::setGrouping(const QString& grouping)
 {
 	m_json["grouping"] = grouping;
+	m_grouping = grouping;
 }
 
 const QJsonObject& ItemWidget::getUser()
 {
 	return m_json;
+}
+
+const QString& ItemWidget::getGrouping()
+{
+	return m_grouping;
 }
 
 

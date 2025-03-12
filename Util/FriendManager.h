@@ -26,8 +26,9 @@ public:
 	const QHash<QString, QSharedPointer<Friend>>& getFriends()const;
 	void loadAvatar(const QString& user_id);
 	//消息发送服务端
-	void updateUserMessageToServer(const QJsonObject&obj);
-	void updateUserAvatarToServer(const QPixmap&pixmap);
+	void updateUserMessageToServer(const QJsonObject& obj);
+	void updateUserAvatarToServer(const QPixmap& pixmap);
+	void updateUserGroupingToServer(const QString& user_id, const QString& friend_id, const QString& grouping);
 	//清除
 	void clearFriendManager();
 
@@ -40,9 +41,10 @@ private:
 signals:
 	void UserAvatarLoaded(const QPixmap& avatar);
 	void FriendAvatarLoaded(const QPixmap& avatar);
-	void UpdateFriendMessage(const QString&user_id);
+	void UpdateFriendMessage(const QString& user_id);
 	void UpdateFriendAvatar(const QString& user_id);
 	void NewFriend(const QString& user_id);
+	void updateFriendGrouping(const QString& user_id, const QString& oldGrouping);
 };
 
 

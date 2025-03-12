@@ -38,7 +38,7 @@ const QJsonObject Friend::getFriend()const
 	return m_json;
 }
 //设置分组
-void Friend::setGrouping(QString& grouping)
+void Friend::setGrouping(const QString& grouping)
 {
 	m_grouping = grouping;
 	m_json["grouping"] = m_grouping;

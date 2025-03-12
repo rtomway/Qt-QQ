@@ -1,4 +1,4 @@
-#ifndef ITEMWIDGET_H_
+﻿#ifndef ITEMWIDGET_H_
 #define ITEMWIDGET_H_
 
 #include <QWidget>
@@ -15,10 +15,12 @@ public:
 private:
 	Ui::ItemWidget* ui{};
 	QJsonObject m_json{};
+	QString m_grouping{};
 public:
 	void setUser(const QJsonObject& obj);
 	void setGrouping(const QString& grouping);
 	const QJsonObject& getUser();
+	const QString& getGrouping();
 };
 
 #endif // !ITEMWIDGET_H_

@@ -41,6 +41,7 @@ void Server::initRequestHash()
 	requestHash["queryUserDetail"] = &Server::handle_queryUserDetail;
 	requestHash["updateUserMessage"] = &Server::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &Server::handle_updateUserAvatar;
+	requestHash["updateUserGrouping"] = &Server::handle_updateUserGrouping;
 }
 //通信连接
 void Server::onNewConnection()
@@ -379,7 +380,7 @@ void Server::handle_login(const QJsonObject& paramsObject, const QByteArray& dat
 	QJsonArray jarray;
 	auto client = m_clients[user_id];
 	//查询登录用户
-	query.prepare(QString("select f.Fgrouping,u.* from user u join friendship f on u.user_id=f.user_id where u.user_id=?"));
+	query.prepare(QString("select f.Fgrouping,u.* from user u join friendship f on (u.user_id=f.user_id and u.user_id=f.friend_id) where u.user_id=?"));
 	query.addBindValue(user_id);
 	if (query.exec())
 	{
@@ -408,6 +409,7 @@ void Server::handle_login(const QJsonObject& paramsObject, const QByteArray& dat
 				jsonData["birthday"] = query.value(10).toDate().toString("MM-dd");
 				jsonData["signature"] = query.value(11).toString();
 				obj["loginUser"] = jsonData;
+				qDebug() << "登陆成功:" << jsonData;
 			}
 			else
 			{
@@ -626,7 +628,7 @@ void Server::handle_addFriend(const QJsonObject& paramsObject, const QByteArray&
 	auto send_id = paramsObject["user_id"].toString();
 	auto receive_id = paramsObject["to"].toString();
 	//保存分组信息
-	m_sendGrouping= paramsObject["grouping"].toString();
+	m_sendGrouping = paramsObject["grouping"].toString();
 	//数据包装入信息
 	QVariantMap senderMessage;
 	senderMessage["user_id"] = send_id;
@@ -672,7 +674,7 @@ void Server::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QBy
 		auto client_receive = m_clients[receive_id];
 		auto client_send = m_clients[send_id];
 		//保存分组信息
-		m_receiveGrouping= paramsObject["grouping"].toString();
+		m_receiveGrouping = paramsObject["grouping"].toString();
 		//好友列表新增
 		SConnectionWrap wrap;
 		QSqlQuery query(wrap.openConnection());
@@ -890,7 +892,7 @@ void Server::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByt
 
 	userData.append(packetSizeBytes);  // 先加上包长度
 	userData.append(userPacket);       // 再加上包数据
-	auto allData= allBinaryPacket(userData);
+	auto allData = allBinaryPacket(userData);
 
 	QStringList friendIdList = getFriendId(user_id);
 	for (const auto& friend_id : friendIdList)
@@ -899,6 +901,25 @@ void Server::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByt
 		{
 			m_clients[friend_id]->sendBinaryMessage(allData);
 		}
+	}
+}
+//更新好友分组
+void Server::handle_updateUserGrouping(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	auto friend_id = paramsObject["friend_id"].toString();
+	auto grouping = paramsObject["grouping"].toString();
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+	query.prepare("update friendship f set Fgrouping = ? where f.user_id=? and f.friend_id=?");
+	query.addBindValue(grouping);
+	query.addBindValue(user_id);
+	query.addBindValue(friend_id);
+	if (!query.exec())
+	{
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+		return;
 	}
 }
 

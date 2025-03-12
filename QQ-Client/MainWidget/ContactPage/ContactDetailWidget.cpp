@@ -215,7 +215,7 @@ void ContactDetailWidget::init()
 				qDebug() << "头像更改更新到服务端";
 				FriendManager::instance()->updateUserAvatarToServer(m_headPix);
 			}
-			m_json["avatar_path"] = user_id+".png";
+			m_json["avatar_path"] = user_id + ".png";
 			m_json["username"] = m_nickNameEdit->getLineEditText();
 			m_json["signature"] = m_signaltureEdit->getLineEditText();
 			if (!m_genderEdit->getLineEditText().isEmpty())
@@ -224,12 +224,12 @@ void ContactDetailWidget::init()
 			auto user = FriendManager::instance()->findFriend(user_id);
 			user->setFriend(m_json);
 			//向客户端其他控件更新信号
-			emit FriendManager::instance()->UpdateFriendMessage(user_id);
+			FriendManager::instance()->emit UpdateFriendMessage(user_id);
 			//向服务端发送更新信息
 			FriendManager::instance()->updateUserMessageToServer(user->getFriend());
 			this->hide();
 		});
-	
+
 }
 
 void ContactDetailWidget::setUser(const QJsonObject& obj)
@@ -274,7 +274,7 @@ bool ContactDetailWidget::saveAvatarToLocal(const QString& avatarPath, const QSt
 	if (avatar.isNull()) {
 		qWarning() << "头像加载失败!";
 		return false;
-	}	
+	}
 	// 保存头像
 	return avatar.save(avatarFileName);
 }

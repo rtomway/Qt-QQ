@@ -93,17 +93,17 @@ void ContactList::init()
 	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
 		{
 			auto friends = FriendManager::instance()->getFriends();
-			for (auto it = friends.begin(); it != friends.end(); ++it) {
+			for (auto it = friends.begin(); it != friends.end(); ++it)
+			{
 				const QSharedPointer<Friend>& friendInfo = it.value();
 				auto grouping = friendInfo->getGrouping();
 				//判断该分组是否已存在
-				if(!m_fNamelist.contains(grouping))
-				addFriendListItem(grouping);
-				qDebug() << "分组" << grouping;
+				if (!m_fNamelist.contains(grouping))
+					addFriendListItem(grouping);
+				qDebug() << "分组000000000000000000000000" << grouping;
 				addFriendItem(getFriendTopItem(grouping), friendInfo->getFriend());
 			}
 		});
-
 	//列表切换
 	connect(&m_buttonGroup, &QButtonGroup::idClicked, this, [=](int id)
 		{
@@ -145,13 +145,28 @@ void ContactList::init()
 			qDebug() << "用户信息更新99999999999999999999999999";
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto groupingItem = getFriendTopItem(user->getGrouping());
-			auto item= findItemByIdInGroup(groupingItem, user_id);
+			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				itemWidget->setUser(user->getFriend());
 			}
 		});
+	//好友分组更改
+	connect(FriendManager::instance(), &FriendManager::updateFriendGrouping, this, [=](const QString& user_id, const QString& oldGrouping)
+		{
+			//从旧分组中移除 
+			auto oldTopItem = getFriendTopItem(oldGrouping);
+			auto item = findItemByIdInGroup(oldTopItem, user_id);
+			oldTopItem->removeChild(item);
+			auto oldTopItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(oldTopItem, 0));
+			oldTopItemWidget->setCount(oldTopItem->childCount());
+			//添加到新分组
+			auto user = FriendManager::instance()->findFriend(user_id);
+			auto grouping = user->getGrouping();
+			addFriendItem(getFriendTopItem(grouping), user->getFriend());
+		});
+
 }
 
 //获取分组
@@ -184,13 +199,13 @@ void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& 
 {
 	auto user_id = obj["user_id"].toString();
 	auto friendItem = findItemByIdInGroup(firendList, user_id);
-	if(friendItem!=nullptr)
+	if (friendItem != nullptr)
 	{
 		qDebug() << "该好友已存在";
 		return;
 	}
-    friendItem = new QTreeWidgetItem(firendList);
-	friendItem->setData(0, Qt::UserRole,user_id );
+	friendItem = new QTreeWidgetItem(firendList);
+	friendItem->setData(0, Qt::UserRole, user_id);
 	friendItem->setSizeHint(0, QSize(m_friendList->width(), 60));
 	qDebug() << "username:" << obj["username"].toString();
 	//自定义Item
