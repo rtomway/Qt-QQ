@@ -7,24 +7,24 @@
 
 通信界面
 
-<img src="ResultPicture/communication.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/communication.png" alt="Example Image" width="800" height="500">
 
 搜索添加界面
 
-<img src="ResultPicture/add.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/searchUser.png" alt="Example Image" width="800" height="500">
 
 通知界面
 
-<img src="ResultPicture/notice.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/notice.png" alt="Example Image" width="800" height="500">
 
 好友界面
 
-<img src="ResultPicture/contact.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/contact.png" alt="Example Image" width="800" height="500">
 
 个人信息编辑界面
 
-<img src="ResultPicture/editMessage.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/editMessage.png" alt="Example Image" width="800" height="500">
 
 个人小窗口
 
-<img src="ResultPicture/personMessage.png" alt="Example Image" width="700" height="500">
+<img src="ResultPicture/personMessage.png" alt="Example Image" width="800" height="500">
