@@ -4,9 +4,11 @@
 #include <QWidget>
 #include <QMenu>
 #include <QPixmap>
+#include <memory>
+
 #include "ChatMessage.h"
 #include "Friend.h"
-#include <memory>
+
 namespace Ui { class MessagePage; }
 
 class MessagePage :public QWidget

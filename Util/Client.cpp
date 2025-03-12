@@ -20,29 +20,24 @@ Client::~Client()
 {
 	delete m_client;
 }
-
+//消息映射表初始化
 void Client::initRequestHash()
 {
 	requestHash["communication"] = &Client::handle_communication;
 	requestHash["addFriend"] = &Client::handle_addFriend;
 	requestHash["newFriend"] = &Client::handle_newFriend;
 	requestHash["rejectAddFriend"] = &Client::handle_rejectAddFriend;
-	//requestHash["resultOfAddFriend"] = &Client::handle_resultOfAddFriend;
 	requestHash["searchUser"] = &Client::handle_searchUser;
 	requestHash["updateUserMessage"] = &Client::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &Client::handle_updateUserAvatar;
 }
-
+//单例
 Client* Client::instance()
 {
-	static Client* ins;
-	if (!ins)
-	{
-		ins = new Client();
-	}
-	return ins;
+	static Client ins;
+	return &ins;
 }
-
+//连接服务端
 Client* Client::connectToServer(const QString& url)
 {
 	if (!m_isConnected)
@@ -52,7 +47,6 @@ Client* Client::connectToServer(const QString& url)
 	}
 	return this;
 }
-
 //发送Json数据
 Client* Client::sendMessage(const QString& type, const QVariantMap& params)
 {
@@ -115,7 +109,7 @@ Client* Client::sendBinaryMessage(const QString& type, const QVariantMap& params
 	qDebug() << "发送二进制数据：" << type << "，头部大小：" << headerData.size() << "，数据大小：" << data.size();
 	return this;
 }
-
+//回调
 Client* Client::ReciveMessage(std::function<void(const QString&)> callback)
 {
 	m_messageCallback = callback;
@@ -239,15 +233,13 @@ void Client::onBinaryMessageReceived(const QByteArray& message)
 		}
 	}
 }
-
-
+//回调
 void Client::onErrorOccurred(QAbstractSocket::SocketError error)
 {
 	if (m_errorCallback) {
 		m_errorCallback(m_client->errorString());
 	}
 }
-
 void Client::onConnected()
 {
 	if (m_connectedCallback)
@@ -255,7 +247,6 @@ void Client::onConnected()
 		m_connectedCallback();
 	}
 }
-
 void Client::onDisconnected()
 {
 	m_isConnected = false;
@@ -263,7 +254,6 @@ void Client::onDisconnected()
 		m_disconnectedCallback();
 	}
 }
-
 void Client::disconnect()
 {
 	if (m_isConnected) {
@@ -271,7 +261,7 @@ void Client::disconnect()
 		m_isConnected = false;
 	}
 }
-
+//消息处理
 void Client::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "communication";

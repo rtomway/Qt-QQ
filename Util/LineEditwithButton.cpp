@@ -31,7 +31,6 @@ void LineEditwithButton::init()
 	 this->setFixedWidth(250);
 	 this->installEventFilter(this);
 	 m_lineEdit->installEventFilter(this);
-	
 	 mlayout->setSpacing(0);
 	 mlayout->setContentsMargins(0, 0, 0, 0);
 
@@ -56,7 +55,10 @@ void LineEditwithButton::init()
 	
 	 auto vlayout = new QVBoxLayout(this);
 	 vlayout->addWidget(mframe);
-
+	 //菜单设置
+	 m_comboboxMenu->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+	 m_comboboxMenu->setStyleSheet(QString("QMenu{background-color:white;margin:7px;}"));
+	 m_comboboxMenu->setAttribute(Qt::WA_TranslucentBackground);
 	 //进入编辑
 	connect(this, &LineEditwithButton::clicked, this, [=]
 		{
@@ -64,6 +66,7 @@ void LineEditwithButton::init()
 			if(m_isclear)
 			m_clearBtn->show();
 		});
+	//编辑完成
 	connect(m_lineEdit, &QLineEdit::editingFinished, this, [=]
 		{
 			m_lineEdit->clearFocus();
@@ -75,28 +78,23 @@ void LineEditwithButton::init()
 		{
 			m_lineEdit->setText("");
 		});
+	//菜单弹出按钮
 	connect(m_arrowBtn, &QPushButton::clicked, [=]
 		{
 			const QPoint globalPos = mapToGlobal(rect().bottomLeft());
 			const QSize size = rect().size();
 			qDebug() << "size:" << size;
-
 			// 设置菜单的位置
-			//menu->exec();
 			m_comboboxMenu->popup(globalPos+QPoint(0,-10));
 			qDebug() << mapToGlobal(rect().bottomLeft()) << m_comboboxMenu->geometry();
-			
 		});
-	m_comboboxMenu->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
-	m_comboboxMenu->setStyleSheet(QString("QMenu{background-color:white;margin:7px;}"));
-	m_comboboxMenu->setAttribute(Qt::WA_TranslucentBackground);
+	//菜单选择
 	connect(m_comboboxMenu, &QMenu::triggered, [=](QAction* action)
 		{
-			qDebug() << "aaa";
 			m_lineEdit->setText(action->text());
 		});
 }
-
+//添加按钮
 void LineEditwithButton::addBtn(QPushButton* toolBtn)
 {
 	toolBtn->setFixedWidth(20);
@@ -105,50 +103,53 @@ void LineEditwithButton::addBtn(QPushButton* toolBtn)
 	mlayout->addWidget(m_lastLab);
 	toolBtn->installEventFilter(this);
 }
-
-
-
+//编辑完成
 void LineEditwithButton::editfinished()
 {
 	//发送离开编辑框信号
 	QMetaObject::invokeMethod(m_lineEdit, "editingFinished");
 }
-
 void LineEditwithButton::setPlaceholderText(QString text)
 {
 	m_lineEdit->setPlaceholderText(text);
 }
-
+//文本设置
 void LineEditwithButton::setText(QString text)
 {
 	m_lineEdit->setText(text);
 	
 }
+//获取文本
+QString LineEditwithButton::getLineEditText()
+{
+	return m_lineEdit->text();
+}
+//文本隐藏
 void LineEditwithButton::setEchoMode()
 {
 	m_lineEdit->setEchoMode(QLineEdit::Password);
 }
-
+//前置lab
 void LineEditwithButton::setPreLab(QString text)
 {
 	m_preLab->setText(text);
 }
-
+//后置lab
 void LineEditwithButton::setLastLab(QString text)
 {
 	m_lastLab->setText(text);
 }
-
+//可否编辑
 void LineEditwithButton::setEditEnable(bool edit)
 {
 	m_lineEdit->setEnabled(edit);
 }
-
+//初始编辑位置
 void LineEditwithButton::setEditPosition(Qt::Alignment alignment)
 {
 	m_lineEdit->setAlignment(alignment);
 }
-
+//下拉菜单设置
 void LineEditwithButton::setComboBox()
 {
 	setEditEnable(false);
@@ -158,34 +159,29 @@ void LineEditwithButton::setComboBox()
 	m_isCombobox = true;
 	m_comboboxMenu->setFixedWidth(this->width());
 }
-
+//清除按钮
 void LineEditwithButton::setclearBtn()
 {
 	m_clearBtn->setIcon(QIcon(":/icon/Resource/Icon/x.png"));
 	addBtn(m_clearBtn);
 	m_isclear = true;
 }
-
+//宽度
 void LineEditwithButton::setWidth(int width)
 {
 	this->setFixedWidth(width);
 }
-
-
+//菜单项
 void LineEditwithButton::addMenuItem(QString item)
 {
 	m_comboboxMenu->addAction(item);
 }
-
- QString LineEditwithButton::getLineEditText()
-{
-	return m_lineEdit->text();
-}
+ //下拉菜单获取
 QMenu* LineEditwithButton::getMenu() const
 {
 	return m_comboboxMenu;
 }
-
+//控件事件重写
 bool LineEditwithButton::eventFilter(QObject* watched, QEvent* event)
 {
 	//auto ev = dynamic_cast<QMouseEvent*>(event);
@@ -203,7 +199,5 @@ bool LineEditwithButton::eventFilter(QObject* watched, QEvent* event)
 			m_clearBtn->hide();
 		}
 	}*/
-	
-	
 	return false;
 }

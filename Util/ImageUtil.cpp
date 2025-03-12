@@ -1,13 +1,10 @@
-#include "ImageUtil.h"
+﻿#include "ImageUtil.h"
 #include <QPainter>
 #include <QPainterPath>
 
 
 QPixmap ImageUtils::roundedPixmap(const QPixmap& pixmap, QSize size, int radius)
 {
-	/*QPixmap newpixmap = pixmap;
-	qreal ratio = (qreal)qApp->devicePixelRatio(); 
-	newpixmap.setDevicePixelRatio(ratio);*/
 	QPixmap scaled = pixmap.scaled(size, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
 	QPixmap dest(size);
 	dest.fill(Qt::transparent);

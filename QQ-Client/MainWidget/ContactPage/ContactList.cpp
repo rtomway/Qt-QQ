@@ -11,7 +11,6 @@
 #include "ItemWidget.h"
 #include "Client.h"
 #include "FriendNoticeItemWidget.h"
-#include "User.h"
 #include "FriendManager.h"
 #include "Friend.h"
 

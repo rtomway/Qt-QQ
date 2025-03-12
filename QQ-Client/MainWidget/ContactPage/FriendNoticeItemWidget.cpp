@@ -4,7 +4,6 @@
 #include <QJsonObject>
 #include <memory>
 
-#include "User.h"
 #include "Client.h"
 #include "ImageUtil.h"
 #include "Friend.h"

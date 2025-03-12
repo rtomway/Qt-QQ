@@ -8,7 +8,6 @@
 #include "FriendManager.h"
 #include "ImageUtil.h"
 #include "ContactList.h"
-#include "User.h"
 
 
 AddWidget::AddWidget(QWidget* parent)

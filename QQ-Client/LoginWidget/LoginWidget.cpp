@@ -20,7 +20,6 @@
 #include "RoundLabel.h"
 #include "Client.h"
 #include "SConfigFile.h"
-#include "User.h"
 #include "RegisterPage.h"
 #include "FriendManager.h"
 #include "Friend.h"
@@ -191,17 +190,12 @@ void LoginWidget::init()
 								auto config = new SConfigFile("config.ini");
 								config->setValue("user_id", user_id);
 								config->setValue("password", password);
-
-								//当前登录用户信息
-								User::instance()->setUserId(user_id);
-								User::instance()->setUserName(user_name);
-
 								//将登录信息加入管理中心
+								//当前登录用户信息
 								auto user = QSharedPointer<Friend>::create();
 								user->setFriend(loginUser);
 								FriendManager::instance()->addFriend(user);
 								FriendManager::instance()->setOneselfID(user_id);
-
 								//加载好友信息
 								for (const QJsonValue& value : friendArray)
 								{
@@ -217,7 +211,6 @@ void LoginWidget::init()
 							{
 								qDebug() << obj["message"].toString();
 							}
-
 						}
 					});
 		});

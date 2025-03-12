@@ -1,16 +1,14 @@
 ﻿#include "FriendManager.h"
-#include "ImageUtil.h"
-#include "Client.h"
 #include <QBuffer>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QVariantMap>
 #include <QStandardPaths>
 
-FriendManager* FriendManager::instance() {
-	static FriendManager instance;
-	return &instance;
-}
+#include "ImageUtil.h"
+#include "Client.h"
+
+
 QString FriendManager::m_oneselfID = QString();
 
 FriendManager::FriendManager()
@@ -22,22 +20,22 @@ FriendManager::FriendManager()
 			user->setFriend(obj);
 			emit UpdateFriendMessage(user_id);
 		});
-	connect(Client::instance(), &Client::updateUserAvatar, this, [=](const QString& user_id,const QPixmap&pixmap)
+	connect(Client::instance(), &Client::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
 		{
 			auto user = findFriend(user_id);
 			qDebug() << "----------F好友头像更新-----------";
 			//保存目录
 			QString avatarFolder = QStandardPaths::writableLocation
 			(QStandardPaths::AppDataLocation)+"/avatars";
-			auto avatarPath = avatarFolder + "/" + user_id +".png";
-			auto isSave= pixmap.save(avatarPath);
+			auto avatarPath = avatarFolder + "/" + user_id + ".png";
+			auto isSave = pixmap.save(avatarPath);
 			if (isSave)
 			{
 				user->loadAvatar();
 				emit UpdateFriendMessage(user_id);
 			}
 		});
-	connect(Client::instance(), &Client::newFriend, this, [=](const QJsonObject& obj, const QPixmap&pixmap)
+	connect(Client::instance(), &Client::newFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
 			auto user = QSharedPointer<Friend>::create();
 			user->setFriend(obj);
@@ -55,19 +53,22 @@ FriendManager::FriendManager()
 			emit NewFriend(user_id);
 		});
 }
-
+//单例
+FriendManager* FriendManager::instance() {
+	static FriendManager instance;
+	return &instance;
+}
 //设置当前用户id
 void FriendManager::setOneselfID(const QString& id)
 {
 	m_oneselfID = id;
 	qDebug() << "当前用户ID:" << m_oneselfID;
 }
-
+//获取当前用户id
 const QString FriendManager::getOneselfID() const
 {
 	return m_oneselfID;
 }
-
 //添加用户信息
 void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 {
@@ -75,7 +76,7 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 	if (!m_user.contains(user_id))
 		m_user.insert(user_id, user);
 }
-
+//搜索好友
 QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 {
 	auto it = m_user.find(id);
@@ -86,12 +87,12 @@ QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 		return nullptr; // 如果未找到，返回空用户
 	}
 }
-
+//获取好友
 const QHash<QString, QSharedPointer<Friend>>& FriendManager::getFriends() const
 {
 	return m_user;
 }
-
+//登录加载
 void FriendManager::loadAvatar(const QString& user_id)
 {
 	//找到该用户
@@ -108,7 +109,6 @@ void FriendManager::loadAvatar(const QString& user_id)
 		emit FriendAvatarLoaded(avatar);
 	}
 }
-
 //用户信息更新向服务端发送
 void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
 {
@@ -116,7 +116,6 @@ void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
 	qDebug() << "用户更新的信息json：" << friendObj;
 	Client::instance()->sendMessage("updateUserMessage", friendObj);
 }
-
 //用户头像更新向服务端发送
 void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
 {
@@ -141,9 +140,7 @@ void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
 	Client::instance()->sendBinaryMessage("updateUserAvatar", params, byteArray);
 
 }
-
 //接受到其他用户信息更新信号
-
 
 //将好友中心清空(切换用户)
 void FriendManager::clearFriendManager()

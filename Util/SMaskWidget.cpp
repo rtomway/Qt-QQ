@@ -15,17 +15,13 @@ SMaskWidget::SMaskWidget(QWidget* parent)
 	setAttribute(Qt::WA_StyledBackground);
 
 }
-
+//单例
 SMaskWidget* SMaskWidget::instance()
 {
-	static SMaskWidget* ins;
-	if (!ins)
-	{
-		ins = new SMaskWidget;
-	}
-	return ins;
+	static SMaskWidget ins;
+	return &ins;
 }
-
+//主窗口设置
 void SMaskWidget::setMainWidget(QWidget* widget)
 {
 	if (!widget)
@@ -38,13 +34,16 @@ void SMaskWidget::setMainWidget(QWidget* widget)
 		qWarning() << "m_MainWidget已存在,will be changed";
 	}
 	m_MainWidget = widget;
-
 	this->setParent(m_MainWidget);
 	this->hide();
 	m_MainWidget->installEventFilter(this);
-
 }
-
+//获取主窗口大小
+QSize SMaskWidget::getMainWidgetSize()
+{
+	return m_MainWidget->size();
+}
+//子窗口添加
 void SMaskWidget::addDialog(QWidget* dialog)
 {
 	if (!dialog)
@@ -62,16 +61,12 @@ void SMaskWidget::addDialog(QWidget* dialog)
 	dialog->setParent(this);
 	dialog->installEventFilter(this);
 }
-
+//弹出窗口
 void SMaskWidget::popUp(QWidget* dialog)
 {
-	
 	addDialog(dialog);
-	
 	if (dialog && m_dialogs.contains(dialog))
 	{
-		/*if (m_currentPopUp)
-			m_currentPopUp->setParent(nullptr);*/
 		m_currentPopUp = dialog; 
 		auto child = this->findChildren<QWidget*>();
 		
@@ -80,18 +75,17 @@ void SMaskWidget::popUp(QWidget* dialog)
 		dialog->show();
 	}
 }
+//弹出位置
 void SMaskWidget::setPopPostion(PopPosition position)
 {
 	m_pos = position;
 }
+//弹出位置
 void SMaskWidget::setPopGeometry(const QRect& rect)
 {
 	m_currentPopUp->setGeometry(rect);
 }
-QSize SMaskWidget::getMainWidgetSize()
-{
-	return m_MainWidget->size();
-}
+//重写
 bool SMaskWidget::eventFilter(QObject* object, QEvent* ev)
 {
 	//判断当前是否为mainwindow对象
@@ -100,8 +94,6 @@ bool SMaskWidget::eventFilter(QObject* object, QEvent* ev)
 		if (ev->type() == QEvent::Resize)
 		{
 			this->setGeometry(m_MainWidget->rect());   //setGeometry 控制位置大小
-
-			//this->resize(m_MainWidget->size());
 		}
 	}
 	else
@@ -125,39 +117,19 @@ bool SMaskWidget::eventFilter(QObject* object, QEvent* ev)
 		}
 		else if (ev->type() == QEvent::Show)
 		{
-			/*switch (m_pos)
-			{
-			case SMaskWidget::LeftWidget:
-				m_currentPopUp->move(0, 0);
-				break;
-			case SMaskWidget::MiddleWidget:
-				m_currentPopUp->move((this->width() - m_currentPopUp->width()) / 2, 0);
-				break;
-			case SMaskWidget::RightWidget:
-				m_currentPopUp->move(this->width() - m_currentPopUp->width(), 0);
-				break;
-			default:
-				break;
-			}*/
-			/*int x = (m_MainWidget->width() - m_currentPopUp->width()) / 2;
-			int y = (m_MainWidget->height() - m_currentPopUp->height()) / 2;
-			m_currentPopUp->setGeometry(x, y, 480, 540);*/
 		}
 	}
 	return false;
 }
-
+//放缩重写
 void SMaskWidget::resizeEvent(QResizeEvent* ev)
 {
 	onResize();
 }
-
 void SMaskWidget::onResize()
 {
 	if (m_currentPopUp)
 	{
-		/*m_currentPopUp->setFixedHeight(this->height());
-		m_currentPopUp->setFixedWidth(this->width() / 4);*/
 		m_currentPopUp->setFixedHeight(580);
 		m_currentPopUp->setFixedWidth(540);
 	}

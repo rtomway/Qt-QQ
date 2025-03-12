@@ -5,7 +5,6 @@
 
 #include "ImageUtil.h"
 #include "SMaskWidget.h"
-#include "User.h"
 #include "ContactList.h"
 #include "Friend.h"
 #include "FriendManager.h"
@@ -102,7 +101,7 @@ void ContactPage::setUser(const QJsonObject& obj)
 	qDebug() << "个人信息json:" << m_json;
 	//未设置信息隐藏
 	//可编辑
-	if (User::instance()->getUserId() != m_json["user_id"].toString())
+	if (FriendManager::instance()->getOneselfID() != m_json["user_id"].toString())
 	{
 		ui->editdetailBtn->setVisible(false);
 	}

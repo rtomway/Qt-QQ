@@ -37,7 +37,6 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, Bu
 }
 void MessageBubble::init()
 {
-	//resize(640, 480);
 	setAlignment(Qt::AlignTop);
 	setWordWrap(false);
 	setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse);
@@ -61,6 +60,7 @@ void MessageBubble::init()
 	m_profileRect.setSize(QSize(38, 38));
 }
 
+//设置消息
 void MessageBubble::setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type)
 {
 	m_type = type;
@@ -133,12 +133,12 @@ void MessageBubble::updateBubbleSize()
 {
 	if (m_type == MessageBubble::BubbleLeft)
 	{
-		m_profileRect.moveTopLeft(QPoint(_xOffset + 20, _yOffset));
+		m_profileRect.moveTopLeft(QPoint(_xOffset + 10, _yOffset));
 		m_bubbleRect = m_textRect.adjusted(-m_textMargin, -m_textMargin, m_textMargin, m_textMargin);
 	}
 	else if (m_type == MessageBubble::BubbleRight)
 	{
-		m_profileRect.moveTopRight(QPoint(width() - _xOffset - 20, _yOffset));
+		m_profileRect.moveTopRight(QPoint(width() - _xOffset - 10, _yOffset));
 		m_bubbleRect = m_textRect.adjusted(-m_textMargin, -m_textMargin, m_textMargin, m_textMargin);
 	}
 	//保证高度不小于0
@@ -175,8 +175,6 @@ void MessageBubble::updateTextRect()
 		{
 			m_textRect.setWidth(width() - SpaceWidth());
 			m_textRect.setHeight(realLineNumber() * fm.lineSpacing() + fm.lineSpacing() / 2);
-
-			//if(QListWidgetItem::listWidget())QListWidgetItem::listWidget()->scrollToBottom();
 		}
 	}
 	else if (m_type == MessageBubble::BubbleRight)
@@ -194,7 +192,6 @@ void MessageBubble::updateTextRect()
 
 			m_textRect.setWidth(width() - SpaceWidth());
 			m_textRect.setHeight(realLineNumber() * fm.lineSpacing() + fm.lineSpacing() / 2);
-			//if (QListWidgetItem::listWidget())QListWidgetItem::listWidget()->scrollToBottom();
 		}
 	}
 }

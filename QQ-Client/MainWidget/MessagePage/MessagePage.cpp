@@ -2,16 +2,16 @@
 #include "MessagePage.h"
 #include "ui_MessagePage.h"
 #include <QFile>
-#include "MessageListItem.h"
-#include "MessageBubble.h"
 #include <QPainter>
 #include <QPainterPath>
-#include "ImageUtil.h"
-#include "Client.h"
 #include <QJsonObject>
 #include <QJsonArray>
-#include"SConfigFile.h"
-#include "User.h"
+
+#include "ImageUtil.h"
+#include "Client.h"
+#include "MessageListItem.h"
+#include "MessageBubble.h"
+#include "SConfigFile.h"
 #include "FriendManager.h"
 #include "Friend.h"
 
@@ -64,7 +64,6 @@ void MessagePage::init()
 			//刷新界面
 			setCurrentUser(user->getFriend());
 		});
-
 	//发送文字消息
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
@@ -77,7 +76,7 @@ void MessagePage::init()
 			ui->messageListWidget->addItem(messageBubble);
 			ui->messageListWidget->setItemWidget(messageBubble, messageBubble);
 			//将消息加入至聊天记录中
-			updateChatMessage(User::instance()->getUserId(), m_currentID, msg);
+			updateChatMessage(FriendManager::instance()->getOneselfID(), m_currentID, msg);
 			//下拉至底部并清空输入
 			ui->messageListWidget->scrollToBottom();
 			ui->messageTextEdit->clear();
@@ -86,14 +85,12 @@ void MessagePage::init()
 
 			QVariantMap messageMap;
 			messageMap["message"] = msg;
-			messageMap["username"] = User::instance()->getUserName();
-			messageMap["user_id"] = User::instance()->getUserId();
+			messageMap["user_id"] = FriendManager::instance()->getOneselfID();
 			messageMap["to"] = m_friend_id;
 			qDebug() << "当前用户id" << config->value("user_id");
 			Client::instance()->sendMessage("communication", messageMap);
 		});
 	ui->messageListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
 }
 
 //进入会话 加载当前会话信息
@@ -131,7 +128,6 @@ void MessagePage::updateMessageWidget()
 	ui->nameLab->setText(m_friend_username);
 
 }
-
 //加载聊天记录至聊天框
 void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 {
@@ -141,7 +137,7 @@ void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 	{
 		message.readMessage();
 		//判断消息是谁发送
-		if (message.getSenderId() == User::instance()->getUserId())
+		if (message.getSenderId() == FriendManager::instance()->getOneselfID())
 		{
 			//自己发的消息
 			auto content = message.getMessage();
@@ -163,7 +159,6 @@ void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 	}
 
 }
-
 //处于会话界面 接收消息直接更新
 void MessagePage::updateReciveMessage(const QString& Recivemessage)
 {
@@ -172,13 +167,12 @@ void MessagePage::updateReciveMessage(const QString& Recivemessage)
 	ui->messageListWidget->setItemWidget(message, message);
 	ui->messageListWidget->scrollToBottom();
 }
-
 //更新聊天记录
 void MessagePage::updateChatMessage(const QString& sender_id, const QString& receiver_id, const QString& msg)
 {
 	Message message(sender_id, receiver_id, msg, QDateTime::currentDateTime());
 	message.readMessage();
-	if (sender_id == User::instance()->getUserId())
+	if (sender_id == FriendManager::instance()->getOneselfID())
 	{
 		m_chats[receiver_id].addMessage(message);
 		message.readMessage();
@@ -189,7 +183,7 @@ void MessagePage::updateChatMessage(const QString& sender_id, const QString& rec
 	}
 
 }
-
+//清空消息
 void MessagePage::clearMessageWidget()
 {
 	ui->messageListWidget->clear();

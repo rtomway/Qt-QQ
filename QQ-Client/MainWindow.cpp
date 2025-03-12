@@ -29,13 +29,16 @@ void MainWindow::init()
 	m_stackedWidget->addWidget(m_loginWidget);
 	m_stackedWidget->addWidget(m_mainWidget);
 	m_stackedWidget->setCurrentWidget(m_loginWidget);
+    //登录成功
 	connect(m_loginWidget, &LoginWidget::Loginsuccess, this, &MainWindow::showMainWidget);
+    //退出
 	connect(m_mainWidget, &MainWidget::quitsuccess, this, &MainWindow::showLoginWidget);
-
+    //隐藏
     connect(m_mainWidget, &MainWidget::hideWidget, this, [=]
         {
             this->showMinimized();
         });
+    //放缩
     connect(m_mainWidget, &MainWidget::expandWidget, this, [=]
         {
             m_mainWidget->resize(1080, 680);
@@ -48,6 +51,7 @@ void MainWindow::init()
                 this->setGeometry(this->screen()->geometry());
             }
         });
+    //注销
     connect(m_mainWidget, &MainWidget::exitWidget, [=]
         {
             hide();

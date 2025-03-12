@@ -8,7 +8,8 @@
 
 #include "SearchItemWidget.h"
 #include "Client.h"
-#include "User.h"
+#include "FriendManager.h"
+#include "Friend.h"
 
 
 AddFriendWidget::AddFriendWidget(QWidget* parent)
@@ -78,7 +79,7 @@ void AddFriendWidget::init()
 			{
 				QVariantMap serach;
 				serach["search_id"] = search_id;
-				serach["user_id"] = User::instance()->getUserId();
+				serach["user_id"] = FriendManager::instance()->getOneselfID();
 				Client::instance()->sendMessage("searchUser", serach);
 			
 			}

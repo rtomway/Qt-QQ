@@ -12,7 +12,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "User.h"
 #include "ImageUtil.h"
 #include "SMaskWidget.h"
 #include "Client.h"
@@ -54,7 +53,7 @@ MainWidget::MainWidget(QWidget* parent)
 	//个人信息头像加载
 	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
 		{
-			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
+			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(50, 50));
 			ui->headLab->setPixmap(pixmap);
 		});
 	//好友信息更新
@@ -143,7 +142,7 @@ MainWidget::MainWidget(QWidget* parent)
 				auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
 				itemWidget->setUser(obj);
 				//判断当下是否是该user_id会话界面
-				if (m_messagePage->getCurrentID() == friend_id)
+				if (m_messagePage->getCurrentID() == friend_id&&ui->messageStackedWidget->currentWidget() == m_messagePage)
 				{
 					m_messagePage->updateReciveMessage(message);
 					itemWidget->updateUnreadMessage();

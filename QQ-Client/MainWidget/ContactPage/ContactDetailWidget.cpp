@@ -5,7 +5,6 @@
 #include <QDir>
 #include <QDateEdit>
 
-#include "User.h"
 #include "ImageUtil.h"
 #include "Friend.h"
 #include "FriendManager.h"

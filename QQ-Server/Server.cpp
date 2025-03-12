@@ -42,7 +42,6 @@ void Server::initRequestHash()
 	requestHash["updateUserMessage"] = &Server::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &Server::handle_updateUserAvatar;
 }
-
 //通信连接
 void Server::onNewConnection()
 {
@@ -242,10 +241,7 @@ QByteArray Server::loadImage(const QString& user_id)
 	QString avatarFolder = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/avatars";
 	QDir().mkpath(avatarFolder);  // 确保目录存在
 	auto avatarPath = avatarFolder + "/" + user_id + ".png";
-
 	qDebug() << "Attempting to load image from:" << avatarPath;
-	
-	
 	// 加载图片
 	QFile file(avatarPath);
 	if (!file.exists()) {

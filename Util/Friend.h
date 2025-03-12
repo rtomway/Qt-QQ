@@ -6,8 +6,8 @@
 class Friend
 {
 public:
-	Friend(const QString& id = "");
 	const QString getFriendId()const;
+	const QString getFriendName()const;
 	void setFriend(const QJsonObject& obj);
 	const QJsonObject getFriend()const;
 	void setGrouping(QString& grouping);

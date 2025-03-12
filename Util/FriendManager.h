@@ -4,7 +4,9 @@
 #include <QJsonObject>
 #include <QObject>
 #include <QSharedPointer>
+
 #include "Friend.h"
+
 class FriendManager : public QObject
 {
 	Q_OBJECT
@@ -18,15 +20,15 @@ public:
 	static QString m_oneselfID;
 	static void setOneselfID(const QString& id);
 	const QString getOneselfID()const;
-
+	//好友处理
 	void addFriend(const QSharedPointer<Friend>& user);
 	QSharedPointer<Friend>findFriend(const QString& id)const;
 	const QHash<QString, QSharedPointer<Friend>>& getFriends()const;
 	void loadAvatar(const QString& user_id);
-
+	//消息发送服务端
 	void updateUserMessageToServer(const QJsonObject&obj);
 	void updateUserAvatarToServer(const QPixmap&pixmap);
-
+	//清除
 	void clearFriendManager();
 
 private:
@@ -36,7 +38,6 @@ private:
 	QHash<QString, QSharedPointer<Friend>>m_user;
 	QHash<QString, QString>m_grouping;
 signals:
-	// void setOneselfSuccess();
 	void UserAvatarLoaded(const QPixmap& avatar);
 	void FriendAvatarLoaded(const QPixmap& avatar);
 	void UpdateFriendMessage(const QString&user_id);

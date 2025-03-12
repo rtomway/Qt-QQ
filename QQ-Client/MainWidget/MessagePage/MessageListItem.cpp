@@ -26,34 +26,31 @@ MessageListItem::MessageListItem(QWidget* parent)
 			)");
 	ui->countLab->setAlignment(Qt::AlignCenter);
 }
-
 void MessageListItem::init()
 {
-	QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40));
-	ui->headLab->setFixedSize(40, 40);
+	QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(50, 50));
+	ui->headLab->setFixedSize(50, 50);
 	ui->headLab->setPixmap(pixmap);
 	ui->headLab->setScaledContents(true);
-
 }
-
+//设置用户信息
 void MessageListItem::setUser(const QJsonObject& obj)
 {
-	m_username = obj["username"].toString();
 	m_user_id = obj["user_id"].toString();
-
+	auto user = FriendManager::instance()->findFriend(m_user_id);
+	m_username = user->getFriendName();
 	if (obj.contains("message") && !obj["message"].isNull() && obj["message"].isString())
 	{
 		m_unReadMessage.append(obj["message"].toString());
 	}
 	qDebug() << "name" << m_username << m_user_id;
-	auto user = FriendManager::instance()->findFriend(m_user_id);
-	//user->loadAvatar();
-	auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
+	//头像
+	auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(50, 50));
 	ui->headLab->setPixmap(pixmap);
 	//信息更新到界面
 	updateItemWidget();
 }
-
+//获取用户信息
 QJsonObject MessageListItem::getUser()
 {
 	QJsonObject userData;
@@ -70,12 +67,12 @@ QJsonObject MessageListItem::getUser()
 
 	return userData;
 }
-
+//获取id
 QString MessageListItem::getId()
 {
 	return m_user_id;
 }
-
+//更新界面
 void MessageListItem::updateItemWidget()
 {
 	ui->usernameLab->setText(m_username);
@@ -93,7 +90,7 @@ void MessageListItem::updateItemWidget()
 		ui->countLab->setVisible(false);
 	}
 }
-
+//英文日期字符串转中文
 QString MessageListItem::covertToChinese(const QString& date)
 {
 	// 英文日期字符串转换为 QDateTime 对象
@@ -108,7 +105,7 @@ QString MessageListItem::covertToChinese(const QString& date)
 	// 转换为中文格式，并控制到分钟
 	return locale.toString(dateTime, "M月dd日 hh:mm");
 }
-
+//更新未读
 void MessageListItem::updateUnreadMessage()
 {
 	m_unReadMessage.clear();

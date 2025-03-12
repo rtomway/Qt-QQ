@@ -6,7 +6,6 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QQueue>
-
 #include <QMutex>
 #include <QMutexLocker>
 #include <QWaitCondition>
