@@ -3,7 +3,7 @@
 
 登录界面
 
-<img src="ResultPicture/login.png" alt="Example Image" width="300" height="500">
+<img src="ResultPicture/login.png" alt="Example Image" width="300" height="400">
 
 通信界面
 
