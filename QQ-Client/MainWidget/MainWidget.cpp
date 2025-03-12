@@ -182,12 +182,10 @@ MainWidget::MainWidget(QWidget* parent)
 			}
 		});
 }
-
 MainWidget::~MainWidget()
 {
 	delete ui;
 }
-
 void MainWidget::init()
 {
 	resize(1080, 680);
@@ -282,7 +280,7 @@ void MainWidget::init()
 			addfriendWidget->show();
 		});
 }
-
+//更多（菜单）
 void MainWidget::initMoreMenu()
 {
 	//账号退出清空数据
@@ -305,7 +303,7 @@ void MainWidget::initMoreMenu()
 		});
 
 }
-
+//界面按钮居中
 void MainWidget::additemCenter(const QString& src)
 {
 	auto item = new QListWidgetItem(ui->listWidget);
@@ -339,7 +337,6 @@ void MainWidget::additemCenter(const QString& src)
 
 	ui->listWidget->setItemWidget(item, itemWidget);
 }
-
 //创建消息通知项并设置标识id
 QListWidgetItem* MainWidget::addmessageListItem(const QJsonObject& obj)
 {
@@ -361,7 +358,6 @@ QListWidgetItem* MainWidget::addmessageListItem(const QJsonObject& obj)
 	m_messageList->setItemWidget(item, itemWidget);
 	return item;
 }
-
 //通过用户id找到用户消息项item
 QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 {
@@ -378,7 +374,7 @@ QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 	qDebug() << "消息项没有";
 	return nullptr;
 }
-
+//事件重写
 bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
