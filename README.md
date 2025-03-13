@@ -1,5 +1,5 @@
 
-#基于Qt6的仿QQ应用,采用C/S架构,后端模块使用QWebSocketServer通信,使用Json传输、解析数据,采用数据库连接池实现MySql连接复用和负载均衡
+#基于Qt6的高仿QQ应用,采用C/S架构,后端模块使用QWebSocketServer通信,使用Json传输、解析数据,采用数据库连接池实现MySql连接复用和负载均衡
 
 登录界面
 
