@@ -5,6 +5,7 @@
 
 #include "AddWidget.h"
 #include "ImageUtil.h"
+#include "FriendManager.h"
 
 
 SearchItemWidget::SearchItemWidget(QWidget* parent)
@@ -25,6 +26,12 @@ void SearchItemWidget::init()
 	//添加好友
 	connect(ui->addBtn, &QPushButton::clicked, [=]
 		{
+			if (m_isFriend)
+			{
+				//this->nativeParentWidget()->hide();
+				FriendManager::instance()->emit chatWithFriend(m_user_id);
+				return;
+			}
 			QPointer<AddWidget>addWidget = new AddWidget();
 			addWidget->setUser(this->getUser(), m_userHead);
 			addWidget->show();
@@ -37,7 +44,21 @@ void SearchItemWidget::setUser(const QJsonObject& obj)
 	m_user_id = obj["user_id"].toString();
 	ui->nameLab->setText(m_userName);
 	ui->idLab->setText(m_user_id);
-	ui->addBtn->setText("添加");
+	if (obj.contains("isFriend"))
+	{
+		m_isFriend = obj["isFriend"].toBool();
+		qDebug() << "isFriend";
+	}
+	qDebug() << m_isFriend;
+	if (m_isFriend)
+	{
+		ui->addBtn->setText("发消息");
+	}
+	else
+	{
+		ui->addBtn->setText("添加");
+	}
+
 }
 //用户信息获取
 QJsonObject SearchItemWidget::getUser()

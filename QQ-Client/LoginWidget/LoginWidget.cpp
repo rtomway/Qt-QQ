@@ -15,6 +15,7 @@
 #include <memory>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QMessageBox>
 
 #include "ImageUtil.h"
 #include "RoundLabel.h"
@@ -168,6 +169,11 @@ void LoginWidget::init()
 		{
 			auto user_id = m_account->getLineEditText();
 			auto password = m_password->getLineEditText();
+			if (user_id.isEmpty() || password.isEmpty())
+			{
+				QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
+				return;
+			}
 			QVariantMap loginParams;
 			loginParams["user_id"] = user_id;
 			loginParams["password"] = password;
@@ -204,7 +210,7 @@ void LoginWidget::init()
 									friendUser->setFriend(friendObject);
 									FriendManager::instance()->addFriend(friendUser);
 								}
-								FriendManager::instance()->loadAvatar(user_id);
+								FriendManager::instance()->emit FriendManagerLoadSuccess(user->getAvatar());
 								emit Loginsuccess();
 							}
 							else

@@ -11,9 +11,9 @@ public:
 	SearchItemWidget(QWidget* parent = nullptr);
 	~SearchItemWidget();
 	void init();
-	void setUser(const QJsonObject&obj);
+	void setUser(const QJsonObject& obj);
 	QJsonObject getUser();
-	void setPixmap(const QPixmap&pixmap);
+	void setPixmap(const QPixmap& pixmap);
 	void setGroup(const QJsonObject& obj);
 private:
 	Ui::SearchItemWidget* ui{};
@@ -24,6 +24,7 @@ private:
 	QString m_groupName{};
 	QString m_group_id{};
 	QPixmap m_groupHead{};
+	bool m_isFriend{true};
 };
 
 #endif // !SEARCHITEMWIDGET

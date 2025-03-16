@@ -16,6 +16,8 @@
 #include "ContactPage.h"
 #include "AngleRoundedWidget.h"
 #include "MessageListItem.h"
+#include "AddFriendWidget.h"
+#include "SearchFriend.h"
 
 namespace Ui { class MainWidget; }
 
@@ -31,6 +33,7 @@ private:
 	Ui::MainWidget* ui{};
 private:
 	QListWidget* m_messageList{};
+	SearchFriend* m_searchList{};
 	QButtonGroup* m_btn_Itemgroup{};
 	QMenu* m_moreMenu{};
 	QMenu* m_addpersonMenu{};
@@ -39,6 +42,7 @@ private:
 	ContactPage* m_contactPage{};
 	QWidget* m_emptyWidget{};
 	std::unique_ptr<ContactPage> m_contactWidget{};
+	std::unique_ptr<AddFriendWidget> m_addFriendWidget{};
 public:
 	void additemCenter(const QString& src);
 	QListWidgetItem* addmessageListItem(const QJsonObject& obj);

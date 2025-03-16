@@ -1,12 +1,13 @@
 ﻿#include "Server.h"
 #include <QJsonDocument>
 #include <QJsonObject>
-#include "SSqlConnectionPool.h"
-#include "SResultCode.h"
 #include <QRandomGenerator>
 #include <QStandardPaths>
 #include <QDir>
 #include <QBuffer>
+
+#include "SSqlConnectionPool.h"
+#include "SResultCode.h"
 
 Server::Server(QObject* parent)
 	:QObject(parent)
@@ -42,6 +43,7 @@ void Server::initRequestHash()
 	requestHash["updateUserMessage"] = &Server::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &Server::handle_updateUserAvatar;
 	requestHash["updateUserGrouping"] = &Server::handle_updateUserGrouping;
+	requestHash["deleteFriend"] = &Server::handle_deleteFriend;
 }
 //通信连接
 void Server::onNewConnection()
@@ -530,7 +532,7 @@ void Server::handle_searchUser(const QJsonObject& paramsObject, const QByteArray
 	query.prepare("select user_id,username from user where user_id like ?");
 	query.addBindValue(user);
 	QByteArray userData;
-
+	auto friendList = getFriendId(user_id);
 	if (query.exec())
 	{
 		if (query.next())
@@ -540,6 +542,12 @@ void Server::handle_searchUser(const QJsonObject& paramsObject, const QByteArray
 				QVariantMap userMap;
 				auto user_id = query.value(0).toString();
 				auto username = query.value(1).toString();
+				//判断是不是好友
+				if (friendList.contains(user_id))
+					userMap["isFriend"] = true;
+				else
+					userMap["isFriend"] = false;
+
 				userMap["user_id"] = user_id;
 				userMap["username"] = username;
 				QByteArray image = loadImage(user_id);
@@ -913,6 +921,24 @@ void Server::handle_updateUserGrouping(const QJsonObject& paramsObject, const QB
 	QSqlQuery query(wrap.openConnection());
 	query.prepare("update friendship f set Fgrouping = ? where f.user_id=? and f.friend_id=?");
 	query.addBindValue(grouping);
+	query.addBindValue(user_id);
+	query.addBindValue(friend_id);
+	if (!query.exec())
+	{
+		qDebug() << "SQL Query: " << query.lastQuery();  // 输出执行的 SQL 语句
+		qDebug() << "SQL Error: " << query.lastError().text();  // 获取错误信息
+		return;
+	}
+}
+//删除好友
+void Server::handle_deleteFriend(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	qDebug() << "删除好友";
+	auto user_id = paramsObject["user_id"].toString();
+	auto friend_id = paramsObject["friend_id"].toString();
+	SConnectionWrap wrap;
+	QSqlQuery query(wrap.openConnection());
+	query.prepare("delete from friendship where user_id=? and friend_id=?");
 	query.addBindValue(user_id);
 	query.addBindValue(friend_id);
 	if (!query.exec())

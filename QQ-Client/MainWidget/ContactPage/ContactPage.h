@@ -22,16 +22,13 @@ private:
 	Ui::ContactPage* ui{};
 private:
 	int m_likeCount{ 0 };
-	QString m_userId;
-	QString m_name;
-	ContactDetailWidget* m_detailEditWidget{};
-	QJsonObject m_json{};
+	QString m_friendId;
 	QSharedPointer<Friend>m_oneself{};
+	QJsonObject m_json{};
+	ContactDetailWidget* m_detailEditWidget{};
 public:
-	void setUser(const QJsonObject& obj);
+	void setUser(const QString& user_id);
 	void clearWidget();
-signals:
-	void sendMessage(const QString& user_id);
 };
 
 

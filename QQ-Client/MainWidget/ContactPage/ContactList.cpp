@@ -90,18 +90,18 @@ void ContactList::init()
 				});
 		});
 	//登录时加载信息
-	connect(FriendManager::instance(), &FriendManager::UserAvatarLoaded, this, [=](const QPixmap& avatar)
+	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]()
 		{
 			auto friends = FriendManager::instance()->getFriends();
 			for (auto it = friends.begin(); it != friends.end(); ++it)
 			{
-				const QSharedPointer<Friend>& friendInfo = it.value();
-				auto grouping = friendInfo->getGrouping();
+				const QSharedPointer<Friend>& myfriend = it.value();
+				auto grouping = myfriend->getGrouping();
 				//判断该分组是否已存在
 				if (!m_fNamelist.contains(grouping))
 					addFriendListItem(grouping);
-				qDebug() << "分组000000000000000000000000" << grouping;
-				addFriendItem(getFriendTopItem(grouping), friendInfo->getFriend());
+				//添加
+				addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
 			}
 		});
 	//列表切换
@@ -126,18 +126,17 @@ void ContactList::init()
 			else     //点击用户 弹出用户信息
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
-				auto obj = itemWidget->getUser();
-				qDebug() << "clikedobj" << obj["grouping"].toString();
-				emit clickedFriend(obj);
+				/*auto obj = itemWidget->getUser();
+				qDebug() << "clikedobj" << obj["grouping"].toString();*/
+				auto user_id = itemWidget->getUserId();
+				emit clickedFriend(user_id);
 			}
 
 		});
 	//新增好友
-	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id)
+	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id, const QString& grouping)
 		{
-			auto myfriend = FriendManager::instance()->findFriend(user_id);
-			auto grouping = myfriend->getGrouping();
-			addFriendItem(getFriendTopItem(grouping), myfriend->getFriend());
+			addFriendItem(getFriendTopItem(grouping), user_id);
 		});
 	//信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
@@ -149,7 +148,7 @@ void ContactList::init()
 			if (item)
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
-				itemWidget->setUser(user->getFriend());
+				itemWidget->setUser(user_id);
 			}
 		});
 	//好友分组更改
@@ -164,11 +163,20 @@ void ContactList::init()
 			//添加到新分组
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto grouping = user->getGrouping();
-			addFriendItem(getFriendTopItem(grouping), user->getFriend());
+			addFriendItem(getFriendTopItem(grouping), user_id);
 		});
-
+	//删除好友
+	connect(FriendManager::instance(), &FriendManager::deleteFriend, this, [=](const QString& user_id)
+		{
+			auto user = FriendManager::instance()->findFriend(user_id);
+			auto grouping = user->getGrouping();
+			auto topItem = getFriendTopItem(grouping);
+			auto item = findItemByIdInGroup(topItem, user_id);
+			topItem->removeChild(item);
+			auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(topItem, 0));
+			topItemWidget->setCount(topItem->childCount());
+		});
 }
-
 //获取分组
 QStringList ContactList::getfGrouping()
 {
@@ -193,11 +201,9 @@ TopItemWidget* ContactList::addFriendListItem(QString friendName)
 	qDebug() << "创建了分组item" << friendName;
 	return topItemWidget;
 }
-
 //添加子item
-void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& obj)
+void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QString& user_id)
 {
-	auto user_id = obj["user_id"].toString();
 	auto friendItem = findItemByIdInGroup(firendList, user_id);
 	if (friendItem != nullptr)
 	{
@@ -205,21 +211,25 @@ void ContactList::addFriendItem(QTreeWidgetItem* firendList, const QJsonObject& 
 		return;
 	}
 	friendItem = new QTreeWidgetItem(firendList);
+	//把自己置顶
+	if (user_id == FriendManager::instance()->getOneselfID())
+	{
+		firendList->removeChild(friendItem);
+		firendList->insertChild(0, friendItem);
+	}
 	friendItem->setData(0, Qt::UserRole, user_id);
 	friendItem->setSizeHint(0, QSize(m_friendList->width(), 60));
-	qDebug() << "username:" << obj["username"].toString();
 	//自定义Item
 	ItemWidget* itemWidget = new ItemWidget(this);
-	itemWidget->setUser(obj);
+	itemWidget->setUser(user_id);
 	m_friendList->setItemWidget(friendItem, 0, itemWidget);
-
+	qDebug() << "friendItem的parent:" << friendItem->parent();
 	//通过itemwidget找到自定义的小部件
 	auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(firendList, 0));
 	topItemWidget->setCount(firendList->childCount());
 
 	itemWidget->setGrouping(topItemWidget->getName());
 	qDebug() << topItemWidget->getName();
-
 }
 //获取分组item
 QTreeWidgetItem* ContactList::getFriendTopItem(QString friendName)

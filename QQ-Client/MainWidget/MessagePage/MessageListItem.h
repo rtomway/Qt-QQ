@@ -1,8 +1,9 @@
-#ifndef MESSAGELISTITEM_H_
+﻿#ifndef MESSAGELISTITEM_H_
 #define MESSAGELISTITEM_H_
 
 #include <QWidget>
 #include <QJsonObject>
+
 
 namespace Ui { class MessageListItem; }
 
@@ -12,10 +13,10 @@ class MessageListItem :public QWidget
 public:
 	MessageListItem(QWidget* parent = nullptr);
 	void init();
-	void setUser(const QJsonObject&obj);
+	void setUser(const QJsonObject& obj);
 	QJsonObject getUser();
 	QString getId();
-	void updateUnreadMessage();
+	void clearUnreadMessage();
 private:
 	void updateItemWidget();
 	QString covertToChinese(const QString& date);

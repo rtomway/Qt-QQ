@@ -23,12 +23,15 @@ public:
 	//好友处理
 	void addFriend(const QSharedPointer<Friend>& user);
 	QSharedPointer<Friend>findFriend(const QString& id)const;
+	void removeFriend(const QString& user_id);
 	const QHash<QString, QSharedPointer<Friend>>& getFriends()const;
-	void loadAvatar(const QString& user_id);
+	//好友搜索
+	QHash<QString, QSharedPointer<Friend>> findFriends(const QString& text)const;
 	//消息发送服务端
 	void updateUserMessageToServer(const QJsonObject& obj);
 	void updateUserAvatarToServer(const QPixmap& pixmap);
 	void updateUserGroupingToServer(const QString& user_id, const QString& friend_id, const QString& grouping);
+	void deleteFriendToServer(const QString& user_id);
 	//清除
 	void clearFriendManager();
 
@@ -39,12 +42,13 @@ private:
 	QHash<QString, QSharedPointer<Friend>>m_user;
 	QHash<QString, QString>m_grouping;
 signals:
-	void UserAvatarLoaded(const QPixmap& avatar);
-	void FriendAvatarLoaded(const QPixmap& avatar);
+	void FriendManagerLoadSuccess(const QPixmap& avatar);
 	void UpdateFriendMessage(const QString& user_id);
 	void UpdateFriendAvatar(const QString& user_id);
-	void NewFriend(const QString& user_id);
+	void NewFriend(const QString& user_id, const QString& grouping);
 	void updateFriendGrouping(const QString& user_id, const QString& oldGrouping);
+	void deleteFriend(const QString& user_id);
+	void chatWithFriend(const QString& user_id);
 };
 
 

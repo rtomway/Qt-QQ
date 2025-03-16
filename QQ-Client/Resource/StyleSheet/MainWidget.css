@@ -1,6 +1,6 @@
-/*窗口*/
-QWidget#MainWidget{
-    border-radius:10px;
+﻿/*窗口*/
+QWidget#MainWidget {
+    border-radius: 10px;
 }
 QWidget#leftWidget {
     background-color: rgb(240,240,240);
@@ -79,7 +79,6 @@ QMenu::item:selected {
 /*ListWidget*/
 QListWidget::item {
     background-color: transparent;
-    border-radius: 31px;
     font-size: 18px;
 }
 QListWidget#MessageList {

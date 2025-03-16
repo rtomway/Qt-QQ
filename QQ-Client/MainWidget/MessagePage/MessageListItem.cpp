@@ -43,7 +43,6 @@ void MessageListItem::setUser(const QJsonObject& obj)
 	{
 		m_unReadMessage.append(obj["message"].toString());
 	}
-	qDebug() << "name" << m_username << m_user_id;
 	//头像
 	auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(50, 50));
 	ui->headLab->setPixmap(pixmap);
@@ -76,7 +75,7 @@ QString MessageListItem::getId()
 void MessageListItem::updateItemWidget()
 {
 	ui->usernameLab->setText(m_username);
-	if (m_unReadMessage.count())
+	if (m_unReadMessage.count() != 0)
 	{
 		ui->countLab->setVisible(true);
 		ui->countLab->setText(QString::number(m_unReadMessage.count()));
@@ -105,10 +104,10 @@ QString MessageListItem::covertToChinese(const QString& date)
 	// 转换为中文格式，并控制到分钟
 	return locale.toString(dateTime, "M月dd日 hh:mm");
 }
-//更新未读
-void MessageListItem::updateUnreadMessage()
+//清空未读
+void MessageListItem::clearUnreadMessage()
 {
 	m_unReadMessage.clear();
-	updateItemWidget();
+	ui->countLab->setVisible(false);
 }
 

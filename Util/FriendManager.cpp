@@ -40,6 +40,7 @@ FriendManager::FriendManager()
 			auto user = QSharedPointer<Friend>::create();
 			user->setFriend(obj);
 			auto user_id = user->getFriendId();
+			auto grouping = user->getGrouping();
 			//保存目录
 			QString avatarFolder = QStandardPaths::writableLocation
 			(QStandardPaths::AppDataLocation)+"/avatars";
@@ -50,7 +51,7 @@ FriendManager::FriendManager()
 				user->loadAvatar();
 			}
 			this->addFriend(user);
-			emit NewFriend(user_id);
+			emit NewFriend(user_id, grouping);
 		});
 }
 //单例
@@ -87,27 +88,27 @@ QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 		return nullptr; // 如果未找到，返回空用户
 	}
 }
+//删除好友
+void FriendManager::removeFriend(const QString& user_id)
+{
+	m_user.remove(user_id);
+	deleteFriendToServer(user_id);
+}
 //获取好友
 const QHash<QString, QSharedPointer<Friend>>& FriendManager::getFriends() const
 {
 	return m_user;
 }
-//登录加载
-void FriendManager::loadAvatar(const QString& user_id)
+//好友搜索
+QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString& text) const
 {
-	//找到该用户
-	QSharedPointer<Friend> user = m_user.value(user_id);
-	user->loadAvatar();
-	auto avatar = user->getAvatar();
-	qDebug() << "avatar" << avatar;
-	if (m_oneselfID == user_id)
-	{
-		emit UserAvatarLoaded(avatar);
+	QHash<QString, QSharedPointer<Friend>> result;
+	for (auto it = m_user.begin(); it != m_user.end(); ++it) {
+		if (it.key().contains(text, Qt::CaseInsensitive)) {
+			result.insert(it.key(), it.value());
+		}
 	}
-	else
-	{
-		emit FriendAvatarLoaded(avatar);
-	}
+	return result;
 }
 //用户信息更新向服务端发送
 void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
@@ -148,6 +149,14 @@ void FriendManager::updateUserGroupingToServer(const QString& user_id, const QSt
 	groupingMap["friend_id"] = friend_id;
 	groupingMap["grouping"] = grouping;
 	Client::instance()->sendMessage("updateUserGrouping", groupingMap);
+}
+//删除好友
+void FriendManager::deleteFriendToServer(const QString& user_id)
+{
+	QVariantMap deleteMap;
+	deleteMap["user_id"] = m_oneselfID;
+	deleteMap["friend_id"] = user_id;
+	Client::instance()->sendMessage("deleteFriend", deleteMap);
 }
 //接受到其他用户信息更新信号
 

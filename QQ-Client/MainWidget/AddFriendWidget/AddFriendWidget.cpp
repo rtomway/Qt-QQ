@@ -18,7 +18,7 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	, m_userList(new QListWidget(this))
 	, m_groupList(new QListWidget(this))
 {
-	resize(500, 500);
+	resize(700, 500);
 	ui->setupUi(this);
 	init();
 	QFile file(":/stylesheet/Resource/StyleSheet/AddFriendWidget.css");
@@ -42,15 +42,22 @@ void AddFriendWidget::init()
 	m_groupList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	//选择搜索
 	//用户
+	ui->userBtn->setStyleSheet(
+		"QPushButton{background-color:rgb(240,240,240)}"
+	);
 	connect(ui->userBtn, &QPushButton::clicked, [=]
 		{
 			m_groupList->clear();
 			ui->stackedWidget->setCurrentWidget(m_userList);
 			ui->searchLine->setPlaceholderText("用户搜索");
 			type = search_type::User;
-			ui->userBtn->setStyleSheet("QPushButton{background-color:rgb(240,240,240)}\
-				QPushButton:hover{background-color:rgb(240,240,240)}");
-			ui->groupBtn->setStyleSheet("QPushButton{background-color:white}");
+			ui->userBtn->setStyleSheet(
+				"QPushButton{background-color:rgb(240,240,240)}"
+			);
+			ui->groupBtn->setStyleSheet(
+				"QPushButton{background-color:white}"
+			    "QPushButton:hover{background-color:rgb(240,240,240)}"
+			);
 		});
 	//群组
 	connect(ui->groupBtn, &QPushButton::clicked, [=]
@@ -59,9 +66,13 @@ void AddFriendWidget::init()
 			ui->stackedWidget->setCurrentWidget(m_groupList);
 			ui->searchLine->setPlaceholderText("群聊搜索");
 			type = search_type::Grouop;
-			ui->groupBtn->setStyleSheet("QPushButton{background-color:rgb(240,240,240)}\
-				QPushButton:hover{background-color:rgb(240,240,240)}");
-			ui->userBtn->setStyleSheet("QPushButton{background-color:white}");
+			ui->groupBtn->setStyleSheet(
+				"QPushButton{background-color:rgb(240,240,240)}"
+			);
+			ui->userBtn->setStyleSheet(
+				"QPushButton{background-color:white}"
+				"QPushButton:hover{background-color:rgb(240,240,240)}"
+			);
 		});
 	//搜索图标
 	ui->searchBtn->setCheckable(false);
@@ -81,7 +92,7 @@ void AddFriendWidget::init()
 				serach["search_id"] = search_id;
 				serach["user_id"] = FriendManager::instance()->getOneselfID();
 				Client::instance()->sendMessage("searchUser", serach);
-			
+
 			}
 		});
 	//搜索结果

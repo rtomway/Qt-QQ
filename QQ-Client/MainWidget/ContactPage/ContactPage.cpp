@@ -74,11 +74,13 @@ void ContactPage::init()
 	//信息编辑
 	connect(ui->editdetailBtn, &QPushButton::clicked, [=]()
 		{
+			//小窗口编辑关闭
 			if (!this->parent())
 			{
 				this->hide();
 			}
 			m_detailEditWidget->setUser(m_json);
+			//蒙层
 			SMaskWidget::instance()->popUp(m_detailEditWidget);
 			auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
 			int x = (mainWidgetSize.width() - m_detailEditWidget->width()) / 2;
@@ -88,13 +90,12 @@ void ContactPage::init()
 	//更新信息
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
-			auto user = FriendManager::instance()->findFriend(user_id);
-			this->setUser(user->getFriend());
+			this->setUser(user_id);
 		});
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
 		{
-			emit sendMessage(m_json["user_id"].toString());
+			FriendManager::instance()->emit chatWithFriend(m_friendId);
 		});
 	//分组改变
 	connect(ui->groupcomBox, &QComboBox::currentIndexChanged, [=](int index)
@@ -106,32 +107,28 @@ void ContactPage::init()
 				qDebug() << "分组" << grouping;
 				auto oldGrouping = m_oneself->getGrouping();
 				m_oneself->setGrouping(grouping);
-				auto friend_id = m_oneself->getFriendId();
-				FriendManager::instance()->emit updateFriendGrouping(friend_id, oldGrouping);
+				FriendManager::instance()->emit updateFriendGrouping(m_friendId, oldGrouping);
 				//发送给服务端
 				auto user_id = FriendManager::instance()->getOneselfID();
-				FriendManager::instance()->updateUserGroupingToServer(user_id, friend_id, grouping);
+				FriendManager::instance()->updateUserGroupingToServer(user_id, m_friendId, grouping);
 			}
 		});
 }
 
-void ContactPage::setUser(const QJsonObject& obj)
+void ContactPage::setUser(const QString& user_id)
 {
-	m_json = obj;
-	m_userId = obj["user_id"].toString();
 	ui->groupcomBox->blockSignals(false);
 	//m_oneself为空或id不等,存入新的Friend
-	if (!m_oneself || m_oneself->getFriendId() != m_userId)
+	if (!m_oneself || m_oneself->getFriendId() != user_id)
 	{
-		m_oneself = FriendManager::instance()->findFriend(m_userId);
-		qDebug() << "id不同------------";
+		m_oneself = FriendManager::instance()->findFriend(user_id);
 	}
 	//获取friend信息
+	m_friendId = user_id;
 	m_json = m_oneself->getFriend();
-	qDebug() << "个人信息json:" << m_json;
 	//未设置信息隐藏
 	//可编辑
-	if (FriendManager::instance()->getOneselfID() != m_json["user_id"].toString())
+	if (FriendManager::instance()->getOneselfID() != m_friendId)
 	{
 		ui->editdetailBtn->setVisible(false);
 	}
@@ -175,8 +172,9 @@ void ContactPage::setUser(const QJsonObject& obj)
 	}
 	//控件信息更新
 	ui->nameLab->setText(m_json["username"].toString());
-	ui->idLab->setText(m_json["user_id"].toString());
+	ui->idLab->setText(m_friendId);
 	ui->genderBtn->setText(m_json["gender"].toInt() == 1 ? "男" : (m_json["gender"].toInt() == 2 ? "女" : "未知"));
+	//性别图标
 	if (m_json["gender"].toInt() == 1)
 	{
 		ui->genderBtn->setIcon(QIcon(":/icon/Resource/Icon/man.png"));
@@ -189,9 +187,8 @@ void ContactPage::setUser(const QJsonObject& obj)
 	{
 		ui->genderBtn->setIcon(QIcon(":/icon/Resource/Icon/nogender.png"));
 	}
-	ui->groupcomBox->setCurrentText(obj["grouping"].toString());
-	QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(obj["user_id"].toString());
-	auto pixmap = ImageUtils::roundedPixmap(myfriend->getAvatar(), QSize(100, 100));
+	ui->groupcomBox->setCurrentText(m_json["grouping"].toString());
+	auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100));
 	ui->headLab->setPixmap(pixmap);
 	ui->signaltureLab->setText(m_json["signature"].toString());
 }

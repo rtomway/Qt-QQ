@@ -41,7 +41,7 @@ public:
 	static QStringList getgGrouping();
 public:
 	TopItemWidget* addFriendListItem(QString friendName);
-	void addFriendItem(QTreeWidgetItem*firendList,const QJsonObject&obj);
+	void addFriendItem(QTreeWidgetItem* firendList, const QString& user_id);
 	QTreeWidgetItem* getFriendTopItem(QString friendName);
 	QTreeWidgetItem* findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId);
 
@@ -55,7 +55,7 @@ public:
 protected:
 	bool eventFilter(QObject* obj, QEvent* event) override;
 signals:
-	void clickedFriend(const QJsonObject&obj);
+	void clickedFriend(const QString& user_id);
 	void friendNotice();
 	void groupNotice();
 	void updateFriendgrouping();

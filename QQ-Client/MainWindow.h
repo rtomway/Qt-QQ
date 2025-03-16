@@ -1,13 +1,14 @@
-#ifndef MAINWINDOW_H_
+﻿#ifndef MAINWINDOW_H_
 #define MAINWINDOW_H_
 
 #include <QMainWindow>
 #include <QWidget>
 #include <QStackedWidget>
-#include "MainWidget.h"
-#include "LoginWidget.h"
 #include <QtWidgets>
 #include <QPropertyAnimation>
+
+#include "MainWidget.h"
+#include "LoginWidget.h"
 
 class MainWindow :public QMainWindow
 {

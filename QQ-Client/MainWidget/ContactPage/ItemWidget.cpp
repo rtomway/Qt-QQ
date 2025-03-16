@@ -28,12 +28,16 @@ void ItemWidget::init()
 	ui->headLab->setPixmap(pixmap);
 }
 
-void ItemWidget::setUser(const QJsonObject& obj)
+void ItemWidget::setUser(const QString& user_id)
 {
-	m_json = obj;
+	if (!m_oneself || m_oneself->getFriendId() != user_id)
+	{
+		m_oneself = FriendManager::instance()->findFriend(user_id);
+	}
+	m_json = m_oneself->getFriend();
 	ui->nameLab->setText(m_json["username"].toString());
-	QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(m_json["user_id"].toString());
-	auto pixmap = ImageUtils::roundedPixmap(myfriend->getAvatar(), QSize(40, 40));
+	m_userId = user_id;
+	auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(40, 40));
 	ui->headLab->setPixmap(pixmap);
 	ui->signatureLab->setText(m_json["signature"].toString());
 }
@@ -52,6 +56,11 @@ const QJsonObject& ItemWidget::getUser()
 const QString& ItemWidget::getGrouping()
 {
 	return m_grouping;
+}
+
+const QString& ItemWidget::getUserId()
+{
+	return m_userId;
 }
 
 

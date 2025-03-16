@@ -52,6 +52,7 @@ private:
 	void handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserGrouping(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_deleteFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 };
 
 #endif // !SERVER_H_
