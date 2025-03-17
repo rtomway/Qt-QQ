@@ -10,13 +10,15 @@ class MessageBubble : public QLabel, public QListWidgetItem
 public:
 	enum BubbleType
 	{
-		BubbleLeft,
-		BubbleRight
+		BubbleTextLeft,
+		BubbleTextRight,
+		BubbleImageLeft,
+		BubbleImageRight,
 	};
 	explicit MessageBubble(QWidget* parent = nullptr);
-	MessageBubble(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleRight, QWidget* parent = nullptr);
+	MessageBubble(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleTextRight, QWidget* parent = nullptr);
 	void init();
-	void setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleLeft);
+	void setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleTextLeft);
 	void setHeadImage(const QPixmap& newHeadImg);
 	int textHeight()const;
 	MessageBubble::BubbleType getType();
@@ -29,7 +31,7 @@ protected:
 	int lineNumber()const;			//消息文本总行数
 	int realLineNumber()const;		//消息文本实际行数(不能完全显示，换行之后的)
 private:
-	BubbleType	m_type = BubbleRight;
+	BubbleType	m_type = BubbleTextRight;
 	QRect		m_profileRect;		//头像矩形
 	QRect		m_bubbleRect;		//气泡矩形
 	int			m_textMargin = 10;	//文本距离气泡左边的距离
@@ -40,6 +42,7 @@ private:
 
 	QPixmap m_head_img;
 	QString m_message;
+	QPixmap m_image;
 };
 
 

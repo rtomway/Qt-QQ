@@ -209,7 +209,7 @@ void ContactDetailWidget::init()
 		{
 			//信息更新
 			auto user_id = FriendManager::instance()->getOneselfID();
-			saveAvatarToLocal(m_avatarNewPath, user_id);
+			ImageUtils::saveAvatarToLocal(m_avatarNewPath, user_id);
 			if (m_avatarIsChange)//头像更改更新到服务端
 			{
 				qDebug() << "头像更改更新到服务端";
@@ -250,35 +250,6 @@ const QJsonObject& ContactDetailWidget::getUser() const
 	return m_json;
 }
 
-QString ContactDetailWidget::getAvatarFolderPath()
-{
-	//保存目录
-	QString avatarFolder = QStandardPaths::writableLocation
-	(QStandardPaths::AppDataLocation)+"/avatars";
-
-	// 如果目录不存在，则创建
-	QDir dir;
-	if (!dir.exists(avatarFolder)) {
-		dir.mkpath(avatarFolder);
-	}
-	return avatarFolder;
-}
-
-bool ContactDetailWidget::saveAvatarToLocal(const QString& avatarPath, const QString& user_id)
-{
-	QString avatarFolderPath = getAvatarFolderPath();
-	// 使用用户 ID 来命名头像文件
-	QString avatarFileName = avatarFolderPath + "/" + user_id + ".png";
-
-	QPixmap avatar(avatarPath);
-	if (avatar.isNull()) {
-		qWarning() << "头像加载失败!";
-		return false;
-	}
-	// 保存头像
-	return avatar.save(avatarFileName);
-}
-
 bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == m_headLab && event->type() == QEvent::MouseButtonPress)
@@ -300,6 +271,5 @@ bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
 			m_avatarIsChange = true;
 		}
 	}
-
 	return false;
 }

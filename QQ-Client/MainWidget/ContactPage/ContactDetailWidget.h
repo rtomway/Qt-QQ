@@ -39,9 +39,6 @@ private:
 public:
 	void setUser(const QJsonObject& obj);
 	const QJsonObject& getUser()const;
-private:
-	QString getAvatarFolderPath();
-	bool saveAvatarToLocal(const QString& avatarPath,const QString&user_id);
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 };

@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>MessagePage</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -162,7 +162,7 @@
    </item>
    <item>
     <widget class="QWidget" name="messageWidget" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="60,1,40,1">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="60,1,20,1">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -173,7 +173,7 @@
        <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>9</number>
       </property>
       <property name="bottomMargin">
        <number>0</number>

@@ -10,6 +10,8 @@
 #include <QBoxLayout>
 #include <QTimer>
 #include <QMouseEvent>
+#include <QFileDialog>
+#include <QScrollBar>
 
 #include "ImageUtil.h"
 #include "Client.h"
@@ -44,7 +46,7 @@ MessagePage::MessagePage(QWidget* parent)
 	m_setWidget->setFixedWidth(250);
 	m_setWidget->setFocusPolicy(Qt::StrongFocus);
 	// 移除默认标志并添加无边框标志
-	m_setWidget->setWindowFlags(Qt::FramelessWindowHint|Qt::Tool);  // 只设置无边框和工具窗口标志
+	m_setWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);  // 只设置无边框和工具窗口标志
 	// 设置初始的裁剪区域，确保初始时不可见
 	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
 	m_setWidget->setMask(region);  // 裁剪区域
@@ -62,6 +64,10 @@ void MessagePage::init()
 	QFont font = ui->messageTextEdit->font();
 	font.setPointSize(13);
 	ui->messageTextEdit->setFont(font);
+	// 设置垂直滚动条按像素滚动
+	ui->messageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+	// 可选：调整滚动速度（默认值为20，数值越大滚动越快）
+	ui->messageListWidget->verticalScrollBar()->setSingleStep(10);
 	//在自己信息中心加载完成后读取
 	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]
 		{
@@ -82,14 +88,14 @@ void MessagePage::init()
 			setCurrentUser(user->getFriend());
 		});
 	//发送文字消息
-	connect(ui->sendBtn, &QPushButton::clicked, [=]
+	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
 			auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100), 66);
 			QString msg = ui->messageTextEdit->toPlainText();
 			if (msg.isEmpty())
 				return;
 			//消息显示至聊天框
-			MessageBubble* messageBubble = new MessageBubble(pixmap, msg, MessageBubble::BubbleRight);
+			MessageBubble* messageBubble = new MessageBubble(pixmap, msg, MessageBubble::BubbleTextRight);
 			ui->messageListWidget->addItem(messageBubble);
 			ui->messageListWidget->setItemWidget(messageBubble, messageBubble);
 			//将消息加入至聊天记录中
@@ -116,7 +122,19 @@ void MessagePage::init()
 			qDebug() << "当前用户id" << config->value("user_id");
 			Client::instance()->sendMessage("communication", messageMap);
 		});
-	ui->messageListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	//发送图片
+	connect(ui->pictureBtn, &QPushButton::clicked, this, [=]
+		{
+			auto imagePath = QFileDialog::getOpenFileName(this, "选择图片", "",
+				"Images(*.jpg *.png *.jpeg *.bnp)");
+			if (imagePath.isEmpty())
+				return;
+			auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100), 66);
+			MessageBubble* bubble = new MessageBubble(pixmap, imagePath, MessageBubble::BubbleImageRight); // 右侧图片
+			ui->messageListWidget->addItem(bubble);
+			ui->messageListWidget->setItemWidget(bubble, bubble);
+			ui->messageListWidget->scrollToBottom();
+		});
 	//设置面板
 	connect(ui->moreBtn, &QPushButton::clicked, this, [=]
 		{
@@ -127,45 +145,45 @@ void MessagePage::init()
 				m_setWidget->hide();  // 隐藏停靠面板
 				return;
 			}
-		auto setHeight = this->height() - ui->setWidget->height();
-		qDebug() << "setHeight" << setHeight << this->height();
+			auto setHeight = this->height() - ui->setWidget->height();
+			qDebug() << "setHeight" << setHeight << this->height();
 
-		// 获取窗口的全局坐标和右边缘
-		QPoint windowTopLeft = this->mapToGlobal(QPoint(0, 0)); // 获取窗口的左上角的全局坐标
-		int windowRight = windowTopLeft.x() + this->width(); // 获取窗口的右边缘的全局坐标
+			// 获取窗口的全局坐标和右边缘
+			QPoint windowTopLeft = this->mapToGlobal(QPoint(0, 0)); // 获取窗口的左上角的全局坐标
+			int windowRight = windowTopLeft.x() + this->width(); // 获取窗口的右边缘的全局坐标
 
-		qDebug() << "Window Right (Global):" << windowRight;
+			qDebug() << "Window Right (Global):" << windowRight;
 
-		// 动画设置
-		m_animation->setEasingCurve(QEasingCurve::Linear);
-		m_animation->setDuration(300);  // 动画持续时间
+			// 动画设置
+			m_animation->setEasingCurve(QEasingCurve::Linear);
+			m_animation->setDuration(300);  // 动画持续时间
 
-		// 设置动画的起始和结束位置（全局坐标系）
-		m_animation->setStartValue(QRect(windowRight, windowTopLeft.y() + ui->setWidget->height(), 0, setHeight));  // 从外部开始
-		m_animation->setEndValue(QRect(windowRight - m_setWidget->width(), windowTopLeft.y() + ui->setWidget->height(), m_setWidget->width(), setHeight));  // 结束时的位置
+			// 设置动画的起始和结束位置（全局坐标系）
+			m_animation->setStartValue(QRect(windowRight, windowTopLeft.y() + ui->setWidget->height(), 0, setHeight));  // 从外部开始
+			m_animation->setEndValue(QRect(windowRight - m_setWidget->width(), windowTopLeft.y() + ui->setWidget->height(), m_setWidget->width(), setHeight));  // 结束时的位置
 
-		// 动画过程中更新裁剪区域
-		connect(m_animation, &QPropertyAnimation::valueChanged, [=](const QVariant& value) {
-			QRect rect = value.toRect();  // 获取动画值
-			int x = rect.x();  // 获取当前x坐标
-			int visibleWidth = this->width() - x;  // 计算当前可见宽度
+			// 动画过程中更新裁剪区域
+			connect(m_animation, &QPropertyAnimation::valueChanged, [=](const QVariant& value) {
+				QRect rect = value.toRect();  // 获取动画值
+				int x = rect.x();  // 获取当前x坐标
+				int visibleWidth = this->width() - x;  // 计算当前可见宽度
 
-			// 使用局部坐标更新裁剪区域
-			QPoint localPos = this->mapFromGlobal(rect.topLeft());  // 将全局坐标转换为局部坐标
-			int visibleWidthAdjusted = this->width() - localPos.x();  // 调整宽度
+				// 使用局部坐标更新裁剪区域
+				QPoint localPos = this->mapFromGlobal(rect.topLeft());  // 将全局坐标转换为局部坐标
+				int visibleWidthAdjusted = this->width() - localPos.x();  // 调整宽度
 
-			// 设置新的裁剪区域，确保滑出时的部分不显示
-			QRegion region(0, 0, visibleWidthAdjusted, height(), QRegion::Rectangle);
-			m_setWidget->setMask(region);  // 更新裁剪区域
-			});
-		m_setWidget->show();
-		m_setWidget->activateWindow();
-		m_setWidget->setFocus();
-		
-		// 延迟执行动画，确保 isVisible() 状态稳定
-		QTimer::singleShot(10, this, [this]() {
-			m_animation->start();
-			});
+				// 设置新的裁剪区域，确保滑出时的部分不显示
+				QRegion region(0, 0, visibleWidthAdjusted, height(), QRegion::Rectangle);
+				m_setWidget->setMask(region);  // 更新裁剪区域
+				});
+			m_setWidget->show();
+			m_setWidget->activateWindow();
+			m_setWidget->setFocus();
+
+			// 延迟执行动画，确保 isVisible() 状态稳定
+			QTimer::singleShot(10, this, [this]() {
+				m_animation->start();
+				});
 		});
 }
 
@@ -217,7 +235,7 @@ void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 			//自己发的消息
 			auto content = message.getMessage();
 			QPixmap pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100), 66);
-			MessageBubble* messageBubble = new MessageBubble(pixmap, content, MessageBubble::BubbleRight);
+			MessageBubble* messageBubble = new MessageBubble(pixmap, content, MessageBubble::BubbleTextRight);
 			ui->messageListWidget->addItem(messageBubble);
 			ui->messageListWidget->setItemWidget(messageBubble, messageBubble);
 		}
@@ -227,7 +245,7 @@ void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 			auto content = message.getMessage();
 			auto user = FriendManager::instance()->findFriend(m_friend_id);
 			QPixmap pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(100, 100), 66);
-			MessageBubble* messageBubble = new MessageBubble(pixmap, content, MessageBubble::BubbleLeft);
+			MessageBubble* messageBubble = new MessageBubble(pixmap, content, MessageBubble::BubbleTextLeft);
 			ui->messageListWidget->addItem(messageBubble);
 			ui->messageListWidget->setItemWidget(messageBubble, messageBubble);
 		}
@@ -237,7 +255,7 @@ void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 //处于会话界面 接收消息直接更新
 void MessagePage::updateReciveMessage(const QString& Recivemessage)
 {
-	MessageBubble* message = new MessageBubble(m_friend_headPix, Recivemessage, MessageBubble::BubbleLeft);
+	MessageBubble* message = new MessageBubble(m_friend_headPix, Recivemessage, MessageBubble::BubbleTextLeft);
 	ui->messageListWidget->addItem(message);
 	ui->messageListWidget->setItemWidget(message, message);
 	ui->messageListWidget->scrollToBottom();
@@ -293,7 +311,7 @@ void MessagePage::resizeEvent(QResizeEvent* ev)
 	QPoint windowTopLeft = this->mapToGlobal(QPoint(0, 0)); // 获取窗口的左上角的全局坐标
 	int windowRight = windowTopLeft.x() + this->width(); // 获取窗口的右边缘的全局坐标
 	qDebug() << "resize";
-	m_setWidget->setGeometry(windowRight-m_setWidget->width(), ui->setWidget->height(), 250, this->height() - ui->setWidget->height());
+	m_setWidget->setGeometry(windowRight - m_setWidget->width(), ui->setWidget->height(), 250, this->height() - ui->setWidget->height());
 	qDebug() << m_setWidget->height();
 }
 void MessagePage::installEventFilterForChildren(QWidget* parent)

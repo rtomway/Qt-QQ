@@ -17,20 +17,28 @@ const QString Friend::getFriendName() const
 void Friend::setFriend(const QJsonObject& obj)
 {
 	m_json = obj;
-	qDebug() << "添加了一个好友:" << m_json;
+	qDebug() << "6666666666666666好友信息:" << m_json;
 	m_userID = obj["user_id"].toString();
 	m_userName = obj["username"].toString();
 	m_gender = obj["gender"].toInt();
 	m_age = obj["age"].toInt();
 	m_phoneNumber = obj["phone_number"].toString();
 	m_email = obj["email"].toString();
-	m_avatarPath = obj["avatar_path"].toString();
 	m_birthday = QDate::fromString(obj["birthday"].toString(), "MM-dd");
 	m_signature = obj["signature"].toString();
 	m_status = obj["status"].toBool();
-	m_grouping = obj["grouping"].toString();
-	loadAvatar();
-
+	if (obj.contains("avatar_path"))
+	{
+		m_avatarPath = obj["avatar_path"].toString();
+		loadAvatar();
+	}
+	if (obj.contains("grouping"))
+	{
+		m_grouping = obj["grouping"].toString();
+	}
+	//信息更新不包含客户端独立设置信息
+	m_json["grouping"] = m_grouping;
+	m_json["avatar_path"] = m_grouping;
 }
 //获取好友信息
 const QJsonObject Friend::getFriend()const

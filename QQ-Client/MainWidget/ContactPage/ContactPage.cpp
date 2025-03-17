@@ -95,6 +95,11 @@ void ContactPage::init()
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
 		{
+			//小窗口编辑关闭
+			if (!this->parent())
+			{
+				this->hide();
+			}
 			FriendManager::instance()->emit chatWithFriend(m_friendId);
 		});
 	//分组改变

@@ -17,22 +17,23 @@ FriendManager::FriendManager()
 		{
 			auto user_id = obj["user_id"].toString();
 			auto user = findFriend(user_id);
+			qDebug() << "updateUserMessage前"<<user->getFriend();
 			user->setFriend(obj);
+			qDebug() << "updateUserMessage后" << user->getFriend();
 			emit UpdateFriendMessage(user_id);
 		});
 	connect(Client::instance(), &Client::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
 		{
 			auto user = findFriend(user_id);
 			qDebug() << "----------F好友头像更新-----------";
-			//保存目录
-			QString avatarFolder = QStandardPaths::writableLocation
-			(QStandardPaths::AppDataLocation)+"/avatars";
-			auto avatarPath = avatarFolder + "/" + user_id + ".png";
-			auto isSave = pixmap.save(avatarPath);
-			if (isSave)
+			if (ImageUtils::saveAvatarToLocal(pixmap,user_id))
 			{
 				user->loadAvatar();
 				emit UpdateFriendMessage(user_id);
+			}
+			else
+			{
+				qDebug() << "头像接收失败";
 			}
 		});
 	connect(Client::instance(), &Client::newFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
@@ -42,13 +43,13 @@ FriendManager::FriendManager()
 			auto user_id = user->getFriendId();
 			auto grouping = user->getGrouping();
 			//保存目录
-			QString avatarFolder = QStandardPaths::writableLocation
-			(QStandardPaths::AppDataLocation)+"/avatars";
-			auto avatarPath = avatarFolder + "/" + user_id + ".png";
-			auto isSave = pixmap.save(avatarPath);
-			if (isSave)
+			if (ImageUtils::saveAvatarToLocal(pixmap, user_id))
 			{
 				user->loadAvatar();
+			}
+			else
+			{
+				qDebug() << "头像接受失败";
 			}
 			this->addFriend(user);
 			emit NewFriend(user_id, grouping);
@@ -114,7 +115,10 @@ QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString&
 void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
 {
 	QVariantMap friendObj = obj.toVariantMap();
-	qDebug() << "用户更新的信息json：" << friendObj;
+	//客户端独立信息删除
+	friendObj.remove("grouping");
+	friendObj.remove("avatar_path"); 
+	qDebug() << "--------------用户更新的信息json：" << friendObj;
 	Client::instance()->sendMessage("updateUserMessage", friendObj);
 }
 //用户头像更新向服务端发送

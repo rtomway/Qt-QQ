@@ -143,7 +143,10 @@ void ContactList::init()
 		{
 			qDebug() << "用户信息更新99999999999999999999999999";
 			auto user = FriendManager::instance()->findFriend(user_id);
+			qDebug() << user->getFriend();
 			auto groupingItem = getFriendTopItem(user->getGrouping());
+			if(!groupingItem)
+			qDebug() << "groupingItem";
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{

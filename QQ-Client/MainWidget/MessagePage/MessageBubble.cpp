@@ -16,22 +16,30 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, Bu
 	, m_message(message)
 	, m_head_img(head_img)
 {
-	//为英文字符时 70个一行
-	int x = 0;
-	for (int i = 0; i < m_message.length(); i++)
+	if (type == BubbleTextLeft || type == BubbleTextRight)
 	{
-		if (i % (x * 70 + 70 + x) == 0 && i != 0)
+		//为英文字符时 70个一行
+		int x = 0;
+		for (int i = 0; i < m_message.length(); i++)
 		{
-			m_message.insert(i, '\n');
-			x++;
+			if (i % (x * 70 + 70 + x) == 0 && i != 0)
+			{
+				m_message.insert(i, '\n');
+				x++;
+			}
 		}
 	}
+	else if (type == BubbleImageLeft || type == BubbleImageRight) {
+		m_image.load(m_message); // 假设 message 是图片路径
+	}
+
 	this->init();
 	if (head_img.isNull())
 	{
 		m_head_img = QPixmap(":/picture/Resource/Picture/qq.png");
 	}
-	QLabel::setText(m_message);
+	if (m_type == MessageBubble::BubbleTextLeft || m_type == MessageBubble::BubbleTextRight)
+		QLabel::setText(m_message);
 	setWordWrap(true);
 
 }
@@ -41,7 +49,7 @@ void MessageBubble::init()
 	setWordWrap(false);
 	setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse);
 	QLabel::setFont(QFont("楷体", 14));
-	if (m_type == MessageBubble::BubbleRight)
+	if (m_type == MessageBubble::BubbleTextRight)
 		this->setStyleSheet(R"(
 				QLabel{
 				color:white;
@@ -64,15 +72,22 @@ void MessageBubble::init()
 void MessageBubble::setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type)
 {
 	m_type = type;
-	m_message = message;
 	m_head_img = head_img;
-	QLabel::setText(m_message);
+	m_message = message;
+	// 判断是否是图片消息
+	if (m_type == BubbleImageLeft || m_type == BubbleImageRight) {
+		m_image.load(m_message); // 假设 message 存的是图片路径
+		updateBubbleSize(); // 更新布局
+	}
+	else {
+		QLabel::setText(m_message);
+	}
+	update(); // 触发重绘
 }
 
 void MessageBubble::setHeadImage(const QPixmap& newHeadImg)
 {
 	m_head_img = newHeadImg;
-	qDebug() << m_message;
 	update();  // 触发重绘
 	repaint();
 }
@@ -91,9 +106,10 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::RenderHint::Antialiasing);
-
 	painter.setPen(Qt::PenStyle::NoPen);
-	if (m_type == MessageBubble::BubbleRight)
+
+	//文本颜色
+	if (m_type == MessageBubble::BubbleTextRight || m_type == MessageBubble::BubbleImageRight)
 		painter.setBrush(QColor("#1079ef"));
 	else
 		painter.setBrush(QColor(Qt::white));
@@ -101,16 +117,14 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 	//绘制头像	
 	painter.drawPixmap(m_profileRect, m_head_img);
 
-	//绘制气泡
-	painter.drawRoundedRect(m_bubbleRect, 10, 10);
-
-
-	//测试文本框
-	if (0)
-	{
-		painter.setPen(Qt::GlobalColor::red);
-		painter.setBrush(Qt::BrushStyle::NoBrush);
-		painter.drawRect(m_textRect);
+	if ((m_type == BubbleImageLeft || m_type == BubbleImageRight) && !m_image.isNull()) {
+		// 绘制图片
+		QRect imageRect = m_bubbleRect.adjusted(0, 0, 0, 0);
+		painter.drawPixmap(imageRect, m_image);
+	}
+	else {
+		// 绘制文字气泡
+		painter.drawRoundedRect(m_bubbleRect, 10, 10);
 	}
 
 	QLabel::paintEvent(ev);
@@ -128,39 +142,60 @@ void MessageBubble::resizeEvent(QResizeEvent* ev)
 	}
 	update();
 }
-
+//气泡区域大小以及位置
 void MessageBubble::updateBubbleSize()
 {
-	if (m_type == MessageBubble::BubbleLeft)
+	//文本
+	if (m_type == MessageBubble::BubbleTextLeft)
 	{
 		m_profileRect.moveTopLeft(QPoint(_xOffset + 10, _yOffset));
 		m_bubbleRect = m_textRect.adjusted(-m_textMargin, -m_textMargin, m_textMargin, m_textMargin);
 	}
-	else if (m_type == MessageBubble::BubbleRight)
+	else if (m_type == MessageBubble::BubbleTextRight)
 	{
 		m_profileRect.moveTopRight(QPoint(width() - _xOffset - 10, _yOffset));
 		m_bubbleRect = m_textRect.adjusted(-m_textMargin, -m_textMargin, m_textMargin, m_textMargin);
+	}
+	//图片的发送
+	if (m_type == BubbleImageLeft || m_type == BubbleImageRight) {
+		int maxWidth = this->width() / 3; // 限制最大宽度
+		if (m_image.isNull())
+			return;
+
+		// 按比例缩放图片 确定气泡区域大小
+		QSize scaledSize = m_image.size().scaled(
+			maxWidth,
+			this->height(),
+			Qt::KeepAspectRatio
+		);
+		m_bubbleRect.setSize(scaledSize);
+		// 调整位置
+		if (m_type == BubbleImageLeft) {
+			m_bubbleRect.moveTopLeft(QPoint(m_profileRect.width() + 15, _yOffset));
+			m_profileRect.moveTopLeft(QPoint(_xOffset + 10, _yOffset));
+		}
+		else {
+			m_bubbleRect.moveTopRight(QPoint(width() - m_profileRect.width() - 15, _yOffset));
+			m_profileRect.moveTopRight(QPoint(width() - _xOffset - 10, _yOffset));
+		}
 	}
 	//保证高度不小于0
 	if (m_bubbleRect.height() < 0) {
 		m_bubbleRect.setHeight(0);
 	}
 	setFixedHeight(m_bubbleRect.height() + m_textMargin);
-
-	setContentsMargins(
-		m_textRect.x(),
-		m_textRect.y(),
+	setContentsMargins(m_textRect.x(), m_textRect.y(),
 		width() - (m_textRect.right() + 1),
 		height() - (m_textRect.bottom() + 1)
 	);
 }
-
+//文本大小
 void MessageBubble::updateTextRect()
 {
 	auto fm = this->fontMetrics();
 	auto bRect = fm.boundingRect(QRect(), Qt::AlignLeft, m_message);
 	//m_textRect = rect();
-	if (m_type == MessageBubble::BubbleLeft)
+	if (m_type == MessageBubble::BubbleTextLeft)
 	{
 		m_textRect.moveTopLeft(QPoint(
 			_xOffset + m_profileRect.width() + 3 * m_textMargin,
@@ -177,7 +212,7 @@ void MessageBubble::updateTextRect()
 			m_textRect.setHeight(realLineNumber() * fm.lineSpacing() + fm.lineSpacing() / 2);
 		}
 	}
-	else if (m_type == MessageBubble::BubbleRight)
+	else if (m_type == MessageBubble::BubbleTextRight)
 	{
 		if (bRect.width() <= width() - SpaceWidth())
 		{
