@@ -7,6 +7,7 @@
 
 #include "ImageUtil.h"
 #include "Client.h"
+#include "ChatManager.h"
 
 
 QString FriendManager::m_oneselfID = QString();
@@ -17,7 +18,7 @@ FriendManager::FriendManager()
 		{
 			auto user_id = obj["user_id"].toString();
 			auto user = findFriend(user_id);
-			qDebug() << "updateUserMessage前"<<user->getFriend();
+			qDebug() << "updateUserMessage前" << user->getFriend();
 			user->setFriend(obj);
 			qDebug() << "updateUserMessage后" << user->getFriend();
 			emit UpdateFriendMessage(user_id);
@@ -26,7 +27,7 @@ FriendManager::FriendManager()
 		{
 			auto user = findFriend(user_id);
 			qDebug() << "----------F好友头像更新-----------";
-			if (ImageUtils::saveAvatarToLocal(pixmap,user_id))
+			if (ImageUtils::saveAvatarToLocal(pixmap, user_id))
 			{
 				user->loadAvatar();
 				emit UpdateFriendMessage(user_id);
@@ -76,7 +77,11 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 {
 	QString user_id = user->getFriendId();
 	if (!m_user.contains(user_id))
+	{
 		m_user.insert(user_id, user);
+		ChatManager::instance()->addChat(user_id, std::make_shared<ChatMessage>(m_oneselfID, user_id));
+	}
+
 }
 //搜索好友
 QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
@@ -117,7 +122,7 @@ void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
 	QVariantMap friendObj = obj.toVariantMap();
 	//客户端独立信息删除
 	friendObj.remove("grouping");
-	friendObj.remove("avatar_path"); 
+	friendObj.remove("avatar_path");
 	qDebug() << "--------------用户更新的信息json：" << friendObj;
 	Client::instance()->sendMessage("updateUserMessage", friendObj);
 }

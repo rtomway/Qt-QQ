@@ -19,6 +19,7 @@
 #include "ContactList.h"
 #include "Friend.h"
 #include "FriendManager.h"
+#include "ChatManager.h"
 
 MainWidget::MainWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -78,6 +79,7 @@ MainWidget::MainWidget(QWidget* parent)
 	//点击用户消息项 进入会话界面（加载用户信息）
 	connect(m_messageList, &QListWidget::itemClicked, this, [=](QListWidgetItem* item)
 		{
+			qDebug() << "进入会话界面（加载用户信息）";
 			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
 			itemWidget->clearUnreadMessage();
 			//已经处于当前用户会话界面并且是显示状态
@@ -143,8 +145,6 @@ MainWidget::MainWidget(QWidget* parent)
 			auto m_userId = FriendManager::instance()->getOneselfID();
 			auto friend_id = obj["user_id"].toString();
 			auto message = obj["message"].toString();
-			//接收信息加入聊天记录
-			m_messagePage->updateChatMessage(friend_id, m_userId, message);
 			auto item = findListItem(friend_id);
 			auto itemWidget = qobject_cast<MessageListItem*>(m_messageList->itemWidget(item));
 			//自己给自己发消息
@@ -154,6 +154,8 @@ MainWidget::MainWidget(QWidget* parent)
 				itemWidget->clearUnreadMessage();
 				return;
 			}
+			//接收信息加入聊天记录(自己无需添加)
+			m_messagePage->updateChatMessage(friend_id, m_userId, QVariant::fromValue(message));
 			if (item)
 			{
 				//有消息项 追加消息内容
@@ -176,7 +178,8 @@ MainWidget::MainWidget(QWidget* parent)
 		{
 			auto myfriend = FriendManager::instance()->findFriend(user_id);
 			auto friendObj = myfriend->getFriend();
-			m_messagePage->setUser(friendObj);
+			//m_messagePage->setUser(friendObj);
+			ChatManager::instance()->addChat(user_id, std::make_shared<ChatMessage>(FriendManager::instance()->getOneselfID(), user_id));
 			addmessageListItem(friendObj);
 		});
 	//好友申请通知
@@ -334,10 +337,10 @@ void MainWidget::initMoreMenu()
 	m_moreMenu->addAction(QIcon(":/icon/Resource/Icon/quit.png"), "退出账号", [=]
 		{
 			FriendManager::instance()->clearFriendManager();
+			ChatManager::instance()->clearAllChats();
 			ContactList::instance()->clearContactList();
 			m_contactPage->clearWidget();
 			m_messageList->clear();
-			m_messagePage->clearChatMessages();
 			m_btn_Itemgroup->button(-2)->setChecked(true);
 			ui->listStackedWidget->setCurrentWidget(m_messageList);
 			ui->messageStackedWidget->setCurrentWidget(m_emptyWidget);

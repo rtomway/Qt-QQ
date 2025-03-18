@@ -17,8 +17,9 @@ public:
 	};
 	explicit MessageBubble(QWidget* parent = nullptr);
 	MessageBubble(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleTextRight, QWidget* parent = nullptr);
+	MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type = MessageBubble::BubbleTextRight, QWidget* parent = nullptr);
 	void init();
-	void setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleTextLeft);
+	//void setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleTextLeft);
 	void setHeadImage(const QPixmap& newHeadImg);
 	int textHeight()const;
 	MessageBubble::BubbleType getType();

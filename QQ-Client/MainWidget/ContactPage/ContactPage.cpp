@@ -100,6 +100,7 @@ void ContactPage::init()
 			{
 				this->hide();
 			}
+			qDebug() << "FriendManager发消息";
 			FriendManager::instance()->emit chatWithFriend(m_friendId);
 		});
 	//分组改变

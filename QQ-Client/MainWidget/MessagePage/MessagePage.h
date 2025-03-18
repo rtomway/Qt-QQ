@@ -11,6 +11,7 @@
 #include "ChatMessage.h"
 #include "Friend.h"
 #include "FriendSetWidget.h"
+#include "MessageBubble.h"
 
 namespace Ui { class MessagePage; }
 
@@ -22,26 +23,29 @@ public:
 	~MessagePage();
 	void init();
 	void setCurrentUser(const QJsonObject& obj);
-	void setUser(const QJsonObject& obj);
+	//void setUser(const QJsonObject& obj);
 	QString getCurrentID();
 	void updateReciveMessage(const QString& message);
-	void updateChatMessage(const QString& sender_id, const QString& receiver_id, const QString& msg);
+	void updateChatMessage(const QString& sender_id, const QString& receiver_id, const QVariant& msg);
 	void clearMessageWidget();
-	void clearChatMessages();
 private:
 	void updateMessageWidget();
 	void loadChatMessage(const ChatMessage& chatMessage);
+	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType);
+	void createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType);
 	void installEventFilterForChildren(QWidget* parent);
 private:
 	QString m_friend_username{};
 	QPixmap m_friend_headPix{};
 	QString m_friend_id{};
 	QString m_currentID{};
-	QHash<QString, ChatMessage> m_chats;
 	QSharedPointer<Friend>m_oneself{};
 	FriendSetWidget* m_setWidget{};
 	QPropertyAnimation* m_animation{};
 	QPropertyAnimation* m_opacityAnimation{};
+private:
+	QString m_imageMessagePath{};
+	QString m_textMessage{};
 private:
 	Ui::MessagePage* ui{};
 protected:

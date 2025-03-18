@@ -25,6 +25,7 @@
 #include "FriendManager.h"
 #include "Friend.h"
 
+
 LoginWidget::LoginWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
 	, m_account(new LineEditwithButton(this))

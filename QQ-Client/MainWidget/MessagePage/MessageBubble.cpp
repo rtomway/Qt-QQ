@@ -9,7 +9,7 @@ MessageBubble::MessageBubble(QWidget* parent)
 	:MessageBubble(QPixmap(), "xxxxxxxxxxxx")
 {
 }
-
+//文字构造
 MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, BubbleType type, QWidget* parent)
 	:QLabel(parent)
 	, m_type(type)
@@ -43,6 +43,19 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, Bu
 	setWordWrap(true);
 
 }
+//图片构造
+MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type, QWidget* parent)
+	:QLabel(parent)
+	, m_type(type)
+	, m_image(pixmap)
+	, m_head_img(head_img)
+{
+	this->init();
+	if (head_img.isNull())
+	{
+		m_head_img = QPixmap(":/picture/Resource/Picture/qq.png");
+	}
+}
 void MessageBubble::init()
 {
 	setAlignment(Qt::AlignTop);
@@ -50,18 +63,10 @@ void MessageBubble::init()
 	setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse);
 	QLabel::setFont(QFont("楷体", 14));
 	if (m_type == MessageBubble::BubbleTextRight)
-		this->setStyleSheet(R"(
-				QLabel{
-				color:white;
-				}
-				)");
-	else
+		this->setStyleSheet(R"(QLabel{color:white;})");
+	else if (m_type == MessageBubble::BubbleTextLeft)
 	{
-		this->setStyleSheet(R"(
-				QLabel{
-				color:black;
-				}
-				)");
+		this->setStyleSheet(R"(QLabel{color:black;})");
 	}
 
 	//头像矩形
@@ -69,21 +74,21 @@ void MessageBubble::init()
 }
 
 //设置消息
-void MessageBubble::setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type)
-{
-	m_type = type;
-	m_head_img = head_img;
-	m_message = message;
-	// 判断是否是图片消息
-	if (m_type == BubbleImageLeft || m_type == BubbleImageRight) {
-		m_image.load(m_message); // 假设 message 存的是图片路径
-		updateBubbleSize(); // 更新布局
-	}
-	else {
-		QLabel::setText(m_message);
-	}
-	update(); // 触发重绘
-}
+//void MessageBubble::setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type)
+//{
+//	m_type = type;
+//	m_head_img = head_img;
+//	m_message = message;
+//	// 判断是否是图片消息
+//	if (m_type == BubbleImageLeft || m_type == BubbleImageRight) {
+//		m_image.load(m_message); // 假设 message 存的是图片路径
+//		updateBubbleSize(); // 更新布局
+//	}
+//	else {
+//		QLabel::setText(m_message);
+//	}
+//	update(); // 触发重绘
+//}
 
 void MessageBubble::setHeadImage(const QPixmap& newHeadImg)
 {
