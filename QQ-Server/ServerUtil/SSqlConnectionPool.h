@@ -34,12 +34,12 @@ private:
 	QSqlDatabase CreateConnection(const QString& con_name);
 	void  releaseConnection(QSqlDatabase db);
 
-	quint16 m_port;
-	QString m_hostName;
-	QString m_databaseName;
-	QString m_userName;
-	QString m_password;
-	QString m_databaseType;
+	quint16 m_port{};
+	QString m_hostName{};
+	QString m_databaseName{};
+	QString m_userName{};
+	QString m_password{};
+	QString m_databaseType{};
 
 	static inline QMutex m_mutex;  //互斥量
 	QWaitCondition m_waitCondition; //条件

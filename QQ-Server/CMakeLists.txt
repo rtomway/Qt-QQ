@@ -12,7 +12,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
 # 查找并配置 Qt6 的 Core 和 Sql 模块
 find_package(Qt6 REQUIRED COMPONENTS Core Gui  Sql WebSockets)
 
@@ -20,9 +19,11 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui  Sql WebSockets)
 file(GLOB PROJECT_SOURCES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB PROJECT_SOURCES_QRC ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc)
 
+add_subdirectory(ServerUtil)
+
 # 添加可执行文件
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_QRC})
 
 # 链接库
-target_link_libraries(${PROJECT_NAME} PRIVATE Util Qt6::Core Qt6::Gui Qt6::Sql Qt6::WebSockets)
+target_link_libraries(${PROJECT_NAME} PRIVATE ServerUtil Qt6::Core Qt6::Gui Qt6::Sql Qt6::WebSockets)
 

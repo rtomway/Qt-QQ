@@ -15,13 +15,18 @@ find_package(Qt6 REQUIRED Widgets WebSockets)
 file(GLOB PROJECT_SOURCES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB PROJECT_SOURCES_QRC ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc)
 
-add_subdirectory(LoginWidget)
-add_subdirectory(MainWidget)
+add_subdirectory(UI)
+add_subdirectory(NetWork)
+add_subdirectory(Util)
+add_subdirectory(FriendData)
+add_subdirectory(ChatMessage)
 
-#添加宏定义
-#add_compile_definitions(QT_NO_DEBUG_OUTPUT)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_QRC})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE  Qt6::Widgets Qt6::WebSockets  LoginWidget MainWidget Util)
+target_include_directories(QQ-Client
+		PRIVATE
+${CMAKE_CURRENT_SOURCE_DIR}/NetWork
+)
 
+target_link_libraries(${PROJECT_NAME} PRIVATE  Qt6::Widgets Qt6::WebSockets ChatMessage FriendData NetWork UI Util)

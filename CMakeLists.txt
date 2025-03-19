@@ -5,5 +5,4 @@ project(UserPrivilege VERSION 1.0 LANGUAGES CXX)
 add_subdirectory(QQ-Client)
 add_subdirectory(QQ-Server)
 
-add_subdirectory(Util)
 

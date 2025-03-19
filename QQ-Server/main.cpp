@@ -1,8 +1,8 @@
-#include <QCoreApplication>
+﻿#include <QCoreApplication>
 #include <QRunnable>
 #include <QThreadPool>
 #include <iostream>
-#include "SSqlConnectionPool.h"
+#include "ServerUtil/SSqlConnectionPool.h"
 #include "Server.h"
 
 // Worker class
@@ -82,7 +82,6 @@ private:
         }
     }
 };
-
 // Main function
 int main(int argc, char* argv[])
 { 
@@ -98,8 +97,6 @@ int main(int argc, char* argv[])
     SSqlConnectionPool::instance()->setUserName("xu");
     SSqlConnectionPool::instance()->setPassword("200600xx");
 
-   // QThreadPool::globalInstance()->start(&Worker::worker3);
-   
     Server server;
     
     return a.exec();

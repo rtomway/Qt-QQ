@@ -1,9 +1,9 @@
-#include <QApplication>
-#include "MainWindow.h"
-#include "AngleRoundedWidget.h"
-#include "Client.h"
+﻿#include <QApplication>
 #include <crtdbg.h>
 #include <QWidget>
+
+#include "MainWindow.h"
+#include "Client.h"
 
 
 int main(int argc, char *argv[])

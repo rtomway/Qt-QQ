@@ -6,8 +6,8 @@
 #include <QDir>
 #include <QBuffer>
 
-#include "SSqlConnectionPool.h"
-#include "SResultCode.h"
+#include "ServerUtil/SSqlConnectionPool.h"
+#include "ServerUtil/SResultCode.h"
 
 Server::Server(QObject* parent)
 	:QObject(parent)
