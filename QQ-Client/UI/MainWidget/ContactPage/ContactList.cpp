@@ -159,10 +159,18 @@ void ContactList::init()
 		{
 			//从旧分组中移除 
 			auto oldTopItem = getFriendTopItem(oldGrouping);
-			auto item = findItemByIdInGroup(oldTopItem, user_id);
-			oldTopItem->removeChild(item);
-			auto oldTopItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(oldTopItem, 0));
-			oldTopItemWidget->setCount(oldTopItem->childCount());
+			if (oldTopItem)
+			{
+				auto item = findItemByIdInGroup(oldTopItem, user_id);
+				oldTopItem->removeChild(item);
+				auto oldTopItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(oldTopItem, 0));
+				if (!oldTopItemWidget)
+				{
+					qDebug() << "oldTopItemWidget为空";
+					return;
+				}
+				oldTopItemWidget->setCount(oldTopItem->childCount());
+			}
 			//添加到新分组
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto grouping = user->getGrouping();

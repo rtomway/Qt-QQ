@@ -2,8 +2,8 @@
 #include <crtdbg.h>
 #include <QWidget>
 
-#include "MainWindow.h"
-#include "Client.h"
+#include "UI/MainWindow.h"
+#include "NetWork/Client.h"
 
 
 int main(int argc, char *argv[])

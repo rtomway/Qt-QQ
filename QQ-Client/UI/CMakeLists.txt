@@ -1,24 +1,26 @@
-﻿# 查找所有的源文件和头文件
+﻿# UI 模块的 CMake 配置
+
+# 查找所有的源文件和头文件
 file(GLOB UI_SOURCES
+    MainWindow.cpp
     LoginWidget/*.cpp
     MainWidget/*.cpp
     MainWidget/AddFriendWidget/*.cpp
     MainWidget/ContactPage/*.cpp
     MainWidget/MessagePage/*.cpp
 )
-
 file(GLOB UI_HEADERS
+    MainWindow.h
     LoginWidget/*.h
     MainWidget/*.h
     MainWidget/AddFriendWidget/*.h
     MainWidget/ContactPage/*.h
     MainWidget/MessagePage/*.h
 )
-
 # 为 UI 模块添加一个目标
 add_library(UI STATIC ${UI_SOURCES} ${UI_HEADERS})
 
-# 设置头文件目录
+#公开目录供外界访问
 target_include_directories(UI PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     #子文件互相访问
@@ -33,5 +35,8 @@ target_include_directories(UI PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR}/../NetWork # Util 模块的路径
 )
 
-# 链接 Qt 库（如果需要）
-target_link_libraries(UI PRIVATE Qt6::Widgets Qt6::Core Util NetWork FriendData ChatMessage)
+# 链接 库（如果需要）
+target_link_libraries(UI PRIVATE
+    Qt6::Widgets Qt6::Core 
+    Util NetWork FriendData ChatMessage
+)

@@ -106,6 +106,8 @@ void ContactPage::init()
 	//分组改变
 	connect(ui->groupcomBox, &QComboBox::currentIndexChanged, [=](int index)
 		{
+			if (m_isBlockedComboBox)
+				return;
 			auto grouping = ui->groupcomBox->itemText(index);
 			qDebug() << "分组改变" << grouping;
 			if (m_oneself && !grouping.isEmpty())
@@ -123,7 +125,6 @@ void ContactPage::init()
 
 void ContactPage::setUser(const QString& user_id)
 {
-	ui->groupcomBox->blockSignals(false);
 	//m_oneself为空或id不等,存入新的Friend
 	if (!m_oneself || m_oneself->getFriendId() != user_id)
 	{
@@ -197,6 +198,9 @@ void ContactPage::setUser(const QString& user_id)
 	auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100));
 	ui->headLab->setPixmap(pixmap);
 	ui->signaltureLab->setText(m_json["signature"].toString());
+
+	m_isBlockedComboBox = false;
+	qDebug() << "信号解封：";
 }
 
 void ContactPage::clearWidget()
@@ -204,5 +208,5 @@ void ContactPage::clearWidget()
 	m_detailEditWidget = nullptr;
 	m_oneself = nullptr;
 	//退出后禁止信号
-	ui->groupcomBox->blockSignals(true);
+	m_isBlockedComboBox = true;
 }

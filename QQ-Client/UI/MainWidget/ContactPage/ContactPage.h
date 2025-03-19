@@ -26,6 +26,8 @@ private:
 	QSharedPointer<Friend>m_oneself{};
 	QJsonObject m_json{};
 	ContactDetailWidget* m_detailEditWidget{};
+private:
+	bool m_isBlockedComboBox{true};
 public:
 	void setUser(const QString& user_id);
 	void clearWidget();

@@ -65,8 +65,13 @@ void MessagePage::init()
 	ui->messageTextEdit->setFont(font);
 	// 设置垂直滚动条按像素滚动
 	ui->messageListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-	// 可选：调整滚动速度（默认值为20，数值越大滚动越快）
+	//设置滚动条始终出现防止抖动
+	ui->messageListWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	//调整滚动速度
 	ui->messageListWidget->verticalScrollBar()->setSingleStep(10);
+
+	ui->messageTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
 	//在自己信息中心加载完成后读取
 	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]
 		{
@@ -94,10 +99,13 @@ void MessagePage::init()
 			//图片消息
 			if (!m_imageMessagePath.isEmpty())
 			{
-				QPixmap pixmap(m_imageMessagePath);
-				createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
-				updateChatMessage(user_id, m_currentID, QVariant::fromValue(pixmap));
-				m_imageMessagePath.clear();
+				for (const QString& imagePath : m_imageMessagePath)
+				{
+					QPixmap pixmap(imagePath);
+					createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
+					updateChatMessage(user_id, m_currentID, QVariant::fromValue(pixmap));
+					m_imageMessagePath.removeOne(imagePath);
+				}
 				ui->messageTextEdit->clear();
 				return;
 			}
@@ -129,27 +137,40 @@ void MessagePage::init()
 	//选择待发送图片
 	connect(ui->pictureBtn, &QPushButton::clicked, this, [=]
 		{
-			m_imageMessagePath = QFileDialog::getOpenFileName(this, "选择图片", "",
+			auto imageMessagePath= QFileDialog::getOpenFileNames(this, "选择图片", "",
 				"Images(*.jpg *.png *.jpeg *.bnp)");
+			m_imageMessagePath.append(imageMessagePath);
 			// 如果选择了有效的图片文件路径
-			if (!m_imageMessagePath.isEmpty()) {
+			if (!imageMessagePath.isEmpty()) {
 				// 获取 QTextEdit 的文档对象
 				QTextDocument* doc = ui->messageTextEdit->document();
-
 				// 创建文本光标
 				QTextCursor cursor = ui->messageTextEdit->textCursor();
+				// 获取最大显示宽度
+				int maxWidth = 100;  // 可以根据需要调整
+				for (const QString& imagePath : imageMessagePath)
+				{
+					// 使用 QImage 加载图片
+					QImage image(imagePath);
 
-				// 创建图片格式
-				QTextImageFormat imageFormat;
-				imageFormat.setWidth(100); // 设置图片的宽度
-				imageFormat.setHeight(100); // 设置图片的高度
-				imageFormat.setName(m_imageMessagePath); // 设置图片路径
+					// 获取原始尺寸
+					QSize originalSize = image.size();
 
-				// 插入图片到光标所在的位置
-				cursor.insertImage(imageFormat);
+					// 按比例缩放图片
+					QSize scaledSize = originalSize.scaled(maxWidth, 1000, Qt::KeepAspectRatio); // 限制最大宽度，并保持比例
 
-				// 保证文本框自动滚动到底部
-				ui->messageTextEdit->setTextCursor(cursor);
+					// 创建图片格式
+					QTextImageFormat imageFormat;
+					imageFormat.setWidth(scaledSize.width());  // 设置缩放后的宽度
+					imageFormat.setHeight(scaledSize.height());  // 设置缩放后的高度
+					imageFormat.setName(imagePath);  // 设置图片路径
+
+					// 插入图片到光标所在的位置
+					cursor.insertImage(imageFormat);
+
+					// 保证文本框自动滚动到底部
+					ui->messageTextEdit->setTextCursor(cursor);
+				}
 			}
 		});
 	//设置面板
@@ -281,6 +302,7 @@ void MessagePage::createTextMessageBubble(const QPixmap& avatar, const QString& 
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
+	update();
 }
 //处于会话界面 接收消息直接更新
 void MessagePage::updateReciveMessage(const QString& Recivemessage)

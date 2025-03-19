@@ -23,7 +23,6 @@ public:
 	~MessagePage();
 	void init();
 	void setCurrentUser(const QJsonObject& obj);
-	//void setUser(const QJsonObject& obj);
 	QString getCurrentID();
 	void updateReciveMessage(const QString& message);
 	void updateChatMessage(const QString& sender_id, const QString& receiver_id, const QVariant& msg);
@@ -44,8 +43,10 @@ private:
 	QPropertyAnimation* m_animation{};
 	QPropertyAnimation* m_opacityAnimation{};
 private:
-	QString m_imageMessagePath{};
+	QStringList m_imageMessagePath{};
 	QString m_textMessage{};
+private:
+	bool m_isImageInTextEdit{ false };
 private:
 	Ui::MessagePage* ui{};
 protected:

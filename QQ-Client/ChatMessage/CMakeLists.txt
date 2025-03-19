@@ -9,6 +9,11 @@ add_library(ChatMessage STATIC
   Message.h
   Message.cpp
 )
-target_include_directories(ChatMessage PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(ChatMessage Qt6::Core Qt6::Widgets)
+target_include_directories(ChatMessage PUBLIC 
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(ChatMessage PRIVATE
+	Qt6::Core Qt6::Widgets
+)

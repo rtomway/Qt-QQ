@@ -46,8 +46,6 @@ MainWidget::MainWidget(QWidget* parent)
 	for (QWidget* child : childWidgets) {
 		child->installEventFilter(this);
 	}
-
-
 	this->setFocusPolicy(Qt::StrongFocus);
 	this->setObjectName("MainWidget");
 	this->setStyleSheet(R"(QWidget#MainWidget{border-radius: 10px;})");

@@ -1,32 +1,28 @@
 ﻿cmake_minimum_required(VERSION 3.14)
 
 project(QQ-Client VERSION 1.0 LANGUAGES CXX)
-
+#Qt自动moc
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-
+#c++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-find_package(Qt6 REQUIRED Widgets WebSockets)
-
-
-file(GLOB PROJECT_SOURCES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-file(GLOB PROJECT_SOURCES_QRC ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc)
-
+#外部库(主cmake find 子模块无需find)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets WebSockets Network)
+#子模块
 add_subdirectory(UI)
 add_subdirectory(NetWork)
 add_subdirectory(Util)
 add_subdirectory(FriendData)
 add_subdirectory(ChatMessage)
-
-
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_QRC})
-
-target_include_directories(QQ-Client
-		PRIVATE
-${CMAKE_CURRENT_SOURCE_DIR}/NetWork
+#运行程序
+add_executable(${PROJECT_NAME}
+		main.cpp
+		Resource.qrc
 )
-
-target_link_libraries(${PROJECT_NAME} PRIVATE  Qt6::Widgets Qt6::WebSockets ChatMessage FriendData NetWork UI Util)
+#链接库（）
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+	ChatMessage FriendData NetWork UI Util  #内部
+	Qt6::Core Qt6::Widgets Qt6::WebSockets Qt6::Network			#外部
+)

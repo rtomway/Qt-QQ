@@ -137,7 +137,8 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 
 void MessageBubble::resizeEvent(QResizeEvent* ev)
 {
-	updateTextRect();
+	if(m_type==BubbleTextLeft||m_type==BubbleTextRight)
+			updateTextRect();
 	updateBubbleSize();
 
 	auto listw = QListWidgetItem::listWidget();
@@ -199,7 +200,6 @@ void MessageBubble::updateTextRect()
 {
 	auto fm = this->fontMetrics();
 	auto bRect = fm.boundingRect(QRect(), Qt::AlignLeft, m_message);
-	//m_textRect = rect();
 	if (m_type == MessageBubble::BubbleTextLeft)
 	{
 		m_textRect.moveTopLeft(QPoint(
