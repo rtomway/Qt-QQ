@@ -3,7 +3,7 @@
 #include <QWidget>
 
 #include "UI/MainWindow.h"
-#include "NetWork/Client.h"
+#include "Client-NetWork/Client.h"
 
 
 int main(int argc, char *argv[])

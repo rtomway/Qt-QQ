@@ -111,6 +111,7 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::RenderHint::Antialiasing);
+	painter.setRenderHint(QPainter::RenderHint::SmoothPixmapTransform);
 	painter.setPen(Qt::PenStyle::NoPen);
 
 	//文本颜色
@@ -125,7 +126,7 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 	if ((m_type == BubbleImageLeft || m_type == BubbleImageRight) && !m_image.isNull()) {
 		// 绘制图片
 		QRect imageRect = m_bubbleRect.adjusted(0, 0, 0, 0);
-		painter.drawPixmap(imageRect, m_image);
+			painter.drawPixmap(imageRect, m_image);
 	}
 	else {
 		// 绘制文字气泡

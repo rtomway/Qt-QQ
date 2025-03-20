@@ -19,11 +19,16 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui  Sql WebSockets)
 file(GLOB PROJECT_SOURCES_CPP ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB PROJECT_SOURCES_QRC ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc)
 
-add_subdirectory(ServerUtil)
+add_subdirectory(Server-Util)
+add_subdirectory(Server-Core)
+add_subdirectory(Server-NetWork)
+add_subdirectory(Server-DataBase)
 
 # 添加可执行文件
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_QRC})
 
 # 链接库
-target_link_libraries(${PROJECT_NAME} PRIVATE ServerUtil Qt6::Core Qt6::Gui Qt6::Sql Qt6::WebSockets)
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+Server-Util Server-Core Server-NetWork Server-DataBase
+Qt6::Core Qt6::Gui Qt6::Sql Qt6::WebSockets)
 

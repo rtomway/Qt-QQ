@@ -7,6 +7,7 @@
 
 #include "ImageUtil.h"
 #include "Client.h"
+#include "PacketCreate.h"
 #include "ChatManager.h"
 
 
@@ -147,7 +148,12 @@ void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
 	params["user_id"] = m_oneselfID;
 	params["size"] = byteArray.size();
 
-	Client::instance()->sendBinaryMessage("updateUserAvatar", params, byteArray);
+	//二进制数据的发送
+	auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
+	QByteArray userData;
+	PacketCreate::addPacket(userData, packet);
+	auto allData=PacketCreate::allBinaryPacket(userData);
+	Client::instance()->sendBinaryData(allData);
 
 }
 //好友分组修改

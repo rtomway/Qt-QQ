@@ -12,10 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets WebSockets Network)
 #子模块
 add_subdirectory(UI)
-add_subdirectory(NetWork)
-add_subdirectory(Util)
-add_subdirectory(FriendData)
-add_subdirectory(ChatMessage)
+add_subdirectory(Client-NetWork)
+add_subdirectory(Client-Util)
+add_subdirectory(Client-Core)
+add_subdirectory(Client-FriendData)
+add_subdirectory(Client-ChatMessage)
 #运行程序
 add_executable(${PROJECT_NAME}
 		main.cpp
@@ -23,6 +24,6 @@ add_executable(${PROJECT_NAME}
 )
 #链接库（）
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-	ChatMessage FriendData NetWork UI Util  #内部
+	Client-ChatMessage Client-FriendData Client-NetWork UI Client-Util Client-Core #内部
 	Qt6::Core Qt6::Widgets Qt6::WebSockets Qt6::Network			#外部
 )

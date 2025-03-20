@@ -210,6 +210,7 @@ void ContactDetailWidget::init()
 			//信息更新
 			auto user_id = FriendManager::instance()->getOneselfID();
 			ImageUtils::saveAvatarToLocal(m_avatarNewPath, user_id);
+			qDebug() << "m_avatarIsChange" << m_avatarIsChange;
 			if (m_avatarIsChange)//头像更改更新到服务端
 			{
 				qDebug() << "头像更改更新到服务端";

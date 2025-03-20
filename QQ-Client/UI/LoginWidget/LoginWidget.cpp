@@ -156,16 +156,14 @@ void LoginWidget::init()
 	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
 	connect(this, &LoginWidget::editfinish, m_password, &LineEditwithButton::editfinished);
 	//个人信息配置
-	auto config = new SConfigFile("config.ini");
+	SConfigFile config("config.ini");
 	QFile configFile("config.ini");
-	qDebug() << configFile.exists();
 	if (configFile.exists())
 	{
-		qDebug() << "aaa";
-		m_account->setText(config->value("user_id").toString());
-		m_password->setText(config->value("password").toString());
+		m_account->setText(config.value("user_id").toString());
+		m_password->setText(config.value("password").toString());
 	}
-	//登录
+	//发送登录信号
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{
 			auto user_id = m_account->getLineEditText();
@@ -178,48 +176,17 @@ void LoginWidget::init()
 			QVariantMap loginParams;
 			loginParams["user_id"] = user_id;
 			loginParams["password"] = password;
-			Client::instance()->sendMessage("login", loginParams)
-				->ReciveMessage([=](const QString& message)
-					{
-						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-						if (doc.isObject())
-						{
-							QJsonObject obj = doc.object();
-							QJsonObject data = obj["data"].toObject();
-							QJsonObject loginUser = data["loginUser"].toObject();
-							QJsonArray friendArray = data["friendArray"].toArray();
-							auto user_name = loginUser["username"].toString();
-							qDebug() << obj["code"] << loginUser["username"].toString();
-							if (obj["code"].toInt() == 0)
-							{
-								qDebug() << "登录用户：" << loginUser;
-								//登录成功 用户信息写入配置文件
-								auto config = new SConfigFile("config.ini");
-								config->setValue("user_id", user_id);
-								config->setValue("password", password);
-								//将登录信息加入管理中心
-								//当前登录用户信息
-								auto user = QSharedPointer<Friend>::create();
-								user->setFriend(loginUser);
-								FriendManager::instance()->addFriend(user);
-								FriendManager::instance()->setOneselfID(user_id);
-								//加载好友信息
-								for (const QJsonValue& value : friendArray)
-								{
-									QJsonObject friendObject = value.toObject();
-									auto friendUser = QSharedPointer<Friend>::create();
-									friendUser->setFriend(friendObject);
-									FriendManager::instance()->addFriend(friendUser);
-								}
-								FriendManager::instance()->emit FriendManagerLoadSuccess(user->getAvatar());
-								emit Loginsuccess();
-							}
-							else
-							{
-								qDebug() << obj["message"].toString();
-							}
-						}
-					});
+			Client::instance()->sendMessage("login", loginParams);
+		});
+	//登录成功
+	connect(Client::instance(), &Client::loginSuccess, [=]
+		{
+			emit Loginsuccess();
+			auto user_id = m_account->getLineEditText();
+			auto password = m_password->getLineEditText();
+			SConfigFile config("config.ini");
+			config.setValue("user_id", user_id);
+			config.setValue("password", password);
 		});
 	//点击更多弹出菜单
 	connect(m_moreBtn, &QPushButton::clicked, [=]

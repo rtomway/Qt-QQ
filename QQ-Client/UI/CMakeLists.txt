@@ -29,14 +29,14 @@ target_include_directories(UI PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/AddFriendWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactPage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/MessagePage
-    ${CMAKE_CURRENT_SOURCE_DIR}/../FriendData  # FriendData 模块的路径
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ChatMessage  # ChatMessage 模块的路径
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Util  # Util 模块的路径
-      ${CMAKE_CURRENT_SOURCE_DIR}/../NetWork # Util 模块的路径
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Client-FriendData  # FriendData 模块的路径
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Client-ChatMessage  # ChatMessage 模块的路径
+    ${CMAKE_CURRENT_SOURCE_DIR}/../Client-Util  # Util 模块的路径
+      ${CMAKE_CURRENT_SOURCE_DIR}/../Client-NetWork # Util 模块的路径
 )
 
 # 链接 库（如果需要）
 target_link_libraries(UI PRIVATE
     Qt6::Widgets Qt6::Core 
-    Util NetWork FriendData ChatMessage
+    Client-Util Client-NetWork Client-FriendData Client-ChatMessage
 )
