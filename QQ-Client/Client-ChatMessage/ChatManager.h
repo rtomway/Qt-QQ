@@ -7,7 +7,11 @@
 
 class ChatManager {
 public:
-	static ChatManager* instance();  // 单例模式
+	// 获取单例实例的静态方法
+	static ChatManager* instance();
+	// 禁止拷贝构造函数和赋值操作符
+	ChatManager(const ChatManager&) = delete;
+	ChatManager& operator=(const ChatManager&) = delete;
 
 	// 获取指定用户的聊天记录
 	std::shared_ptr<ChatMessage> getChat(const QString& userId);

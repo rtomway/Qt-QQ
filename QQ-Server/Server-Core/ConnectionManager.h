@@ -10,7 +10,12 @@ class ConnectionManager :public QObject
 {
 	Q_OBJECT
 public:
+	// 获取单例实例的静态方法
 	static ConnectionManager* instance();
+	// 禁止拷贝构造函数和赋值操作符
+	ConnectionManager(const ConnectionManager&) = delete;
+	ConnectionManager& operator=(const ConnectionManager&) = delete;
+public:
 	void onNewConnection(QWebSocket* client);
 	void onTextMessageReceived(const QString& data);
 	void onBinaryMessageReceived(const QByteArray& data);

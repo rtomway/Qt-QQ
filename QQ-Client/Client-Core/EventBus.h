@@ -7,7 +7,11 @@ class EventBus:public QObject
 {
 	Q_OBJECT
 public:
+	// 获取单例实例的静态方法
 	static EventBus* instance();
+	// 禁止拷贝构造函数和赋值操作符
+	EventBus(const EventBus&) = delete;
+	EventBus& operator=(const EventBus&) = delete;
 private:
 	EventBus() {};
 signals:   //接受到消息发送信号通知UI界面更新同步
@@ -20,6 +24,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void searchUser(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void updateUserMessage(const QJsonObject& paramsObject);
 	void updateUserAvatar(const QString& user_id, const QPixmap& pixmap);
+	void deleteFriend(const QString& user_id);
 };
 
 #endif // !EVENTBUS_H_

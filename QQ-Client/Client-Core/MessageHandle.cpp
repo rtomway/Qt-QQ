@@ -130,7 +130,6 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 		FriendManager::instance()->addFriend(friendUser);
 	}
 	FriendManager::instance()->emit FriendManagerLoadSuccess(user->getAvatar());
-	emit this->loginSuccess();
 	EventBus::instance()->emit loginSuccess();
 }
 void MessageHandle::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
@@ -139,7 +138,6 @@ void MessageHandle::handle_communication(const QJsonObject& paramsObject, const 
 	auto adverse_id = paramsObject["user_id"].toString();
 	auto adverse_message = paramsObject["message"].toString();
 	auto time = paramsObject["time"].toString();
-	emit communication(paramsObject);
 	EventBus::instance()->emit communication(paramsObject);
 }
 void MessageHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
@@ -159,7 +157,6 @@ void MessageHandle::handle_addFriend(const QJsonObject& paramsObject, const QByt
 		qDebug() << "client-头像加载失败";
 		return;
 	};
-	emit addFriend(paramsObject, pixmap);
 	EventBus::instance()->emit addFriend(paramsObject, pixmap);
 }
 void MessageHandle::handle_newFriend(const QJsonObject& paramsObject, const QByteArray& data)
@@ -170,7 +167,6 @@ void MessageHandle::handle_newFriend(const QJsonObject& paramsObject, const QByt
 		qWarning() << "Failed to load avatar";
 		avatar = QPixmap(":/picture/Resource/Picture/qq.png");
 	}
-	emit newFriend(paramsObject, avatar);
 	EventBus::instance()->emit newFriend(paramsObject, avatar);
 }
 void MessageHandle::handle_rejectAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
@@ -187,7 +183,6 @@ void MessageHandle::handle_rejectAddFriend(const QJsonObject& paramsObject, cons
 		qDebug() << "client-头像加载失败";
 		return;
 	};
-	emit rejectAddFriend(paramsObject, pixmap);
 	EventBus::instance()->emit rejectAddFriend(paramsObject, pixmap);
 }
 void MessageHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data)
@@ -198,12 +193,10 @@ void MessageHandle::handle_searchUser(const QJsonObject& paramsObject, const QBy
 		qWarning() << "Failed to load avatar";
 		avatar = QPixmap(":/picture/Resource/Picture/qq.png");
 	}
-	emit searchUser(paramsObject, avatar);
 	EventBus::instance()->emit searchUser(paramsObject, avatar);
 }
 void MessageHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	emit updateUserMessage(paramsObject);
 	EventBus::instance()->emit updateUserMessage(paramsObject);
 }
 void MessageHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
@@ -218,6 +211,5 @@ void MessageHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, con
 		return;
 	}
 
-	emit updateUserAvatar(user_id, avatar);
 	EventBus::instance()->emit updateUserAvatar(user_id, avatar);
 }

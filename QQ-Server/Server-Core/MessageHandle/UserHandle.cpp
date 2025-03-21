@@ -58,7 +58,7 @@ void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const
 	auto age = paramsObject["age"].toInt();
 	auto phone_number = paramsObject["phone_number"].toString();
 	auto email = paramsObject["email"].toString();
-	auto birthday = QDate::fromString(paramsObject["birthday"].toString(), "yyyy-MM-dd");
+	auto birthday = QDate::fromString(paramsObject["birthday"].toString(), "MM-dd");
 	auto signature = paramsObject["signature"].toString();
 	phone_number = phone_number.isEmpty() ? QVariant(QVariant::String).toString() : phone_number;
 	email = email.isEmpty() ? QVariant(QVariant::String).toString() : email;

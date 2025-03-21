@@ -20,10 +20,8 @@ void ChatManager::addChat(const QString& userId, std::shared_ptr<ChatMessage> ch
 // 获取并更新指定好友的聊天记录
 ChatMessage* ChatManager::updateChat(const QString& userId) {
 	if (m_chats.contains(userId)) {
-		//m_chats[userId] = std::make_shared<ChatMessage>(userId);  // 如果聊天记录不存在，创建新的
 		return m_chats[userId].get();  // 返回指向ChatMessage的原始指针
 	}
-
 }
 
 // 清除指定用户的聊天记录

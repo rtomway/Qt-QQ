@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #外部库(主cmake find 子模块无需find)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets WebSockets Network)
 #子模块
-add_subdirectory(UI)
+add_subdirectory(Client-UI)
 add_subdirectory(Client-NetWork)
 add_subdirectory(Client-Util)
 add_subdirectory(Client-Core)
@@ -24,6 +24,6 @@ add_executable(${PROJECT_NAME}
 )
 #链接库（）
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-	Client-ChatMessage Client-FriendData Client-NetWork UI Client-Util Client-Core #内部
+	Client-ChatMessage Client-FriendData Client-NetWork Client-UI Client-Util Client-Core #内部
 	Qt6::Core Qt6::Widgets Qt6::WebSockets Qt6::Network			#外部
 )

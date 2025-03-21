@@ -17,7 +17,6 @@ const QString Friend::getFriendName() const
 void Friend::setFriend(const QJsonObject& obj)
 {
 	m_json = obj;
-	qDebug() << "6666666666666666好友信息:" << m_json;
 	m_userID = obj["user_id"].toString();
 	m_userName = obj["username"].toString();
 	m_gender = obj["gender"].toInt();
@@ -61,13 +60,10 @@ void Friend::loadAvatar()
 {
 	if (!m_avatarPath.isEmpty())
 	{
-		QString avatarFolder = QStandardPaths::writableLocation
-		(QStandardPaths::AppDataLocation)+"/avatars";
+		QString avatarFolder = ImageUtils::getAvatarFolderPath();
 		auto avatarPath = avatarFolder + "/" + m_avatarPath;
-
 		// 加载图片
 		QPixmap pixmap(avatarPath);
-
 		// 检查图片是否加载成功
 		if (!pixmap.isNull()) {
 			m_avatar = pixmap;  // 将加载的图片保存到 m_avatar
@@ -90,7 +86,6 @@ void Friend::loadAvatar()
 //获取图片
 const QPixmap Friend::getAvatar() const
 {
-	qDebug() << "m_avatar:" << m_avatar;
 	return m_avatar;
 }
 

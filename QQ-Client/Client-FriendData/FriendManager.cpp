@@ -6,25 +6,18 @@
 #include <QStandardPaths>
 
 #include "ImageUtil.h"
-#include "Client.h"
+#include "MessageSender.h"
 #include "PacketCreate.h"
 #include "ChatManager.h"
+#include "EventBus.h"
 
 
 QString FriendManager::m_oneselfID = QString();
 
 FriendManager::FriendManager()
 {
-	connect(Client::instance(), &Client::updateUserMessage, this, [=](const QJsonObject& obj)
-		{
-			auto user_id = obj["user_id"].toString();
-			auto user = findFriend(user_id);
-			qDebug() << "updateUserMessage前" << user->getFriend();
-			user->setFriend(obj);
-			qDebug() << "updateUserMessage后" << user->getFriend();
-			emit UpdateFriendMessage(user_id);
-		});
-	connect(Client::instance(), &Client::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
+	//好友信息
+	connect(EventBus::instance(), &EventBus::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
 		{
 			auto user = findFriend(user_id);
 			qDebug() << "----------F好友头像更新-----------";
@@ -38,7 +31,16 @@ FriendManager::FriendManager()
 				qDebug() << "头像接收失败";
 			}
 		});
-	connect(Client::instance(), &Client::newFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+	connect(EventBus::instance(), &EventBus::updateUserMessage, this, [=](const QJsonObject& obj)
+		{
+			auto user_id = obj["user_id"].toString();
+			auto user = findFriend(user_id);
+			qDebug() << "updateUserMessage前" << user->getFriend();
+			user->setFriend(obj);
+			qDebug() << "updateUserMessage后" << user->getFriend();
+			emit UpdateFriendMessage(user_id);
+		});
+	connect(EventBus::instance(), &EventBus::newFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
 			auto user = QSharedPointer<Friend>::create();
 			user->setFriend(obj);
@@ -55,6 +57,10 @@ FriendManager::FriendManager()
 			}
 			this->addFriend(user);
 			emit NewFriend(user_id, grouping);
+		});
+	connect(EventBus::instance(), &EventBus::deleteFriend, this, [=](const QString& user_id)
+		{
+			m_user.remove(user_id);
 		});
 }
 //单例
@@ -95,12 +101,6 @@ QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 		return nullptr; // 如果未找到，返回空用户
 	}
 }
-//删除好友
-void FriendManager::removeFriend(const QString& user_id)
-{
-	m_user.remove(user_id);
-	deleteFriendToServer(user_id);
-}
 //获取好友
 const QHash<QString, QSharedPointer<Friend>>& FriendManager::getFriends() const
 {
@@ -117,64 +117,6 @@ QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString&
 	}
 	return result;
 }
-//用户信息更新向服务端发送
-void FriendManager::updateUserMessageToServer(const QJsonObject& obj)
-{
-	QVariantMap friendObj = obj.toVariantMap();
-	//客户端独立信息删除
-	friendObj.remove("grouping");
-	friendObj.remove("avatar_path");
-	qDebug() << "--------------用户更新的信息json：" << friendObj;
-	Client::instance()->sendMessage("updateUserMessage", friendObj);
-}
-//用户头像更新向服务端发送
-void FriendManager::updateUserAvatarToServer(const QPixmap& pixmap)
-{
-	if (pixmap.isNull()) {
-		qDebug() << "Avatar is empty, no update needed.";
-		return;
-	}
-
-	QByteArray byteArray;
-	QBuffer buffer(&byteArray);
-	buffer.open(QIODevice::WriteOnly);
-
-	// 将 QPixmap 转换为 PNG 并存入 QByteArray
-	if (!pixmap.save(&buffer, "PNG")) {
-		qDebug() << "Failed to convert avatar to PNG format.";
-		return;
-	}
-	QVariantMap params;
-	params["user_id"] = m_oneselfID;
-	params["size"] = byteArray.size();
-
-	//二进制数据的发送
-	auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
-	QByteArray userData;
-	PacketCreate::addPacket(userData, packet);
-	auto allData=PacketCreate::allBinaryPacket(userData);
-	Client::instance()->sendBinaryData(allData);
-
-}
-//好友分组修改
-void FriendManager::updateUserGroupingToServer(const QString& user_id, const QString& friend_id, const QString& grouping)
-{
-	QVariantMap groupingMap;
-	groupingMap["user_id"] = user_id;
-	groupingMap["friend_id"] = friend_id;
-	groupingMap["grouping"] = grouping;
-	Client::instance()->sendMessage("updateUserGrouping", groupingMap);
-}
-//删除好友
-void FriendManager::deleteFriendToServer(const QString& user_id)
-{
-	QVariantMap deleteMap;
-	deleteMap["user_id"] = m_oneselfID;
-	deleteMap["friend_id"] = user_id;
-	Client::instance()->sendMessage("deleteFriend", deleteMap);
-}
-//接受到其他用户信息更新信号
-
 //将好友中心清空(切换用户)
 void FriendManager::clearFriendManager()
 {
