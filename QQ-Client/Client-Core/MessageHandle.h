@@ -20,6 +20,7 @@ private:
 	void initRequestHash();
 	//各种消息处理函数
 	void handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_registerSuccess(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_communication(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_newFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());

@@ -382,7 +382,6 @@ void MessagePage::installEventFilterForChildren(QWidget* parent)
 			// 为子控件安装事件过滤器
 			if (childWidget == ui->moreBtn || childWidget == m_setWidget)
 			{
-				qDebug() << "childWidget";
 				continue;
 			}
 			childWidget->installEventFilter(this);

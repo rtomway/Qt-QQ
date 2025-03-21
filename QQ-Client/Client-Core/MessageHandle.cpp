@@ -18,6 +18,7 @@ MessageHandle::MessageHandle(QObject* parent)
 void MessageHandle::initRequestHash()
 {
 	requestHash["loginSuccess"] = &MessageHandle::handle_loginSuccess;
+	requestHash["registerSuccess"] = &MessageHandle::handle_registerSuccess;
 	requestHash["communication"] = &MessageHandle::handle_communication;
 	requestHash["addFriend"] = &MessageHandle::handle_addFriend;
 	requestHash["newFriend"] = &MessageHandle::handle_newFriend;
@@ -36,9 +37,6 @@ void MessageHandle::handle_message(const QString& message)
 		QJsonObject obj = doc.object();
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
-		for (auto it = requestHash.begin(); it != requestHash.end(); ++it) {
-			qDebug() << "requestHash key:" << it.key();  // 输出键
-		}
 		qDebug() << type << requestHash.contains(type);
 
 		QByteArray data;
@@ -131,6 +129,10 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 	}
 	FriendManager::instance()->emit FriendManagerLoadSuccess(user->getAvatar());
 	EventBus::instance()->emit loginSuccess();
+}
+void MessageHandle::handle_registerSuccess(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	EventBus::instance()->emit registerSuccess(paramsObject);
 }
 void MessageHandle::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
 {

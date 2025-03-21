@@ -57,6 +57,7 @@ bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList&
     // 绑定查询参数
     for (const auto& value : bindValues) {
         query.addBindValue(value);
+        qDebug() << "绑定查询参数" << value;
     }
     //操作结果
     if (query.exec()){

@@ -16,6 +16,7 @@ private:
 	EventBus() {};
 signals:   //接受到消息发送信号通知UI界面更新同步
 	void loginSuccess();
+	void registerSuccess(const QJsonObject& obj);
 	void communication(const QJsonObject& paramsObject);
 	void addFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void newFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);

@@ -1,4 +1,4 @@
-#ifndef  REGISTERPAGE_H_
+﻿#ifndef  REGISTERPAGE_H_
 #define REGISTERPAGE_H_
 
 #include <QWidget>
@@ -12,13 +12,12 @@ class RegisterPage:public QWidget
 public:
 	RegisterPage(QWidget* parent = nullptr);
 	~RegisterPage();
+private:
 	void init();
 private:
 	Ui::RegisterPage* ui{};
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
-signals:
-	void registerSuccess(const QJsonObject&obj);
 };
 
 

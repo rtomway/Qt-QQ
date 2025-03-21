@@ -34,7 +34,6 @@ void MessageHandle::initRequestHash()
 	requestHash["updateUserGrouping"] = &UserHandle::handle_updateUserGrouping;
 	requestHash["searchGroup"] = &GroupHandle::handle_searchGroup;
 	requestHash["addGroup"] = &GroupHandle::handle_addGroup;
-	
 }
 //用户id生成
 QString MessageHandle::getRandomID(int length)

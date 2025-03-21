@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 
 #include "MessageSender.h"
+#include "EventBus.h"
 
 RegisterPage::RegisterPage(QWidget* parent)
 	:QWidget(parent)
@@ -66,34 +67,14 @@ void RegisterPage::init()
 			registerMap["username"] = ui->nickNameEdit->text();
 			registerMap["password"] = ui->passwordEdit->text();
 			MessageSender::instance()->sendMessage("register", registerMap);
-				/*->ReciveMessage([=](const QString&message)
-					{
-						QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-						if (doc.isObject())
-						{
-							QJsonObject obj = doc.object();
-							QJsonObject data = obj["data"].toObject();
-							auto user_name = data["username"].toString();
-							qDebug() << obj["code"] << data["username"].toString();
-							if (obj["code"].toInt() == 0)
-							{
-								emit registerSuccess(data);
-							}
-							else
-							{
-								qDebug() << obj["message"].toString();
-							}
-						}
-					});
-			this->hide();*/
 		});
+	connect(EventBus::instance(), &EventBus::registerSuccess, this, &RegisterPage::hide);
 }
 //控件事件重写
 bool RegisterPage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == ui->passwordEdit && event->type() == QEvent::FocusIn)
 	{
-		qDebug() << "dsaf";
 		ui->passwordLab->setVisible(true);
 	}
 	else if(watched == ui->passwordEdit && event->type() == QEvent::FocusOut)

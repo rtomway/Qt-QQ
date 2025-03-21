@@ -30,10 +30,11 @@ void RegisterHandle::handle_register(const QJsonObject& paramsObject, const QByt
 	//好友表插入
 	QString insertStr = "insert into friendship (user_id,friend_id,create_time,Fgrouping)values(?,?,?,?)";
 	bindvalues.append(user_id);
-	bindvalues.append(user_id);
-	bindvalues.append(QDateTime::currentDateTime());
+	auto friend_id = user_id;
+	bindvalues.append(friend_id);
+	bindvalues.append(QDate::currentDate());
 	bindvalues.append("我的好友");
-	auto insertResult = query.executeNonQuery(queryStr, bindvalues);
+	auto insertResult = query.executeNonQuery(insertStr, bindvalues);
 	//错误返回
 	if (!insertResult) {
 		qDebug() << "Error query:";
@@ -42,8 +43,10 @@ void RegisterHandle::handle_register(const QJsonObject& paramsObject, const QByt
 	//注册成功后返回该用户账号与密码
 	QJsonObject resgisterObj;
 	resgisterObj["type"] = "registerSuccess";
-	resgisterObj["user_id"] = user_id;
-	resgisterObj["password"] = password;
+	QJsonObject params;
+	params["user_id"] = user_id;
+	params["password"] = password;
+	resgisterObj["params"] = params;
 
 	QJsonDocument doc(resgisterObj);
 	QString message = QString(doc.toJson(QJsonDocument::Compact));

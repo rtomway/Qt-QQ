@@ -137,11 +137,11 @@ void LoginWidget::init()
 		{
 			m_registerPage = std::make_unique<RegisterPage>();
 			m_registerPage->show();
-			connect(m_registerPage.get(), &RegisterPage::registerSuccess, this, [=](const QJsonObject& obj)
-				{
-					m_account->setText(obj["user_id"].toString());
-					m_password->setText(obj["password"].toString());
-				});
+		});
+	connect(EventBus::instance(), &EventBus::registerSuccess, this, [=](const QJsonObject& obj)
+		{
+			m_account->setText(obj["user_id"].toString());
+			m_password->setText(obj["password"].toString());
 		});
 	//密码更新
 	moreMenu->addAction("忘记密码", this, [=]
