@@ -14,7 +14,8 @@
 <img src="ResultPicture/searchUser.png" alt="Example Image" width="800" height="500">
 
 好友搜索栏
-<img src="ResultPicture/searchFriend.png" alt="Example Image" width="800" height="500">
+
+<img src="ResultPicture/friendSearch.png" alt="Example Image" width="800" height="500">
 
 通知界面
 
