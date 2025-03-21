@@ -24,6 +24,7 @@ public:
 	void setCurrentUser(const QJsonObject& obj);
 	QString getCurrentID();
 	void updateReciveMessage(const QString& message);
+	void updateReciveMessage(const QPixmap& pixmap);
 	void updateChatMessage(const QString& sender_id, const QString& receiver_id, const QVariant& msg);
 	void clearMessageWidget();
 private:

@@ -24,7 +24,8 @@ void MessageHandle::initRequestHash()
 {
 	requestHash["login"] = &LoginHandle::handle_login;
 	requestHash["register"] = &RegisterHandle::handle_register;
-	requestHash["communication"] = &FriendHandle::handle_communication;
+	requestHash["textCommunication"] = &FriendHandle::handle_textCommunication;
+	requestHash["pictureCommunication"] = &FriendHandle::handle_pictureCommunication;
 	requestHash["addFriend"] = &FriendHandle::handle_addFriend;
 	requestHash["resultOfAddFriend"] = &FriendHandle::handle_resultOfAddFriend;
 	requestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;

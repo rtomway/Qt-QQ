@@ -38,18 +38,32 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	qDebug() << "发送了申请信息";
 }
 
-void FriendHandle::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
+void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
 	QJsonObject jsondate;
-	jsondate["type"] = "communication";
+	jsondate["type"] = "textCommunication";
 	jsondate["params"] = paramsObject;
 	auto client_id = paramsObject["to"].toString();
 
 	QJsonDocument doc(jsondate);
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
 	ConnectionManager::instance()->sendTextMessage(client_id, message);
+}
+
+void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	qDebug() << "发送方:" << paramsObject["user_id"].toString();
+	qDebug() << "接受方:" << paramsObject["to"].toString();
+	//数据打包
+	auto userPacket = PacketCreate::binaryPacket("pictureCommunication", paramsObject.toVariantMap(), data);
+	QByteArray userData;
+	PacketCreate::addPacket(userData, userPacket);
+	auto allData = PacketCreate::allBinaryPacket(userData);
+	auto client_id = paramsObject["to"].toString();
+	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
+	qDebug() << "图片发送";
 }
 
 void FriendHandle::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data)

@@ -11,7 +11,9 @@
 #include <QMouseEvent>
 #include <QFileDialog>
 #include <QScrollBar>
+#include <QBuffer>
 
+#include "PacketCreate.h"
 #include "ImageUtil.h"
 #include "MessageSender.h"
 #include "MessageListItem.h"
@@ -105,6 +107,28 @@ void MessagePage::init()
 					createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
 					updateChatMessage(user_id, m_currentID, QVariant::fromValue(pixmap));
 					m_imageMessagePath.removeOne(imagePath);
+					//像服务端发送
+					QByteArray byteArray;
+					QBuffer buffer(&byteArray);
+					buffer.open(QIODevice::WriteOnly);
+					// 将 QPixmap 转换为 PNG 并存入 QByteArray
+					if (!pixmap.save(&buffer, "PNG")) {
+						qDebug() << "Failed to convert avatar to PNG format.";
+						return;
+					}
+					QVariantMap params;
+					params["user_id"] = user_id;
+					params["to"] = m_friend_id;
+					params["message"] = "picture";
+					params["size"] = byteArray.size();
+
+					//二进制数据的发送
+					auto packet = PacketCreate::binaryPacket("pictureCommunication", params, byteArray);
+					QByteArray userData;
+					PacketCreate::addPacket(userData, packet);
+					auto allData = PacketCreate::allBinaryPacket(userData);
+
+					MessageSender::instance()->sendBinaryData(allData);
 				}
 				ui->messageTextEdit->clear();
 				return;
@@ -117,7 +141,7 @@ void MessagePage::init()
 			createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight);
 			//将消息加入至聊天记录中
 			updateChatMessage(user_id, m_currentID, QVariant::fromValue(msg));
-			//下拉至底部并清空输入
+			//清空输入
 			ui->messageTextEdit->clear();
 			//发送给服务器通过服务器转发
 			QJsonObject json;
@@ -126,11 +150,11 @@ void MessagePage::init()
 			json["to"] = m_friend_id;
 			if (user_id == m_friend_id)
 			{
-				EventBus::instance()->emit communication(json);
+				EventBus::instance()->emit textCommunication(json);
 				return;
 			}
 			QVariantMap messageMap = json.toVariantMap();
-			MessageSender::instance()->sendMessage("communication", messageMap);
+			MessageSender::instance()->sendMessage("textCommunication", messageMap);
 		});
 	//选择待发送图片
 	connect(ui->pictureBtn, &QPushButton::clicked, this, [=]
@@ -310,6 +334,14 @@ void MessagePage::updateReciveMessage(const QString& Recivemessage)
 	ui->messageListWidget->setItemWidget(message, message);
 	ui->messageListWidget->scrollToBottom();
 }
+void MessagePage::updateReciveMessage(const QPixmap& pixmap)
+{
+	qDebug() << "xxxxxxx接受图片消息" << pixmap;
+	MessageBubble* message = new MessageBubble(m_friend_headPix, pixmap, MessageBubble::BubbleImageLeft);
+	ui->messageListWidget->addItem(message);
+	ui->messageListWidget->setItemWidget(message, message);
+	ui->messageListWidget->scrollToBottom();
+}
 //更新聊天记录
 void MessagePage::updateChatMessage(const QString& sender_id, const QString& receiver_id, const QVariant& msg)
 {
@@ -344,6 +376,7 @@ void MessagePage::updateChatMessage(const QString& sender_id, const QString& rec
 void MessagePage::clearMessageWidget()
 {
 	ui->messageListWidget->clear();
+	ui->messageTextEdit->clear();
 }
 //事件重写
 bool MessagePage::eventFilter(QObject* watched, QEvent* event)

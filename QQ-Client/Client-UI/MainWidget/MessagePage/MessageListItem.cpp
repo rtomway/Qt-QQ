@@ -41,7 +41,16 @@ void MessageListItem::setUser(const QJsonObject& obj)
 	m_username = user->getFriendName();
 	if (obj.contains("message") && !obj["message"].isNull() && obj["message"].isString())
 	{
-		m_unReadMessage.append(obj["message"].toString());
+		auto message = obj["message"].toString();
+		if (message == "picture")
+		{
+			message = "[文件]图片";
+			m_unReadMessage.append(message);
+		}
+		else
+		{
+			m_unReadMessage.append(message);
+		}
 	}
 	//头像
 	auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(50, 50));

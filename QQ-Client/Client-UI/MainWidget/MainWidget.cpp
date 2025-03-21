@@ -184,7 +184,7 @@ MainWidget::MainWidget(QWidget* parent)
 
 	//接受信息通知
 	//接受到消息 用户消息项更新
-	connect(EventBus::instance(), &EventBus::communication, this, [=](const QJsonObject& obj)
+	connect(EventBus::instance(), &EventBus::textCommunication, this, [=](const QJsonObject& obj)
 		{
 			qDebug() << "接受消息json:" << obj;
 			auto m_userId = FriendManager::instance()->getOneselfID();
@@ -209,6 +209,38 @@ MainWidget::MainWidget(QWidget* parent)
 				if (m_messagePage->getCurrentID() == friend_id && ui->messageStackedWidget->currentWidget() == m_messagePage)
 				{
 					m_messagePage->updateReciveMessage(message);
+					itemWidget->clearUnreadMessage();
+				}
+			}
+			else
+			{
+				//没有消息项创建一个
+				item = addmessageListItem(obj);
+			}
+		});
+	connect(EventBus::instance(), &EventBus::pictureCommunication, this, [=](const QJsonObject& obj,const QPixmap&pixmap)
+		{
+			auto m_userId = FriendManager::instance()->getOneselfID();
+			auto friend_id = obj["user_id"].toString();
+			auto item = findListItem(friend_id);
+			auto itemWidget = qobject_cast<MessageListItem*>(m_chatMessageListWidget->itemWidget(item));
+			//自己给自己发消息
+			if (friend_id == m_userId)
+			{
+				itemWidget->setUser(obj);
+				itemWidget->clearUnreadMessage();
+				return;
+			}
+			//接收信息加入聊天记录(自己无需添加)
+			m_messagePage->updateChatMessage(friend_id, m_userId, QVariant::fromValue(pixmap));
+			if (item)
+			{
+				//有消息项 追加消息内容
+				itemWidget->setUser(obj);
+				//判断当下是否是该user_id会话界面
+				if (m_messagePage->getCurrentID() == friend_id && ui->messageStackedWidget->currentWidget() == m_messagePage)
+				{
+					m_messagePage->updateReciveMessage(pixmap);
 					itemWidget->clearUnreadMessage();
 				}
 			}

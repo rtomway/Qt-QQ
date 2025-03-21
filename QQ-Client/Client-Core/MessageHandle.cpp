@@ -1,4 +1,5 @@
 ﻿#include "MessageHandle.h"
+#include "MessageHandle.h"
 #include <QPixmap>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -19,7 +20,8 @@ void MessageHandle::initRequestHash()
 {
 	requestHash["loginSuccess"] = &MessageHandle::handle_loginSuccess;
 	requestHash["registerSuccess"] = &MessageHandle::handle_registerSuccess;
-	requestHash["communication"] = &MessageHandle::handle_communication;
+	requestHash["textCommunication"] = &MessageHandle::handle_textCommunication;
+	requestHash["pictureCommunication"] = &MessageHandle::handle_pictureCommunication;
 	requestHash["addFriend"] = &MessageHandle::handle_addFriend;
 	requestHash["newFriend"] = &MessageHandle::handle_newFriend;
 	requestHash["rejectAddFriend"] = &MessageHandle::handle_rejectAddFriend;
@@ -134,20 +136,26 @@ void MessageHandle::handle_registerSuccess(const QJsonObject& paramsObject, cons
 {
 	EventBus::instance()->emit registerSuccess(paramsObject);
 }
-void MessageHandle::handle_communication(const QJsonObject& paramsObject, const QByteArray& data)
+void MessageHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "communication";
-	auto adverse_id = paramsObject["user_id"].toString();
-	auto adverse_message = paramsObject["message"].toString();
-	auto time = paramsObject["time"].toString();
-	EventBus::instance()->emit communication(paramsObject);
+	EventBus::instance()->emit textCommunication(paramsObject);
+}
+void MessageHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	QPixmap pixmap;
+	if (data.isEmpty())
+	{
+		qDebug() << "无数据";
+	}
+	else if (!pixmap.loadFromData(data))
+	{
+		qDebug() << "client-头像加载失败";
+		return;
+	};
+	EventBus::instance()->emit pictureCommunication(paramsObject, pixmap);
 }
 void MessageHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "接受到申请信息";
-	auto adverse_id = paramsObject["user_id"].toString();
-	auto adverse_message = paramsObject["message"].toString();
-	auto time = paramsObject["time"].toString();
 	QPixmap pixmap;
 	if (data.isEmpty())
 	{
@@ -178,7 +186,7 @@ void MessageHandle::handle_rejectAddFriend(const QJsonObject& paramsObject, cons
 	{
 		qDebug() << "无数据";
 		pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-		emit rejectAddFriend(paramsObject, pixmap);
+		EventBus::instance()->emit rejectAddFriend(paramsObject, pixmap);
 	}
 	if (!pixmap.loadFromData(data))
 	{

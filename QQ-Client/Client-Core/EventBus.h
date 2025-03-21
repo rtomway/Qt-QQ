@@ -17,7 +17,8 @@ private:
 signals:   //接受到消息发送信号通知UI界面更新同步
 	void loginSuccess();
 	void registerSuccess(const QJsonObject& obj);
-	void communication(const QJsonObject& paramsObject);
+	void textCommunication(const QJsonObject& paramsObject);
+	void pictureCommunication(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void addFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void newFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void addGroup(const QJsonObject& paramsObject);
