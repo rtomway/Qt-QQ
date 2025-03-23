@@ -9,113 +9,113 @@ QPushButton {
     icon-size: 24px;
 }
 
-    QPushButton#hideBtn:hover, #expandBtn:hover, #exitBtn:hover {
-        background-color: #bab6b6;
-    }
-    /*按钮图片*/
-    QPushButton#callphoneBtn {
-        border-image: url(:/icon/Resource/Icon/phone.png);
-    }
+QPushButton#hideBtn:hover, #expandBtn:hover, #exitBtn:hover {
+    background-color: #bab6b6;
+}
+/*按钮图片*/
+QPushButton#callphoneBtn {
+    border-image: url(:/icon/Resource/Icon/phone.png);
+}
 
-        QPushButton#callphoneBtn:hover {
-            border-image: url(:/icon/Resource/Icon/phone_hover.png);
-        }
+QPushButton#callphoneBtn:hover {
+    border-image: url(:/icon/Resource/Icon/phone_hover.png);
+}
 
-    QPushButton#callviewBtn {
-        border-image: url(:/icon/Resource/Icon/callview.png);
-    }
+QPushButton#callviewBtn {
+    border-image: url(:/icon/Resource/Icon/callview.png);
+}
 
-        QPushButton#callviewBtn:hover {
-            border-image: url(:/icon/Resource/Icon/callview_hover.png);
-        }
+QPushButton#callviewBtn:hover {
+    border-image: url(:/icon/Resource/Icon/callview_hover.png);
+}
 
-    QPushButton#otherBtn_1 {
-        border-image: url(:/icon/Resource/Icon/screenshare.png);
-    }
+QPushButton#otherBtn_1 {
+    border-image: url(:/icon/Resource/Icon/screenshare.png);
+}
 
-        QPushButton#otherBtn_1:hover {
-            border-image: url(:/icon/Resource/Icon/screenshare_hover.png);
-        }
+QPushButton#otherBtn_1:hover {
+    border-image: url(:/icon/Resource/Icon/screenshare_hover.png);
+}
 
-    QPushButton#otherBtn_2 {
-        border-image: url(:/icon/Resource/Icon/grouptool.png);
-    }
+QPushButton#otherBtn_2 {
+    border-image: url(:/icon/Resource/Icon/grouptool.png);
+}
 
-        QPushButton#otherBtn_2:hover {
-            border-image: url(:/icon/Resource/Icon/grouptool_hover.png);
-        }
+QPushButton#otherBtn_2:hover {
+    border-image: url(:/icon/Resource/Icon/grouptool_hover.png);
+}
 
-    QPushButton#inviteBtn {
-        border-image: url(:/icon/Resource/Icon/addgroup.png);
-    }
+QPushButton#inviteBtn {
+    border-image: url(:/icon/Resource/Icon/addgroup.png);
+}
 
-        QPushButton#inviteBtn:hover {
-            border-image: url(:/icon/Resource/Icon/addgroup_hover.png);
-        }
+QPushButton#inviteBtn:hover {
+    border-image: url(:/icon/Resource/Icon/addgroup_hover.png);
+}
 
-    QPushButton#moreBtn {
-        border-image: url(:/icon/Resource/Icon/more_2.png);
-    }
+QPushButton#moreBtn {
+    border-image: url(:/icon/Resource/Icon/more_2.png);
+}
 
-        QPushButton#moreBtn:hover {
-            border-image: url(:/icon/Resource/Icon/more_2_hover.png);
-        }
+QPushButton#moreBtn:hover {
+    border-image: url(:/icon/Resource/Icon/more_2_hover.png);
+}
 
-    QPushButton#expressBtn {
-        border-image: url(:/icon/Resource/Icon/expression.png);
-    }
+QPushButton#expressBtn {
+    border-image: url(:/icon/Resource/Icon/expression.png);
+}
 
-        QPushButton#expressBtn:hover {
-            border-image: url(:/icon/Resource/Icon/expression_hover.png);
-        }
+QPushButton#expressBtn:hover {
+    border-image: url(:/icon/Resource/Icon/expression_hover.png);
+}
 
-    QPushButton#screenshotBtn {
-        border-image: url(:/icon/Resource/Icon/screenshot.png);
-    }
+QPushButton#screenshotBtn {
+    border-image: url(:/icon/Resource/Icon/screenshot.png);
+}
 
-        QPushButton#screenshotBtn:hover {
-            border-image: url(:/icon/Resource/Icon/screenshot_hover.png);
-        }
+QPushButton#screenshotBtn:hover {
+    border-image: url(:/icon/Resource/Icon/screenshot_hover.png);
+}
 
-    QPushButton#fileBtn {
-        border-image: url(:/icon/Resource/Icon/file_2.png);
-    }
+QPushButton#fileBtn {
+    border-image: url(:/icon/Resource/Icon/file_2.png);
+}
 
-        QPushButton#fileBtn:hover {
-            border-image: url(:/icon/Resource/Icon/file_2_hover.png);
-        }
+QPushButton#fileBtn:hover {
+    border-image: url(:/icon/Resource/Icon/file_2_hover.png);
+}
 
-    QPushButton#pictureBtn {
-        border-image: url(:/icon/Resource/Icon/picture.png);
-    }
+QPushButton#pictureBtn {
+    border-image: url(:/icon/Resource/Icon/picture.png);
+}
 
-        QPushButton#pictureBtn:hover {
-            border-image: url(:/icon/Resource/Icon/picture_hover.png);
-        }
+QPushButton#pictureBtn:hover {
+    border-image: url(:/icon/Resource/Icon/picture_hover.png);
+}
 
-    QPushButton#moneyBtn {
-        border-image: url(:/icon/Resource/Icon/money.png);
-    }
+QPushButton#moneyBtn {
+    border-image: url(:/icon/Resource/Icon/money.png);
+}
 
-        QPushButton#moneyBtn:hover {
-            border-image: url(:/icon/Resource/Icon/money_hover.png);
-        }
+QPushButton#moneyBtn:hover {
+    border-image: url(:/icon/Resource/Icon/money_hover.png);
+}
 
-    QPushButton#voiceBtn {
-        border-image: url(:/icon/Resource/Icon/voice.png);
-    }
+QPushButton#voiceBtn {
+    border-image: url(:/icon/Resource/Icon/voice.png);
+}
 
-        QPushButton#voiceBtn:hover {
-            border-image: url(:/icon/Resource/Icon/voice_hover.png);
-        }
+QPushButton#voiceBtn:hover {
+    border-image: url(:/icon/Resource/Icon/voice_hover.png);
+}
 
-    QPushButton#messagerecordBtn {
-        border-image: url(:/icon/Resource/Icon/messagerecord.png);
-    }
+QPushButton#messagerecordBtn {
+    border-image: url(:/icon/Resource/Icon/messagerecord.png);
+}
 
-        QPushButton#messagerecordBtn:hover {
-            border-image: url(:/icon/Resource/Icon/messagerecord_hover.png);
-        }
+QPushButton#messagerecordBtn:hover {
+    border-image: url(:/icon/Resource/Icon/messagerecord_hover.png);
+}
 
 
 QListWidget#messageListWidget {
@@ -138,39 +138,39 @@ QListWidget {
     outline: 0px;
 }
 
-    QListWidget::item {
-        background-color: transparent;
-    }
+QListWidget::item {
+    background-color: transparent;
+}
 
-    QListWidget QPushButton {
-        border: 1px solid rgb(230, 229, 229);
-        border-radius: 5px;
-        background-color: white;
-    }
+QListWidget QPushButton {
+    border: 1px solid rgb(230, 229, 229);
+    border-radius: 5px;
+    background-color: white;
+}
 
-        QListWidget QPushButton:hover {
-            background-color: rgb(230, 229, 229);
-        }
+QListWidget QPushButton:hover {
+    background-color: rgb(230, 229, 229);
+}
 
-    QListWidget QScrollBar:vertical {
-        border: none;
-        background-color: transparent;
-        width: 8px;
-    }
+QListWidget QScrollBar:vertical {
+    border: none;
+    background-color: transparent;
+    width: 8px;
+}
 
-    QListWidget QScrollBar::handle:vertical {
-        border: none;
-        background-color: rgb(200,200,200);
-        border-radius: 3px;
-        min-height: 2px;
-    }
+QListWidget QScrollBar::handle:vertical {
+    border: none;
+    background-color: rgb(200,200,200);
+    border-radius: 3px;
+    min-height: 2px;
+}
 
-    QListWidget QScrollBar::add-line:vertical {
-        border: 0px;
-        height: 0px;
-    }
+QListWidget QScrollBar::add-line:vertical {
+    border: 0px;
+    height: 0px;
+}
 
-    QListWidget QScrollBar::sub-line:vertical {
-        border: 0px;
-        height: 0px;
-    }
+QListWidget QScrollBar::sub-line:vertical {
+    border: 0px;
+    height: 0px;
+}

@@ -7,12 +7,12 @@ MessageSender* MessageSender::instance()
 	static MessageSender ins;
 	return &ins;
 }
-
+//设置客户端
 void MessageSender::setClient(Client* client)
 {
 	m_client = client;
 }
-
+//发送文本消息
 void MessageSender::sendMessage(const QString& type, const QVariantMap& params)
 {
 	if (m_client->isConnected())
@@ -37,7 +37,7 @@ void MessageSender::sendMessage(const QString& type, const QVariantMap& params)
 		qWarning() << "数据发送失败 连接已断开......";
 	}
 }
-
+//发送二进制数据
 void MessageSender::sendBinaryData(const QByteArray& data)
 {
 	m_client->getClientSocket()->sendBinaryMessage(data);

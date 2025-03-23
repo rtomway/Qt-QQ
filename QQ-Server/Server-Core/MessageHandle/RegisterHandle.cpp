@@ -1,9 +1,11 @@
 ﻿#include "RegisterHandle.h"
-#include "DataBaseQuery.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+
+#include "DataBaseQuery.h"
 #include "ConnectionManager.h"
 
+//注册
 void RegisterHandle::handle_register(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	QString user_id = paramsObject["user_id"].toString();

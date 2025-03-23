@@ -71,6 +71,7 @@
         <file>Resource/Icon/down-drop.png</file>
         <file>Resource/Icon/selected.png</file>
         <file>Resource/Icon/nogender.png</file>
+        <file>Resource/Icon/check.png</file>
     </qresource>
     <qresource prefix="/stylesheet">
         <file>Resource/StyleSheet/LineEditwithButton.css</file>
@@ -83,5 +84,6 @@
         <file>Resource/StyleSheet/AddFriendWidget.css</file>
         <file>Resource/StyleSheet/NoticeWidget.css</file>
         <file>Resource/StyleSheet/SearchFriend.css</file>
+        <file>Resource/StyleSheet/GroupInviteWidget.css</file>
     </qresource>
 </RCC>

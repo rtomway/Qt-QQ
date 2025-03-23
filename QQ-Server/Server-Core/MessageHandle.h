@@ -19,9 +19,6 @@ private:
 	QHash<QString, void(*)(const QJsonObject&, const QByteArray&)>requestHash{};
 private:
 	void initRequestHash();
-private:
-	QString getRandomID(int length);
-	QString generateUserID();
 signals:
 	void addClient(const QString& user_id, QWebSocket* client);
 };

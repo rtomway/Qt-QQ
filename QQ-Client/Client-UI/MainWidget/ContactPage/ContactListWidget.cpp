@@ -120,8 +120,6 @@ void ContactListWidget::init()
 			else     //点击用户 弹出用户信息
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
-				/*auto obj = itemWidget->getUser();
-				qDebug() << "clikedobj" << obj["grouping"].toString();*/
 				auto user_id = itemWidget->getUserId();
 				emit clickedFriend(user_id);
 			}
@@ -139,8 +137,8 @@ void ContactListWidget::init()
 			auto user = FriendManager::instance()->findFriend(user_id);
 			qDebug() << user->getFriend();
 			auto groupingItem = getFriendTopItem(user->getGrouping());
-			if(!groupingItem)
-			qDebug() << "groupingItem";
+			if (!groupingItem)
+				qDebug() << "groupingItem";
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{
@@ -180,6 +178,11 @@ void ContactListWidget::init()
 			topItem->removeChild(item);
 			auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(topItem, 0));
 			topItemWidget->setCount(topItem->childCount());
+		});
+	//新增群组
+	connect(EventBus::instance(), &EventBus::createGroup, this, [=](const QString& groupName)
+		{
+			//addGroupItem(, groupName);
 		});
 }
 //获取分组
@@ -273,13 +276,13 @@ TopItemWidget* ContactListWidget::addGroupListItem(QString groupName)
 	//自定义topItem
 	TopItemWidget* topItemWidget = new TopItemWidget(m_groupList);
 	topItemWidget->setName(groupName);
-	//topItemWidget->setItem(groupListItem);
 	m_groupList->setItemWidget(groupListItem, 0, topItemWidget);
 	return topItemWidget;
 }
 //添加子item
 void ContactListWidget::addGroupItem(QTreeWidgetItem* groupListItem, QString groupName)
 {
+
 }
 //获取分组item
 QTreeWidgetItem* ContactListWidget::getGroupTopItem(QString groupName)

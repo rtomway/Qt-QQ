@@ -31,6 +31,7 @@ MainWidget::MainWidget(QWidget* parent)
 	, m_chatMessageListWidget(new QListWidget(this))
 	, m_friendSearchListWidget(new SearchFriend(this))
 	, m_contactListWidget(new ContactListWidget(this))
+	,m_groupInviteWidget(new GroupInviteWidget(this))
 {
 	ui->setupUi(this);
 	init();
@@ -279,6 +280,7 @@ MainWidget::~MainWidget()
 {
 	delete ui;
 }
+//界面初始化
 void MainWidget::init()
 {
 	resize(1080, 680);
@@ -351,7 +353,19 @@ void MainWidget::init()
 			m_addFriendWidget = std::make_unique<AddFriendWidget>();
 			m_addFriendWidget->show();
 		});
+	//群聊创建
+	connect(creatGroup, &QAction::triggered, [=]
+		{
+			m_groupInviteWidget->cloneFriendTree(*m_contactListWidget);
+			//蒙层
+			SMaskWidget::instance()->popUp(m_groupInviteWidget);
+			auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
+			int x = (mainWidgetSize.width() - m_groupInviteWidget->width()) / 2;
+			int y = (mainWidgetSize.height() - m_groupInviteWidget->height()) / 2;
+			SMaskWidget::instance()->setPopGeometry(QRect(x, y, this->width(), this->height()));
+		});
 }
+//子列表
 void MainWidget::initStackedListWidget()
 {
 	//列表窗口
@@ -361,6 +375,7 @@ void MainWidget::initStackedListWidget()
 	ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
 	m_chatMessageListWidget->setObjectName("MessageList");
 }
+//子页面
 void MainWidget::initStackedPage()
 {
 	//会话,通知，信息界面
@@ -399,8 +414,6 @@ void MainWidget::initMoreMenu()
 			m_moreMenu->popup(mapToGlobal(QPoint(ui->otherBtn->geometry().x() + 30, ui->otherBtn->geometry().y() + 400)));
 		});
 }
-
-
 //界面按钮居中
 void MainWidget::additemCenter(const QString& src)
 {

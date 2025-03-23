@@ -1,14 +1,15 @@
 ﻿#include "FriendHandle.h"
-#include "DataBaseQuery.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+
+#include "DataBaseQuery.h"
 #include "ConnectionManager.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
 
 QString FriendHandle::m_sendGrouping=QString();
 QString FriendHandle::m_receiveGrouping= QString();
-
+//好友添加
 void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "添加好友";
@@ -37,7 +38,7 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
 	qDebug() << "发送了申请信息";
 }
-
+//文字交流
 void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
@@ -51,7 +52,7 @@ void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, con
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
 	ConnectionManager::instance()->sendTextMessage(client_id, message);
 }
-
+//图片交流
 void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
@@ -65,7 +66,7 @@ void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, 
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
 	qDebug() << "图片发送";
 }
-
+//好友添加结果
 void FriendHandle::handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "好友添加结果";
@@ -136,7 +137,7 @@ void FriendHandle::handle_resultOfAddFriend(const QJsonObject& paramsObject, con
 		ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
 	}
 }
-
+//获取用户信息
 QVariantMap FriendHandle::getUserMessage(const QString& user_id)
 {
 	//查询用户信息
@@ -160,7 +161,29 @@ QVariantMap FriendHandle::getUserMessage(const QString& user_id)
 		return userObj.toVariantMap();
 	}
 }
-
+//好友分组更新
+void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	auto friend_id = paramsObject["friend_id"].toString();
+	auto grouping = paramsObject["grouping"].toString();
+	//数据库查询
+	//注册信息插入
+	DataBaseQuery query;
+	QString queryStr = "update friendship f set Fgrouping = ? where f.user_id=? and f.friend_id=?";
+	QVariantList bindvalues;
+	bindvalues.append(grouping);
+	bindvalues.append(user_id);
+	bindvalues.append(friend_id);
+	auto queryResult = query.executeNonQuery(queryStr, bindvalues);
+	bindvalues.clear();
+	//错误返回
+	if (!queryResult) {
+		qDebug() << "Error query:";
+		return;
+	}
+}
+//好友删除
 void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "删除好友";

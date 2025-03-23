@@ -5,9 +5,9 @@
     height: 30px;
 }
 
-    QPushButton:hover {
-        background-color: rgb(240,240,240);
-    }
+QPushButton:hover {
+    background-color: rgb(240,240,240);
+}
 
 QListWidget {
     background-color: white;
@@ -15,45 +15,45 @@ QListWidget {
     outline: 0px;
 }
 
-    QListWidget::item {
-        background-color: transparent;
-    }
+QListWidget::item {
+    background-color: transparent;
+}
 
-        QListWidget::item:hover {
-            background-color: rgb(240,240,240);
-        }
+QListWidget::item:hover {
+    background-color: rgb(240,240,240);
+}
 
-   
 
-    QListWidget QPushButton {
-        border: 1px solid rgb(230, 229, 229);
-        border-radius: 5px;
-        background-color: white;
-    }
 
-        QListWidget QPushButton:hover {
-            background-color: rgb(230, 229, 229);
-        }
+QListWidget QPushButton {
+    border: 1px solid rgb(230, 229, 229);
+    border-radius: 5px;
+    background-color: white;
+}
 
-    QListWidget QScrollBar:vertical {
-        border: none;
-        background-color: transparent;
-        width: 8px;
-    }
+QListWidget QPushButton:hover {
+    background-color: rgb(230, 229, 229);
+}
 
-    QListWidget QScrollBar::handle:vertical {
-        border: none;
-        background-color: rgb(229, 227, 227);
-        border-radius: 3px;
-        min-height: 2px;
-    }
+QListWidget QScrollBar:vertical {
+    border: none;
+    background-color: transparent;
+    width: 8px;
+}
 
-    QListWidget QScrollBar::add-line:vertical {
-        border: 0px;
-        height: 0px;
-    }
+QListWidget QScrollBar::handle:vertical {
+    border: none;
+    background-color: rgb(229, 227, 227);
+    border-radius: 3px;
+    min-height: 2px;
+}
 
-    QListWidget QScrollBar::sub-line:vertical {
-        border: 0px;
-        height: 0px;
-    }
+QListWidget QScrollBar::add-line:vertical {
+    border: 0px;
+    height: 0px;
+}
+
+QListWidget QScrollBar::sub-line:vertical {
+    border: 0px;
+    height: 0px;
+}

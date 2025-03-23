@@ -1,12 +1,15 @@
 ﻿#include "DataBaseQuery.h"
+#include <QJsonArray>
+
 #include "SSqlConnectionPool.h"
-#include "QJsonArray"
+
 
 DataBaseQuery::DataBaseQuery(QObject* parent)
     :QObject(parent)
 {
-}
 
+}
+//查询信息
 QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantList& bindValues)
 {
 	SConnectionWrap wrap;
@@ -48,7 +51,7 @@ QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantL
     }
     return allQueryObj;
 }
-
+//更新插入信息
 bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList& bindValues)
 {
     SConnectionWrap wrap;

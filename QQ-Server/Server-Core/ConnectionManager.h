@@ -15,6 +15,8 @@ public:
 	// 禁止拷贝构造函数和赋值操作符
 	ConnectionManager(const ConnectionManager&) = delete;
 	ConnectionManager& operator=(const ConnectionManager&) = delete;
+private:
+	ConnectionManager(QObject* parent = nullptr);
 public:
 	void onNewConnection(QWebSocket* client);
 	void onTextMessageReceived(const QString& data);
@@ -23,10 +25,7 @@ public:
 	void sendTextMessage(const QString& user_id, const QString& response);
 	void sendBinaryMessage(const QString& user_id, const QByteArray& response);
 private:
-	ConnectionManager(QObject* parent = nullptr);
-private:
 	QString findUserName(QWebSocket* client);
-	
 private:
 	//客户端
 	QHash<QString, QWebSocket*>m_clients{};

@@ -29,6 +29,7 @@ void ConnectionManager::onBinaryMessageReceived(const QByteArray& message)
 	auto socket = dynamic_cast<QWebSocket*>(sender());
 	m_messageHandle.handle_message(message,socket);
 }
+//客户端断连
 void ConnectionManager::onDisConnection()
 {
 	auto client = dynamic_cast<QWebSocket*>(sender());
@@ -42,6 +43,7 @@ void ConnectionManager::onDisConnection()
 	m_clients.remove(user_id);
 	qDebug() << "客户端" << user_id << "断开";
 }
+//客户端id
 QString ConnectionManager::findUserName(QWebSocket* client)
 {
 	for (auto it = m_clients.begin(); it != m_clients.end(); ++it)

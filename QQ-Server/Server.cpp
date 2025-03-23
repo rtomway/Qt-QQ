@@ -1,4 +1,5 @@
 ﻿#include "Server.h"
+
 #include "Server-Core/ConnectionManager.h"
 
 Server::Server(QObject* parent)

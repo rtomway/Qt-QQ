@@ -1,5 +1,7 @@
 ﻿# UI 模块的 CMake 配置
 
+#set(CMAKE_AUTOUIC ON)
+
 # 查找所有的源文件和头文件
 file(GLOB UI_SOURCES
     MainWindow.cpp
@@ -9,6 +11,7 @@ file(GLOB UI_SOURCES
     MainWidget/ContactPage/*.cpp
     MainWidget/MessagePage/*.cpp
     MainWidget/NoticePage/*.cpp
+    MainWidget/GroupInviteWidget/*.cpp
 )
 file(GLOB UI_HEADERS
     MainWindow.h
@@ -17,7 +20,8 @@ file(GLOB UI_HEADERS
     MainWidget/AddFriendWidget/*.h
     MainWidget/ContactPage/*.h
     MainWidget/MessagePage/*.h
-    MainWidget/NoticePage/*.cpp
+    MainWidget/NoticePage/*.h
+    MainWidget/GroupInviteWidget/*.h
 )
 # 为 UI 模块添加一个目标
 add_library(Client-UI STATIC ${UI_SOURCES} ${UI_HEADERS})
@@ -32,6 +36,7 @@ target_include_directories(Client-UI PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactPage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/MessagePage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/NoticePage
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/GroupInviteWidget
 )
 
 # 链接 库（如果需要）

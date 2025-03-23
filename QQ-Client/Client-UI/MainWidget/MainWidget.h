@@ -16,6 +16,7 @@
 #include "ContactListWidget.h"
 #include "AddFriendWidget.h"
 #include "SearchFriend.h"
+#include "GroupInviteWidget.h"
 
 namespace Ui { class MainWidget; }
 
@@ -54,6 +55,7 @@ private:
 	//独立窗口
 	std::unique_ptr<ContactPage> m_contactWidget{};
 	std::unique_ptr<AddFriendWidget> m_addFriendWidget{};
+	GroupInviteWidget* m_groupInviteWidget{};
 signals:
 	void quitsuccess();
 	void hideWidget();

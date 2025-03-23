@@ -6,6 +6,7 @@
 #include <QRandomGenerator>
 
 #include "ImageUtil.h"
+#include "CreateId.h"
 #include "PacketCreate.h"
 #include "DataBaseQuery.h"
 #include "MessageHandle/LoginHandle.h"
@@ -22,59 +23,23 @@ MessageHandle::MessageHandle(QObject* parent)
 //映射表
 void MessageHandle::initRequestHash()
 {
+	//登录注册
 	requestHash["login"] = &LoginHandle::handle_login;
 	requestHash["register"] = &RegisterHandle::handle_register;
+	//好友处理
 	requestHash["textCommunication"] = &FriendHandle::handle_textCommunication;
 	requestHash["pictureCommunication"] = &FriendHandle::handle_pictureCommunication;
 	requestHash["addFriend"] = &FriendHandle::handle_addFriend;
 	requestHash["resultOfAddFriend"] = &FriendHandle::handle_resultOfAddFriend;
+	requestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
 	requestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;
+	//用户处理
 	requestHash["searchUser"] = &UserHandle::handle_searchUser;
 	requestHash["updateUserMessage"] = &UserHandle::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &UserHandle::handle_updateUserAvatar;
-	requestHash["updateUserGrouping"] = &UserHandle::handle_updateUserGrouping;
+	//群组处理
 	requestHash["searchGroup"] = &GroupHandle::handle_searchGroup;
-	requestHash["addGroup"] = &GroupHandle::handle_addGroup;
-}
-//用户id生成
-QString MessageHandle::getRandomID(int length)
-{
-	QString user_id;
-	QRandomGenerator randomID = QRandomGenerator::securelySeeded(); // 手动初始化种子;
-	while (user_id.size() < length)
-	{
-		int ram = randomID.bounded(0, 9);
-		user_id.append(QString::number(ram));
-	}
-	qDebug() << "RandomID:" << user_id;
-	return user_id;
-}
-QString MessageHandle::generateUserID()
-{
-	QString user_id;
-	//注册唯一id
-	while (true) {
-		//服务器随机生成10位数用户id
-		user_id = getRandomID(10);
-		qDebug() << "RandomID后的:" << user_id;
-		//先查询生成id是否已存在
-		DataBaseQuery query;
-		QString queryStr = "select user_id from user where user_id=?";
-		QVariantList bindvalues;
-		bindvalues.append(user_id);
-		auto allQueryObj = query.executeQuery(queryStr, bindvalues);
-		//错误返回
-		if (allQueryObj.contains("error")) {
-			qDebug() << "Error executing query:" << allQueryObj["error"].toString();
-			return QString();
-		}
-		//未找到，id唯一跳出
-		QJsonArray userArray = allQueryObj["data"].toArray();
-		if (userArray.isEmpty())
-		{
-			return user_id;
-		}
-	}
+	requestHash["createGroup"] = &GroupHandle::handle_createGroup;
 }
 //消息处理接口
 void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
@@ -89,7 +54,7 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 		if (paramsObject["user_id"].toString().isEmpty())
 		{
 			//注册时没有user_id服务器产生
-			client_id = generateUserID();
+			client_id = CreateId::generateUserID(CreateId::Id::User);
 			paramsObject["user_id"] = client_id;
 		}
 		else

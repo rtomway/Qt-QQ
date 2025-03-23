@@ -1,4 +1,5 @@
 ﻿#include "SSqlConnectionPool.h"
+
 #include<QThread>
 
 SSqlConnectionPool::SSqlConnectionPool()

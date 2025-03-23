@@ -1,5 +1,4 @@
 ﻿#include "Client.h"
-#include "Client.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <Qpixmap>

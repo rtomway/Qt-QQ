@@ -1,0 +1,154 @@
+﻿QWidget {
+    border-radius: 10px;
+    background-color: white;
+}
+/*按钮*/
+QPushButton#cancelBtn {
+    border: 1px solid gray;
+    border-radius: 4px;
+    height: 35px;
+    font-size: 14px;
+}
+
+QPushButton#cancelBtn:hover {
+    background-color: rgb(240,240,240);
+}
+
+QPushButton#okBtn {
+    border: none;
+    background-color: #0096FF;
+    border-radius: 4px;
+    color: white;
+    height: 35px;
+    font-size: 14px;
+}
+
+QPushButton#okBtn:hover {
+    background-color: #048eee;
+}
+/*checkBox*/
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 10px; /* 让边框变成圆形 */
+    border: 1px solid #a6d6f8; /* 设置边框 */
+    background: white;
+}
+
+QCheckBox::indicator:checked {
+    background: blue; /* 勾选时的背景色 */
+    border: 2px solid blue;
+    image: url(:/icon/Resource/Icon/check.png);
+}
+
+QCheckBox::indicator:unchecked {
+    background: white;
+    border: 2px solid #a6d6f8;
+}
+
+/*edit*/
+QLineEdit {
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(240,240,240);
+    height: 30px;
+}
+
+QLineEdit#groupNameEdit {
+    border: 1px solid #b7b4b4;
+    background-color: white;
+    height: 20px;
+}
+/*tree*/
+QTreeWidget {
+    outline: none;
+    border: none;
+    font: 15px;
+    background-color: transparent;
+}
+
+QTreeWidget::item {
+    height: 30px;
+    font: 15px;
+    background-color: transparent;
+}
+/*让itemwidget透明跟随item背景颜色变化*/
+QTreeWidget::item QWidget {
+    background-color: transparent;
+}
+
+QTreeWidget::item:hover {
+    background-color: rgb(240,240,240);
+}
+
+QTreeWidget QScrollBar:vertical {
+    border: none;
+    background-color: transparent;
+    width: 8px;
+}
+
+QTreeWidget QScrollBar::handle:vertical {
+    border: none;
+    background-color: transparent;
+    border-radius: 3px;
+    min-height: 2px;
+}
+
+QTreeWidget QScrollBar::add-line:vertical {
+    border: 0px;
+    height: 0px;
+}
+
+QTreeWidget QScrollBar::sub-line:vertical {
+    border: 0px;
+    height: 0px;
+}
+/*List*/
+QListWidget::item {
+    background-color: transparent;
+    font-size: 18px;
+}
+
+QListWidget {
+    border: none;
+    outline: 0px;
+}
+
+QListWidget::item {
+    border: none;
+    border-radius: 0px;
+}
+
+QListWidget::item QWidget {
+    background-color: transparent;
+}
+
+QListWidget#searchListWidget::item:hover {
+    background-color: rgb(240,240,240);
+}
+/*QListWidget::item:selected {
+    background-color: #0096FF;
+}*/
+/*QlistWidget里的滚动条*/
+QListWidget QScrollBar:vertical {
+    border: none;
+    background-color: transparent;
+    width: 8px;
+}
+
+QListWidget QScrollBar::handle:vertical {
+    border: none;
+    background-color: #edebeb;
+    border-radius: 3px;
+    min-height: 2px;
+}
+
+QListWidget QScrollBar::add-line:vertical {
+    border: 0px;
+    height: 0px;
+}
+
+QListWidget QScrollBar::sub-line:vertical {
+    border: 0px;
+    height: 0px;
+}

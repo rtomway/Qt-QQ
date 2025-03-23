@@ -1,11 +1,13 @@
 ﻿#include "UserHandle.h"
-#include "DataBaseQuery.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+
+#include "DataBaseQuery.h"
 #include "ConnectionManager.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
 
+//用户搜索
 void UserHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << paramsObject;
@@ -48,7 +50,7 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteA
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
 }
-
+//用户信息更新
 void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	//客户端
@@ -97,7 +99,7 @@ void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const
 		ConnectionManager::instance()->sendTextMessage(friend_id, message);
 	}
 }
-
+//用户头像更新
 void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto user_id = paramsObject["user_id"].toString();
@@ -123,29 +125,7 @@ void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const 
 		ConnectionManager::instance()->sendBinaryMessage(friend_id, allData);
 	}
 }
-
-void UserHandle::handle_updateUserGrouping(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
-	auto friend_id = paramsObject["friend_id"].toString();
-	auto grouping = paramsObject["grouping"].toString();
-	//数据库查询
-	//注册信息插入
-	DataBaseQuery query;
-	QString queryStr = "update friendship f set Fgrouping = ? where f.user_id=? and f.friend_id=?";
-	QVariantList bindvalues;
-	bindvalues.append(grouping);
-	bindvalues.append(user_id);
-	bindvalues.append(friend_id);
-	auto queryResult = query.executeNonQuery(queryStr, bindvalues);
-	bindvalues.clear();
-	//错误返回
-	if (!queryResult) {
-		qDebug() << "Error query:";
-		return;
-	}
-}
-
+//获取好友ID
 QStringList UserHandle::getFriendId(const QString& user_id)
 {
 	QStringList friendIdList;

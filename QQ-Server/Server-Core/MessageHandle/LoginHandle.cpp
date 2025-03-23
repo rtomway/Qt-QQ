@@ -1,9 +1,11 @@
 ﻿#include "LoginHandle.h"
-#include "DataBaseQuery.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+
+#include "DataBaseQuery.h"
 #include "ConnectionManager.h"
 
+//登录请求处理
 void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto user_id = paramsObject["user_id"].toString();
@@ -44,7 +46,7 @@ void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
 	ConnectionManager::instance()->sendTextMessage(client_id, message);
 }
-
+//好友信息
 QJsonArray LoginHandle::getFriendsMessage(const QString& user_id)
 {
 	//数据库查询

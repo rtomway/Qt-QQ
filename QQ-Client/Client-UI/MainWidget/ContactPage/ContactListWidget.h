@@ -10,10 +10,12 @@
 #include "TopItemWidget.h"
 #include "CreateFriendgrouping.h"
 
+class GroupInviteWidget;
 
 namespace Ui { class ContactListWidget; }
 class ContactListWidget :public QWidget
 {
+	friend class GroupInviteWidget; // 允许 AnotherClass 访问私有成员
 	Q_OBJECT
 public:
 	ContactListWidget(QWidget* parent = nullptr);

@@ -118,7 +118,7 @@ void ContactPage::init()
 				groupingMap["user_id"] = user_id;
 				groupingMap["friend_id"] = m_friendId;
 				groupingMap["grouping"] = grouping;
-				MessageSender::instance()->sendMessage("updateUserGrouping", groupingMap);
+				MessageSender::instance()->sendMessage("updateFriendGrouping", groupingMap);
 			}
 		});
 }

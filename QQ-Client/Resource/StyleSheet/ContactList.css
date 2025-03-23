@@ -1,6 +1,6 @@
-QWidget#btnWidget{
+﻿QWidget#btnWidget {
     background-color: rgb(240,240,240);
-    border-radius:5px;
+    border-radius: 5px;
 }
 /*按钮*/
 QPushButton {
@@ -8,38 +8,47 @@ QPushButton {
     border-radius: 4px;
     height: 30px;
 }
+
 QPushButton#friendmanage {
     border: 1px solid rgb(240,240,240);
 }
-QPushButton#friendmanage:hover{
-   background-color:rgb(240,240,240);
-}
-QPushButton#friendBtn{
+
+QPushButton#friendmanage:hover {
     background-color: rgb(240,240,240);
 }
-QPushButton#groupBtn{
+
+QPushButton#friendBtn {
     background-color: rgb(240,240,240);
 }
-QPushButton#friendBtn:checked{
+
+QPushButton#groupBtn {
+    background-color: rgb(240,240,240);
+}
+
+QPushButton#friendBtn:checked {
     background-color: white;
 }
-QPushButton#groupBtn:checked{
+
+QPushButton#groupBtn:checked {
     background-color: white;
 }
 
 /*QLabel*/
-QLabel{
-    font:13px;
+QLabel {
+    font: 13px;
 }
+
 QLabel:hover {
     background-color: rgb(240,240,240);
 }
+
 QLabel#friendNoticeCountLab {
     border: none;
     border-radius: 9px;
     color: white;
     background-color: red;
 }
+
 QLabel#groupNoticeCountLab {
     border: none;
     border-radius: 9px;
@@ -59,25 +68,24 @@ QTreeWidget::item {
     font: 15px;
     background-color: transparent;
 }
-QTreeWidget::item:hover{
-   background-color:rgb(240,240,240);
+
+QTreeWidget::item:hover {
+    background-color: rgb(240,240,240);
 }
-QTreeWidget::item {
-    height: 30px;
-    font: 15px;
-}
+
 QTreeWidget QScrollBar:vertical {
     border: none;
     background-color: transparent;
     width: 8px;
-   
 }
+
 QTreeWidget QScrollBar::handle:vertical {
     border: none;
     background-color: transparent;
     border-radius: 3px;
     min-height: 2px;
 }
+
 QTreeWidget QScrollBar::add-line:vertical {
     border: 0px;
     height: 0px;
@@ -87,8 +95,9 @@ QTreeWidget QScrollBar::sub-line:vertical {
     border: 0px;
     height: 0px;
 }
-QWidget#fInformWidget:hover{
-    background-color:rgb(240,240,240);
+
+QWidget#fInformWidget:hover {
+    background-color: rgb(240,240,240);
 }
 
 QWidget#gInformWidget:hover {
