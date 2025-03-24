@@ -11,7 +11,8 @@ public:
 	static void handle_deleteFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	static void handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	static void handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
-	static void handle_resultOfAddFriend(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	static void handle_friendAddSuccess(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	static void handle_friendAddFail(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	static QVariantMap getUserMessage(const QString& user_id);
 	static void handle_updateFriendGrouping(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 private:

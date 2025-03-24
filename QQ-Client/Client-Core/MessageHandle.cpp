@@ -1,5 +1,4 @@
 ﻿#include "MessageHandle.h"
-#include "MessageHandle.h"
 #include <QPixmap>
 #include <QJsonDocument>
 #include <QJsonArray>

@@ -1,6 +1,7 @@
 ﻿# UI 模块的 CMake 配置
 
-#set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
 
 # 查找所有的源文件和头文件
 file(GLOB UI_SOURCES

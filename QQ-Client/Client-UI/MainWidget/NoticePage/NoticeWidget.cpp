@@ -2,7 +2,6 @@
 #include <QBoxLayout>
 #include <QFile>
 
-#include "FriendNoticeItemWidget.h"
 #include "ContactListWidget.h"
 #include "EventBus.h"
 
@@ -21,7 +20,6 @@ NoticeWidget::NoticeWidget(QWidget* parent)
 	{
 		this->setStyleSheet(file.readAll());
 	}
-
 }
 //设置当前通知界面
 void NoticeWidget::setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget)
@@ -48,12 +46,12 @@ void NoticeWidget::init()
 	//好友申请通知
 	connect(EventBus::instance(), &EventBus::addFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
-			addFreindNoticeItem(obj, pixmap);
+			addFreindNoticeItem(obj, pixmap,NoticeItemWidget::NoticeType::RequestNotice);
 		});
 	//被拒绝通知
 	connect(EventBus::instance(), &EventBus::rejectAddFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
-			addFreindNoticeItem(obj, pixmap);
+			addFreindNoticeItem(obj, pixmap,NoticeItemWidget::NoticeType::ReplyNotice);
 		});
 }
 //init堆栈窗口
@@ -63,16 +61,16 @@ void NoticeWidget::initStackedWidget()
 	m_stackedWidget->addWidget(m_groupNoticeList);
 }
 //添加通知项
-void NoticeWidget::addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap)
+void NoticeWidget::addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap, NoticeItemWidget::NoticeType type)
 {
-	auto item = new QListWidgetItem(m_friendNoticeList);
-	item->setSizeHint(QSize(m_friendNoticeList->width(), 100));
+	auto listWidget = dynamic_cast<QListWidget*>(m_stackedWidget->currentWidget());
+	auto item = new QListWidgetItem(listWidget);
+	item->setSizeHint(QSize(listWidget->width(), 100));
 	//将用户相关信息添加到item关联窗口
-	auto itemWidget = new FriendNoticeItemWidget(m_friendNoticeList);
-	itemWidget->setUser(obj);
-	itemWidget->setPixmap(pixmap);
+	auto itemWidget = new NoticeItemWidget(listWidget);
+	itemWidget->setUser(obj, pixmap,type);
 	//关联item和widget
-	m_friendNoticeList->setItemWidget(item, itemWidget);
+	listWidget->setItemWidget(item, itemWidget);
 }
 
 

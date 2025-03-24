@@ -71,7 +71,7 @@ void AddWidget::init()
 				auto paramsObject = oneself->getFriend().toVariantMap();
 				paramsObject["to"] = m_friendId;
 				paramsObject["message"] = ui->messageEdit->text();
-				paramsObject["addFriend"] = "请求加为好友";
+				paramsObject["requestMessage"] = "请求加为好友";
 				paramsObject["grouping"] = m_grouping->getLineEditText();
 				MessageSender::instance()->sendMessage("addFriend", paramsObject);
 			}
@@ -82,8 +82,8 @@ void AddWidget::init()
 				friendMap["to"] = m_friendId;
 				friendMap["user_id"] = FriendManager::instance()->getOneselfID();
 				friendMap["grouping"] = m_grouping->getLineEditText();
-				friendMap["result"] = true;
-				MessageSender::instance()->sendMessage("resultOfAddFriend", friendMap);
+				friendMap["replyMessage"] = "同意了你的好友申请";
+				MessageSender::instance()->sendMessage("friendAddSuccess", friendMap);
 			}
 			this->close();
 		});

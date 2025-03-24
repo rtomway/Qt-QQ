@@ -30,7 +30,10 @@ void MessageHandle::initRequestHash()
 	requestHash["textCommunication"] = &FriendHandle::handle_textCommunication;
 	requestHash["pictureCommunication"] = &FriendHandle::handle_pictureCommunication;
 	requestHash["addFriend"] = &FriendHandle::handle_addFriend;
-	requestHash["resultOfAddFriend"] = &FriendHandle::handle_resultOfAddFriend;
+
+	requestHash["friendAddSucess"] = &FriendHandle::handle_friendAddSuccess;
+	requestHash["friendAddFail"] = &FriendHandle::handle_friendAddFail;
+
 	requestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
 	requestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;
 	//用户处理

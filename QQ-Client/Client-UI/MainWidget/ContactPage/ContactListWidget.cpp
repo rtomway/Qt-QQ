@@ -9,7 +9,7 @@
 #include <QSharedPointer>
 
 #include "ItemWidget.h"
-#include "FriendNoticeItemWidget.h"
+#include "NoticeItemWidget.h"
 #include "FriendManager.h"
 #include "Friend.h"
 #include "EventBus.h"

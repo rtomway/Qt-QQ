@@ -71,3 +71,36 @@ bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList&
         return false;
     }
 }
+//事务
+bool DataBaseQuery::executeTransaction(const std::function<bool(QSqlQuery&)>& transactionCallback)
+{
+    SConnectionWrap wrap;
+    QSqlQuery query(wrap.openConnection());
+
+    // 启动事务
+    if (!query.exec("START TRANSACTION")) {
+        qDebug() << "Failed to start transaction:" << query.lastError();
+        return false;
+    }
+
+    bool result = false;
+
+    // 执行传入的回调函数，传递当前的查询对象
+    result = transactionCallback(query);
+
+    // 判断事务执行结果
+    if (result) {
+        // 提交事务
+        if (!query.exec("COMMIT")) {
+            qDebug() << "Failed to commit transaction:" << query.lastError();
+            query.exec("ROLLBACK");
+            result = false;
+        }
+    }
+    else {
+        // 回滚事务
+        query.exec("ROLLBACK");
+    }
+
+    return result;
+}

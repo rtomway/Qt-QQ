@@ -7,6 +7,8 @@
 #include <QListWidget>
 #include <QLabel>
 
+#include "NoticeItemWidget.h"
+
 class NoticeWidget :public QWidget
 {
 	Q_OBJECT
@@ -20,7 +22,7 @@ public:
 private:
 	void init();
 	void initStackedWidget();
-	void addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap);
+	void addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap, NoticeItemWidget::NoticeType type);
 public:
 	void setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget);
 private:
