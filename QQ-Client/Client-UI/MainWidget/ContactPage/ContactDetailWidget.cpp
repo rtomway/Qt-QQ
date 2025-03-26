@@ -13,6 +13,7 @@
 #include "FriendManager.h"
 #include "MessageSender.h"
 #include "PacketCreate.h"
+#include "AvatarManager.h"
 
 
 
@@ -24,7 +25,7 @@ ContactDetailWidget::ContactDetailWidget(QWidget* parent)
 	, m_nickNameEdit(new LineEditwithButton(this))
 	, m_signaltureEdit(new LineEditwithButton(this))
 	, m_genderEdit(new LineEditwithButton(this))
-	,m_ageEdit(new LineEditwithButton(this))
+	, m_ageEdit(new LineEditwithButton(this))
 	, m_birthdayEdit(new LineEditwithButton(this))
 	, m_countryEdit(new LineEditwithButton(this))
 	, m_provinceEdit(new LineEditwithButton(this))
@@ -56,7 +57,7 @@ void ContactDetailWidget::init()
 
 	m_genderEdit->addMenuItem("男");
 	m_genderEdit->addMenuItem("女");
-	
+
 
 	m_genderEdit->setEditEnable(false);
 	m_birthdayEdit->setEditEnable(false);
@@ -221,60 +222,66 @@ void ContactDetailWidget::init()
 	connect(okBtn, &QPushButton::clicked, [=]
 		{
 			//信息更新
-			auto user_id = FriendManager::instance()->getOneselfID();
 			qDebug() << "m_avatarIsChange" << m_avatarIsChange;
-			if (m_avatarIsChange)//头像更改更新到服务端
+			//头像更新
+			if (m_avatarIsChange)
 			{
-				ImageUtils::saveAvatarToLocal(m_avatarNewPath, user_id);
-				qDebug() << "头像更改更新到服务端";
-				//FriendManager::instance()->updateUserAvatarToServer(m_headPix);
-				QByteArray byteArray;
-				QBuffer buffer(&byteArray);
-				buffer.open(QIODevice::WriteOnly);
-
-				// 将 QPixmap 转换为 PNG 并存入 QByteArray
-				if (!m_headPix.save(&buffer, "PNG")) {
-					qDebug() << "Failed to convert avatar to PNG format.";
-					return;
-				}
-				QVariantMap params;
-				params["user_id"] = user_id;
-				params["size"] = byteArray.size();
-
-				//二进制数据的发送
-				auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
-				QByteArray userData;
-				PacketCreate::addPacket(userData, packet);
-				auto allData = PacketCreate::allBinaryPacket(userData);
-				MessageSender::instance()->sendBinaryData(allData);
+				updateAvatar();
 			}
-			m_json["avatar_path"] = user_id + ".png";
+			m_json["avatar_path"] = m_userId + ".png";
 			m_json["username"] = m_nickNameEdit->getLineEditText();
 			m_json["signature"] = m_signaltureEdit->getLineEditText();
 			if (!m_genderEdit->getLineEditText().isEmpty())
 				m_json["gender"] = m_genderEdit->getLineEditText() == "男" ? 1 : 2;
 			m_json["birthday"] = m_birthdayEdit->getLineEditText();
-			m_json["age"]= m_ageEdit->getLineEditText().toInt();
-			auto user = FriendManager::instance()->findFriend(user_id);
+			m_json["age"] = m_ageEdit->getLineEditText().toInt();
+			auto user = FriendManager::instance()->findFriend(m_userId);
 			user->setFriend(m_json);
 			//向客户端其他控件更新信号
-			FriendManager::instance()->emit UpdateFriendMessage(user_id);
+			FriendManager::instance()->emit UpdateFriendMessage(m_userId);
 			//向服务端发送更新信息
 			QVariantMap friendObj = user->getFriend().toVariantMap();
 			//客户端独立信息删除
 			friendObj.remove("grouping");
 			friendObj.remove("avatar_path");
 			MessageSender::instance()->sendMessage("updateUserMessage", friendObj);
-			//FriendManager::instance()->updateUserMessageToServer(user->getFriend());
 			this->hide();
 		});
+}
+void ContactDetailWidget::updateAvatar()
+{
+	//更新头像文件和缓存
+	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId);
+	AvatarManager::instance()->updateAvatar(m_userId);
+	qDebug() << "ContactDetailWidget" << AvatarManager::instance()->getAvatar(m_userId);
+	//通知内部客户端
+	AvatarManager::instance()->emit UpdateUserAvatar(m_userId);
+	//通知服务端
+	QByteArray byteArray;
+	QBuffer buffer(&byteArray);
+	buffer.open(QIODevice::WriteOnly);
+	// 将 QPixmap 转换为 PNG 并存入 QByteArray
+	if (!m_headPix.save(&buffer, "PNG")) {
+		qDebug() << "Failed to convert avatar to PNG format.";
+		return;
+	}
+	QVariantMap params;
+	params["user_id"] = m_userId;
+	params["size"] = byteArray.size();
+	//二进制数据的发送
+	auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
+	QByteArray userData;
+	PacketCreate::addPacket(userData, packet);
+	auto allData = PacketCreate::allBinaryPacket(userData);
+	MessageSender::instance()->sendBinaryData(allData);
 }
 
 void ContactDetailWidget::setUser(const QJsonObject& obj)
 {
 	m_json = obj;
-	QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(obj["user_id"].toString());
-	auto pixmap = ImageUtils::roundedPixmap(myfriend->getAvatar(), QSize(80, 80));
+	m_userId = obj["user_id"].toString();
+	QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(m_userId);
+	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_userId), QSize(80, 80));
 	m_headLab->setPixmap(pixmap);
 	m_nickNameEdit->setText(m_json["username"].toString());
 	m_genderEdit->setText(m_json["gender"].toInt() == 1 ? "男" : "女");

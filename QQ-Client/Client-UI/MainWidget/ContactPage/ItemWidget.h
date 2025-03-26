@@ -17,6 +17,7 @@ private:
 	void init();
 public:
 	void setUser(const QString& user_id);
+	void updatePixmap();
 	void setGrouping(const QString& grouping);
 	const QJsonObject& getUser();
 	const QString& getGrouping();

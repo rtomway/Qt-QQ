@@ -18,6 +18,8 @@ public:
 	ContactDetailWidget(QWidget* parent = nullptr);
 	void init();
 private:
+	void updateAvatar();
+private:
 	QLabel* m_editDetail{};
 	QPushButton* m_exitBtn{};
 	QLabel* m_headLab{};
@@ -35,6 +37,7 @@ private:
 	QString m_avatarNewPath{};
 	bool m_avatarIsChange{false};
 	QJsonObject m_json{};
+	QString m_userId{};
 	std::unique_ptr<QWidgetAction>m_calendarAction;
 	std::unique_ptr<QCalendarWidget>m_calendarWidget;
 public:

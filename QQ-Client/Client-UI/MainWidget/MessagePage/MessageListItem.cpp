@@ -8,6 +8,7 @@
 #include "Friend.h"
 #include "FriendManager.h"
 #include "ImageUtil.h"
+#include "AvatarManager.h"
 
 MessageListItem::MessageListItem(QWidget* parent)
 	:QWidget(parent)
@@ -52,9 +53,6 @@ void MessageListItem::setUser(const QJsonObject& obj)
 			m_unReadMessage.append(message);
 		}
 	}
-	//头像
-	auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(50, 50));
-	ui->headLab->setPixmap(pixmap);
 	//信息更新到界面
 	updateItemWidget();
 }
@@ -84,6 +82,9 @@ QString MessageListItem::getId()
 void MessageListItem::updateItemWidget()
 {
 	ui->usernameLab->setText(m_username);
+	//头像
+	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_user_id), QSize(50, 50));
+	ui->headLab->setPixmap(pixmap);
 	if (m_unReadMessage.count() != 0)
 	{
 		ui->countLab->setVisible(true);

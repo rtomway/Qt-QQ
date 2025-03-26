@@ -13,8 +13,8 @@ public:
 	void setGrouping(const QString& grouping);
 	const QString getGrouping()const;
 
-	void loadAvatar();
-	const QPixmap getAvatar()const;
+	//void loadAvatar();
+	//const QPixmap getAvatar()const;
 private:
 	QString m_userID{};
 	QString m_userName{};
@@ -22,8 +22,8 @@ private:
 	int m_age{};
 	QString m_phoneNumber{};
 	QString m_email{};
-	QPixmap m_avatar{};
-	QString m_avatarPath{};
+	//QPixmap m_avatar{};
+	//QString m_avatarPath{};
 	QDate m_birthday{};
 	QString m_signature{};
 	QString m_grouping{};

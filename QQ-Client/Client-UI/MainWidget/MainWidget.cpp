@@ -18,6 +18,7 @@
 #include "FriendManager.h"
 #include "ChatManager.h"
 #include "EventBus.h"
+#include "AvatarManager.h"
 
 MainWidget::MainWidget(QWidget* parent)
 	:QWidget(parent)
@@ -31,7 +32,7 @@ MainWidget::MainWidget(QWidget* parent)
 	, m_chatMessageListWidget(new QListWidget(this))
 	, m_friendSearchListWidget(new SearchFriend(this))
 	, m_contactListWidget(new ContactListWidget(this))
-	,m_groupInviteWidget(new GroupInviteWidget(this))
+	, m_groupInviteWidget(new GroupInviteWidget(this))
 {
 	ui->setupUi(this);
 	init();
@@ -104,7 +105,7 @@ MainWidget::MainWidget(QWidget* parent)
 					continue;  // 跳过当前无效项
 				}
 				auto obj = it.value()->getFriend();
-				auto pixmap = it.value()->getAvatar();
+				auto pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId());
 				if (obj.isEmpty() || pixmap.isNull()) {
 					qWarning() << "Invalid object or pixmap!";
 					return;
@@ -130,18 +131,18 @@ MainWidget::MainWidget(QWidget* parent)
 
 	//好友中心通知
 	//个人信息头像加载
-	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=](const QPixmap& avatar)
+	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]()
 		{
+			auto avatar = AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID());
 			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(50, 50));
 			ui->headLab->setPixmap(pixmap);
 		});
-	//好友信息更新
-	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
+	//好友头像更新
+	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
 			if (user_id != FriendManager::instance()->getOneselfID())
 				return;
-			auto user = FriendManager::instance()->findFriend(user_id);
-			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(40, 40));
+			auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(user_id), QSize(40, 40));
 			ui->headLab->setPixmap(pixmap);
 		});
 	//好友信息更新,消息项相关信息更新
@@ -153,8 +154,21 @@ MainWidget::MainWidget(QWidget* parent)
 			{
 				qDebug() << "信息更新";
 				auto user = FriendManager::instance()->findFriend(user_id);
-				auto Item = qobject_cast<MessageListItem*>(m_chatMessageListWidget->itemWidget(messageItem));
-				Item->setUser(user->getFriend());
+				auto itemWidget = qobject_cast<MessageListItem*>(m_chatMessageListWidget->itemWidget(messageItem));
+				itemWidget->setUser(user->getFriend());
+			}
+		});
+	//好友头像更新,消息项相关信息更新
+	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
+		{
+			qDebug() << "信息更新" << user_id;
+			auto messageItem = findListItem(user_id);
+			if (messageItem)
+			{
+				qDebug() << "信息更新";
+				auto user = FriendManager::instance()->findFriend(user_id);
+				auto itemWidget = qobject_cast<MessageListItem*>(m_chatMessageListWidget->itemWidget(messageItem));
+				itemWidget->updateItemWidget();
 			}
 		});
 	//新增好友
@@ -219,7 +233,7 @@ MainWidget::MainWidget(QWidget* parent)
 				item = addmessageListItem(obj);
 			}
 		});
-	connect(EventBus::instance(), &EventBus::pictureCommunication, this, [=](const QJsonObject& obj,const QPixmap&pixmap)
+	connect(EventBus::instance(), &EventBus::pictureCommunication, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
 			auto m_userId = FriendManager::instance()->getOneselfID();
 			auto friend_id = obj["user_id"].toString();

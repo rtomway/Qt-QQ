@@ -10,27 +10,13 @@
 #include "PacketCreate.h"
 #include "ChatManager.h"
 #include "EventBus.h"
+#include "AvatarManager.h"
 
 
 QString FriendManager::m_oneselfID = QString();
 
 FriendManager::FriendManager()
 {
-	//好友信息
-	connect(EventBus::instance(), &EventBus::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
-		{
-			auto user = findFriend(user_id);
-			qDebug() << "----------F好友头像更新-----------";
-			if (ImageUtils::saveAvatarToLocal(pixmap, user_id))
-			{
-				user->loadAvatar();
-				emit UpdateFriendMessage(user_id);
-			}
-			else
-			{
-				qDebug() << "头像接收失败";
-			}
-		});
 	connect(EventBus::instance(), &EventBus::updateUserMessage, this, [=](const QJsonObject& obj)
 		{
 			auto user_id = obj["user_id"].toString();
@@ -49,7 +35,7 @@ FriendManager::FriendManager()
 			//保存目录
 			if (ImageUtils::saveAvatarToLocal(pixmap, user_id))
 			{
-				user->loadAvatar();
+				AvatarManager::instance()->updateAvatar(user_id);
 			}
 			else
 			{

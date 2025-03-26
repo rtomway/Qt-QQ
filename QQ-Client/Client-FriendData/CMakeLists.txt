@@ -6,6 +6,8 @@ add_library(Client-FriendData STATIC
     Friend.cpp
     FriendManager.h
     FriendManager.cpp
+    AvatarManager.h
+    AvatarManager.cpp
 )
 
 #外部库

@@ -22,6 +22,7 @@
 #include "FriendSetWidget.h"
 #include "ChatManager.h"
 #include "EventBus.h"
+#include "AvatarManager.h"
 
 MessagePage::MessagePage(QWidget* parent)
 	:QWidget(parent)
@@ -80,24 +81,29 @@ void MessagePage::init()
 			auto user_id = FriendManager::instance()->getOneselfID();
 			m_oneself = FriendManager::instance()->findFriend(user_id);
 		});
-	//用户信息更新后
+	//用户信息更新后(处于会话界面)
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
+			if (user_id != m_currentID)
+				return;
 			auto user = FriendManager::instance()->findFriend(user_id);
-			auto pixmap = ImageUtils::roundedPixmap(user->getAvatar(), QSize(100, 100), 66);
-			if (user_id == m_oneself->getFriendId())
-			{
-				qDebug() << "自己的头像更新";
-				m_oneself = user;
-			}
-			//刷新界面
-			setCurrentUser(user->getFriend());
+			m_friend_username = user->getFriendName();
+			updateMessageWidget();
+		});
+	//用户头像更新后(处于会话界面)
+	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
+		{
+			if (user_id != m_currentID && user_id != m_oneself->getFriendId())
+				return;
+			auto chatMessage = ChatManager::instance()->getChat(m_currentID);
+			loadChatMessage(*chatMessage);
 		});
 	//发送消息
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
 			auto user_id = FriendManager::instance()->getOneselfID();
-			auto headPix = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(100, 100), 66);
+			auto avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId());
+			auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 			//图片消息
 			if (!m_imageMessagePath.isEmpty())
 			{
@@ -159,7 +165,7 @@ void MessagePage::init()
 	//选择待发送图片
 	connect(ui->pictureBtn, &QPushButton::clicked, this, [=]
 		{
-			auto imageMessagePath= QFileDialog::getOpenFileNames(this, "选择图片", "",
+			auto imageMessagePath = QFileDialog::getOpenFileNames(this, "选择图片", "",
 				"Images(*.jpg *.png *.jpeg *.bnp)");
 			m_imageMessagePath.append(imageMessagePath);
 			// 如果选择了有效的图片文件路径
@@ -252,7 +258,7 @@ void MessagePage::setCurrentUser(const QJsonObject& obj)
 	m_friend_username = obj["username"].toString();
 	m_friend_id = obj["user_id"].toString();
 	m_currentID = m_friend_id;
-	auto pixmap = FriendManager::instance()->findFriend(m_currentID)->getAvatar();
+	auto pixmap = AvatarManager::instance()->getAvatar(m_friend_id);
 	m_friend_headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100), 66);
 
 	auto chatMessage = ChatManager::instance()->getChat(m_friend_id);
@@ -287,11 +293,10 @@ void MessagePage::loadChatMessage(const ChatMessage& chatMessage)
 		bool isSelf = messagePtr->getSenderId() == FriendManager::instance()->getOneselfID();
 		QPixmap avatar;
 		if (isSelf) {
-			avatar = m_oneself->getAvatar();
+			avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId());
 		}
 		else {
-			auto user = FriendManager::instance()->findFriend(m_friend_id);
-			avatar = user->getAvatar();
+			avatar = AvatarManager::instance()->getAvatar(m_friend_id);
 		}
 		auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 		// 判断消息类型并处理

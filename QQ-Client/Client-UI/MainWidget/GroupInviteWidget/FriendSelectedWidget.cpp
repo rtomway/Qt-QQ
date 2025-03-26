@@ -2,6 +2,7 @@
 
 #include "FriendManager.h"
 #include "ImageUtil.h"
+#include "AvatarManager.h"
 
 FriendSelectedWidget::FriendSelectedWidget(QWidget* parent)
 	:QWidget(parent)
@@ -33,8 +34,15 @@ void FriendSelectedWidget::setUser(const QString& user_id)
 	m_json = m_oneself->getFriend();
 	m_nameLab->setText(m_json["username"].toString());
 	m_userId = user_id;
-	auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(40, 40));
+	auto avatar = AvatarManager::instance()->getAvatar(m_userId);
+	auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
 	m_headLab->setPixmap(pixmap);
+	if (user_id == FriendManager::instance()->getOneselfID())
+	{
+		m_selected->setChecked(true);
+		m_selected->setEnabled(false);
+		m_selected->update();
+	}
 }
 
 const QString& FriendSelectedWidget::getUserId()

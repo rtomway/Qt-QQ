@@ -10,6 +10,7 @@
 #include "FriendManager.h"
 #include "EventBus.h"
 #include "MessageSender.h"
+#include "AvatarManager.h"
 
 GroupInviteWidget::GroupInviteWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -63,7 +64,7 @@ void GroupInviteWidget::init()
 					continue;  // 跳过当前无效项
 				}
 				auto obj = it.value()->getFriend();
-				auto pixmap = it.value()->getAvatar();
+				auto pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId());
 				if (obj.isEmpty() || pixmap.isNull()) {
 					qWarning() << "Invalid object or pixmap!";
 					return;
@@ -91,8 +92,8 @@ void GroupInviteWidget::init()
 			{
 				////选择好友
 				auto itemWidget = qobject_cast<FriendSelectedWidget*>(m_friendTree->itemWidget(item, 0));
-				itemWidget->setChecked(!itemWidget->isChecked());
 				auto user_id = itemWidget->getUserId();
+				itemWidget->setChecked(!itemWidget->isChecked());
 				if (itemWidget->isChecked())
 				{
 					addSelectedFriendItem(ui->selectedFriendList, user_id);

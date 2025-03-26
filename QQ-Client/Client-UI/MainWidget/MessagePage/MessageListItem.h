@@ -14,10 +14,10 @@ public:
 	MessageListItem(QWidget* parent = nullptr);
 private:
 	void init();
-	void updateItemWidget();
 	QString covertToChinese(const QString& date);
 public:
 	void setUser(const QJsonObject& obj);
+	void updateItemWidget();
 	QJsonObject getUser();
 	QString getId();
 	void clearUnreadMessage();

@@ -7,6 +7,7 @@
 #include "ImageUtil.h"
 #include "Friend.h"
 #include "FriendManager.h"
+#include "AvatarManager.h"
 
 ItemWidget::ItemWidget(QWidget* parent)
 	:QWidget(parent)
@@ -37,9 +38,13 @@ void ItemWidget::setUser(const QString& user_id)
 	m_json = m_oneself->getFriend();
 	ui->nameLab->setText(m_json["username"].toString());
 	m_userId = user_id;
-	auto pixmap = ImageUtils::roundedPixmap(m_oneself->getAvatar(), QSize(40, 40));
-	ui->headLab->setPixmap(pixmap);
 	ui->signatureLab->setText(m_json["signature"].toString());
+}
+void ItemWidget::updatePixmap()
+{
+	qDebug() << "ItemWidget" << AvatarManager::instance()->getAvatar(m_userId);
+	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_userId), QSize(40, 40));
+	ui->headLab->setPixmap(pixmap);
 }
 //分组设置
 void ItemWidget::setGrouping(const QString& grouping)

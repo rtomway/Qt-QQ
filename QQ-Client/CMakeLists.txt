@@ -16,14 +16,16 @@ add_subdirectory(Client-NetWork)
 add_subdirectory(Client-Util)
 add_subdirectory(Client-Core)
 add_subdirectory(Client-FriendData)
+add_subdirectory(Client-GroupData)
 add_subdirectory(Client-ChatMessage)
 #运行程序
 add_executable(${PROJECT_NAME}
 		main.cpp
 		Resource.qrc
-)
+ )
 #链接库（）
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-	Client-ChatMessage Client-FriendData Client-NetWork Client-UI Client-Util Client-Core #内部
+	Client-ChatMessage Client-FriendData Client-NetWork   #内部
+	Client-UI Client-Util Client-Core  Client-GroupData
 	Qt6::Core Qt6::Widgets Qt6::WebSockets Qt6::Network			#外部
 )

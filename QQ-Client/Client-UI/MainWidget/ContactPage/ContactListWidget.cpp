@@ -13,6 +13,7 @@
 #include "FriendManager.h"
 #include "Friend.h"
 #include "EventBus.h"
+#include "AvatarManager.h"
 
 QStringList ContactListWidget::m_fNamelist{};
 QStringList ContactListWidget::m_gNamelist{};
@@ -133,17 +134,27 @@ void ContactListWidget::init()
 	//信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
-			qDebug() << "用户信息更新99999999999999999999999999";
 			auto user = FriendManager::instance()->findFriend(user_id);
 			qDebug() << user->getFriend();
 			auto groupingItem = getFriendTopItem(user->getGrouping());
-			if (!groupingItem)
-				qDebug() << "groupingItem";
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				itemWidget->setUser(user_id);
+			}
+		});
+	//头像更新
+	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
+		{
+			auto user = FriendManager::instance()->findFriend(user_id);
+			qDebug() << user->getFriend();
+			auto groupingItem = getFriendTopItem(user->getGrouping());
+			auto item = findItemByIdInGroup(groupingItem, user_id);
+			if (item)
+			{
+				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
+				itemWidget->updatePixmap();
 			}
 		});
 	//好友分组更改
@@ -228,6 +239,7 @@ void ContactListWidget::addFriendItem(QTreeWidgetItem* firendList, const QString
 	//自定义Item
 	ItemWidget* itemWidget = new ItemWidget(this);
 	itemWidget->setUser(user_id);
+	itemWidget->updatePixmap();
 	m_friendList->setItemWidget(friendItem, 0, itemWidget);
 	//通过itemwidget找到自定义的小部件
 	auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(firendList, 0));

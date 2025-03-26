@@ -8,6 +8,7 @@
 #include "Friend.h"
 #include "SConfigFile.h"
 #include "EventBus.h"
+#include "AvatarManager.h"
 
 
 MessageHandle::MessageHandle(QObject* parent)
@@ -119,6 +120,7 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 	user->setFriend(loginUser);
 	qDebug() << "loginUser" << user->getFriend();
 	FriendManager::instance()->addFriend(user);
+	AvatarManager::instance()->updateAvatar(user_id);
 	FriendManager::instance()->setOneselfID(user_id);
 	//加载好友信息
 	for (const QJsonValue& value : friendArray)
@@ -126,9 +128,11 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 		QJsonObject friendObject = value.toObject();
 		auto friendUser = QSharedPointer<Friend>::create();
 		friendUser->setFriend(friendObject);
+		auto friend_id = friendUser->getFriendId();
 		FriendManager::instance()->addFriend(friendUser);
+		AvatarManager::instance()->updateAvatar(friend_id);
 	}
-	FriendManager::instance()->emit FriendManagerLoadSuccess(user->getAvatar());
+	FriendManager::instance()->emit FriendManagerLoadSuccess();
 	EventBus::instance()->emit loginSuccess();
 }
 void MessageHandle::handle_registerSuccess(const QJsonObject& paramsObject, const QByteArray& data)
