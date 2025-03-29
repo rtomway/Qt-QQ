@@ -28,11 +28,13 @@ void MessageHandle::initRequestHash()
 	requestHash["searchUser"] = &MessageHandle::handle_searchUser;
 	requestHash["updateUserMessage"] = &MessageHandle::handle_updateUserMessage;
 	requestHash["updateUserAvatar"] = &MessageHandle::handle_updateUserAvatar;
+	requestHash["createGroupSuccess"] = &MessageHandle::handle_createGroupSuccess;
+	requestHash["groupInvite"] = &MessageHandle::handle_groupInvite;
 }
 //消息处理接口
 void MessageHandle::handle_message(const QString& message)
 {
-	qDebug() << "接受到服务端的数据消息:";
+	qDebug() << "接受到服务端的文本消息:";
 	QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
 	if (doc.isObject())
 	{
@@ -51,7 +53,7 @@ void MessageHandle::handle_message(const QString& message)
 }
 void MessageHandle::handle_message(const QByteArray& message)
 {
-	qDebug() << "接受到服务端的文本消息:";
+	qDebug() << "接受到服务端的数据消息:";
 	QDataStream stream(message);
 	stream.setByteOrder(QDataStream::BigEndian);
 	stream.setVersion(QDataStream::Qt_6_5);
@@ -120,7 +122,7 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 	user->setFriend(loginUser);
 	qDebug() << "loginUser" << user->getFriend();
 	FriendManager::instance()->addFriend(user);
-	AvatarManager::instance()->updateAvatar(user_id);
+	AvatarManager::instance()->updateAvatar(user_id, ChatType::User);
 	FriendManager::instance()->setOneselfID(user_id);
 	//加载好友信息
 	for (const QJsonValue& value : friendArray)
@@ -130,7 +132,7 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 		friendUser->setFriend(friendObject);
 		auto friend_id = friendUser->getFriendId();
 		FriendManager::instance()->addFriend(friendUser);
-		AvatarManager::instance()->updateAvatar(friend_id);
+		AvatarManager::instance()->updateAvatar(friend_id, ChatType::User);
 	}
 	FriendManager::instance()->emit FriendManagerLoadSuccess();
 	EventBus::instance()->emit loginSuccess();
@@ -225,4 +227,22 @@ void MessageHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, con
 	}
 
 	EventBus::instance()->emit updateUserAvatar(user_id, avatar);
+}
+void MessageHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	qDebug() << "handle_createGroupSuccess:" << paramsObject;
+	EventBus::instance()->emit createGroupSuccess(paramsObject);
+}
+void MessageHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	qDebug() << "群聊邀请";
+	// 1️⃣ 把 QByteArray 转换成 QPixmap
+	QPixmap avatar;
+	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+	{
+		qWarning() << "Failed to load avatar for user:" << user_id;
+		return;
+	}
+	EventBus::instance()->emit groupInvite(paramsObject, avatar);
 }

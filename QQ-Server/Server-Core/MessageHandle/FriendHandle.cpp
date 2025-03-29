@@ -24,7 +24,7 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
 	senderMessage["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	auto imageData = ImageUtils::loadImage(send_id);
+	auto imageData = ImageUtils::loadImage(send_id,ChatType::User);
 	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = PacketCreate::binaryPacket("addFriend", senderMessage, imageData);
@@ -95,8 +95,8 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 	receiveMap["grouping"] = m_sendGrouping;
 	QVariantMap sendMap = getUserMessage(send_id);
 	sendMap["grouping"] = m_receiveGrouping;
-	auto reveiveImage = ImageUtils::loadImage(receive_id);
-	auto sendImage = ImageUtils::loadImage(send_id);
+	auto reveiveImage = ImageUtils::loadImage(receive_id,ChatType::User);
+	auto sendImage = ImageUtils::loadImage(send_id,ChatType::User);
 	receiveMap["size"] = reveiveImage.size();
 	sendMap["size"] = sendImage.size();
 	//打包
@@ -120,7 +120,7 @@ void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const Q
 	//数据包装入信息
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
-	auto imageData = ImageUtils::loadImage(send_id);
+	auto imageData = ImageUtils::loadImage(send_id,ChatType::User);
 	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = PacketCreate::binaryPacket("rejectAddFriend", senderMessage, imageData);

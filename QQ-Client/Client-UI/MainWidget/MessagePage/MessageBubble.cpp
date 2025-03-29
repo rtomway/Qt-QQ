@@ -6,15 +6,18 @@
 #define SpaceWidth() (_xOffset + m_profileRect.width() + 5 * m_textMargin)
 
 MessageBubble::MessageBubble(QWidget* parent)
-	:MessageBubble(QPixmap(), "xxxxxxxxxxxx")
+	:MessageBubble(QPixmap(), "", MessageBubble::BubbleImageRight, "", "")
 {
+
 }
 //文字构造
-MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, BubbleType type, QWidget* parent)
+MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
 	:QLabel(parent)
 	, m_type(type)
 	, m_message(message)
 	, m_head_img(head_img)
+	, m_groupMemberName(groupMemberName)
+	, m_groupRole(groupRole)
 {
 	if (type == BubbleTextLeft || type == BubbleTextRight)
 	{
@@ -44,11 +47,13 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, Bu
 
 }
 //图片构造
-MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type, QWidget* parent)
+MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
 	:QLabel(parent)
 	, m_type(type)
 	, m_image(pixmap)
 	, m_head_img(head_img)
+	, m_groupMemberName(groupMemberName)
+	, m_groupRole(groupRole)
 {
 	this->init();
 	if (head_img.isNull())
@@ -72,23 +77,6 @@ void MessageBubble::init()
 	//头像矩形
 	m_profileRect.setSize(QSize(38, 38));
 }
-
-//设置消息
-//void MessageBubble::setMessage(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type)
-//{
-//	m_type = type;
-//	m_head_img = head_img;
-//	m_message = message;
-//	// 判断是否是图片消息
-//	if (m_type == BubbleImageLeft || m_type == BubbleImageRight) {
-//		m_image.load(m_message); // 假设 message 存的是图片路径
-//		updateBubbleSize(); // 更新布局
-//	}
-//	else {
-//		QLabel::setText(m_message);
-//	}
-//	update(); // 触发重绘
-//}
 
 void MessageBubble::setHeadImage(const QPixmap& newHeadImg)
 {
@@ -123,10 +111,41 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 	//绘制头像	
 	painter.drawPixmap(m_profileRect, m_head_img);
 
+	// 如果是群聊，绘制群成员名字和身份
+	if (m_type == BubbleTextLeft || m_type == BubbleImageLeft && !m_groupMemberName.isEmpty()) {
+
+		m_bubbleRect.moveTop(m_bubbleRect.top() + 50);
+		m_textRect.moveTop(m_textRect.top() + 50);
+
+		painter.setPen(Qt::black);  // 文字颜色
+		QFont font;
+		font.setPointSize(10);
+		font.setBold(true);
+		painter.setFont(font);
+
+		// 计算名字和角色的位置（在头像右侧）
+		int textX = m_profileRect.right() + 5;  // 头像右边偏移5像素
+		int textY = m_profileRect.top();  // 头像顶部对齐
+
+		// 绘制名字
+		painter.drawText(textX, textY + 15, m_groupMemberName);  // y + 15 让文本垂直居中头像
+
+		// 绘制身份（如果有）
+		if (!m_groupRole.isEmpty()) {
+			QFont roleFont = font;
+			roleFont.setPointSize(5);  // 身份文字稍微小一点
+			roleFont.setBold(false);
+			painter.setFont(roleFont);
+			painter.setPen(QColor(100, 100, 100));  // 身份信息用灰色
+
+			painter.drawText(textX, textY + 35, m_groupRole);  // y + 35 避免重叠
+		}
+	}
+
 	if ((m_type == BubbleImageLeft || m_type == BubbleImageRight) && !m_image.isNull()) {
 		// 绘制图片
 		QRect imageRect = m_bubbleRect.adjusted(0, 0, 0, 0);
-			painter.drawPixmap(imageRect, m_image);
+		painter.drawPixmap(imageRect, m_image);
 	}
 	else {
 		// 绘制文字气泡
@@ -138,8 +157,8 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 
 void MessageBubble::resizeEvent(QResizeEvent* ev)
 {
-	if(m_type==BubbleTextLeft||m_type==BubbleTextRight)
-			updateTextRect();
+	if (m_type == BubbleTextLeft || m_type == BubbleTextRight)
+		updateTextRect();
 	updateBubbleSize();
 
 	auto listw = QListWidgetItem::listWidget();

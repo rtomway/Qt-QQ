@@ -12,11 +12,11 @@
 #include "MessagePage.h"
 #include "ContactPage.h"
 #include "NoticeWidget.h"
-#include "MessageListItem.h"
 #include "ContactListWidget.h"
 #include "AddFriendWidget.h"
 #include "SearchFriend.h"
 #include "GroupInviteWidget.h"
+#include "GlobalTypes.h"
 
 namespace Ui { class MainWidget; }
 
@@ -33,7 +33,8 @@ private:
 	void initMoreMenu();
 private:
 	void additemCenter(const QString& src);
-	QListWidgetItem* addmessageListItem(const QJsonObject& obj);
+	QString generateMessageItemKey(const QString id, ChatType type);
+	QListWidgetItem* addmessageListItem(const QString& Id, ChatType type);
 	QListWidgetItem* findListItem(const QString& user_id);
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;

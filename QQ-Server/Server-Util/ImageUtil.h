@@ -3,13 +3,17 @@
 
 #include <QImage>
 #include <QSize>
+#include "GlobalTypes.h"
 
 class ImageUtils {
 public:
-    static QString getAvatarFolderPath();
-	//图片的保存加载
-	static bool saveImage(const QString& user_id, const QImage& image);
-	static QByteArray loadImage(const QString& user_id);
+	static QString getAvatarFolderPath();
+	static QString getUserAvatarFolderPath();
+	static QString getGroupAvatarFolderPath();
+	static bool saveAvatarToLocal(const QString& avatarPath, const QString& user_id, ChatType type);
+	static bool saveAvatarToLocal(const QImage& image, const QString& user_id, ChatType type);
+	static QImage loadAvatarFromFile(const QString& avatarPath);
+	static QByteArray loadImage(const QString& user_id, ChatType type);
 };
 
 #endif // IMAGEUTILS_H

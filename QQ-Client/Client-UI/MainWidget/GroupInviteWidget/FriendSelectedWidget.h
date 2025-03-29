@@ -16,6 +16,7 @@ class FriendSelectedWidget :public QWidget
 public:
 	FriendSelectedWidget(QWidget* parent = nullptr);
 	void setUser(const QString& user_id);
+	void setGroupMember(const QString& member_id, const QString& memberName);
 	const QString& getUserId();
 	void setChecked(bool isCheck);
 	bool isChecked();

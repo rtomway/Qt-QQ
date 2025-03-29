@@ -1,19 +1,33 @@
-﻿#ifndef GROUP_H_
-#define GROUP_H_
+﻿#ifndef GROUPMANAGER_H_
+#define GROUPMANAGER_H_
 
 #include <QString>
 #include <QHash>
-#include <QSet>
 #include <QPixmap>
 #include <QJsonObject>
+#include <QObject>
+#include <memory>
 
-class Group
+#include "Group.h"
+
+class GroupManager :public QObject
 {
-
+	Q_OBJECT
 public:
-   
+	// 获取单例实例的静态方法
+	static GroupManager* instance();
+	// 禁止拷贝构造函数和赋值操作符
+	GroupManager(const GroupManager&) = delete;
+	GroupManager& operator=(const GroupManager&) = delete;
+	void addGroup(const QSharedPointer<Group>& group);
+	void removeGroup(const QString& groupId);
+	QSharedPointer<Group> findGroup(const QString& groupId) const;
 private:
-  
+	explicit GroupManager();
+private:
+	QHash<QString, QSharedPointer<Group>> m_groups;
+signals:
+	void newGroup(const QString& user_id);
 };
 
-#endif // !GROUP_H_
+#endif // !GROUPMANAGER_H_

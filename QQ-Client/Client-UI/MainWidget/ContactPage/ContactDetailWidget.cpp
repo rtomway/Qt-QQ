@@ -14,6 +14,7 @@
 #include "MessageSender.h"
 #include "PacketCreate.h"
 #include "AvatarManager.h"
+#include "GlobalTypes.h"
 
 
 
@@ -251,9 +252,9 @@ void ContactDetailWidget::init()
 void ContactDetailWidget::updateAvatar()
 {
 	//更新头像文件和缓存
-	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId);
-	AvatarManager::instance()->updateAvatar(m_userId);
-	qDebug() << "ContactDetailWidget" << AvatarManager::instance()->getAvatar(m_userId);
+	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User);
+	AvatarManager::instance()->updateAvatar(m_userId, ChatType::User);
+	qDebug() << "ContactDetailWidget" << AvatarManager::instance()->getAvatar(m_userId, ChatType::User);
 	//通知内部客户端
 	AvatarManager::instance()->emit UpdateUserAvatar(m_userId);
 	//通知服务端
@@ -281,7 +282,7 @@ void ContactDetailWidget::setUser(const QJsonObject& obj)
 	m_json = obj;
 	m_userId = obj["user_id"].toString();
 	QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(m_userId);
-	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_userId), QSize(80, 80));
+	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_userId, ChatType::User), QSize(80, 80));
 	m_headLab->setPixmap(pixmap);
 	m_nickNameEdit->setText(m_json["username"].toString());
 	m_genderEdit->setText(m_json["gender"].toInt() == 1 ? "男" : "女");

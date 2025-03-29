@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-class EventBus:public QObject
+class EventBus :public QObject
 {
 	Q_OBJECT
 public:
@@ -27,7 +27,8 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void updateUserMessage(const QJsonObject& paramsObject);
 	void updateUserAvatar(const QString& user_id, const QPixmap& pixmap);
 	void deleteFriend(const QString& user_id);
-	void createGroup(const QString& groupName);
+	void createGroupSuccess(const QJsonObject& paramsObject);
+	void groupInvite(const QJsonObject& paramsObject, const QPixmap& pixmap);
 };
 
 #endif // !EVENTBUS_H_

@@ -39,7 +39,7 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteA
 			userObj["isFriend"] = true;
 		else
 			userObj["isFriend"] = false;
-		QByteArray image = ImageUtils::loadImage(search_id);
+		QByteArray image = ImageUtils::loadImage(search_id,ChatType::User);
 		userObj["size"] = image.size();
 		qDebug() << "搜索信息" << userObj;
 		//打包
@@ -111,7 +111,7 @@ void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const 
 		return;
 	}
 	//图片保存
-	ImageUtils::saveImage(user_id, image);
+	ImageUtils::saveAvatarToLocal(image,user_id,ChatType::User);
 	//转发头像信息
 	//数据打包
 	auto userPacket = PacketCreate::binaryPacket("updateUserAvatar", paramsObject.toVariantMap(), data);

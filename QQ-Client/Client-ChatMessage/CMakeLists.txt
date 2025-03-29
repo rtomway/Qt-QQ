@@ -2,12 +2,12 @@
 
 # 创建一个静态库或者共享库
 add_library(Client-ChatMessage STATIC
-  ChatMessage.h
-  ChatMessage.cpp
-  ChatManager.h
-  ChatManager.cpp
-  Message.h
-  Message.cpp
+  "ChatRecordMessage.h"
+  "ChatRecordMessage.cpp"
+  "ChatRecordManager.h"
+  "ChatRecordManager.cpp"
+  "MessageRecord.h"
+  "MessageRecord.cpp"
 )
 
 target_include_directories(Client-ChatMessage PUBLIC 
@@ -16,4 +16,5 @@ target_include_directories(Client-ChatMessage PUBLIC
 
 target_link_libraries(Client-ChatMessage PRIVATE
 	Qt6::Core Qt6::Widgets
+	Client-Util
 )

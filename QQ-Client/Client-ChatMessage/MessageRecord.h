@@ -1,14 +1,14 @@
-﻿#ifndef MESSAGE_H_
-#define MESSAGE_H_
+﻿#ifndef MESSAGERECORD_H_
+#define MESSAGERECORD_H_
 #pragma once
 #include <QString>
 #include <QDateTime>
 #include <QPixmap>
 
-class Message {
+class MessageRecord {
 public:
-	Message(QString sender, QString receiver, QDateTime time);
-	virtual ~Message() = default;
+	MessageRecord(QString sender, QString receiver, QDateTime time);
+	virtual ~MessageRecord() = default;
 	// 消息已读
 	void readMessage();
 	// 获取发送者ID
@@ -28,7 +28,7 @@ protected:
 	QPixmap m_imageMessage;
 };
 // 文本消息类
-class TextMessage : public Message {
+class TextMessage : public MessageRecord {
 public:
 	TextMessage(QString sender, QString receiver, QDateTime time, QString text);
 	QString getTextMessage() const;
@@ -37,7 +37,7 @@ private:
 };
 
 // 图片消息类
-class ImageMessage : public Message {
+class ImageMessage : public MessageRecord {
 public:
 	ImageMessage(QString sender, QString receiver, QDateTime time, QPixmap image);
 	QPixmap getImageMessage() const;
@@ -45,5 +45,5 @@ private:
 	QPixmap m_imageMessage;
 };
 
-#endif // !MESSAGE_H_
+#endif // !MESSAGERECORD_H_
 

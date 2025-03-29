@@ -85,16 +85,20 @@ QListWidget#MessageList {
     border: none;
     outline: 0px;
 }
+QListWidget#MessageList QWidget {
+    background-color: transparent;
+}
 QListWidget#MessageList::item {
     border: none;
     border-radius: 0px;
+    background-color: transparent;
 }
 QListWidget#MessageList::item:hover {
     background-color: rgb(240,240,240);
 }
-    QListWidget#MessageList::item:selected {
-        background-color: #0096FF;
-    }
+QListWidget#MessageList::item:selected{
+    background-color: #0096FF;
+}
 /*QlistWidget里的滚动条*/
     QListWidget#MessageList QScrollBar:vertical {
         border: none;

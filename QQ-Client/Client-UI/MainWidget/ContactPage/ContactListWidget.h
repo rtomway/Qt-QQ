@@ -27,14 +27,15 @@ public:
 	static QStringList getfGrouping();
 	static QStringList getgGrouping();
 	//好友列表
-	TopItemWidget* addFriendListItem(QString friendName);
+	TopItemWidget* addFriendTopItem(QString friendName);
 	void addFriendItem(QTreeWidgetItem* firendList, const QString& user_id);
 	QTreeWidgetItem* getFriendTopItem(QString friendName);
-	QTreeWidgetItem* findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId);
 	//群组列表
-	TopItemWidget* addGroupListItem(QString groupName);
-	void addGroupItem(QTreeWidgetItem* groupList, QString groupName);
+	TopItemWidget* addGroupTopItem(QString groupName);
+	void addGroupItem(QTreeWidgetItem* groupList, const QString& group_id);
 	QTreeWidgetItem* getGroupTopItem(QString groupName);
+	//item获取
+	QTreeWidgetItem* findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId);
 	//通知
 	void updateFriendNoticeCount();
 	//清空

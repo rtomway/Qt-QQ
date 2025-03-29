@@ -29,6 +29,8 @@ private:
 	void handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	void handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	void handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 };
 
 #endif // !MESSAGEHANDLE_H_

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>358</width>
-    <height>106</height>
+    <width>662</width>
+    <height>209</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,21 +24,6 @@
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
       <item>
        <widget class="QLabel" name="nameLab">
         <property name="text">
@@ -47,7 +32,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="widget_2" native="true">
+       <widget class="QWidget" name="messageWidget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="leftMargin">
           <number>0</number>
@@ -62,7 +47,14 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="signatureLab">
+          <widget class="QLabel" name="preMessageLab">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="afterMessageLab">
            <property name="text">
             <string>TextLabel</string>
            </property>
@@ -86,6 +78,9 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item>
+    <widget class="QWidget" name="rightWidget" native="true"/>
    </item>
   </layout>
  </widget>

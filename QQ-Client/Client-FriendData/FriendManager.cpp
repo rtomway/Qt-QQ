@@ -8,7 +8,7 @@
 #include "ImageUtil.h"
 #include "MessageSender.h"
 #include "PacketCreate.h"
-#include "ChatManager.h"
+#include "ChatRecordManager.h"
 #include "EventBus.h"
 #include "AvatarManager.h"
 
@@ -33,9 +33,9 @@ FriendManager::FriendManager()
 			auto user_id = user->getFriendId();
 			auto grouping = user->getGrouping();
 			//保存目录
-			if (ImageUtils::saveAvatarToLocal(pixmap, user_id))
+			if (ImageUtils::saveAvatarToLocal(pixmap, user_id, ChatType::User))
 			{
-				AvatarManager::instance()->updateAvatar(user_id);
+				AvatarManager::instance()->updateAvatar(user_id, ChatType::User);
 			}
 			else
 			{
@@ -72,7 +72,7 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 	if (!m_user.contains(user_id))
 	{
 		m_user.insert(user_id, user);
-		ChatManager::instance()->addChat(user_id, std::make_shared<ChatMessage>(m_oneselfID, user_id));
+		ChatRecordManager::instance()->addChat(user_id, std::make_shared<ChatRecordMessage>(m_oneselfID, user_id, ChatType::User));
 	}
 
 }

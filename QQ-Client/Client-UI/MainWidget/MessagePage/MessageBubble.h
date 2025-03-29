@@ -16,8 +16,8 @@ public:
 		BubbleImageRight,
 	};
 	explicit MessageBubble(QWidget* parent = nullptr);
-	MessageBubble(const QPixmap& head_img, const QString& message, MessageBubble::BubbleType type = MessageBubble::BubbleTextRight, QWidget* parent = nullptr);
-	MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type = MessageBubble::BubbleTextRight, QWidget* parent = nullptr);
+	MessageBubble(const QPixmap& head_img, const QString& message, BubbleType type, const QString& groupMemberName = QString(), const QString& groupRole = QString(), QWidget* parent = nullptr);
+	MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, BubbleType type, const QString& groupMemberName = QString(), const QString& groupRole = QString(), QWidget* parent = nullptr);
 	MessageBubble::BubbleType getType();
 private:
 	void init();
@@ -44,6 +44,8 @@ private:
 	QPixmap m_head_img;
 	QString m_message;
 	QPixmap m_image;
+	QString m_groupMemberName;
+	QString m_groupRole;
 };
 
 

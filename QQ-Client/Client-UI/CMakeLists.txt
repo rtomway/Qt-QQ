@@ -13,6 +13,7 @@ file(GLOB UI_SOURCES
     MainWidget/MessagePage/*.cpp
     MainWidget/NoticePage/*.cpp
     MainWidget/GroupInviteWidget/*.cpp
+    MainWidget/ItemWidget/*.cpp
 )
 file(GLOB UI_HEADERS
     MainWindow.h
@@ -23,6 +24,7 @@ file(GLOB UI_HEADERS
     MainWidget/MessagePage/*.h
     MainWidget/NoticePage/*.h
     MainWidget/GroupInviteWidget/*.h
+    MainWidget/ItemWidget/*.h
 )
 # 为 UI 模块添加一个目标
 add_library(Client-UI STATIC ${UI_SOURCES} ${UI_HEADERS})
@@ -38,10 +40,13 @@ target_include_directories(Client-UI PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/MessagePage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/NoticePage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/GroupInviteWidget
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/MessageListItem
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ItemWidget
 )
 
 # 链接 库（如果需要）
 target_link_libraries(Client-UI PRIVATE
     Qt6::Widgets Qt6::Core 
     Client-Util Client-NetWork Client-FriendData Client-ChatMessage
+    Client-GroupData
 )

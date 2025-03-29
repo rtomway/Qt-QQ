@@ -16,18 +16,9 @@ public:
 private:
 	void init();
 public:
-	void setUser(const QString& user_id);
-	void updatePixmap();
-	void setGrouping(const QString& grouping);
-	const QJsonObject& getUser();
-	const QString& getGrouping();
-	const QString& getUserId();
-private:
+	virtual void setItemWidget(const QString& user_id) = 0;
+protected:
 	Ui::ItemWidget* ui{};
-	QSharedPointer<Friend>m_oneself{};
-	QJsonObject m_json{};
-	QString m_userId{};
-	QString m_grouping{};
 };
 
 #endif // !ITEMWIDGET_H_

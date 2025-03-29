@@ -95,8 +95,8 @@ void ContactPage::init()
 	//更新用户头像
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
-			qDebug() << "ContactPage" << AvatarManager::instance()->getAvatar(user_id);
-			auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(user_id), QSize(100, 100));
+			qDebug() << "ContactPage" << AvatarManager::instance()->getAvatar(user_id, ChatType::User);
+			auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(user_id, ChatType::User), QSize(100, 100));
 			ui->headLab->setPixmap(pixmap);
 		});
 	//发消息
@@ -204,7 +204,7 @@ void ContactPage::setUser(const QString& user_id)
 		ui->genderBtn->setIcon(QIcon(":/icon/Resource/Icon/nogender.png"));
 	}
 	ui->groupcomBox->setCurrentText(m_json["grouping"].toString());
-	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_friendId), QSize(100, 100));
+	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_friendId, ChatType::User), QSize(100, 100));
 	ui->headLab->setPixmap(pixmap);
 	ui->signaltureLab->setText(m_json["signature"].toString());
 

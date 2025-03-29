@@ -48,6 +48,11 @@ void NoticeWidget::init()
 		{
 			addFreindNoticeItem(obj, pixmap,NoticeItemWidget::NoticeType::RequestNotice);
 		});
+	//群聊邀请
+	connect(EventBus::instance(), &EventBus::groupInvite, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+		{
+			addFreindNoticeItem(obj, pixmap, NoticeItemWidget::NoticeType::RequestNotice); 
+		});
 	//被拒绝通知
 	connect(EventBus::instance(), &EventBus::rejectAddFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
