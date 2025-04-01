@@ -8,7 +8,6 @@
 #include <QJsonObject>
 #include <QSharedPointer>
 
-#include "NoticeItemWidget.h"
 #include "FriendManager.h"
 #include "Friend.h"
 #include "EventBus.h"
@@ -141,7 +140,7 @@ void ContactListWidget::init()
 			}
 			else     //点击用户 弹出用户信息
 			{
-				
+
 			}
 
 		});
@@ -210,7 +209,7 @@ void ContactListWidget::init()
 			topItemWidget->setCount(topItem->childCount());
 		});
 	//新增群组
-	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString&group_id)
+	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
 			addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
 		});
@@ -359,6 +358,12 @@ void ContactListWidget::updateFriendNoticeCount()
 	m_fNoticeUnreadCount++;
 	ui->friendNoticeCountLab->setVisible(true);
 	ui->friendNoticeCountLab->setText(QString::number(m_fNoticeUnreadCount));
+}
+void ContactListWidget::updateGroupNoticeCount()
+{
+	m_gNoticeUnreadCount++;
+	ui->groupNoticeCountLab->setVisible(true);
+	ui->groupNoticeCountLab->setText(QString::number(m_gNoticeUnreadCount));
 }
 //退出清除前一个账户信息
 void ContactListWidget::clearContactList()

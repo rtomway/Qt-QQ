@@ -12,6 +12,10 @@ QPushButton {
 QPushButton#hideBtn:hover, #expandBtn:hover, #exitBtn:hover {
     background-color: #bab6b6;
 }
+/*QLabel*/
+QLabel#nameLab{
+    font-size:25px;
+}
 /*按钮图片*/
 QPushButton#callphoneBtn {
     border-image: url(:/icon/Resource/Icon/phone.png);

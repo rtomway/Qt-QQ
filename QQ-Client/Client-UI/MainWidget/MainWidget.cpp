@@ -115,7 +115,7 @@ MainWidget::MainWidget(QWidget* parent)
 				m_friendSearchListWidget->addSearchItem(obj, pixmap);
 			}
 		});
-	//点击用户消息项 进入会话界面（加载用户信息）
+	//点击消息项 进入会话界面（加载用户信息）
 	connect(m_chatMessageListWidget, &QListWidget::itemClicked, this, [=](QListWidgetItem* item)
 		{
 			auto id = item->data(Qt::UserRole).toString().mid(6);
@@ -164,7 +164,7 @@ MainWidget::MainWidget(QWidget* parent)
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
 		{
 			qDebug() << "信息更新" << user_id;
-			auto messageItem = findListItem("user__"+user_id);
+			auto messageItem = findListItem("user__" + user_id);
 			if (messageItem)
 			{
 				qDebug() << "信息更新";
@@ -188,8 +188,6 @@ MainWidget::MainWidget(QWidget* parent)
 	//新增好友
 	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id)
 		{
-			auto myfriend = FriendManager::instance()->findFriend(user_id);
-			auto friendObj = myfriend->getFriend();
 			ChatRecordManager::instance()->addChat(user_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), user_id, ChatType::User));
 			addmessageListItem(user_id, ChatType::User);
 		});
@@ -211,6 +209,7 @@ MainWidget::MainWidget(QWidget* parent)
 	//新增群组
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
+			ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), group_id, ChatType::Group));
 			addmessageListItem(group_id, ChatType::Group);
 		});
 	//接受信息通知
@@ -222,80 +221,94 @@ MainWidget::MainWidget(QWidget* parent)
 			auto m_userId = FriendManager::instance()->getOneselfID();
 			auto friend_id = obj["user_id"].toString();
 			auto message = obj["message"].toString();
-			auto item = findListItem(friend_id);
+			auto time = obj["time"].toString();
+			qDebug() << "time" << time;
+			auto item = findListItem("user__" + friend_id);
 			auto itemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(item));
 			//自己给自己发消息
 			if (friend_id == m_userId)
 			{
+				itemWidget->updateUnReadMessage(message, time);
 				itemWidget->setItemWidget(m_userId);
 				itemWidget->clearUnRead();
 				return;
 			}
 			//接收信息加入聊天记录(自己无需添加)
-			m_messagePage->updateChatMessage(friend_id, m_userId, QVariant::fromValue(message));
+			m_messagePage->updateChatMessage(ChatType::User, friend_id, m_userId, QVariant::fromValue(message));
 			if (item)
 			{
 				//有消息项 追加消息内容
+				itemWidget->updateUnReadMessage(message, time);
 				itemWidget->setItemWidget(friend_id);
 				//判断当下是否是该user_id会话界面
-				/*if (m_messagePage->getCurrentID() == friend_id && ui->messageStackedWidget->currentWidget() == m_messagePage)
+				if (m_messagePage->isCurrentChat(friend_id, ChatType::User) && ui->messageStackedWidget->currentWidget() == m_messagePage)
 				{
 					m_messagePage->updateReciveMessage(message);
-					itemWidget->clearUnreadMessage();
-				}*/
+					itemWidget->clearUnRead();
+				}
 			}
 			else
 			{
 				//没有消息项创建一个
 				item = addmessageListItem(friend_id, ChatType::User);
+				auto newItemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(item));
+				newItemWidget->updateUnReadMessage(message, time);
+				newItemWidget->setItemWidget(friend_id);
 			}
 		});
 	connect(EventBus::instance(), &EventBus::pictureCommunication, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{
 			auto m_userId = FriendManager::instance()->getOneselfID();
 			auto friend_id = obj["user_id"].toString();
-			auto item = findListItem(friend_id);
+			auto item = findListItem("user__" + friend_id);
 			auto itemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(item));
+			auto message = obj["message"].toString();
+			auto time = obj["time"].toString();
 			//自己给自己发消息
 			if (friend_id == m_userId)
 			{
-				itemWidget->setItemWidget(m_userId);
+				//有消息项 追加消息内容
+				itemWidget->updateUnReadMessage(message, time);
+				itemWidget->setItemWidget(friend_id);
 				itemWidget->clearUnRead();
 				return;
 			}
 			//接收信息加入聊天记录(自己无需添加)
-			m_messagePage->updateChatMessage(friend_id, m_userId, QVariant::fromValue(pixmap));
+			m_messagePage->updateChatMessage(ChatType::User, friend_id, m_userId, QVariant::fromValue(pixmap));
 			if (item)
 			{
 				//有消息项 追加消息内容
+				itemWidget->updateUnReadMessage(message, time);
 				itemWidget->setItemWidget(friend_id);
 				//判断当下是否是该user_id会话界面
-				/*if (m_messagePage->getCurrentID() == friend_id && ui->messageStackedWidget->currentWidget() == m_messagePage)
+				if (m_messagePage->isCurrentChat(friend_id, ChatType::User) && ui->messageStackedWidget->currentWidget() == m_messagePage)
 				{
-					m_messagePage->updateReciveMessage(pixmap);
-					itemWidget->clearUnreadMessage();
-				}*/
+					m_messagePage->updateReciveMessage(message);
+					itemWidget->clearUnRead();
+				}
 			}
 			else
 			{
 				//没有消息项创建一个
 				item = addmessageListItem(friend_id, ChatType::User);
+				auto newItemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(item));
+				newItemWidget->updateUnReadMessage(message, time);
+				newItemWidget->setItemWidget(friend_id);
 			}
 		});
-	//好友申请通知
-	connect(EventBus::instance(), &EventBus::addFriend, this, [=]
+
+	connect(m_noticePage, &NoticeWidget::friendNotice, this, [=]
 		{
 			if (ui->messageStackedWidget->currentWidget() != m_noticePage)
 			{
 				m_contactListWidget->updateFriendNoticeCount();
 			}
 		});
-	//被拒通知
-	connect(EventBus::instance(), &EventBus::rejectAddFriend, this, [=]
+	connect(m_noticePage, &NoticeWidget::groupNotice, this, [=]
 		{
 			if (ui->messageStackedWidget->currentWidget() != m_noticePage)
 			{
-				m_contactListWidget->updateFriendNoticeCount();
+				m_contactListWidget->updateGroupNoticeCount();
 			}
 		});
 	//好友删除
@@ -305,11 +318,6 @@ MainWidget::MainWidget(QWidget* parent)
 			m_chatMessageListWidget->takeItem(m_chatMessageListWidget->row(item));
 			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
 			m_contactPage->clearWidget();
-		});
-	//群聊创建
-	connect(EventBus::instance(), &EventBus::createGroupSuccess, this, [=]
-		{
-			//addmessageListItem()
 		});
 }
 MainWidget::~MainWidget()

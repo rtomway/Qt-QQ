@@ -47,6 +47,6 @@ target_include_directories(Client-UI PUBLIC
 # 链接 库（如果需要）
 target_link_libraries(Client-UI PRIVATE
     Qt6::Widgets Qt6::Core 
-    Client-Util Client-NetWork Client-FriendData Client-ChatMessage
-    Client-GroupData
+    Client-Util Client-NetWork Client-DataCenter Client-ChatMessage
+
 )

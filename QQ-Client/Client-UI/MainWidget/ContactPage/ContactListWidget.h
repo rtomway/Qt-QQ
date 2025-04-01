@@ -38,6 +38,7 @@ public:
 	QTreeWidgetItem* findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId);
 	//通知
 	void updateFriendNoticeCount();
+	void updateGroupNoticeCount();
 	//清空
 	void clearContactList();
 protected:

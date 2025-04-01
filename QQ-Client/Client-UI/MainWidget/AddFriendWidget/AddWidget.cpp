@@ -71,7 +71,7 @@ void AddWidget::init()
 				auto paramsObject = oneself->getFriend().toVariantMap();
 				paramsObject["to"] = m_friendId;
 				paramsObject["message"] = ui->messageEdit->text();
-				paramsObject["requestMessage"] = "请求加为好友";
+				paramsObject["noticeMessage"] = "请求加为好友";
 				paramsObject["grouping"] = m_grouping->getLineEditText();
 				MessageSender::instance()->sendMessage("addFriend", paramsObject);
 			}
@@ -113,7 +113,7 @@ void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 	}
 	else
 	{
-		m_isSend = true; 
+		m_isSend = true;
 		m_grouping->getLineEditText();
 	}
 }

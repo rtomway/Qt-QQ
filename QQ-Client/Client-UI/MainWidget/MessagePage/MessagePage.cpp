@@ -1,5 +1,4 @@
-﻿#include "MessagePage.h"
-#pragma once
+﻿#pragma once
 #include "MessagePage.h"
 #include "ui_MessagePage.h"
 #include <QFile>
@@ -82,15 +81,10 @@ void MessagePage::init()
 //加载会话界面信息
 void MessagePage::loadMessagePage(const QString& id, ChatType type)
 {
-	MessageBubble* bubble = new MessageBubble(AvatarManager::instance()->getAvatar(id, type), "dfad", MessageBubble::BubbleTextLeft, "haha");
-	ui->messageListWidget->addItem(bubble);
-	ui->messageListWidget->setItemWidget(bubble, bubble);
-	ui->messageListWidget->scrollToBottom();
-	update();
-
 	switch (type)
 	{
 	case ChatType::User:
+		qDebug() << "当前会话type:" << id << "User";
 		if (!m_friend)
 		{
 			m_friend = FriendManager::instance()->findFriend(id);
@@ -99,9 +93,12 @@ void MessagePage::loadMessagePage(const QString& id, ChatType type)
 		{
 			m_friend = FriendManager::instance()->findFriend(id);
 		}
+		m_chat = ChatRecordManager::instance()->getChat(id);
+		loadChatMessage(*m_chat);
 		initFriedMessaePage();
 		break;
 	case ChatType::Group:
+		qDebug() << "当前会话type:" << id << "Group";
 		if (!m_group)
 		{
 			m_group = GroupManager::instance()->findGroup(id);
@@ -110,6 +107,9 @@ void MessagePage::loadMessagePage(const QString& id, ChatType type)
 		{
 			m_group = GroupManager::instance()->findGroup(id);
 		}
+		qDebug() << "群聊会话id：" << m_group->getGroupId() << m_group->getGroupName();
+		m_chat = ChatRecordManager::instance()->getGroupChat(id);
+		loadChatMessage(*m_chat);
 		initGroupMessaePage();
 		break;
 	default:
@@ -119,14 +119,14 @@ void MessagePage::loadMessagePage(const QString& id, ChatType type)
 //好友私聊界面
 void MessagePage::initFriedMessaePage()
 {
+	//界面信息
+	ui->nameLab->setText(m_friend->getFriendName());
 	//用户信息更新后(处于会话界面)
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
 			if (user_id != m_friend->getFriendId())
 				return;
 			auto user = FriendManager::instance()->findFriend(user_id);
-			//m_friend_username = user->getFriendName();
-			//updateMessageWidget();
 		});
 	//用户头像更新后(处于会话界面)
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
@@ -149,7 +149,7 @@ void MessagePage::initFriedMessaePage()
 				{
 					QPixmap pixmap(imagePath);
 					createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
-					updateChatMessage(user_id, m_friend->getFriendId(), QVariant::fromValue(pixmap));
+					updateChatMessage(ChatType::User, user_id, m_friend->getFriendId(), QVariant::fromValue(pixmap));
 					m_imageMessagePath.removeOne(imagePath);
 					//像服务端发送
 					QByteArray byteArray;
@@ -164,6 +164,7 @@ void MessagePage::initFriedMessaePage()
 					params["user_id"] = user_id;
 					params["to"] = m_friend->getFriendId();
 					params["message"] = "picture";
+					params["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 					params["size"] = byteArray.size();
 
 					//二进制数据的发送
@@ -184,7 +185,7 @@ void MessagePage::initFriedMessaePage()
 			//消息显示至聊天框
 			createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight);
 			//将消息加入至聊天记录中
-			updateChatMessage(user_id, m_friend->getFriendId(), QVariant::fromValue(msg));
+			updateChatMessage(ChatType::User, user_id, m_friend->getFriendId(), QVariant::fromValue(msg));
 			//清空输入
 			ui->messageTextEdit->clear();
 			//发送给服务器通过服务器转发
@@ -192,6 +193,7 @@ void MessagePage::initFriedMessaePage()
 			json["user_id"] = user_id;
 			json["message"] = msg;
 			json["to"] = m_friend->getFriendId();
+			json["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 			if (user_id == m_friend->getFriendId())
 			{
 				EventBus::instance()->emit textCommunication(json);
@@ -293,7 +295,33 @@ void MessagePage::initFriedMessaePage()
 //群聊界面
 void MessagePage::initGroupMessaePage()
 {
+	//界面信息
 	auto groupname = QString("%1(%2)").arg(m_group->getGroupName()).arg(m_group->count());
+	ui->nameLab->setText(groupname);
+	auto user_id = m_oneself->getFriendId();
+	auto avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
+	auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
+	qDebug() << "user_id" << user_id;
+	const Member& member = m_group->getMember(user_id);
+	auto memberName = member.member_name;
+	auto memberRole = member.member_role;
+	qDebug() << "member:" << member.member_id << member.member_name << member.member_role;
+	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
+		{
+			//文字消息
+			QString msg = ui->messageTextEdit->toPlainText();
+			if (msg.isEmpty())
+				return;
+			//消息显示至聊天框
+			createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight, memberName, memberRole);
+			qDebug() << m_group->getGroupId();
+			//将消息加入至聊天记录中
+			updateChatMessage(ChatType::Group, user_id, m_group->getGroupId(), QVariant::fromValue(msg));
+			//清空输入
+			ui->messageTextEdit->clear();
+			//发送给服务器通过服务器转发
+
+		});
 }
 //判断当前聊天界面
 bool MessagePage::isCurrentChat(const QString& id, ChatType type) const
@@ -306,22 +334,19 @@ bool MessagePage::isCurrentChat(const QString& id, ChatType type) const
 	}
 	return false;
 }
-
-//void MessagePage::updateMessageWidget()
-//{
-//	ui->nameLab->setText(m_friend->getFriendName());
-//
-//}
 //加载聊天记录至聊天框
 void MessagePage::loadChatMessage(const ChatRecordMessage& chatMessage)
 {
-	clearMessageWidget();
+	//clearMessageWidget();
 	auto type = chatMessage.type();
+	bool isGroup = (type == ChatType::Group);
+	QString memberName = QString();
+	QString memberRole = QString();
 	for (const auto& messagePtr : chatMessage.getMessages())
 	{
 		messagePtr->readMessage();
 		//判断消息是谁发送
-		bool isSelf = messagePtr->getSenderId() == FriendManager::instance()->getOneselfID();
+		bool isSelf = ((messagePtr)->getSenderId() == FriendManager::instance()->getOneselfID());
 		QPixmap avatar;
 		if (isSelf) {
 			avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
@@ -330,33 +355,45 @@ void MessagePage::loadChatMessage(const ChatRecordMessage& chatMessage)
 			avatar = AvatarManager::instance()->getAvatar(messagePtr->getSenderId(), ChatType::User);
 		}
 		auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
+		if (isGroup)
+		{
+			auto member = m_group->getMember(messagePtr->getSenderId());
+			memberName = member.member_name;
+			memberRole = member.member_role;
+		}
 		// 判断消息类型并处理
 		if (auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get())) {
 			qDebug() << "TextMessage";
 			auto content = textMessage->getTextMessage();
 			MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleTextRight : MessageBubble::BubbleTextLeft;
-			createTextMessageBubble(headPix, content, bubbleType);
+			if (!isGroup)
+				createTextMessageBubble(headPix, content, bubbleType);
+			else
+				createTextMessageBubble(headPix, content, bubbleType, memberName, memberRole);
 		}
 		else if (auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get())) {
 			qDebug() << "ImageMessage";
 			QPixmap image = imageMessage->getImageMessage();
 			MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleImageRight : MessageBubble::BubbleImageLeft;
-			createImageMessageBubble(headPix, image, bubbleType);
+			if (!isGroup)
+				createImageMessageBubble(headPix, image, bubbleType);
+			else
+				createImageMessageBubble(headPix, image, bubbleType, memberName, memberRole);
 		}
 	}
-
 }
 //创建消息并显示
-void MessagePage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType)
+void MessagePage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& memberName, const QString& memberRole)
 {
-	MessageBubble* bubble = new MessageBubble(avatar, pixmap, bubbleType); // 右侧图片
+	MessageBubble* bubble = new MessageBubble(avatar, pixmap, bubbleType, memberName, memberRole); // 右侧图片
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
 }
-void MessagePage::createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType)
+void MessagePage::createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& memberName, const QString& memberRole)
 {
-	MessageBubble* bubble = new MessageBubble(avatar, message, bubbleType);
+	qDebug() << "text:" << memberName << memberRole;
+	MessageBubble* bubble = new MessageBubble(avatar, message, bubbleType, memberName, memberRole);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
@@ -381,7 +418,7 @@ void MessagePage::updateReciveMessage(const QPixmap& pixmap)
 	ui->messageListWidget->scrollToBottom();
 }
 //更新聊天记录
-void MessagePage::updateChatMessage(const QString& sender_id, const QString& receiver_id, const QVariant& msg)
+void MessagePage::updateChatMessage(ChatType type, const QString& sender_id, const QString& receiver_id, const QVariant& msg)
 {
 	// 创建消息指针（多态）
 	std::shared_ptr<MessageRecord> message;
@@ -401,13 +438,24 @@ void MessagePage::updateChatMessage(const QString& sender_id, const QString& rec
 	}
 	if (message) {
 		message->readMessage();
+		if (type == ChatType::User)
+		{
+			if (sender_id == FriendManager::instance()->getOneselfID()) {
+				ChatRecordManager::instance()->updateChat(receiver_id)->addMessage(message);
+			}
+			else {
+				ChatRecordManager::instance()->updateChat(sender_id)->addMessage(message);
+			}
+		}
+		else if (type == ChatType::Group)
+		{
+			qDebug() << receiver_id << "----";
+			auto chat = ChatRecordManager::instance()->updateGroupChat(receiver_id);
+			qDebug() << "ddddddddddd" << chat;
+			chat->addMessage(message);
+		}
 
-		if (sender_id == FriendManager::instance()->getOneselfID()) {
-			ChatRecordManager::instance()->updateChat(receiver_id)->addMessage(message);
-		}
-		else {
-			ChatRecordManager::instance()->updateChat(sender_id)->addMessage(message);
-		}
+
 	}
 }
 //清空消息
@@ -415,6 +463,13 @@ void MessagePage::clearMessageWidget()
 {
 	ui->messageListWidget->clear();
 	ui->messageTextEdit->clear();
+	m_friend = nullptr;
+	m_group = nullptr;
+	disconnect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, nullptr);
+	disconnect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, nullptr);
+	disconnect(ui->sendBtn, &QPushButton::clicked, this, nullptr);
+	disconnect(ui->pictureBtn, &QPushButton::clicked, this, nullptr);
+	disconnect(ui->moreBtn, &QPushButton::clicked, this, nullptr);
 }
 //事件重写
 bool MessagePage::eventFilter(QObject* watched, QEvent* event)

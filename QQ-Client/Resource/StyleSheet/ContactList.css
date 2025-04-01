@@ -11,6 +11,7 @@ QPushButton {
 
 QPushButton#friendmanage {
     border: 1px solid rgb(240,240,240);
+    
 }
 
 QPushButton#friendmanage:hover {

@@ -116,7 +116,6 @@ void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const Q
 	QJsonArray friendArray = paramsObject["friendArray"].toArray();
 	auto user_name = loginUser["username"].toString();
 	auto user_id = loginUser["user_id"].toString();
-	//将登录信息加入管理中心
 	//当前登录用户信息
 	auto user = QSharedPointer<Friend>::create();
 	user->setFriend(loginUser);

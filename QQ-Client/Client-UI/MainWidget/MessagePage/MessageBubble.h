@@ -21,13 +21,13 @@ public:
 	MessageBubble::BubbleType getType();
 private:
 	void init();
-	void setHeadImage(const QPixmap& newHeadImg);
 	int textHeight()const;
 protected:
 	void paintEvent(QPaintEvent* ev)override;
 	void resizeEvent(QResizeEvent* ev)override;
 	void updateBubbleSize();
 	void updateTextRect();			//文本输出实际矩形区域
+	int calculateNameHeight() const;
 	QList<int> textWidthList()const;
 	int lineNumber()const;			//消息文本总行数
 	int realLineNumber()const;		//消息文本实际行数(不能完全显示，换行之后的)
@@ -38,7 +38,7 @@ private:
 	int			m_textMargin = 10;	//文本距离气泡左边的距离
 	QRect		m_textRect;			//文本矩形
 
-	int _xOffset = 0;
+	int _xOffset = -3;
 	int _yOffset = 0;
 
 	QPixmap m_head_img;

@@ -15,6 +15,7 @@ GroupManager::GroupManager()
 			myGroup->setGroup(obj);
 			GroupManager::instance()->addGroup(myGroup);
 			emit newGroup(group_id);
+			qDebug() << myGroup->getGroupId() << myGroup->getGroupName();
 		});
 }
 GroupManager* GroupManager::instance()

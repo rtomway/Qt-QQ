@@ -1,6 +1,4 @@
 ﻿#include "Group.h"
-#include "Group.h"
-#include "Group.h"
 #include "QJsonArray"
 
 void Group::setGroup(const QJsonObject& groupObj)
@@ -26,6 +24,7 @@ void Group::addMember(const QJsonObject& memberObj)
 	member.member_name = memberObj["username"].toString();
 	member.member_role = memberObj["group_role"].toString();
 	m_members.insert(member_id, member);
+	qDebug() << "addmember:" << member.member_id << member.member_name << member.member_role;
 }
 //设置成员用户名
 void Group::setMemberName(const QString& member_id, const QString& member_name)
@@ -62,6 +61,21 @@ const QString& Group::getGrouping() const
 {
 	return m_grouping;
 }
+const Member& Group::getMember(const QString& member_id) const
+{
+	auto it = m_members.find(member_id);  // 使用 find() 查找元素
+	if (it != m_members.end()) {
+		qDebug() << "有该成员";
+		return it.value();  // 返回元素的引用
+	}
+	else {
+		qDebug() << "没有该成员";
+		static const Member defaultMember;  // 使用静态的默认成员对象
+		return defaultMember;  // 返回默认成员对象的引用
+	}
+}
+
+
 
 const QHash<QString, Member>& Group::getMembers() const
 {

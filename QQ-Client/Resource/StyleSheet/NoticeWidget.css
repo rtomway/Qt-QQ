@@ -3,24 +3,30 @@
     border: none;
     background-color: transparent;
 }
+
 QListWidget::item {
     margin-top: 5px; /* 上间距 */
     margin-bottom: 5px; /* 下间距 */
-    
+    background-color: white;
+    border-radius: 10px;
 }
-QLabel#titleLabel{
+
+QLabel#titleLabel {
     font-size: 22px;
 }
-QListWidget QWidget{
-    background-color:white;
-    border-radius:10px;
+
+QListWidget::item QWidget {
+    background-color: transparent;
+    border-radius: 10px;
 }
+
 QListWidget QPushButton {
     border: 1px solid rgb(230, 229, 229);
     border-radius: 5px;
     background-color: white;
-    height:30px;
+    height: 30px;
 }
+
 QListWidget QPushButton:hover {
     background-color: rgb(230, 229, 229);
 }

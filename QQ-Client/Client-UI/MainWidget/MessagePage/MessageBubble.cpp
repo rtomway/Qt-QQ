@@ -4,6 +4,7 @@
 #include<QPainterPath>
 
 #define SpaceWidth() (_xOffset + m_profileRect.width() + 5 * m_textMargin)
+#define Text_yOffset 20
 
 MessageBubble::MessageBubble(QWidget* parent)
 	:MessageBubble(QPixmap(), "", MessageBubble::BubbleImageRight, "", "")
@@ -78,13 +79,6 @@ void MessageBubble::init()
 	m_profileRect.setSize(QSize(38, 38));
 }
 
-void MessageBubble::setHeadImage(const QPixmap& newHeadImg)
-{
-	m_head_img = newHeadImg;
-	update();  // 触发重绘
-	repaint();
-}
-
 int  MessageBubble::textHeight()const
 {
 	return this->fontMetrics().boundingRect(QRect(), Qt::AlignLeft, m_message).height();
@@ -99,6 +93,7 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::RenderHint::Antialiasing);
+	painter.setRenderHint(QPainter::TextAntialiasing, true); // 启用文本抗锯齿
 	painter.setRenderHint(QPainter::RenderHint::SmoothPixmapTransform);
 	painter.setPen(Qt::PenStyle::NoPen);
 
@@ -111,36 +106,70 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 	//绘制头像	
 	painter.drawPixmap(m_profileRect, m_head_img);
 
-	// 如果是群聊，绘制群成员名字和身份
-	if (m_type == BubbleTextLeft || m_type == BubbleImageLeft && !m_groupMemberName.isEmpty()) {
+	// 群聊消息显示名称和角色（左边消息）
+	if (!m_groupMemberName.isEmpty()) {
+		painter.save(); // 保存当前绘图状态
 
-		m_bubbleRect.moveTop(m_bubbleRect.top() + 50);
-		m_textRect.moveTop(m_textRect.top() + 50);
-
-		painter.setPen(Qt::black);  // 文字颜色
-		QFont font;
-		font.setPointSize(10);
-		font.setBold(true);
-		painter.setFont(font);
-
-		// 计算名字和角色的位置（在头像右侧）
-		int textX = m_profileRect.right() + 5;  // 头像右边偏移5像素
-		int textY = m_profileRect.top();  // 头像顶部对齐
-
-		// 绘制名字
-		painter.drawText(textX, textY + 15, m_groupMemberName);  // y + 15 让文本垂直居中头像
-
-		// 绘制身份（如果有）
-		if (!m_groupRole.isEmpty()) {
-			QFont roleFont = font;
-			roleFont.setPointSize(5);  // 身份文字稍微小一点
-			roleFont.setBold(false);
-			painter.setFont(roleFont);
-			painter.setPen(QColor(100, 100, 100));  // 身份信息用灰色
-
-			painter.drawText(textX, textY + 35, m_groupRole);  // y + 35 避免重叠
+		// 设置名称字体
+		QFont nameFont = painter.font();
+		nameFont.setHintingPreference(QFont::PreferNoHinting);
+		nameFont.setPointSize(12);
+		painter.setFont(nameFont);
+		painter.setPen(QColor(100, 100, 100));
+		int nameX;
+		int nameY;
+		QFontMetrics fontMetrics(nameFont);  // 获取字体度量，用于计算文字宽度
+		if (m_type == BubbleImageRight || m_type == BubbleTextRight)
+		{
+			// 计算名字的宽度
+			int textWidth = fontMetrics.horizontalAdvance(m_groupMemberName);
+			nameX = m_profileRect.left() - 10 - textWidth;
+			nameY = m_profileRect.top();
+			// 绘制成员名称
+			painter.drawText(nameX, nameY + fontMetrics.ascent(), m_groupMemberName);
 		}
+		else
+		{
+			nameX = m_profileRect.right() + 10;
+			nameY = m_profileRect.top();
+			painter.drawText(nameX, nameY + painter.fontMetrics().ascent(), m_groupMemberName);
+		}
+
+
+		// 绘制角色（如果存在）
+		if (!m_groupRole.isEmpty()) {
+			QFont roleFont = nameFont;
+			roleFont.setHintingPreference(QFont::PreferNoHinting);
+			roleFont.setPointSize(12);
+			painter.setFont(roleFont);
+			int roleX;
+			// 获取角色文本的宽度并加上间距
+			int roleTextWidth = painter.fontMetrics().boundingRect(m_groupRole).width();
+			int extraSpacing = 10;  // 额外的间距，确保两边有留白
+			if (m_type == BubbleImageRight || m_type == BubbleTextRight)
+			{
+				roleX = nameX - roleTextWidth - extraSpacing - 2;  // 5 是额外的间距
+			}
+			else
+			{
+				roleX = nameX + painter.fontMetrics().boundingRect(m_groupMemberName).width() + 2;  // 5 是额外的间距
+			}
+
+			// 增加矩形宽度，并且保持一定的垂直对齐
+			QRect roleRect(roleX, nameY, roleTextWidth + extraSpacing, painter.fontMetrics().height() + 4); // 4 是上下留白的空间
+
+			// 绘制背景色（角色文本的背景）
+			painter.setBrush(QColor(125, 190, 250));  // 设置背景色为红色
+			painter.setPen(Qt::NoPen);  // 去掉边框
+			painter.drawRoundedRect(roleRect, 6, 6); // 6, 6 是圆角半径
+
+			// 绘制角色文本，确保文本显示在背景色上方
+			painter.setPen(Qt::darkBlue);
+			painter.drawText(roleRect.adjusted(5, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, m_groupRole);  // 左侧加 5px 让文字居中
+		}
+		painter.restore();
 	}
+
 
 	if ((m_type == BubbleImageLeft || m_type == BubbleImageRight) && !m_image.isNull()) {
 		// 绘制图片
@@ -209,7 +238,15 @@ void MessageBubble::updateBubbleSize()
 	if (m_bubbleRect.height() < 0) {
 		m_bubbleRect.setHeight(0);
 	}
-	setFixedHeight(m_bubbleRect.height() + m_textMargin);
+	if (!m_groupMemberName.isEmpty())
+	{
+		setFixedHeight(m_bubbleRect.height() + m_textMargin + Text_yOffset);
+	}
+	else
+	{
+		setFixedHeight(m_bubbleRect.height() + m_textMargin);
+	}
+
 	setContentsMargins(m_textRect.x(), m_textRect.y(),
 		width() - (m_textRect.right() + 1),
 		height() - (m_textRect.bottom() + 1)
@@ -222,10 +259,20 @@ void MessageBubble::updateTextRect()
 	auto bRect = fm.boundingRect(QRect(), Qt::AlignLeft, m_message);
 	if (m_type == MessageBubble::BubbleTextLeft)
 	{
-		m_textRect.moveTopLeft(QPoint(
-			_xOffset + m_profileRect.width() + 3 * m_textMargin,
-			_yOffset + m_textMargin
-		));
+		if (!m_groupMemberName.isEmpty())
+		{
+			m_textRect.moveTopLeft(QPoint(
+				_xOffset + m_profileRect.width() + 3 * m_textMargin,
+				_yOffset + m_textMargin + Text_yOffset
+			));
+		}
+		else
+		{
+			m_textRect.moveTopLeft(QPoint(
+				_xOffset + m_profileRect.width() + 3 * m_textMargin,
+				_yOffset + m_textMargin
+			));
+		}
 
 		if (bRect.width() <= width() - SpaceWidth())
 		{
@@ -242,13 +289,27 @@ void MessageBubble::updateTextRect()
 		if (bRect.width() <= width() - SpaceWidth())
 		{
 			m_textRect.setX(width() - bRect.width() - m_profileRect.width() - 3 * m_textMargin);
-			m_textRect.setY(_yOffset + m_textMargin);;
+			if (!m_groupMemberName.isEmpty())
+			{
+				m_textRect.setY(_yOffset + m_textMargin + Text_yOffset);
+			}
+			else
+			{
+				m_textRect.setY(_yOffset + m_textMargin);
+			}
 			m_textRect.setSize(bRect.size());
 		}
 		else
 		{
 			m_textRect.setX(_xOffset + 2 * m_textMargin);
-			m_textRect.setY(m_textMargin);
+			if (!m_groupMemberName.isEmpty())
+			{
+				m_textRect.setY(m_textMargin + Text_yOffset);
+			}
+			else
+			{
+				m_textRect.setY(m_textMargin);
+			}
 
 			m_textRect.setWidth(width() - SpaceWidth());
 			m_textRect.setHeight(realLineNumber() * fm.lineSpacing() + fm.lineSpacing() / 2);

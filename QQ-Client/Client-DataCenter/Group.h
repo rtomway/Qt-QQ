@@ -24,6 +24,7 @@ public:
 	const QString& getGroupName()const;
 	void setGrouping(const QString& grouping);
 	const QString& getGrouping()const;
+	const Member& getMember(const QString& member_id)const;
 	const QHash<QString, Member>& getMembers() const;
 	const int& count()const;
 private:

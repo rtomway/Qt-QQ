@@ -13,6 +13,7 @@ public:
 	// 重写基类的纯虚函数
 	void setItemWidget(const QString& id) override;
 	void clearUnRead();
+	void updateUnReadMessage(const QString&message,const QString&time);
 private:
 	void init();
 private:
@@ -21,6 +22,8 @@ private:
 	QJsonObject m_friendJson{};
 	QLabel* m_timeLab = nullptr;
 	QLabel* m_countLab = nullptr;
+	QStringList m_unReadMesssage{};
+	QString m_lastTime;
 };
 
 #endif // !FMESSAGEITEMWIDGET_H_

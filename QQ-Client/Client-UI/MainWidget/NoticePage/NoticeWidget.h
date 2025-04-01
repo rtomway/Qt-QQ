@@ -7,7 +7,7 @@
 #include <QListWidget>
 #include <QLabel>
 
-#include "NoticeItemWidget.h"
+#include "GlobalTypes.h"
 
 class NoticeWidget :public QWidget
 {
@@ -22,7 +22,7 @@ public:
 private:
 	void init();
 	void initStackedWidget();
-	void addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap, NoticeItemWidget::NoticeType type);
+	void addNoticeItem(const QString& id, ChatType type);
 public:
 	void setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget);
 private:
@@ -30,5 +30,8 @@ private:
 	QListWidget* m_friendNoticeList{};
 	QListWidget* m_groupNoticeList{};
 	QLabel* m_noticeTitle{};
+signals:
+	void friendNotice();
+	void groupNotice();
 };
 #endif // !NOTICEWIDGET_H_

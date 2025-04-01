@@ -31,7 +31,7 @@ void MessageHandle::initRequestHash()
 	requestHash["pictureCommunication"] = &FriendHandle::handle_pictureCommunication;
 	requestHash["addFriend"] = &FriendHandle::handle_addFriend;
 
-	requestHash["friendAddSucess"] = &FriendHandle::handle_friendAddSuccess;
+	requestHash["friendAddSuccess"] = &FriendHandle::handle_friendAddSuccess;
 	requestHash["friendAddFail"] = &FriendHandle::handle_friendAddFail;
 
 	requestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
@@ -65,7 +65,7 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 			client_id = paramsObject["user_id"].toString();
 		}
 		QByteArray data;
-		
+
 		emit this->addClient(client_id, socket);
 		qDebug() << "客户端发来消息:" << client_id << "type:" << type << requestHash.contains(type);
 		//根据类型给处理函数处理

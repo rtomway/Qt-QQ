@@ -85,8 +85,9 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 		groupInviteMap["username"] = groupOwerName;
 		groupInviteMap["group_id"] = groupId;
 		groupInviteMap["group_name"] = groupName;
+		groupInviteMap["groupType"] = 0;
 		groupInviteMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-		groupInviteMap["requestMessage"] = "邀请你加入他的群聊";
+		groupInviteMap["noticeMessage"] = "邀请你加入群聊" + groupName;
 		groupInviteMap["size"] = imageData.size();
 
 		auto groupInvitePacket = PacketCreate::binaryPacket("groupInvite", groupInviteMap, imageData);

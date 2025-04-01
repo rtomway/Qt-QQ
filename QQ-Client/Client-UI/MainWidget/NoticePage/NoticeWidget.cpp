@@ -4,6 +4,10 @@
 
 #include "ContactListWidget.h"
 #include "EventBus.h"
+#include "TempManager.h"
+#include "ItemWidget.h"
+#include "FNoticeItemWidget.h"
+#include "GNoticeItemWidget.h"
 
 
 NoticeWidget::NoticeWidget(QWidget* parent)
@@ -43,20 +47,17 @@ void NoticeWidget::init()
 	mlayout->addWidget(m_noticeTitle);
 	mlayout->addWidget(m_stackedWidget);
 
-	//好友申请通知
-	connect(EventBus::instance(), &EventBus::addFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+	//好友申请
+	connect(TempManager::instance(), &TempManager::FriendRequest, this, [=](const QString& user_id)
 		{
-			addFreindNoticeItem(obj, pixmap,NoticeItemWidget::NoticeType::RequestNotice);
+			addNoticeItem(user_id, ChatType::User);
+			emit friendNotice();
 		});
 	//群聊邀请
-	connect(EventBus::instance(), &EventBus::groupInvite, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+	connect(TempManager::instance(), &TempManager::GroupInvite, this, [=](const QString& user_id)
 		{
-			addFreindNoticeItem(obj, pixmap, NoticeItemWidget::NoticeType::RequestNotice); 
-		});
-	//被拒绝通知
-	connect(EventBus::instance(), &EventBus::rejectAddFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
-		{
-			addFreindNoticeItem(obj, pixmap,NoticeItemWidget::NoticeType::ReplyNotice);
+			addNoticeItem(user_id, ChatType::Group);
+			emit groupNotice();
 		});
 }
 //init堆栈窗口
@@ -66,15 +67,23 @@ void NoticeWidget::initStackedWidget()
 	m_stackedWidget->addWidget(m_groupNoticeList);
 }
 //添加通知项
-void NoticeWidget::addFreindNoticeItem(const QJsonObject& obj, const QPixmap& pixmap, NoticeItemWidget::NoticeType type)
+void NoticeWidget::addNoticeItem(const QString& id, ChatType type)
 {
+	ItemWidget* itemWidget = nullptr;
+	if (type == ChatType::User)
+	{
+		m_stackedWidget->setCurrentWidget(m_friendNoticeList);
+		itemWidget = new FNoticeItemWidget(this);
+	}
+	else if (type == ChatType::Group)
+	{
+		m_stackedWidget->setCurrentWidget(m_groupNoticeList);
+		itemWidget = new GNoticeItemWidget(this);
+	}
+	itemWidget->setItemWidget(id);
 	auto listWidget = dynamic_cast<QListWidget*>(m_stackedWidget->currentWidget());
 	auto item = new QListWidgetItem(listWidget);
 	item->setSizeHint(QSize(listWidget->width(), 100));
-	//将用户相关信息添加到item关联窗口
-	auto itemWidget = new NoticeItemWidget(listWidget);
-	itemWidget->setUser(obj, pixmap,type);
-	//关联item和widget
 	listWidget->setItemWidget(item, itemWidget);
 }
 
