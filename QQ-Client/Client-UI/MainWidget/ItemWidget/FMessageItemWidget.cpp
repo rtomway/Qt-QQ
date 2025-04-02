@@ -47,8 +47,8 @@ void FMessageItemWidget::setItemWidget(const QString& user_id)
 	ui->headLab->setPixmap(headPix);
 	ui->nameLab->setText(m_friendJson["username"].toString());
 	//最新消息
-	if(!m_unReadMesssage.isEmpty())
-	ui->afterMessageLab->setText(m_unReadMesssage.last());
+	if (!m_unReadMesssage.isEmpty())
+		ui->afterMessageLab->setText(m_unReadMesssage.last());
 	qDebug() << m_friendId << QString::number(m_unReadMesssage.count());
 	m_countLab->setText(QString::number(m_unReadMesssage.count()));
 	m_timeLab->setText(m_lastTime);
@@ -60,7 +60,7 @@ void FMessageItemWidget::clearUnRead()
 	m_unReadMesssage.clear();
 }
 
-void FMessageItemWidget::updateUnReadMessage(const QString& message,const QString& time)
+void FMessageItemWidget::updateUnReadMessage(const QString& message, const QString& time)
 {
 	if (message == "picture")
 	{

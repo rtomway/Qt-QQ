@@ -105,3 +105,35 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 		}
 	}
 }
+
+void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	//转发的信息
+	QJsonObject messageObj;
+	messageObj["params"] = paramsObject;
+	messageObj["type"] = "groupTextCommunication";
+	QJsonDocument doc(messageObj);
+	QString message = QString(doc.toJson(QJsonDocument::Compact));
+	//转发
+	auto group_id = paramsObject["group_id"].toString();
+	DataBaseQuery query;
+	QStringList groupMembers;
+	QString queryStr1("select user_id from groupmembers where group_id=?");
+	QVariantList bindvalues;
+	bindvalues.append(group_id);
+	auto memberObj = query.executeQuery(queryStr1, bindvalues);
+	if (memberObj.contains("error"))
+	{
+
+	}
+	else
+	{
+		auto memberArray = memberObj["data"].toArray();
+		for (const auto& memberValue : memberArray)
+		{
+			QJsonObject userObj = memberValue.toObject();
+			auto member_id = userObj["user_id"].toString();
+			ConnectionManager::instance()->sendTextMessage(member_id, message);
+		}
+	}
+}

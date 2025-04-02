@@ -1,4 +1,5 @@
 ﻿#include "MessageHandle.h"
+#include "MessageHandle.h"
 #include <QPixmap>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -30,6 +31,7 @@ void MessageHandle::initRequestHash()
 	requestHash["updateUserAvatar"] = &MessageHandle::handle_updateUserAvatar;
 	requestHash["createGroupSuccess"] = &MessageHandle::handle_createGroupSuccess;
 	requestHash["groupInvite"] = &MessageHandle::handle_groupInvite;
+	requestHash["groupTextCommunication"] = &MessageHandle::handle_groupTextCommunication;
 }
 //消息处理接口
 void MessageHandle::handle_message(const QString& message)
@@ -244,4 +246,8 @@ void MessageHandle::handle_groupInvite(const QJsonObject& paramsObject, const QB
 		return;
 	}
 	EventBus::instance()->emit groupInvite(paramsObject, avatar);
+}
+void MessageHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	EventBus::instance()->emit groupTextCommunication(paramsObject);
 }

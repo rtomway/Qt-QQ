@@ -43,6 +43,7 @@ void MessageHandle::initRequestHash()
 	//群组处理
 	requestHash["searchGroup"] = &GroupHandle::handle_searchGroup;
 	requestHash["createGroup"] = &GroupHandle::handle_createGroup;
+	requestHash["groupTextCommunication"] = &GroupHandle::handle_groupTextCommunication;
 }
 //消息处理接口
 void MessageHandle::handle_message(const QString& message, QWebSocket* socket)

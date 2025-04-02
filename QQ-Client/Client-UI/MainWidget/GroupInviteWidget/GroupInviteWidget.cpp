@@ -42,7 +42,7 @@ GroupInviteWidget::~GroupInviteWidget()
 
 void GroupInviteWidget::setGroupWidgetMode(GroupMode mode)
 {
-	switch (mode) 
+	switch (mode)
 	{
 	case GroupInviteWidget::CreateGroup:
 		ui->groupModeLab->setText("群聊创建");
@@ -123,14 +123,6 @@ void GroupInviteWidget::init()
 				if (user_id == FriendManager::instance()->getOneselfID())
 					return;
 				itemWidget->setChecked(!itemWidget->isChecked());
-				if (itemWidget->isChecked())
-				{
-					addSelectedFriendItem(ui->selectedFriendList, user_id);
-				}
-				else
-				{
-					removeFriendListItem(user_id);
-				}
 			}
 		});
 	//搜索列表
@@ -143,14 +135,6 @@ void GroupInviteWidget::init()
 				return;
 
 			itemWidget->setChecked(!itemWidget->isChecked());
-			if (itemWidget->isChecked())
-			{
-				addSelectedFriendItem(ui->selectedFriendList, user_id);
-			}
-			else
-			{
-				removeFriendListItem(user_id);
-			}
 		});
 	//创建群聊
 	connect(ui->okBtn, &QPushButton::clicked, this, [=]
@@ -191,10 +175,6 @@ void GroupInviteWidget::init()
 //选中好友添加至选中列表
 void GroupInviteWidget::addSelectedFriendItem(QListWidget* listWidget, const QString& user_id)
 {
-	if (listWidget == ui->selectedFriendList)
-	{
-		m_selectedList.append(user_id);
-	}
 	auto item = findListItem(listWidget, user_id);
 	if (item)
 	{
@@ -216,6 +196,7 @@ void GroupInviteWidget::addSelectedFriendItem(QListWidget* listWidget, const QSt
 		{
 			if (isChecked)
 			{
+				//搜索列表确认（tree确认并添加）
 				if (listWidget == m_searchList)
 				{
 					treeItemWidget->setChecked(true);
@@ -314,7 +295,6 @@ void GroupInviteWidget::cloneFriendTree(ContactListWidget& contactListWidget)
 		{
 			auto item = topItem->child(j);
 			auto itemWidget = dynamic_cast<ItemWidget*>(contactListWidget.m_friendList->itemWidget(item, 0));
-			//auto user_id = itemWidget->getUserId();
 			auto user_id = item->data(0, Qt::UserRole).toString();
 			//new子项
 			QTreeWidgetItem* newItem = new QTreeWidgetItem(newTopItem);
@@ -332,6 +312,8 @@ void GroupInviteWidget::cloneFriendTree(ContactListWidget& contactListWidget)
 					if (isChecked)
 					{
 						addSelectedFriendItem(ui->selectedFriendList, user_id);
+						//选中成员列表
+						m_selectedList.append(user_id);
 					}
 					else
 					{

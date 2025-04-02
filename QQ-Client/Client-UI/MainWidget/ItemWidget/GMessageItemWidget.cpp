@@ -7,8 +7,8 @@
 
 GMessageItemWidget::GMessageItemWidget(QWidget* parent)
 	:ItemWidget(parent)
-	,m_timeLab(new QLabel(this))
-	,m_countLab(new QLabel(this))
+	, m_timeLab(new QLabel(this))
+	, m_countLab(new QLabel(this))
 {
 	init();
 }
@@ -42,11 +42,33 @@ void GMessageItemWidget::setItemWidget(const QString& group_id)
 	ui->headLab->setPixmap(headPix);
 	ui->nameLab->setText(m_group->getGroupName());
 	//最新消息
+	if (!m_unReadMesssage.isEmpty())
+		ui->afterMessageLab->setText(m_unReadMesssage.last());
+	m_countLab->setText(QString::number(m_unReadMesssage.count()));
+	m_timeLab->setText(m_lastTime);
+	ui->preMessageLab->setText(m_sender + ":");
 }
 
 void GMessageItemWidget::clearUnRead()
 {
 	m_countLab->setVisible(false);
+	m_unReadMesssage.clear();
+}
+
+void GMessageItemWidget::updateUnReadMessage(const QString& user_id, const QString& message, const QString& time)
+{
+	if (message == "picture")
+	{
+		m_unReadMesssage.append("文件[图片]");
+	}
+	else
+	{
+		m_unReadMesssage.append(message);
+	}
+	m_countLab->setVisible(true);
+	m_lastTime = time;
+	auto& member = m_group->getMember(user_id);
+	m_sender = member.member_name;
 }
 
 

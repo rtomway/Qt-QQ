@@ -29,6 +29,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void deleteFriend(const QString& user_id);
 	void createGroupSuccess(const QJsonObject& paramsObject);
 	void groupInvite(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void groupTextCommunication(const QJsonObject& paramsObject);
 };
 
 #endif // !EVENTBUS_H_

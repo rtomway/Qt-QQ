@@ -29,7 +29,7 @@ MainWidget::MainWidget(QWidget* parent)
 	, ui(new Ui::MainWidget)
 	, m_addpersonMenu(new QMenu(this))
 	, m_moreMenu(new QMenu(this))
-	, m_messagePage(new MessagePage(this))
+	, m_chatWidget(new ChatWidget(this))
 	, m_contactPage(new ContactPage(this))
 	, m_noticePage(new NoticeWidget(this))
 	, m_emptyPage(new QWidget(this))
@@ -122,7 +122,7 @@ MainWidget::MainWidget(QWidget* parent)
 			qDebug() << "id:" << id;
 			ChatType type = static_cast<ChatType>(item->data(Qt::UserRole + 1).toInt());
 			//已经处于当前用户会话界面并且是显示状态
-			if (m_messagePage == ui->messageStackedWidget->currentWidget() && m_messagePage->isCurrentChat(id, type))
+			if (m_chatWidget == ui->messageStackedWidget->currentWidget() && m_chatWidget->isCurrentChat(type, id))
 				return;
 			qDebug() << "进入会话界面（加载用户信息）";
 			//清除消息项未读
@@ -137,13 +137,12 @@ MainWidget::MainWidget(QWidget* parent)
 				gItemWidget->clearUnRead();
 			}
 			//会话界面
-			ui->messageStackedWidget->setCurrentWidget(m_messagePage);
+			ui->messageStackedWidget->setCurrentWidget(m_chatWidget);
 			//清空界面
-			m_messagePage->clearMessageWidget();
+			m_chatWidget->clearChatWidget();
 			//将当前用户信息以及聊天记录加载到会话界面
-			m_messagePage->loadMessagePage(id, type);
+			m_chatWidget->loadChatPage(type, id);
 		});
-
 	//好友中心通知
 	//个人信息头像加载
 	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]()
@@ -212,8 +211,6 @@ MainWidget::MainWidget(QWidget* parent)
 			ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), group_id, ChatType::Group));
 			addmessageListItem(group_id, ChatType::Group);
 		});
-	//接受信息通知
-
 	//接受到消息 用户消息项更新
 	connect(EventBus::instance(), &EventBus::textCommunication, this, [=](const QJsonObject& obj)
 		{
@@ -234,16 +231,16 @@ MainWidget::MainWidget(QWidget* parent)
 				return;
 			}
 			//接收信息加入聊天记录(自己无需添加)
-			m_messagePage->updateChatMessage(ChatType::User, friend_id, m_userId, QVariant::fromValue(message));
+			m_chatWidget->updateChatMessage(ChatType::User, friend_id, m_userId, QVariant::fromValue(message));
 			if (item)
 			{
 				//有消息项 追加消息内容
 				itemWidget->updateUnReadMessage(message, time);
 				itemWidget->setItemWidget(friend_id);
 				//判断当下是否是该user_id会话界面
-				if (m_messagePage->isCurrentChat(friend_id, ChatType::User) && ui->messageStackedWidget->currentWidget() == m_messagePage)
+				if (m_chatWidget->isCurrentChat(ChatType::User, friend_id) && ui->messageStackedWidget->currentWidget() == m_chatWidget)
 				{
-					m_messagePage->updateReciveMessage(message);
+					m_chatWidget->updateReceiveMessage(friend_id, message);
 					itemWidget->clearUnRead();
 				}
 			}
@@ -274,16 +271,15 @@ MainWidget::MainWidget(QWidget* parent)
 				return;
 			}
 			//接收信息加入聊天记录(自己无需添加)
-			m_messagePage->updateChatMessage(ChatType::User, friend_id, m_userId, QVariant::fromValue(pixmap));
+			m_chatWidget->updateChatMessage(ChatType::User, friend_id, m_userId, QVariant::fromValue(pixmap));
 			if (item)
 			{
 				//有消息项 追加消息内容
 				itemWidget->updateUnReadMessage(message, time);
 				itemWidget->setItemWidget(friend_id);
-				//判断当下是否是该user_id会话界面
-				if (m_messagePage->isCurrentChat(friend_id, ChatType::User) && ui->messageStackedWidget->currentWidget() == m_messagePage)
+				if (m_chatWidget->isCurrentChat(ChatType::User, friend_id) && ui->messageStackedWidget->currentWidget() == m_chatWidget)
 				{
-					m_messagePage->updateReciveMessage(message);
+					m_chatWidget->updateReceiveMessage(friend_id, pixmap);
 					itemWidget->clearUnRead();
 				}
 			}
@@ -296,7 +292,36 @@ MainWidget::MainWidget(QWidget* parent)
 				newItemWidget->setItemWidget(friend_id);
 			}
 		});
-
+	connect(EventBus::instance(), &EventBus::groupTextCommunication, this, [=](const QJsonObject& obj)
+		{
+			auto group_id = obj["group_id"].toString();
+			auto user_id = obj["user_id"].toString();
+			auto message = obj["message"].toString();
+			auto time = obj["time"].toString();
+			auto item = findListItem("group_" + group_id);
+			m_chatWidget->updateChatMessage(ChatType::Group, user_id, group_id, QVariant::fromValue(message));
+			if (item)
+			{
+				auto itemWidget = qobject_cast<GMessageItemWidget*>(m_chatMessageListWidget->itemWidget(item));
+				//有消息项 追加消息内容
+				itemWidget->updateUnReadMessage(user_id, message, time);
+				itemWidget->setItemWidget(group_id);
+				//判断当下是否是该user_id会话界面
+				if (m_chatWidget->isCurrentChat(ChatType::Group, group_id) && ui->messageStackedWidget->currentWidget() == m_chatWidget)
+				{
+					m_chatWidget->updateReceiveMessage(user_id, message);
+					itemWidget->clearUnRead();
+				}
+			}
+			else
+			{
+				//没有消息项创建一个
+				item = addmessageListItem(group_id, ChatType::Group);
+				auto newItemWidget = qobject_cast<GMessageItemWidget*>(m_chatMessageListWidget->itemWidget(item));
+				newItemWidget->updateUnReadMessage(user_id, message, time);
+				newItemWidget->setItemWidget(group_id);
+			}
+		});
 	connect(m_noticePage, &NoticeWidget::friendNotice, this, [=]
 		{
 			if (ui->messageStackedWidget->currentWidget() != m_noticePage)
@@ -424,7 +449,8 @@ void MainWidget::initStackedListWidget()
 void MainWidget::initStackedPage()
 {
 	//会话,通知，信息界面
-	ui->messageStackedWidget->addWidget(m_messagePage);
+	//ui->messageStackedWidget->addWidget(m_messagePage);
+	ui->messageStackedWidget->addWidget(m_chatWidget);
 	ui->messageStackedWidget->addWidget(m_contactPage);
 	ui->messageStackedWidget->addWidget(m_noticePage);
 	ui->messageStackedWidget->addWidget(m_emptyPage);

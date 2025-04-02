@@ -6,10 +6,8 @@
 #include <QStackedWidget>
 #include <QPushButton>
 #include <QButtonGroup>
-#include <QStackedWidget>
 #include <QMenu>
 
-#include "MessagePage.h"
 #include "ContactPage.h"
 #include "NoticeWidget.h"
 #include "ContactListWidget.h"
@@ -17,6 +15,8 @@
 #include "SearchFriend.h"
 #include "GroupInviteWidget.h"
 #include "GlobalTypes.h"
+
+#include "ChatWidget.h"
 
 namespace Ui { class MainWidget; }
 
@@ -49,7 +49,8 @@ private:
 	SearchFriend* m_friendSearchListWidget{};
 	ContactListWidget* m_contactListWidget{};
 	//子页面
-	MessagePage* m_messagePage{};
+	ChatWidget* m_chatWidget{};
+	//MessagePage* m_messagePage{};
 	ContactPage* m_contactPage{};
 	NoticeWidget* m_noticePage{};
 	QWidget* m_emptyPage{};
