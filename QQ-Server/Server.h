@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QWebSocket>
 #include <QWebSocketServer>
+#include <QHttpServer>
+#include <MessageHandle.h>
 
 class Server :public QObject
 {
@@ -14,7 +16,11 @@ public:
 protected:
 	void onNewConnection();
 private:
-	QWebSocketServer* m_server{};
+	QWebSocketServer* m_webSocketServer{};
+	QHttpServer* m_httpServer{};
+	MessageHandle messageHandle{};
+private:
+	void httpRoute();
 };
 
 #endif // !SERVER_H_

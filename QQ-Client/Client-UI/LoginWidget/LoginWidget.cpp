@@ -174,10 +174,11 @@ void LoginWidget::init()
 				QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
 				return;
 			}
-			QVariantMap loginParams;
-			loginParams["user_id"] = user_id;
-			loginParams["password"] = password;
-			MessageSender::instance()->sendMessage("login", loginParams);
+			QJsonObject loginObj;
+			loginObj["user_id"] = user_id;
+			loginObj["password"] = password;
+			/*MessageSender::instance()->sendMessage("login", loginParams);*/
+			MessageSender::instance()->sendHttpRequest("login", loginObj);
 		});
 	//登录成功
 	connect(EventBus::instance(), &EventBus::loginSuccess, [=]

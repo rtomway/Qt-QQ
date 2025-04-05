@@ -12,6 +12,7 @@ class FNoticeItemWidget :public ItemWidget
 public:
 	FNoticeItemWidget(QWidget* parent = nullptr);
 	void setItemWidget(const QString& user_id)override;
+	void setMode(bool isReply);
 private:
 	void init();
 private:
@@ -23,6 +24,7 @@ private:
 	QPushButton* m_okBtn{};
 	QPushButton* m_cancelBtn{};
 	std::unique_ptr<AddWidget> m_addWidget;
+	bool m_isReply = false;
 };
 
 #endif // !FNOTICEITEMWIDGET_H_

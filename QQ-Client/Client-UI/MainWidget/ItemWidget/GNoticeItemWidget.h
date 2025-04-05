@@ -17,6 +17,7 @@ class GNoticeItemWidget :public ItemWidget
 public:
 	GNoticeItemWidget(QWidget* parent = nullptr);
 	void setItemWidget(const QString& group_id)override;
+	void setMode(bool isReply);
 private:
 	void init();
 private:
@@ -28,6 +29,7 @@ private:
 	QPushButton* m_okBtn{};
 	QPushButton* m_cancelBtn{};
 	GroupNoticeType m_type;
+	bool m_isReply = false;
 };
 
 #endif // !GNOTICEITEMWIDGET_H_

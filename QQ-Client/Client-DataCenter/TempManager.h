@@ -9,6 +9,10 @@ struct TempRequestInfo {
     QJsonObject requestData;  // 请求相关的JSON数据
     QPixmap avatar;          // 对应用户或群组的头像
 };
+struct TempReplyInfo {
+    QJsonObject replyData;  // 请求相关的JSON数据
+    QPixmap avatar;          // 对应用户或群组的头像
+};
 
 class TempManager :public QObject
 {
@@ -26,27 +30,26 @@ public:
     // 获取临时请求的详细信息
     TempRequestInfo getFriendRequestInfo(const QString& id);
     TempRequestInfo getGroupRequestInfo(const QString& id);
+    // 添加临时回复（好友申请或群组邀请）
+    void addFriendReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap);
+    void addGroupReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap);
+    // 获取临时回复的详细信息
+    TempReplyInfo getFriendReplyInfo(const QString& id);
+    TempReplyInfo getGroupReplyInfo(const QString& id);
 private:
 	TempManager();
-    
-   
-    // 添加请求回复（同意或拒绝）
-    void addReply(const QString& id, const QString& replyMessage, bool accept);
-    // 获取请求的回复信息
-    QJsonObject getReplyInfo(const QString& id);
-
 private:
     // 存储所有临时请求数据（如好友申请、群组邀请）
     QMap<QString, TempRequestInfo> m_tempFriendRequests;
     QMap<QString, TempRequestInfo> m_tempGroupRequests;
-    // 存储所有临时会话数据
-    QMap<QString, QJsonObject> m_tempSessions;
     // 存储所有请求的回复数据（同意或拒绝）
-    QMap<QString, QJsonObject> m_tempReplies;
+    QMap<QString, TempReplyInfo> m_tempFriendReplys;
+    QMap<QString, TempReplyInfo> m_tempGroupReplys;
 signals:
     void FriendRequest(const QString&user_id);
     void FriendResponse(const QString& user_id);
     void GroupInvite(const QString& group_id);
+    void GroupInviteSuccess(const QString& group_id);
 };
 
 #endif // !TEMPMANAGER_H_

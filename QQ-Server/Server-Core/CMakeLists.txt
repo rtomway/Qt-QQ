@@ -16,6 +16,6 @@ add_library(Server-Core STATIC
 target_include_directories(Server-Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 #链接库
 target_link_libraries(Server-Core PUBLIC   #Core链接的库传递给链接Core库的使用者
-    Qt6::Core Qt6::Gui Qt6::WebSockets Qt6::Sql
+    Qt6::Core Qt6::Gui Qt6::WebSockets Qt6::Sql Qt6::HttpServer
     Server-Util Server-NetWork  Server-DataBase
 )

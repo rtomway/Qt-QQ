@@ -16,18 +16,18 @@ void ConnectionManager::onNewConnection(QWebSocket* client)
 {
 	connect(client, &QWebSocket::disconnected, this, &ConnectionManager::onDisConnection);
 	connect(client, &QWebSocket::textMessageReceived, this, &ConnectionManager::onTextMessageReceived);
-	connect(client, &QWebSocket::binaryMessageReceived,this, &ConnectionManager::onBinaryMessageReceived);
+	connect(client, &QWebSocket::binaryMessageReceived, this, &ConnectionManager::onBinaryMessageReceived);
 }
 //消息的接收
 void ConnectionManager::onTextMessageReceived(const QString& message)
 {
 	auto socket = dynamic_cast<QWebSocket*>(sender());
-	m_messageHandle.handle_message(message,socket);
+	m_messageHandle.handle_message(message, socket);
 }
 void ConnectionManager::onBinaryMessageReceived(const QByteArray& message)
 {
 	auto socket = dynamic_cast<QWebSocket*>(sender());
-	m_messageHandle.handle_message(message,socket);
+	m_messageHandle.handle_message(message, socket);
 }
 //客户端断连
 void ConnectionManager::onDisConnection()
@@ -70,7 +70,7 @@ void ConnectionManager::sendBinaryMessage(const QString& user_id, const QByteArr
 	m_clients[user_id]->sendBinaryMessage(response);
 }
 //客户端添加
-void ConnectionManager::addClient(const QString& user_id, QWebSocket*socket)
+void ConnectionManager::addClient(const QString& user_id, QWebSocket* socket)
 {
 	m_clients[user_id] = socket;
 }

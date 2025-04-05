@@ -22,7 +22,7 @@ public:
 private:
 	void init();
 	void initStackedWidget();
-	void addNoticeItem(const QString& id, ChatType type);
+	void addNoticeItem(const QString& id, ChatType type,bool isReply);
 public:
 	void setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget);
 private:

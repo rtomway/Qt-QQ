@@ -26,8 +26,15 @@ TempManager::TempManager()
 			addGroupRequest(group_id, obj, pixmap);
 			emit GroupInvite(group_id);
 		});
+	connect(EventBus::instance(), &EventBus::groupInviteSuccess, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+		{
+			auto group_id = obj["group_id"].toString();
+			addGroupReply(group_id, obj, pixmap);
+			emit GroupInviteSuccess(group_id);
+		});
 }
 
+//请求
 void TempManager::addFriendRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap)
 {
 	// 检查好友请求是否已存在，如果存在则不重复添加
@@ -39,7 +46,6 @@ void TempManager::addFriendRequest(const QString& id, const QJsonObject& request
 		qDebug() << "Added friend request for user ID:" << id;
 	}
 }
-
 void TempManager::addGroupRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap)
 {
 	// 检查群组请求是否已存在，如果存在则不重复添加
@@ -51,7 +57,6 @@ void TempManager::addGroupRequest(const QString& id, const QJsonObject& requestI
 		qDebug() << "Added group invite for group ID:" << id;
 	}
 }
-
 TempRequestInfo TempManager::getFriendRequestInfo(const QString& id)
 {
 	// 如果存在请求，返回请求信息，否则返回空
@@ -60,7 +65,6 @@ TempRequestInfo TempManager::getFriendRequestInfo(const QString& id)
 	}
 	return TempRequestInfo();
 }
-
 TempRequestInfo TempManager::getGroupRequestInfo(const QString& id)
 {
 	// 如果存在群组邀请，返回邀请信息，否则返回空
@@ -69,3 +73,42 @@ TempRequestInfo TempManager::getGroupRequestInfo(const QString& id)
 	}
 	return TempRequestInfo();
 }
+
+//回复
+void TempManager::addFriendReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap)
+{
+	// 检查好友请求是否已存在，如果存在则不重复添加
+	//if (!m_tempFriendReplys.contains(id)) {
+		TempReplyInfo reply;
+		reply.replyData = replyInfo;
+		reply.avatar = pixmap;
+		m_tempFriendReplys[id] = reply;
+		qDebug() << "Added friend Reply for user ID:" << id;
+	//}
+}
+void TempManager::addGroupReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap)
+{
+	// 检查群组回复是否已存在，如果存在则不重复添加
+	//if (!m_tempFriendReplys.contains(id)) {
+		TempReplyInfo reply;
+		reply.replyData = replyInfo;
+		reply.avatar = pixmap;
+		m_tempGroupReplys[id] = reply;
+		qDebug() << "Added Group Reply for user ID:" << id;
+	//}
+}
+TempReplyInfo TempManager::getFriendReplyInfo(const QString& id)
+{
+	if (m_tempFriendReplys.contains(id)) {
+		return m_tempFriendReplys[id];
+	}
+	return TempReplyInfo();
+}
+TempReplyInfo TempManager::getGroupReplyInfo(const QString& id)
+{
+	if (m_tempGroupReplys.contains(id)) {
+		return m_tempGroupReplys[id];
+	}
+	return TempReplyInfo();
+}
+

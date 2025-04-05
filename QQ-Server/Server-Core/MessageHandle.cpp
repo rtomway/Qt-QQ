@@ -18,33 +18,43 @@
 MessageHandle::MessageHandle(QObject* parent)
 	:QObject(parent)
 {
-	initRequestHash();
+	initWebRequestHash();
+	initHttpRequestHash();
 }
 //映射表
-void MessageHandle::initRequestHash()
+void MessageHandle::initWebRequestHash()
 {
 	//登录注册
-	requestHash["login"] = &LoginHandle::handle_login;
-	requestHash["register"] = &RegisterHandle::handle_register;
+	//webRequestHash["login"] = &LoginHandle::handle_login;
+	webRequestHash["register"] = &RegisterHandle::handle_register;
 	//好友处理
-	requestHash["textCommunication"] = &FriendHandle::handle_textCommunication;
-	requestHash["pictureCommunication"] = &FriendHandle::handle_pictureCommunication;
-	requestHash["addFriend"] = &FriendHandle::handle_addFriend;
+	webRequestHash["textCommunication"] = &FriendHandle::handle_textCommunication;
+	webRequestHash["pictureCommunication"] = &FriendHandle::handle_pictureCommunication;
+	webRequestHash["addFriend"] = &FriendHandle::handle_addFriend;
 
-	requestHash["friendAddSuccess"] = &FriendHandle::handle_friendAddSuccess;
-	requestHash["friendAddFail"] = &FriendHandle::handle_friendAddFail;
+	webRequestHash["friendAddSuccess"] = &FriendHandle::handle_friendAddSuccess;
+	webRequestHash["friendAddFail"] = &FriendHandle::handle_friendAddFail;
 
-	requestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
-	requestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;
+	webRequestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
+	webRequestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;
 	//用户处理
-	requestHash["searchUser"] = &UserHandle::handle_searchUser;
-	requestHash["updateUserMessage"] = &UserHandle::handle_updateUserMessage;
-	requestHash["updateUserAvatar"] = &UserHandle::handle_updateUserAvatar;
+	webRequestHash["searchUser"] = &UserHandle::handle_searchUser;
+	webRequestHash["updateUserMessage"] = &UserHandle::handle_updateUserMessage;
+	webRequestHash["updateUserAvatar"] = &UserHandle::handle_updateUserAvatar;
 	//群组处理
-	requestHash["searchGroup"] = &GroupHandle::handle_searchGroup;
-	requestHash["createGroup"] = &GroupHandle::handle_createGroup;
-	requestHash["groupTextCommunication"] = &GroupHandle::handle_groupTextCommunication;
+	webRequestHash["searchGroup"] = &GroupHandle::handle_searchGroup;
+	webRequestHash["createGroup"] = &GroupHandle::handle_createGroup;
+	webRequestHash["groupTextCommunication"] = &GroupHandle::handle_groupTextCommunication;
+	webRequestHash["groupInviteSuccess"] = &GroupHandle::handle_groupInviteSuccess;
+
 }
+
+void MessageHandle::initHttpRequestHash()
+{
+	//登录注册
+	httpRequestHash["login"] = &LoginHandle::handle_login;
+}
+
 //消息处理接口
 void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 {
@@ -68,11 +78,11 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 		QByteArray data;
 
 		emit this->addClient(client_id, socket);
-		qDebug() << "客户端发来消息:" << client_id << "type:" << type << requestHash.contains(type);
+		qDebug() << "客户端发来消息:" << client_id << "type:" << type << webRequestHash.contains(type);
 		//根据类型给处理函数处理
-		if (requestHash.contains(type))
+		if (webRequestHash.contains(type))
 		{
-			auto handle = requestHash[type];
+			auto handle = webRequestHash[type];
 			handle(paramsObject, data);
 		}
 		else
@@ -132,15 +142,27 @@ void MessageHandle::handle_message(const QByteArray& message, QWebSocket* socket
 		int imageSize = params["size"].toInt();
 		QByteArray imageData(imageSize, Qt::Uninitialized);
 		stream.readRawData(imageData.data(), imageSize);
-		qDebug() << "客户端发来消息:" << "type:" << type << requestHash.contains(type);
+		qDebug() << "客户端发来消息:" << "type:" << type << webRequestHash.contains(type);
 		// 根据类型给处理函数处理
-		if (requestHash.contains(type)) {
-			auto handle = requestHash[type];
+		if (webRequestHash.contains(type)) {
+			auto handle = webRequestHash[type];
 			handle(params, imageData);  // 调用对应的处理函数
 		}
 		else {
 			qDebug() << "未知的类型:" << type;
 		}
+	}
+}
+void MessageHandle::handle_message(const QString& type, const QHttpServerRequest& request, QHttpServerResponder& response)
+{
+	auto requestBody = request.body();
+	// 根据类型给处理函数处理
+	if (httpRequestHash.contains(type)) {
+		auto handle = httpRequestHash[type];
+		handle(requestBody, response);  // 调用对应的处理函数
+	}
+	else {
+		qDebug() << "未知的类型:" << type;
 	}
 }
 

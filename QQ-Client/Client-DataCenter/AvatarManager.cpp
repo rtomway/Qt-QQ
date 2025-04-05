@@ -19,9 +19,7 @@ AvatarManager::AvatarManager()
 			qDebug() << "----------用户头像更新-----------";
 			if (ImageUtils::saveAvatarToLocal(pixmap, user_id, ChatType::User))
 			{
-
 				m_userAvatarCache.insert(user_id, new QPixmap(pixmap));  // 插入新的头像到缓存（qcatch自动管理）
-
 				emit UpdateUserAvatar(user_id);
 			}
 			else

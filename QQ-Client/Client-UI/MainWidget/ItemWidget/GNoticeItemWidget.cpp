@@ -2,7 +2,9 @@
 #include "ui_ItemWidget.h"
 #include "TempManager.h"
 #include "AvatarManager.h"
+#include "FriendManager.h"
 #include "ImageUtil.h"
+#include "MessageSender.h"
 #include <QBoxLayout>
 
 GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
@@ -21,7 +23,14 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 			m_okBtn->setEnabled(false);
 			if (m_type == GroupNoticeType::GroupInvite)
 			{
-
+				QVariantMap groupInviteMap;
+				auto loginUser = FriendManager::instance()->findFriend(FriendManager::instance()->getOneselfID());
+				groupInviteMap["user_id"] = loginUser->getFriendId();
+				groupInviteMap["username"] = loginUser->getFriendName();
+				groupInviteMap["group_id"] = m_json["group_id"].toString();
+				groupInviteMap["groupOwerId"] = m_json["user_id"].toString();
+				groupInviteMap["group_name"] = m_json["group_name"].toString();
+				MessageSender::instance()->sendMessage("groupInviteSuccess", groupInviteMap);
 			}
 			else if (m_type == GroupNoticeType::GroupRequestAdd)
 			{
@@ -40,20 +49,37 @@ void GNoticeItemWidget::init()
 	rightLayout->addWidget(m_cancelBtn);
 	m_okBtn->setFixedWidth(90);
 	m_cancelBtn->setFixedWidth(90);
-	ui->preMessageLab->setText("留言：");
+	//ui->preMessageLab->setText("留言：");
+	ui->preMessageLab->setVisible(false);
 }
 
 
 void GNoticeItemWidget::setItemWidget(const QString& group_id)
 {
-	auto noticeData = TempManager::instance()->getGroupRequestInfo(group_id);
-	m_json = noticeData.requestData;
-	m_headPix = noticeData.avatar;
+	if (m_isReply)
+	{
+		auto noticeData = TempManager::instance()->getGroupReplyInfo(group_id);
+		m_json = noticeData.replyData;
+		m_headPix = noticeData.avatar;
+		m_okBtn->setVisible(false);
+		m_cancelBtn->setVisible(false);
+	}
+	else
+	{
+		auto noticeData = TempManager::instance()->getGroupRequestInfo(group_id);
+		m_json = noticeData.requestData;
+		m_headPix = noticeData.avatar;
+		m_type = static_cast<GroupNoticeType>(m_json["groupType"].toInt());
+	}
 	auto headPix = ImageUtils::roundedPixmap(m_headPix, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 	ui->nameLab->setText(m_json["username"].toString());
 	m_noticeMessageLab->setText(m_json["noticeMessage"].toString());
 	m_timeLab->setText(m_json["time"].toString());
-	m_type = static_cast<GroupNoticeType>(m_json["groupType"].toInt());
+}
+
+void GNoticeItemWidget::setMode(bool isReply)
+{
+	m_isReply = isReply;
 }
 

@@ -53,4 +53,9 @@ void FNoticeItemWidget::setItemWidget(const QString& user_id)
 	m_timeLab->setText(m_json["time"].toString());
 }
 
+void FNoticeItemWidget::setMode(bool isReply)
+{
+	m_isReply = isReply;
+}
+
 

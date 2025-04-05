@@ -17,6 +17,15 @@ GroupManager::GroupManager()
 			emit newGroup(group_id);
 			qDebug() << myGroup->getGroupId() << myGroup->getGroupName();
 		});
+	connect(EventBus::instance(), &EventBus::newGroupMember, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+		{
+			qDebug() << "GroupManager:" << obj;
+			auto group_id = obj["group_id"].toString();
+			auto user_id = obj["user_id"].toString();
+			auto group = findGroup(group_id);
+			group->addMember(obj);
+			ImageUtils::saveAvatarToLocal(pixmap, user_id, ChatType::User);
+		});
 }
 GroupManager* GroupManager::instance()
 {

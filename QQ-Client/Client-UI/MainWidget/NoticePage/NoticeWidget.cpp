@@ -50,13 +50,19 @@ void NoticeWidget::init()
 	//好友申请
 	connect(TempManager::instance(), &TempManager::FriendRequest, this, [=](const QString& user_id)
 		{
-			addNoticeItem(user_id, ChatType::User);
+			addNoticeItem(user_id, ChatType::User,false);
 			emit friendNotice();
 		});
 	//群聊邀请
-	connect(TempManager::instance(), &TempManager::GroupInvite, this, [=](const QString& user_id)
+	connect(TempManager::instance(), &TempManager::GroupInvite, this, [=](const QString& group_id)
 		{
-			addNoticeItem(user_id, ChatType::Group);
+			addNoticeItem(group_id, ChatType::Group,false);
+			emit groupNotice();
+		});
+	//群聊邀请
+	connect(TempManager::instance(), &TempManager::GroupInviteSuccess, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group,true);
 			emit groupNotice();
 		});
 }
@@ -67,18 +73,22 @@ void NoticeWidget::initStackedWidget()
 	m_stackedWidget->addWidget(m_groupNoticeList);
 }
 //添加通知项
-void NoticeWidget::addNoticeItem(const QString& id, ChatType type)
+void NoticeWidget::addNoticeItem(const QString& id, ChatType type, bool isReply)
 {
 	ItemWidget* itemWidget = nullptr;
 	if (type == ChatType::User)
 	{
 		m_stackedWidget->setCurrentWidget(m_friendNoticeList);
 		itemWidget = new FNoticeItemWidget(this);
+		auto fItemWidget = dynamic_cast<FNoticeItemWidget*>(itemWidget);
+		fItemWidget->setMode(isReply);
 	}
 	else if (type == ChatType::Group)
 	{
 		m_stackedWidget->setCurrentWidget(m_groupNoticeList);
 		itemWidget = new GNoticeItemWidget(this);
+		auto gItemWidget = dynamic_cast<GNoticeItemWidget*>(itemWidget);
+		gItemWidget->setMode(isReply);
 	}
 	itemWidget->setItemWidget(id);
 	auto listWidget = dynamic_cast<QListWidget*>(m_stackedWidget->currentWidget());

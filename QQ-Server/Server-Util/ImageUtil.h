@@ -12,7 +12,6 @@ public:
 	static QString getGroupAvatarFolderPath();
 	static bool saveAvatarToLocal(const QString& avatarPath, const QString& user_id, ChatType type);
 	static bool saveAvatarToLocal(const QImage& image, const QString& user_id, ChatType type);
-	static QImage loadAvatarFromFile(const QString& avatarPath);
 	static QByteArray loadImage(const QString& user_id, ChatType type);
 };
 

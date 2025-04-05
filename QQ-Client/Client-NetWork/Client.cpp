@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <Qpixmap>
+#include "MessageSender.h"
 
 Client::Client(QObject* parent)
 	:QObject(parent)
@@ -14,6 +15,16 @@ Client::Client(QObject* parent)
 	connect(m_client, &QWebSocket::errorOccurred, this, &Client::onErrorOccurred);
 	connect(m_client, &QWebSocket::connected, this, &Client::onConnected);
 	connect(m_client, &QWebSocket::disconnected, this, &Client::onDisconnected);
+	//接收http回复
+	connect(MessageSender::instance(), &MessageSender::httpTextResponseReceived, this, [=](const QByteArray& data)
+		{
+			QJsonDocument doc = QJsonDocument::fromJson(data);
+			m_messageHandle.handle_message(doc);
+		});
+	connect(MessageSender::instance(), &MessageSender::httpDataResponseReceived, this, [=](const QByteArray& data)
+		{
+			m_messageHandle.handle_message(data);
+		});
 }
 
 Client::~Client()
@@ -51,12 +62,13 @@ Client* Client::DisconnectFromServer(std::function<void()> callback)
 	m_disconnectedCallback = callback;
 	return this;
 }
-//接受文本信息
+//接受Web文本信息
 void Client::onTextMessageReceived(const QString& message)
 {
-	m_messageHandle.handle_message(message);
+	QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
+	m_messageHandle.handle_message(doc);
 }
-//接受二进制数据
+//接受Web二进制数据
 void Client::onBinaryMessageReceived(const QByteArray& message)
 {
 	m_messageHandle.handle_message(message);

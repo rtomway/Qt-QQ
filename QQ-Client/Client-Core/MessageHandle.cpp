@@ -1,5 +1,4 @@
 ﻿#include "MessageHandle.h"
-#include "MessageHandle.h"
 #include <QPixmap>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -32,15 +31,16 @@ void MessageHandle::initRequestHash()
 	requestHash["createGroupSuccess"] = &MessageHandle::handle_createGroupSuccess;
 	requestHash["groupInvite"] = &MessageHandle::handle_groupInvite;
 	requestHash["groupTextCommunication"] = &MessageHandle::handle_groupTextCommunication;
+	requestHash["newGroupMember"] = &MessageHandle::handle_newGroupMember;
+	requestHash["groupInviteSuccess"] = &MessageHandle::handle_groupInviteSuccess;
 }
 //消息处理接口
-void MessageHandle::handle_message(const QString& message)
+void MessageHandle::handle_message(const QJsonDocument& messageDoc)
 {
 	qDebug() << "接受到服务端的文本消息:";
-	QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-	if (doc.isObject())
+	if (messageDoc.isObject())
 	{
-		QJsonObject obj = doc.object();
+		QJsonObject obj = messageDoc.object();
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
 		qDebug() << type << requestHash.contains(type);
@@ -142,6 +142,7 @@ void MessageHandle::handle_registerSuccess(const QJsonObject& paramsObject, cons
 {
 	EventBus::instance()->emit registerSuccess(paramsObject);
 }
+//好友
 void MessageHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	EventBus::instance()->emit textCommunication(paramsObject);
@@ -229,6 +230,7 @@ void MessageHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, con
 
 	EventBus::instance()->emit updateUserAvatar(user_id, avatar);
 }
+//群组
 void MessageHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "handle_createGroupSuccess:" << paramsObject;
@@ -250,4 +252,32 @@ void MessageHandle::handle_groupInvite(const QJsonObject& paramsObject, const QB
 void MessageHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	EventBus::instance()->emit groupTextCommunication(paramsObject);
+}
+void MessageHandle::handle_newGroupMember(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	qDebug() << "新群成员" << user_id;
+	// 1️⃣ 把 QByteArray 转换成 QPixmap
+	QPixmap avatar;
+	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+	{
+		qWarning() << "Failed to load avatar for user:" << user_id;
+		return;
+	}
+
+	EventBus::instance()->emit newGroupMember(paramsObject, avatar);
+}
+void MessageHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	qDebug() << "邀请成功";
+	// 1️⃣ 把 QByteArray 转换成 QPixmap
+	QPixmap avatar;
+	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+	{
+		qWarning() << "Failed to load avatar for user:" << user_id;
+		return;
+	}
+
+	EventBus::instance()->emit groupInviteSuccess(paramsObject, avatar);
 }

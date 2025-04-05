@@ -31,7 +31,7 @@ private:
 	QHash<QString, QWebSocket*>m_clients{};
 	MessageHandle m_messageHandle;
 private:
-	void addClient(const QString&user_id,QWebSocket*socket);
+	void addClient(const QString& user_id, QWebSocket* socket);
 };
 
 #endif // !CONNECTIONMANAGER
