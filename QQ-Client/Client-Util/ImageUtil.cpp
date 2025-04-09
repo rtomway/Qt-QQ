@@ -100,9 +100,11 @@ bool ImageUtils::saveAvatarToLocal(const QPixmap& pixmap, const QString& id, Cha
 	{
 	case ChatType::User:
 		avatarFolderPath = getUserAvatarFolderPath();
+		qDebug() << "新增图片:" << "User:" << id;
 		break;
 	case ChatType::Group:
 		avatarFolderPath = getGroupAvatarFolderPath();
+		qDebug() << "新增图片:" << "Group:" << id;
 		break;
 	default:
 		break;
@@ -123,11 +125,17 @@ QPixmap ImageUtils::loadAvatarFromFile(const QString& avatarPath)
 	QPixmap avatar;
 	if (QFile::exists(avatarPath))
 	{
-		avatar.load(avatarPath);
+		if (!avatar.load(avatarPath))
+		{
+			qDebug() << "loadAvatarFromFile:加载图片失败：" << avatarPath;
+		}
 	}
 	else
 	{
-		avatar.load(":/picture/Resource/Picture/qq.png"); // 如果头像加载失败，使用默认头像
+		if (!avatar.load(":/picture/Resource/Picture/qq.png"))// 如果头像加载失败，使用默认头像
+		{
+			qDebug() << "loadAvatarFromFile:默认图片加载失败";
+		}
 	}
 	return avatar;
 }

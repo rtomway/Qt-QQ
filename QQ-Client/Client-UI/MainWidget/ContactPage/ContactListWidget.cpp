@@ -153,7 +153,7 @@ void ContactListWidget::init()
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
-			qDebug() << user->getFriend();
+			qDebug() << "text信息更新" << user->getFriend();
 			auto groupingItem = getFriendTopItem(user->getGrouping());
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
@@ -166,13 +166,12 @@ void ContactListWidget::init()
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
-			qDebug() << user->getFriend();
 			auto groupingItem = getFriendTopItem(user->getGrouping());
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
-				//itemWidget->updatePixmap();
+				itemWidget->setItemWidget(user_id);
 			}
 		});
 	//好友分组更改
@@ -211,6 +210,7 @@ void ContactListWidget::init()
 	//新增群组
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
+			qDebug() << "ContactListWidget新增群组";
 			addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
 		});
 }

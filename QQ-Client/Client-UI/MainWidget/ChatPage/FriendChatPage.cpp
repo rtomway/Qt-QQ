@@ -83,23 +83,29 @@ void FriendChatPage::init()
 	//用户信息更新后(处于会话界面)
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
-			if (user_id != m_friend->getFriendId())
+			if (m_friend && user_id != m_friend->getFriendId())
 				return;
 			auto user = FriendManager::instance()->findFriend(user_id);
 		});
 	//用户头像更新后(处于会话界面)
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
-			if (user_id != m_friend->getFriendId() && user_id != m_oneself->getFriendId())
-				return;
-			auto chatMessage = ChatRecordManager::instance()->getChat(m_friend->getFriendId());
-			loadChatMessage(*chatMessage);
+			if (m_friend && m_oneself)
+			{
+				if (user_id != m_friend->getFriendId() && user_id != m_oneself->getFriendId())
+				{
+					return;
+				}
+				auto chatMessage = ChatRecordManager::instance()->getChat(m_friend->getFriendId());
+				loadChatMessage(*chatMessage);
+			}
+
 		});
 	//发送消息
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
 			auto user_id = FriendManager::instance()->getOneselfID();
-			auto avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
+			auto& avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
 			auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 			//图片消息
 			if (!m_imageMessagePath.isEmpty())

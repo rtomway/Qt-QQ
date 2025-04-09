@@ -26,7 +26,7 @@ void FriendListItemWidget::setItemWidget(const QString& user_id)
 	m_friendJson = m_friend->getFriend();
 	qDebug() << "FriendListItemWidget信息：" << m_friendJson;
 	//页面显示
-	auto pixmap = AvatarManager::instance()->getAvatar(m_friendId, ChatType::User);
+	auto& pixmap = AvatarManager::instance()->getAvatar(m_friendId, ChatType::User);
 	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 	ui->nameLab->setText(m_friendJson["username"].toString());

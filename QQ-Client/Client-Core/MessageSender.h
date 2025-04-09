@@ -20,11 +20,10 @@ public:
 	MessageSender& operator=(const MessageSender&) = delete;
 public:
 	void setClient(Client* client);
+	void disConnect();
 	void sendMessage(const QString& type, const QVariantMap& params = {});
 	void sendBinaryData(const QByteArray& data);
-	void sendHttpRequest(const QString& type, const QJsonObject& paramsObj);
-	void sendFile(const QString& path, const QString& filePath, const QVariantMap& params = {});
-	void sendFile(const QString& path, const QByteArray& fileData, const QString& fileName, const QVariantMap& params = {});
+	void sendHttpRequest(const QString& type, const QByteArray& data,const QString&Content_type);
 private:
 	MessageSender();
 	Client* m_client{};

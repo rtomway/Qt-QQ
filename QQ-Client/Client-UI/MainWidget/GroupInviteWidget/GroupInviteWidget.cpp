@@ -90,7 +90,7 @@ void GroupInviteWidget::init()
 					continue;  // 跳过当前无效项
 				}
 				auto obj = it.value()->getFriend();
-				auto pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User);
+				auto& pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User);
 				if (obj.isEmpty() || pixmap.isNull()) {
 					qWarning() << "Invalid object or pixmap!";
 					return;
@@ -161,6 +161,9 @@ void GroupInviteWidget::init()
 			}
 			createGroupMap["inviteMembers"] = inviteMembersArray;
 			MessageSender::instance()->sendMessage("createGroup", createGroupMap);
+			qDebug() << "群聊创建发送";
+			clearFriendTree();
+			clearSearchList();
 			this->hide();
 		});
 	//取消创建

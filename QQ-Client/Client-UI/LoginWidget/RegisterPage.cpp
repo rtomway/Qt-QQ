@@ -63,10 +63,12 @@ void RegisterPage::init()
 				return;
 			}
 			//向服务器发送注册信息
-			QVariantMap registerMap;
-			registerMap["username"] = ui->nickNameEdit->text();
-			registerMap["password"] = ui->passwordEdit->text();
-			MessageSender::instance()->sendMessage("register", registerMap);
+			QJsonObject registerObj;
+			registerObj["username"] = ui->nickNameEdit->text();
+			registerObj["password"] = ui->passwordEdit->text();
+			QJsonDocument doc(registerObj);
+			auto data = doc.toJson(QJsonDocument::Compact);
+			MessageSender::instance()->sendHttpRequest("register", data, "application/json");
 		});
 	connect(EventBus::instance(), &EventBus::registerSuccess, this, &RegisterPage::hide);
 }

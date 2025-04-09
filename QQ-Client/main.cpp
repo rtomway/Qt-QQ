@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     Client client;
-    client.connectToServer("ws://localhost:8888")
+    /*client.connectToServer("ws://localhost:8888")
         ->Connected([]()
             {
                 qDebug() << "连接成功";
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
         ->DisconnectFromServer([&client]()
             {
                 client.connectToServer("ws://localhost:8888");
-            });
+            });*/
     MessageSender::instance()->setClient(&client);
     MainWindow mainwindow;
     mainwindow.show();

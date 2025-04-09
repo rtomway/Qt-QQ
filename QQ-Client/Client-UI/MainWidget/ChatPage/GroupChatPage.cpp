@@ -22,7 +22,7 @@ void GroupChatPage::init()
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
 			auto user_id = m_oneself->getFriendId();
-			auto avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
+			auto& avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
 			auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 			//文字消息
 			QString msg = ui->messageTextEdit->toPlainText();

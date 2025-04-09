@@ -11,9 +11,10 @@ class MessageHandle :public QObject
 public:
 	MessageHandle(QObject* parent = nullptr);
 	//消息处理接口
-	void handle_message(const QJsonDocument& messageDoc);
-	void handle_message(const QByteArray& message);
-	//void handle_httpMessage(const QByteArray& message);
+	void handle_textMessage(const QJsonDocument& messageDoc);
+	void handle_binaryMessage(const QByteArray& message);
+private:
+	void token(const QString&token);
 private:
 	//消息处理函数表
 	QHash<QString, void(MessageHandle::*)(const QJsonObject&, const QByteArray&)>requestHash{};
@@ -35,6 +36,8 @@ private:
 	void handle_groupTextCommunication(const QJsonObject& paramsObjec = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_newGroupMember(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_groupInviteSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+signals:
+	void connectToServer();
 };
 
 #endif // !MESSAGEHANDLE_H_

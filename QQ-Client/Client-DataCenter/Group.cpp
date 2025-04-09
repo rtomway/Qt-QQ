@@ -3,7 +3,7 @@
 
 void Group::setGroup(const QJsonObject& groupObj)
 {
-	qDebug() << "setGroup1" << groupObj;
+	qDebug() << "setGroup" << groupObj;
 	m_groupId = groupObj["group_id"].toString();
 	m_groupName = groupObj["group_name"].toString();
 	m_groupOwnerId = groupObj["user_id"].toString();
@@ -13,7 +13,6 @@ void Group::setGroup(const QJsonObject& groupObj)
 	{
 		addMember(memberVal.toObject());
 	}
-	qDebug() << m_groupId;
 }
 //群聊添加成员
 void Group::addMember(const QJsonObject& memberObj)

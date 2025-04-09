@@ -20,9 +20,9 @@
 #include "EventBus.h"
 #include "AvatarManager.h"
 #include "GroupManager.h"
-
 #include "FMessageItemWidget.h"
 #include "GMessageItemWidget.h"
+#include "MessageSender.h"
 
 MainWidget::MainWidget(QWidget* parent)
 	:QWidget(parent)
@@ -107,7 +107,7 @@ MainWidget::MainWidget(QWidget* parent)
 					continue;  // 跳过当前无效项
 				}
 				auto obj = it.value()->getFriend();
-				auto pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User);
+				auto& pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User);
 				if (obj.isEmpty() || pixmap.isNull()) {
 					qWarning() << "Invalid object or pixmap!";
 					return;
@@ -147,11 +147,11 @@ MainWidget::MainWidget(QWidget* parent)
 	//个人信息头像加载
 	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]()
 		{
-			auto avatar = AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID(), ChatType::User);
+			auto& avatar = AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID(), ChatType::User);
 			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(50, 50));
 			ui->headLab->setPixmap(pixmap);
 		});
-	//好友头像更新
+	//头像更新
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
 			if (user_id != FriendManager::instance()->getOneselfID())
@@ -162,11 +162,11 @@ MainWidget::MainWidget(QWidget* parent)
 	//好友信息更新,消息项相关信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
 		{
-			qDebug() << "信息更新" << user_id;
+			qDebug() << "消息项相关信息更新" << user_id;
 			auto messageItem = findListItem("user__" + user_id);
 			if (messageItem)
 			{
-				qDebug() << "信息更新";
+				qDebug() << "消息项相关信息更新";
 				auto user = FriendManager::instance()->findFriend(user_id);
 				auto itemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(messageItem));
 				itemWidget->setItemWidget(user_id);
@@ -178,7 +178,7 @@ MainWidget::MainWidget(QWidget* parent)
 			auto messageItem = findListItem("user__" + user_id);
 			if (messageItem)
 			{
-				qDebug() << "信息更新";
+				qDebug() << "头像信息更新";
 				auto user = FriendManager::instance()->findFriend(user_id);
 				auto itemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(messageItem));
 				itemWidget->setItemWidget(user_id);
@@ -208,6 +208,7 @@ MainWidget::MainWidget(QWidget* parent)
 	//新增群组
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
+			qDebug() << "mainwidget 新增群组";
 			ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), group_id, ChatType::Group));
 			addmessageListItem(group_id, ChatType::Group);
 		});
@@ -470,6 +471,7 @@ void MainWidget::initMoreMenu()
 			ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
 			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
 			emit quitsuccess();
+			MessageSender::instance()->disConnect();
 		});
 	m_moreMenu->addAction(QIcon(":/icon/Resource/Icon/about.png"), "关于", [=]
 		{

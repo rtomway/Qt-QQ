@@ -9,13 +9,17 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto group_name = obj["group_name"].toString();
-			auto group_pixmap = AvatarManager::instance()->getAvatar(obj["user_id"].toString(), ChatType::User);
-			ImageUtils::saveAvatarToLocal(group_pixmap, group_id, ChatType::Group);
+			auto& group_pixmap = AvatarManager::instance()->getAvatar(obj["user_id"].toString(), ChatType::User);
+			if (!ImageUtils::saveAvatarToLocal(group_pixmap, group_id, ChatType::Group))
+			{
+				qDebug() << "图片保存本地失败";
+			}
 			auto myGroup = QSharedPointer<Group>::create();
 			myGroup->setGroup(obj);
 			GroupManager::instance()->addGroup(myGroup);
+			qDebug() << "群组管理中心加载完成·······";
 			emit newGroup(group_id);
-			qDebug() << myGroup->getGroupId() << myGroup->getGroupName();
+			qDebug() <<"新建群组：" << myGroup->getGroupId() << myGroup->getGroupName();
 		});
 	connect(EventBus::instance(), &EventBus::newGroupMember, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
 		{

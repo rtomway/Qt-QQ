@@ -1,6 +1,7 @@
 ﻿#include "ContactPage.h"
 #include "ui_ContactPage.h"
 #include <QFile>
+#include <QJsonDocument>
 #include <QToolButton>
 
 #include "ImageUtil.h"
@@ -90,6 +91,7 @@ void ContactPage::init()
 	//更新用户信息
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
+			qDebug() << "------------user_id:" << user_id;
 			this->setUser(user_id);
 		});
 	//更新用户头像
@@ -122,11 +124,13 @@ void ContactPage::init()
 				FriendManager::instance()->emit updateFriendGrouping(m_friendId, oldGrouping);
 				//发送给服务端
 				auto user_id = FriendManager::instance()->getOneselfID();
-				QVariantMap groupingMap;
-				groupingMap["user_id"] = user_id;
-				groupingMap["friend_id"] = m_friendId;
-				groupingMap["grouping"] = grouping;
-				MessageSender::instance()->sendMessage("updateFriendGrouping", groupingMap);
+				QJsonObject groupingObj;
+				groupingObj["user_id"] = user_id;
+				groupingObj["friend_id"] = m_friendId;
+				groupingObj["grouping"] = grouping;
+				QJsonDocument doc(groupingObj);
+				auto data = doc.toJson(QJsonDocument::Compact);
+				MessageSender::instance()->sendHttpRequest("updateFriendGrouping", data, "application/json");
 			}
 		});
 }

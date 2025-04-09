@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QBuffer>
 #include <QPixmap>
+#include <QJsonDocument>
 
 #include "ImageUtil.h"
 #include "Friend.h"
@@ -241,11 +242,13 @@ void ContactDetailWidget::init()
 			//向客户端其他控件更新信号
 			FriendManager::instance()->emit UpdateFriendMessage(m_userId);
 			//向服务端发送更新信息
-			QVariantMap friendObj = user->getFriend().toVariantMap();
+			QJsonObject friendObj = user->getFriend();
 			//客户端独立信息删除
 			friendObj.remove("grouping");
 			friendObj.remove("avatar_path");
-			MessageSender::instance()->sendMessage("updateUserMessage", friendObj);
+			QJsonDocument doc(friendObj);
+			QByteArray data =doc.toJson(QJsonDocument::Compact);
+			MessageSender::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
 			this->hide();
 		});
 }
@@ -254,7 +257,6 @@ void ContactDetailWidget::updateAvatar()
 	//更新头像文件和缓存
 	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User);
 	AvatarManager::instance()->updateAvatar(m_userId, ChatType::User);
-	qDebug() << "ContactDetailWidget" << AvatarManager::instance()->getAvatar(m_userId, ChatType::User);
 	//通知内部客户端
 	AvatarManager::instance()->emit UpdateUserAvatar(m_userId);
 	//通知服务端
@@ -274,7 +276,7 @@ void ContactDetailWidget::updateAvatar()
 	QByteArray userData;
 	PacketCreate::addPacket(userData, packet);
 	auto allData = PacketCreate::allBinaryPacket(userData);
-	MessageSender::instance()->sendBinaryData(allData);
+	MessageSender::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 }
 
 void ContactDetailWidget::setUser(const QJsonObject& obj)

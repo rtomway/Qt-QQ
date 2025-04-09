@@ -22,9 +22,9 @@ void GroupListItemWidget::setItemWidget(const QString& group_id)
 	{
 		m_group = GroupManager::instance()->findGroup(group_id);
 	}
-	qDebug() << "GroupListItemWidget信息：" << m_group->getGroupId() << m_group->getGrouping();
+	qDebug() << "GroupListItemWidget信息：" << m_group->getGroupId();
 	//页面显示
-	auto pixmap = AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group);
+	auto& pixmap = AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group);
 	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 

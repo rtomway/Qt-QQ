@@ -57,7 +57,7 @@ void AddFriendWidget::init()
 			);
 			ui->groupBtn->setStyleSheet(
 				"QPushButton{background-color:white}"
-			    "QPushButton:hover{background-color:rgb(240,240,240)}"
+				"QPushButton:hover{background-color:rgb(240,240,240)}"
 			);
 		});
 	//群组
@@ -87,10 +87,12 @@ void AddFriendWidget::init()
 			auto search_id = ui->searchLine->text();
 			if (!search_id.isEmpty())
 			{
-				QVariantMap serach;
-				serach["search_id"] = search_id;
-				serach["user_id"] = FriendManager::instance()->getOneselfID();
-				MessageSender::instance()->sendMessage("searchUser", serach);
+				QJsonObject serachObj;
+				serachObj["search_id"] = search_id;
+				serachObj["user_id"] = FriendManager::instance()->getOneselfID();
+				QJsonDocument doc(serachObj);
+				auto data = doc.toJson(QJsonDocument::Compact);
+				MessageSender::instance()->sendHttpRequest("serachUser", data, "application/json");
 			}
 		});
 	//搜索结果

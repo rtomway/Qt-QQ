@@ -71,18 +71,23 @@ void ChatPage::installEventFilterForChildren(QWidget* parent)
 //聊天记录加载
 void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 {
+	this->clearMessageWidget();
 	for (const auto& messagePtr : chatMessage.getMessages())
 	{
 		messagePtr->readMessage();
 		//判断消息是谁发送
 		bool isSelf = ((messagePtr)->getSenderId() == FriendManager::instance()->getOneselfID());
-		QPixmap avatar;
+		/*QPixmap avatar;
 		if (isSelf) {
 			avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
 		}
 		else {
 			avatar = AvatarManager::instance()->getAvatar(messagePtr->getSenderId(), ChatType::User);
-		}
+		}*/
+		//获取发送者头像
+		auto& avatar = isSelf
+			? AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User)
+			: AvatarManager::instance()->getAvatar(messagePtr->getSenderId(), ChatType::User);
 		auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 		// 判断消息类型并处理
 		if (auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get())) {
@@ -123,13 +128,13 @@ void ChatPage::updateChatMessage(const QString& sender_id, const QString& receiv
 //当前界面接受消息更新
 void ChatPage::updateReciveMessage(const QString& user_id, const QString& message)
 {
-	auto avatar = AvatarManager::instance()->getAvatar(user_id, ChatType::User);
+	auto& avatar = AvatarManager::instance()->getAvatar(user_id, ChatType::User);
 	auto headPix = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
 	createTextMessageBubble(headPix, message, MessageBubble::BubbleTextLeft, user_id);
 }
 void ChatPage::updateReciveMessage(const QString& user_id, const QPixmap& pixmap)
 {
-	auto avatar = AvatarManager::instance()->getAvatar(user_id, ChatType::User);
+	auto& avatar = AvatarManager::instance()->getAvatar(user_id, ChatType::User);
 	auto headPix = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
 	createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageLeft, user_id);
 }

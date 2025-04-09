@@ -3,11 +3,12 @@
 
 #include <QJsonObject>
 #include <QByteArray>
+#include <QHttpServerResponder>
 
 class RegisterHandle
 {
 public:
-	static void handle_register(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	static void handle_register(const QJsonObject&paramsObj,const QByteArray& data, QHttpServerResponder& responder);
 };
 
 #endif // !REGISTERHANDLE_H_

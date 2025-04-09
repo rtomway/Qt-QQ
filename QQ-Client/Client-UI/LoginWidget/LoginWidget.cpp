@@ -159,11 +159,11 @@ void LoginWidget::init()
 	//个人信息配置
 	SConfigFile config("config.ini");
 	QFile configFile("config.ini");
-	if (configFile.exists())
-	{
+	//if (configFile.exists())
+	//{
 		m_account->setText(config.value("user_id").toString());
 		m_password->setText(config.value("password").toString());
-	}
+	//}
 	//发送登录信号
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{
@@ -177,8 +177,13 @@ void LoginWidget::init()
 			QJsonObject loginObj;
 			loginObj["user_id"] = user_id;
 			loginObj["password"] = password;
-			/*MessageSender::instance()->sendMessage("login", loginParams);*/
-			MessageSender::instance()->sendHttpRequest("login", loginObj);
+			QJsonDocument doc(loginObj);
+			auto data = doc.toJson(QJsonDocument::Compact);
+			MessageSender::instance()->sendHttpRequest("loginValidation", data, "application/json");
+
+			SConfigFile config("config.ini");
+			config.setValue("user_id", user_id);
+			config.setValue("password", password);
 		});
 	//登录成功
 	connect(EventBus::instance(), &EventBus::loginSuccess, [=]

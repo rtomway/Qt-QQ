@@ -40,20 +40,21 @@ const QPixmap& AvatarManager::getAvatar(const QString& id, ChatType type)
 		{
 			return *m_userAvatarCache[id];
 		}
-		avatarPath = ImageUtils::getUserAvatarFolderPath() + "/" + id + ".png";
+		// 如果没有缓存，将头像加载到缓存中
+		updateAvatar(id, type);
+		return *m_userAvatarCache[id];
 		break;
 	case ChatType::Group:
 		if (m_groupAvatarCache.contains(id))
 		{
 			return *m_groupAvatarCache[id];
 		}
-		avatarPath = ImageUtils::getGroupAvatarFolderPath() + "/" + id + ".png";
+		updateAvatar(id, type);
+		return *m_groupAvatarCache[id];
 		break;
 	default:
 		break;
 	}
-	// 如果没有缓存，从文件加载头像
-	return ImageUtils::loadAvatarFromFile(avatarPath);
 }
 
 //头像更新或新增
@@ -67,12 +68,18 @@ void AvatarManager::updateAvatar(const QString& id, ChatType type)
 		avatarPath = ImageUtils::getUserAvatarFolderPath() + "/" + id + ".png";
 		// 加载新的头像并缓存
 		avatar = ImageUtils::loadAvatarFromFile(avatarPath);
-		m_userAvatarCache.insert(id, new QPixmap(avatar));
+		if (!avatar.isNull())
+		{
+			m_userAvatarCache.insert(id, new QPixmap(avatar));
+		}
 		break;
 	case ChatType::Group:
 		avatarPath = ImageUtils::getGroupAvatarFolderPath() + "/" + id + ".png";
 		avatar = ImageUtils::loadAvatarFromFile(avatarPath);
-		m_groupAvatarCache.insert(id, new QPixmap(avatar));
+		if (!avatar.isNull())
+		{
+			m_groupAvatarCache.insert(id, new QPixmap(avatar));
+		}
 		break;
 	default:
 		break;

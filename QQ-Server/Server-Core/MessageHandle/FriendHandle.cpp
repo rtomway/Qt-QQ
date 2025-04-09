@@ -7,8 +7,8 @@
 #include "ImageUtil.h"
 #include "PacketCreate.h"
 
-QString FriendHandle::m_sendGrouping=QString();
-QString FriendHandle::m_receiveGrouping= QString();
+QString FriendHandle::m_sendGrouping = QString();
+QString FriendHandle::m_receiveGrouping = QString();
 //好友添加
 void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -24,7 +24,7 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
 	senderMessage["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	auto imageData = ImageUtils::loadImage(send_id,ChatType::User);
+	auto imageData = ImageUtils::loadImage(send_id, ChatType::User);
 	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = PacketCreate::binaryPacket("addFriend", senderMessage, imageData);
@@ -95,8 +95,8 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 	receiveMap["grouping"] = m_sendGrouping;
 	QVariantMap sendMap = getUserMessage(send_id);
 	sendMap["grouping"] = m_receiveGrouping;
-	auto reveiveImage = ImageUtils::loadImage(receive_id,ChatType::User);
-	auto sendImage = ImageUtils::loadImage(send_id,ChatType::User);
+	auto reveiveImage = ImageUtils::loadImage(receive_id, ChatType::User);
+	auto sendImage = ImageUtils::loadImage(send_id, ChatType::User);
 	receiveMap["size"] = reveiveImage.size();
 	sendMap["size"] = sendImage.size();
 	//打包
@@ -120,7 +120,7 @@ void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const Q
 	//数据包装入信息
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
-	auto imageData = ImageUtils::loadImage(send_id,ChatType::User);
+	auto imageData = ImageUtils::loadImage(send_id, ChatType::User);
 	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = PacketCreate::binaryPacket("rejectAddFriend", senderMessage, imageData);
@@ -155,11 +155,12 @@ QVariantMap FriendHandle::getUserMessage(const QString& user_id)
 	}
 }
 //好友分组更新
-void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObject, const QByteArray& data)
+void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder)
 {
-	auto user_id = paramsObject["user_id"].toString();
-	auto friend_id = paramsObject["friend_id"].toString();
-	auto grouping = paramsObject["grouping"].toString();
+	//auto paramsObject = QJsonDocument::fromJson(data);
+	auto user_id = paramsObj["user_id"].toString();
+	auto friend_id = paramsObj["friend_id"].toString();
+	auto grouping = paramsObj["grouping"].toString();
 	//数据库查询
 	//注册信息插入
 	DataBaseQuery query;
@@ -175,13 +176,15 @@ void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObject, 
 		qDebug() << "Error query:";
 		return;
 	}
+	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }
 //好友删除
-void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObject, const QByteArray& data)
+void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder)
 {
 	qDebug() << "删除好友";
-	auto user_id = paramsObject["user_id"].toString();
-	auto friend_id = paramsObject["friend_id"].toString();
+	//auto paramsObject = QJsonDocument::fromJson(data);
+	auto user_id = paramsObj["user_id"].toString();
+	auto friend_id = paramsObj["friend_id"].toString();
 	// 数据库查询
 	//注册信息插入
 	DataBaseQuery query;
@@ -196,4 +199,5 @@ void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObject, const QB
 		qDebug() << "Error query:";
 		return;
 	}
+	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }

@@ -6,6 +6,8 @@ add_library(Client-NetWork STATIC
     Client.h
    PacketCreate.h
    PacketCreate.cpp
+    HttpWorker.h
+     HttpWorker.cpp
 )
 
 # 设置包含目录（确保主程序能访问头文件）

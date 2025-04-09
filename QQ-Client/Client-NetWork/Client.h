@@ -5,6 +5,7 @@
 #include <QObject>
 #include <functional>
 #include <QUrl>
+#include <QThread>
 
 #include "MessageHandle.h"
 
@@ -29,6 +30,8 @@ private:
 	QWebSocket* m_client;
 	bool m_isConnected;
 	MessageHandle m_messageHandle;
+	//后台线程
+	QThread* m_workerThread;
 	//回调函数
 	std::function<void(const QString&)> m_messageCallback;
 	std::function<void(const QString&)> m_errorCallback;
@@ -40,6 +43,9 @@ private slots:
 	void onErrorOccurred(QAbstractSocket::SocketError error);
 	void onConnected();
 	void onDisconnected();
+signals:
+	void textMessageToWorkerThread(const QJsonDocument& messageDoc);
+	void binaryMessageToWorkerThread(const QByteArray& message);
 };
 
 

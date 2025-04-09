@@ -1,4 +1,5 @@
 ﻿#include "MessageHandle.h"
+#include "MessageHandle.h"
 #include <QPixmap>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -9,6 +10,7 @@
 #include "SConfigFile.h"
 #include "EventBus.h"
 #include "AvatarManager.h"
+#include "SConfigFile.h"
 
 
 MessageHandle::MessageHandle(QObject* parent)
@@ -34,13 +36,26 @@ void MessageHandle::initRequestHash()
 	requestHash["newGroupMember"] = &MessageHandle::handle_newGroupMember;
 	requestHash["groupInviteSuccess"] = &MessageHandle::handle_groupInviteSuccess;
 }
+void MessageHandle::token(const QString& token)
+{
+	SConfigFile config("config.ini");
+	config.setValue("token", token);
+	emit connectToServer();
+}
 //消息处理接口
-void MessageHandle::handle_message(const QJsonDocument& messageDoc)
+void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 {
 	qDebug() << "接受到服务端的文本消息:";
 	if (messageDoc.isObject())
 	{
 		QJsonObject obj = messageDoc.object();
+	
+		if (obj.contains("token"))
+		{
+			auto token = obj["token"].toString();
+			this->token(token);
+			return;
+		}
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
 		qDebug() << type << requestHash.contains(type);
@@ -53,7 +68,7 @@ void MessageHandle::handle_message(const QJsonDocument& messageDoc)
 		}
 	}
 }
-void MessageHandle::handle_message(const QByteArray& message)
+void MessageHandle::handle_binaryMessage(const QByteArray& message)
 {
 	qDebug() << "接受到服务端的数据消息:";
 	QDataStream stream(message);

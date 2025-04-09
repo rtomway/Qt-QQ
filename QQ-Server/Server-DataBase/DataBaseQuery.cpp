@@ -10,35 +10,42 @@ DataBaseQuery::DataBaseQuery(QObject* parent)
 
 }
 //查询信息
-QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantList& bindValues)
+QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantList& bindValues, std::shared_ptr<QSqlQuery>queryPtr)
 {
-	SConnectionWrap wrap;
-	QSqlQuery query(wrap.openConnection());
-	query.prepare(queryStr);
+    std::shared_ptr<QSqlQuery> query;
+    if (queryPtr) {
+        query = queryPtr;
+    }
+    else {
+        SConnectionWrap wrap;
+        query = std::make_shared<QSqlQuery>(wrap.openConnection());
+    }
+    //绑定语句
+    query->prepare(queryStr);
 	// 绑定查询参数
 	for (const auto& value : bindValues) {
-		query.addBindValue(value);
+		query->addBindValue(value);
 	}
     QJsonObject allQueryObj;
     QJsonArray queryArray;
-    if (query.exec()) {
+    if (query->exec()) {
         // 查询结果处理
-        while (query.next()) {
+        while (query->next()) {
             QJsonObject queryObj;
-            int count = query.record().count();
+            int count = query->record().count();
             for (int i = 0; i < count; ++i) {
-                auto fieldName = query.record().fieldName(i);
+                auto fieldName = query->record().fieldName(i);
                 if (fieldName == "birthday")
                 {
-                    queryObj[fieldName] = query.value(i).toDate().toString("MM-dd");
+                    queryObj[fieldName] = query->value(i).toDate().toString("MM-dd");
                 }
                 else if (fieldName == "age" || fieldName == "gender")
                 {
-                    queryObj[fieldName] = query.value(i).toInt();
+                    queryObj[fieldName] = query->value(i).toInt();
                 }
                 else
                 {
-                    queryObj[fieldName] = query.value(i).toString();
+                    queryObj[fieldName] = query->value(i).toString();
                 }
             }
             queryArray.append(queryObj);
@@ -46,40 +53,47 @@ QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantL
         allQueryObj["data"] = queryArray;
     }
     else {
-        qDebug() << query.lastError();
-        allQueryObj["error"] = query.lastError().text();
+        qDebug() << query->lastError();
+        allQueryObj["error"] = query->lastError().text();
     }
     return allQueryObj;
 }
 //更新插入信息
-bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList& bindValues)
+bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList& bindValues, std::shared_ptr<QSqlQuery>queryPtr)
 {
-    SConnectionWrap wrap;
-    QSqlQuery query(wrap.openConnection());
-    query.prepare(queryStr);
+    std::shared_ptr<QSqlQuery> query;
+    if (queryPtr) {
+        query = queryPtr;
+    }
+    else {
+        SConnectionWrap wrap;
+        query = std::make_shared<QSqlQuery>(wrap.openConnection());
+    }
+    //绑定语句
+    query->prepare(queryStr);
     // 绑定查询参数
     for (const auto& value : bindValues) {
-        query.addBindValue(value);
+        query->addBindValue(value);
         qDebug() << "绑定查询参数" << value;
     }
     //操作结果
-    if (query.exec()){
+    if (query->exec()){
         return true;
     }else
     {
-        qDebug() << query.lastError();
+        qDebug() << query->lastError();
         return false;
     }
 }
 //事务
-bool DataBaseQuery::executeTransaction(const std::function<bool(QSqlQuery&)>& transactionCallback)
+bool DataBaseQuery::executeTransaction(const std::function<bool(std::shared_ptr<QSqlQuery>)>& transactionCallback)
 {
     SConnectionWrap wrap;
-    QSqlQuery query(wrap.openConnection());
+    std::shared_ptr<QSqlQuery> query = std::make_shared<QSqlQuery>(wrap.openConnection());
 
     // 启动事务
-    if (!query.exec("START TRANSACTION")) {
-        qDebug() << "Failed to start transaction:" << query.lastError();
+    if (!query->exec("START TRANSACTION")) {
+        qDebug() << "Failed to start transaction:" << query->lastError();
         return false;
     }
 
@@ -91,15 +105,16 @@ bool DataBaseQuery::executeTransaction(const std::function<bool(QSqlQuery&)>& tr
     // 判断事务执行结果
     if (result) {
         // 提交事务
-        if (!query.exec("COMMIT")) {
-            qDebug() << "Failed to commit transaction:" << query.lastError();
-            query.exec("ROLLBACK");
+        if (!query->exec("COMMIT")) {
+            qDebug() << "Failed to commit transaction:" << query->lastError();
+            query->exec("ROLLBACK");
             result = false;
         }
     }
     else {
         // 回滚事务
-        query.exec("ROLLBACK");
+        qDebug() << "回滚事务";
+        query->exec("ROLLBACK");
     }
 
     return result;

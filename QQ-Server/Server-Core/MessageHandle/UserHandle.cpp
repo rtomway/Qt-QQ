@@ -8,12 +8,11 @@
 #include "PacketCreate.h"
 
 //用户搜索
-void UserHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data)
+void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	qDebug() << paramsObject;
-	auto user_id = paramsObject["user_id"].toString();
+	auto user_id = paramsObj["user_id"].toString();
 	auto client_id = user_id;
-	auto search_id = paramsObject["search_id"].toString();
+	auto search_id = paramsObj["search_id"].toString();
 	//数据库查询
 	DataBaseQuery query;
 	auto user = "%" + search_id + "%";
@@ -39,7 +38,7 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteA
 			userObj["isFriend"] = true;
 		else
 			userObj["isFriend"] = false;
-		QByteArray image = ImageUtils::loadImage(search_id,ChatType::User);
+		QByteArray image = ImageUtils::loadImage(search_id, ChatType::User);
 		userObj["size"] = image.size();
 		qDebug() << "搜索信息" << userObj;
 		//打包
@@ -48,20 +47,22 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteA
 	}
 	//最总发送
 	auto allData = PacketCreate::allBinaryPacket(userData);
-	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
+	qDebug() << "发送";
+	QByteArray mimeType = "application/octet-stream";
+	responder.write(allData, mimeType);
 }
 //用户信息更新
-void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
+void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	//客户端
-	auto user_id = paramsObject["user_id"].toString();
-	auto username = paramsObject["username"].toString();
-	auto gender = paramsObject["gender"].toInt();
-	auto age = paramsObject["age"].toInt();
-	auto phone_number = paramsObject["phone_number"].toString();
-	auto email = paramsObject["email"].toString();
-	auto birthday = QDate::fromString(paramsObject["birthday"].toString(), "MM-dd");
-	auto signature = paramsObject["signature"].toString();
+	auto user_id = paramsObj["user_id"].toString();
+	auto username = paramsObj["username"].toString();
+	auto gender = paramsObj["gender"].toInt();
+	auto age = paramsObj["age"].toInt();
+	auto phone_number = paramsObj["phone_number"].toString();
+	auto email = paramsObj["email"].toString();
+	auto birthday = QDate::fromString(paramsObj["birthday"].toString(), "MM-dd");
+	auto signature = paramsObj["signature"].toString();
 	phone_number = phone_number.isEmpty() ? QVariant(QVariant::String).toString() : phone_number;
 	email = email.isEmpty() ? QVariant(QVariant::String).toString() : email;
 	signature = signature.isEmpty() ? QVariant(QVariant::String).toString() : signature;
@@ -87,9 +88,11 @@ void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const
 		qDebug() << "Error query:";
 		return;
 	}
+	responder.write(QHttpServerResponder::StatusCode::NoContent);
+
 	QJsonObject jsondata;
 	jsondata["type"] = "updateUserMessage";
-	jsondata["params"] = paramsObject;
+	jsondata["params"] = paramsObj;
 	QJsonDocument doc(jsondata);
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
 
@@ -100,9 +103,9 @@ void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const
 	}
 }
 //用户头像更新
-void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
+void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	auto user_id = paramsObject["user_id"].toString();
+	auto user_id = paramsObj["user_id"].toString();
 	//将头像存储到服务器中
 	QImage image;
 	if (!image.loadFromData(data))  // 从二进制数据加载图片
@@ -111,10 +114,10 @@ void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const 
 		return;
 	}
 	//图片保存
-	ImageUtils::saveAvatarToLocal(image,user_id,ChatType::User);
+	ImageUtils::saveAvatarToLocal(image, user_id, ChatType::User);
 	//转发头像信息
 	//数据打包
-	auto userPacket = PacketCreate::binaryPacket("updateUserAvatar", paramsObject.toVariantMap(), data);
+	auto userPacket = PacketCreate::binaryPacket("updateUserAvatar", paramsObj.toVariantMap(), data);
 	QByteArray userData;
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);

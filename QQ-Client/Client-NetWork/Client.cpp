@@ -3,12 +3,19 @@
 #include <QJsonObject>
 #include <Qpixmap>
 #include "MessageSender.h"
+#include "SConfigFile.h"
 
 Client::Client(QObject* parent)
 	:QObject(parent)
 	, m_client(new QWebSocket())
 	, m_isConnected(false)
+	, m_workerThread(new QThread(this))
 {
+	//后台线程处理消息
+	m_messageHandle.moveToThread(m_workerThread);
+	m_workerThread->start();
+	connect(this, &Client::textMessageToWorkerThread, &m_messageHandle, &MessageHandle::handle_textMessage);
+	connect(this, &Client::binaryMessageToWorkerThread, &m_messageHandle, &MessageHandle::handle_binaryMessage);
 	//客户端接受信号
 	connect(m_client, &QWebSocket::textMessageReceived, this, &Client::onTextMessageReceived);
 	connect(m_client, &QWebSocket::binaryMessageReceived, this, &Client::onBinaryMessageReceived);
@@ -19,17 +26,34 @@ Client::Client(QObject* parent)
 	connect(MessageSender::instance(), &MessageSender::httpTextResponseReceived, this, [=](const QByteArray& data)
 		{
 			QJsonDocument doc = QJsonDocument::fromJson(data);
-			m_messageHandle.handle_message(doc);
+			emit textMessageToWorkerThread(doc);
 		});
 	connect(MessageSender::instance(), &MessageSender::httpDataResponseReceived, this, [=](const QByteArray& data)
 		{
-			m_messageHandle.handle_message(data);
+			emit binaryMessageToWorkerThread(data);
+		});
+	//用户身份验证成功，发起连接请求并且获取用户信息
+	connect(&m_messageHandle, &MessageHandle::connectToServer, this, [=]
+		{
+			connectToServer("ws://localhost:8888")
+				->Connected([=]
+					{
+						SConfigFile config("config.ini");
+						QVariantMap connectMap;
+						connectMap["user_id"] = config.value("user_id");
+						MessageSender::instance()->sendMessage("login", connectMap);
+					});
 		});
 }
 
 Client::~Client()
 {
 	delete m_client;
+	// 确保后台线程正确退出
+	if (m_workerThread->isRunning()) {
+		m_workerThread->quit();
+		m_workerThread->wait();
+	}
 }
 //连接服务端
 Client* Client::connectToServer(const QString& url)
@@ -65,13 +89,15 @@ Client* Client::DisconnectFromServer(std::function<void()> callback)
 //接受Web文本信息
 void Client::onTextMessageReceived(const QString& message)
 {
+	qDebug() << "//接受Web文本信息";
 	QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
-	m_messageHandle.handle_message(doc);
+	emit textMessageToWorkerThread(doc);
 }
 //接受Web二进制数据
 void Client::onBinaryMessageReceived(const QByteArray& message)
 {
-	m_messageHandle.handle_message(message);
+	qDebug() << "//接受Web二进制信息";
+	emit binaryMessageToWorkerThread(message);
 }
 //回调
 void Client::onErrorOccurred(QAbstractSocket::SocketError error)

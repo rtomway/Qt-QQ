@@ -34,7 +34,7 @@ void FriendSelectedWidget::setUser(const QString& user_id)
 	m_json = m_oneself->getFriend();
 	m_nameLab->setText(m_json["username"].toString());
 	m_userId = user_id;
-	auto avatar = AvatarManager::instance()->getAvatar(m_userId, ChatType::User);
+	auto& avatar = AvatarManager::instance()->getAvatar(m_userId, ChatType::User);
 	auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
 	m_headLab->setPixmap(pixmap);
 	if (user_id == FriendManager::instance()->getOneselfID())
@@ -49,7 +49,7 @@ void FriendSelectedWidget::setGroupMember(const QString& member_id, const QStrin
 {
 	m_nameLab->setText(memberName);
 	m_userId = member_id;
-	auto avatar = AvatarManager::instance()->getAvatar(member_id, ChatType::User);
+	auto& avatar = AvatarManager::instance()->getAvatar(member_id, ChatType::User);
 	auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
 	m_headLab->setPixmap(pixmap);
 }
