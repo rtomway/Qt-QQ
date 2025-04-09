@@ -179,7 +179,7 @@ void LoginWidget::init()
 			loginObj["password"] = password;
 			QJsonDocument doc(loginObj);
 			auto data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("loginValidation", data, "application/json");
+			MessageSender::instance()->emit sendHttpRequest("loginValidation", data, "application/json");
 
 			SConfigFile config("config.ini");
 			config.setValue("user_id", user_id);

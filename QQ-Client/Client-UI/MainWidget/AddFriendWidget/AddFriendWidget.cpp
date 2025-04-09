@@ -92,7 +92,7 @@ void AddFriendWidget::init()
 				serachObj["user_id"] = FriendManager::instance()->getOneselfID();
 				QJsonDocument doc(serachObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
-				MessageSender::instance()->sendHttpRequest("serachUser", data, "application/json");
+				MessageSender::instance()->emit sendHttpRequest("serachUser", data, "application/json");
 			}
 		});
 	//搜索结果

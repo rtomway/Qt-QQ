@@ -11,13 +11,9 @@ class HttpWorker : public QObject
 public:
     explicit HttpWorker(QObject* parent = nullptr);
     void sendRequest(const QString& url, const QByteArray& data, const QString& contentType);
-
 signals:
-    void responseReceived(const QByteArray& data);
-    void errorOccurred(const QString& errorString);
-
-private slots:
-    void onRequestFinished();
+    void httpTextResponseReceived(const QByteArray& data);
+    void httpDataResponseReceived(const QByteArray& data);
 
 private:
     QNetworkAccessManager* m_networkManager;

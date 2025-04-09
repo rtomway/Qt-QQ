@@ -6,6 +6,8 @@
 #include <QNetworkReply>
 #include <QWebSocket>
 #include <QUrl>
+#include <QThread>
+#include "HttpWorker.h"
 
 class Client;
 
@@ -23,13 +25,15 @@ public:
 	void disConnect();
 	void sendMessage(const QString& type, const QVariantMap& params = {});
 	void sendBinaryData(const QByteArray& data);
-	void sendHttpRequest(const QString& type, const QByteArray& data,const QString&Content_type);
 private:
 	MessageSender();
+private:
 	Client* m_client{};
-	QNetworkAccessManager* m_networkManager = nullptr;
-	QString m_baseUrl = "http://127.0.0.1:8889/";
+	QThread* m_workerThread;
+	HttpWorker* m_httpWorker;
+	QNetworkAccessManager* m_networkManager;
 signals:
+	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type);
 	void httpTextResponseReceived(const QByteArray& data);
 	void httpDataResponseReceived(const QByteArray& data);
 };

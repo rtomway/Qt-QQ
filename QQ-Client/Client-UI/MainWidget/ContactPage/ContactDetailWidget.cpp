@@ -248,7 +248,7 @@ void ContactDetailWidget::init()
 			friendObj.remove("avatar_path");
 			QJsonDocument doc(friendObj);
 			QByteArray data =doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
+			MessageSender::instance()->emit sendHttpRequest("updateUserMessage", data, "application/json");
 			this->hide();
 		});
 }
@@ -276,7 +276,7 @@ void ContactDetailWidget::updateAvatar()
 	QByteArray userData;
 	PacketCreate::addPacket(userData, packet);
 	auto allData = PacketCreate::allBinaryPacket(userData);
-	MessageSender::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+	MessageSender::instance()->emit sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 }
 
 void ContactDetailWidget::setUser(const QJsonObject& obj)

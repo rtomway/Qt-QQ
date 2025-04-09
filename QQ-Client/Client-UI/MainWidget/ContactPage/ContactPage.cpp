@@ -130,7 +130,7 @@ void ContactPage::init()
 				groupingObj["grouping"] = grouping;
 				QJsonDocument doc(groupingObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
-				MessageSender::instance()->sendHttpRequest("updateFriendGrouping", data, "application/json");
+				MessageSender::instance()->emit sendHttpRequest("updateFriendGrouping", data, "application/json");
 			}
 		});
 }
