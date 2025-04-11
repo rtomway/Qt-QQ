@@ -31,22 +31,10 @@ ContactPage::ContactPage(QWidget* parent)
 	}
 	this->setWindowFlag(Qt::FramelessWindowHint);
 }
-
 ContactPage::~ContactPage()
 {
 	delete ui;
 }
-//更新好友分组
-void ContactPage::updateFriendgrouping()
-{
-	ui->groupcomBox->clear();
-	auto groupingName = ContactListWidget::getfGrouping();
-	for (auto name : groupingName)
-	{
-		ui->groupcomBox->addItem(name);
-	}
-}
-
 void ContactPage::init()
 {
 	this->setObjectName("ContactPage");
@@ -97,9 +85,11 @@ void ContactPage::init()
 	//更新用户头像
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
-			qDebug() << "ContactPage" << AvatarManager::instance()->getAvatar(user_id, ChatType::User);
-			auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(user_id, ChatType::User), QSize(100, 100));
-			ui->headLab->setPixmap(pixmap);
+			AvatarManager::instance()->getAvatar(user_id, ChatType::User, [=](const QPixmap& pixmap)
+				{
+					auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100));
+					ui->headLab->setPixmap(headPix);
+				});
 		});
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
@@ -134,6 +124,16 @@ void ContactPage::init()
 			}
 		});
 }
+//更新好友分组
+void ContactPage::updateFriendgrouping()
+{
+	ui->groupcomBox->clear();
+	auto groupingName = ContactListWidget::getfGrouping();
+	for (auto name : groupingName)
+	{
+		ui->groupcomBox->addItem(name);
+	}
+}
 //用户设置
 void ContactPage::setUser(const QString& user_id)
 {
@@ -147,7 +147,6 @@ void ContactPage::setUser(const QString& user_id)
 	qDebug() << "ContactPage,m_friendId" << m_friendId;
 	m_json = m_oneself->getFriend();
 	//未设置信息隐藏
-	//可编辑
 	if (FriendManager::instance()->getOneselfID() != m_friendId)
 	{
 		ui->editdetailBtn->setVisible(false);
@@ -208,8 +207,11 @@ void ContactPage::setUser(const QString& user_id)
 		ui->genderBtn->setIcon(QIcon(":/icon/Resource/Icon/nogender.png"));
 	}
 	ui->groupcomBox->setCurrentText(m_json["grouping"].toString());
-	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_friendId, ChatType::User), QSize(100, 100));
-	ui->headLab->setPixmap(pixmap);
+	AvatarManager::instance()->getAvatar(m_friendId, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100));
+			ui->headLab->setPixmap(headPix);
+		});
 	ui->signaltureLab->setText(m_json["signature"].toString());
 
 	m_isBlockedComboBox = false;
@@ -217,7 +219,6 @@ void ContactPage::setUser(const QString& user_id)
 //清空
 void ContactPage::clearWidget()
 {
-	m_detailEditWidget = nullptr;
 	m_oneself = nullptr;
 	//退出后禁止信号
 	m_isBlockedComboBox = true;

@@ -16,10 +16,13 @@ public:
 	// 禁止拷贝构造函数和赋值操作符
 	FriendManager(const FriendManager&) = delete;
 	FriendManager& operator=(const FriendManager&) = delete;
+private:
+	FriendManager();
+public:
 	//当前客户端登录用户
 	static QString m_oneselfID;
 	static void setOneselfID(const QString& id);
-	const QString getOneselfID()const;
+	const QString& getOneselfID()const;
 	//好友处理
 	void addFriend(const QSharedPointer<Friend>& user);
 	QSharedPointer<Friend>findFriend(const QString& id)const;
@@ -28,10 +31,7 @@ public:
 	QHash<QString, QSharedPointer<Friend>> findFriends(const QString& text)const;
 	//清除
 	void clearFriendManager();
-
 private:
-	// 私有构造函数，防止外部实例化
-	FriendManager();
 	//管理所有用户
 	QHash<QString, QSharedPointer<Friend>>m_user;
 	QHash<QString, QString>m_grouping;

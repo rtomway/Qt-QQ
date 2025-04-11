@@ -24,7 +24,7 @@ void FriendSelectedWidget::init()
 			emit checkFriend(isChecked);
 		});
 }
-
+//用户信息设置
 void FriendSelectedWidget::setUser(const QString& user_id)
 {
 	if (!m_oneself || m_oneself->getFriendId() != user_id)
@@ -34,9 +34,12 @@ void FriendSelectedWidget::setUser(const QString& user_id)
 	m_json = m_oneself->getFriend();
 	m_nameLab->setText(m_json["username"].toString());
 	m_userId = user_id;
-	auto& avatar = AvatarManager::instance()->getAvatar(m_userId, ChatType::User);
-	auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
-	m_headLab->setPixmap(pixmap);
+	AvatarManager::instance()->getAvatar(m_userId, ChatType::User, [=](const QPixmap&pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+			m_headLab->setPixmap(headPix);
+		});
+	
 	if (user_id == FriendManager::instance()->getOneselfID())
 	{
 		m_selected->setChecked(true);
@@ -44,26 +47,28 @@ void FriendSelectedWidget::setUser(const QString& user_id)
 		m_selected->update();
 	}
 }
-
+//群成员设置
 void FriendSelectedWidget::setGroupMember(const QString& member_id, const QString& memberName)
 {
 	m_nameLab->setText(memberName);
 	m_userId = member_id;
-	auto& avatar = AvatarManager::instance()->getAvatar(member_id, ChatType::User);
-	auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
-	m_headLab->setPixmap(pixmap);
+	AvatarManager::instance()->getAvatar(m_userId, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+			m_headLab->setPixmap(headPix);
+		});
 }
-
+//获取用户id
 const QString& FriendSelectedWidget::getUserId()
 {
 	return m_userId;
 }
-
+//设置点击
 void FriendSelectedWidget::setChecked(bool isCheck)
 {
 	m_selected->setChecked(isCheck);
 }
-
+//获取点击状态
 bool FriendSelectedWidget::isChecked()
 {
 	return m_selected->isChecked();

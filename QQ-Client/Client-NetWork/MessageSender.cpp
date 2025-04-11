@@ -20,14 +20,17 @@ MessageSender::MessageSender()
 {
 	//http请求
 	connect(this, &MessageSender::sendHttpRequest, m_httpWorker, &HttpWorker::sendRequest);
+	//http文本消息响应
 	connect(m_httpWorker, &HttpWorker::httpTextResponseReceived,this,&MessageSender::httpTextResponseReceived);
+	//http二进制数据响应
 	connect(m_httpWorker, &HttpWorker::httpDataResponseReceived, this, &MessageSender::httpDataResponseReceived);
 }
-//设置客户端
+//设置当前客户端
 void MessageSender::setClient(Client* client)
 {
 	m_client = client;
 }
+//关闭连接
 void MessageSender::disConnect()
 {
 	qDebug() << "客户端关闭连接";

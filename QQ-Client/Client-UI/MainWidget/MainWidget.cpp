@@ -107,12 +107,11 @@ MainWidget::MainWidget(QWidget* parent)
 					continue;  // 跳过当前无效项
 				}
 				auto obj = it.value()->getFriend();
-				auto& pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User);
-				if (obj.isEmpty() || pixmap.isNull()) {
-					qWarning() << "Invalid object or pixmap!";
-					return;
-				}
-				m_friendSearchListWidget->addSearchItem(obj, pixmap);
+				AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User, [=](const QPixmap& pixmap)
+					{
+						auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+						m_friendSearchListWidget->addSearchItem(obj, headPix);
+					});
 			}
 		});
 	//点击消息项 进入会话界面（加载用户信息）
@@ -145,19 +144,25 @@ MainWidget::MainWidget(QWidget* parent)
 		});
 	//好友中心通知
 	//个人信息头像加载
-	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]()
+	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]
 		{
-			auto& avatar = AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID(), ChatType::User);
-			auto pixmap = ImageUtils::roundedPixmap(avatar, QSize(50, 50));
-			ui->headLab->setPixmap(pixmap);
+			AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID(), ChatType::User, [=](const QPixmap& pixmap)
+				{
+					auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(50, 50));
+					ui->headLab->setPixmap(headPix);
+				});
+
 		});
 	//头像更新
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
 		{
 			if (user_id != FriendManager::instance()->getOneselfID())
 				return;
-			auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(user_id, ChatType::User), QSize(40, 40));
-			ui->headLab->setPixmap(pixmap);
+			AvatarManager::instance()->getAvatar(user_id, ChatType::User, [=](const QPixmap& pixmap)
+				{
+					auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+					ui->headLab->setPixmap(headPix);
+				});
 		});
 	//好友信息更新,消息项相关信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
@@ -187,7 +192,7 @@ MainWidget::MainWidget(QWidget* parent)
 	//新增好友
 	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id)
 		{
-			ChatRecordManager::instance()->addChat(user_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), user_id, ChatType::User));
+			ChatRecordManager::instance()->addUserChat(user_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), user_id, ChatType::User));
 			addmessageListItem(user_id, ChatType::User);
 		});
 	//好友信息界面跳转到会话界面
@@ -206,9 +211,16 @@ MainWidget::MainWidget(QWidget* parent)
 			emit m_chatMessageListWidget->itemClicked(messageItem);
 		});
 	//新增群组
+	connect(GroupManager::instance(), &GroupManager::createGroupSuccess, this, [=](const QString& group_id)
+		{
+			qDebug() << "mainwidget 新建群组";
+			ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), group_id, ChatType::Group));
+			addmessageListItem(group_id, ChatType::Group);
+		});
+	//新加群组
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
-			qDebug() << "mainwidget 新增群组";
+			qDebug() << "mainwidget 新加群组";
 			ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), group_id, ChatType::Group));
 			addmessageListItem(group_id, ChatType::Group);
 		});
@@ -323,6 +335,7 @@ MainWidget::MainWidget(QWidget* parent)
 				newItemWidget->setItemWidget(group_id);
 			}
 		});
+	//通知
 	connect(m_noticePage, &NoticeWidget::friendNotice, this, [=]
 		{
 			if (ui->messageStackedWidget->currentWidget() != m_noticePage)
@@ -538,12 +551,15 @@ QListWidgetItem* MainWidget::addmessageListItem(const QString& id, ChatType type
 	{
 		itemWidget = new FMessageItemWidget(m_chatMessageListWidget);
 		item->setData(Qt::UserRole, "user__" + id);
-
+		auto fItemWidget = qobject_cast<FMessageItemWidget*>(itemWidget);
+		fItemWidget->clearUnRead();
 	}
 	else if (type == ChatType::Group)
 	{
 		itemWidget = new GMessageItemWidget(m_chatMessageListWidget);
 		item->setData(Qt::UserRole, "group_" + id);
+		auto gItemWidget = qobject_cast<GMessageItemWidget*>(itemWidget);
+		gItemWidget->clearUnRead();
 	}
 	item->setData(Qt::UserRole + 1, static_cast<int>(type));
 	itemWidget->setItemWidget(id);

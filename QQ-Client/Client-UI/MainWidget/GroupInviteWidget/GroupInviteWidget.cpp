@@ -39,30 +39,6 @@ GroupInviteWidget::~GroupInviteWidget()
 {
 
 }
-
-void GroupInviteWidget::setGroupWidgetMode(GroupMode mode)
-{
-	switch (mode)
-	{
-	case GroupInviteWidget::CreateGroup:
-		ui->groupModeLab->setText("群聊创建");
-		ui->GroupNameLab->setText("群聊名称");
-		break;
-	case GroupInviteWidget::InviteMembers:
-		ui->groupModeLab->setText("邀请新成员");
-		ui->groupNameEdit->setVisible(false);
-		ui->GroupNameLab->setText(GroupManager::instance()->findGroup(m_groupId)->getGroupName());
-		break;
-	case GroupInviteWidget::DeleteMembers:
-		ui->groupModeLab->setText("移除成员");
-		ui->groupNameEdit->setVisible(false);
-		ui->GroupNameLab->setText(GroupManager::instance()->findGroup(m_groupId)->getGroupName());
-		break;
-	default:
-		break;
-	}
-}
-
 void GroupInviteWidget::init()
 {
 	ui->friendStackedList->addWidget(m_friendTree);
@@ -90,12 +66,10 @@ void GroupInviteWidget::init()
 					continue;  // 跳过当前无效项
 				}
 				auto obj = it.value()->getFriend();
-				auto& pixmap = AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User);
-				if (obj.isEmpty() || pixmap.isNull()) {
-					qWarning() << "Invalid object or pixmap!";
-					return;
-				}
-				addSelectedFriendItem(m_searchList, it.value()->getFriendId());
+				AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User, [=](const QPixmap& pixmap)
+					{
+						addSelectedFriendItem(m_searchList, it.value()->getFriendId());
+					});
 			}
 		});
 	m_friendTree->setHeaderHidden(true);
@@ -174,6 +148,29 @@ void GroupInviteWidget::init()
 			clearSearchList();
 			this->hide();
 		});
+}
+//设置模式
+void GroupInviteWidget::setGroupWidgetMode(GroupMode mode)
+{
+	switch (mode)
+	{
+	case GroupInviteWidget::CreateGroup:
+		ui->groupModeLab->setText("群聊创建");
+		ui->GroupNameLab->setText("群聊名称");
+		break;
+	case GroupInviteWidget::InviteMembers:
+		ui->groupModeLab->setText("邀请新成员");
+		ui->groupNameEdit->setVisible(false);
+		ui->GroupNameLab->setText(GroupManager::instance()->findGroup(m_groupId)->getGroupName());
+		break;
+	case GroupInviteWidget::DeleteMembers:
+		ui->groupModeLab->setText("移除成员");
+		ui->groupNameEdit->setVisible(false);
+		ui->GroupNameLab->setText(GroupManager::instance()->findGroup(m_groupId)->getGroupName());
+		break;
+	default:
+		break;
+	}
 }
 //选中好友添加至选中列表
 void GroupInviteWidget::addSelectedFriendItem(QListWidget* listWidget, const QString& user_id)

@@ -6,14 +6,16 @@ ChatRecordMessage::ChatRecordMessage(QString senderId, QString receiveId, ChatTy
 
 }
 // 添加消息
-void ChatRecordMessage::addMessage(std::shared_ptr<MessageRecord> msg) {
-	m_messages.append(msg);
+void ChatRecordMessage::addMessage(const std::shared_ptr<MessageRecord>& message) 
+{
+	m_messages.append(message);
 }
 // 获取所有消息
-const QList<std::shared_ptr<MessageRecord>>& ChatRecordMessage::getMessages() const {
+const QList<std::shared_ptr<MessageRecord>>& ChatRecordMessage::getMessages() const
+{
 	return m_messages;
 }
-
+//获取聊天记录类型
 ChatType ChatRecordMessage::type() const
 {
 	return m_type;

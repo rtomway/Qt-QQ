@@ -1,26 +1,18 @@
 ﻿#include "FriendChatPage.h"
 #include "ui_ChatPage.h"
-#include <QFile>
-#include <QPainter>
-#include <QPainterPath>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QBoxLayout>
-#include <QTimer>
-#include <QMouseEvent>
-#include <QFileDialog>
-#include <QScrollBar>
 #include <QBuffer>
+#include <QMouseEvent>
+#include <QTimer>
+#include <QFileDialog>
 
-#include "PacketCreate.h"
-#include "ImageUtil.h"
-#include "MessageSender.h"
-#include "FriendManager.h"
-#include "GroupManager.h"
-#include "FriendSetWidget.h"
-#include "ChatRecordManager.h"
 #include "EventBus.h"
+#include "MessageSender.h"
+#include "PacketCreate.h"
+#include "FriendManager.h"
+#include "ChatRecordManager.h"
 #include "AvatarManager.h"
+#include "ImageUtil.h"
+
 
 FriendChatPage::FriendChatPage(QWidget* parent)
 	:ChatPage(parent)
@@ -38,45 +30,9 @@ FriendChatPage::FriendChatPage(QWidget* parent)
 	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
 	m_setWidget->setMask(region);  // 裁剪区域
 }
-
 FriendChatPage::~FriendChatPage()
 {
 	delete ui;
-}
-void FriendChatPage::setChatWidget(const QString& id)
-{
-	//数据加载
-	if (!m_friend)
-	{
-		m_friend = FriendManager::instance()->findFriend(id);
-	}
-	if (m_friend->getFriendId() != id)
-	{
-		m_friend = FriendManager::instance()->findFriend(id);
-	}
-	m_chat = ChatRecordManager::instance()->getChat(id);
-	//界面显示
-	ui->nameLab->setText(m_friend->getFriendName());
-	//聊天记录加载
-	m_chat = ChatRecordManager::instance()->getChat(id);
-	this->loadChatMessage(*m_chat);
-}
-//消息存储
-void FriendChatPage::storeMessage(const QString& sender_id, const QString& receiver_id, const std::shared_ptr<MessageRecord>& message)
-{
-	if (sender_id == FriendManager::instance()->getOneselfID()) {
-		ChatRecordManager::instance()->updateChat(receiver_id)->addMessage(message);
-	}
-	else {
-		ChatRecordManager::instance()->updateChat(sender_id)->addMessage(message);
-	}
-}
-bool FriendChatPage::isCurrentChat(const QString& id, ChatType type) const
-{
-	if (id == m_friend->getFriendId() && type == ChatType::User)
-		return true;
-	else
-		return false;
 }
 void FriendChatPage::init()
 {
@@ -93,79 +49,29 @@ void FriendChatPage::init()
 			if (m_friend && m_oneself)
 			{
 				if (user_id != m_friend->getFriendId() && user_id != m_oneself->getFriendId())
-				{
 					return;
-				}
-				auto chatMessage = ChatRecordManager::instance()->getChat(m_friend->getFriendId());
+				auto chatMessage = ChatRecordManager::instance()->getUserChat(m_friend->getFriendId());
 				loadChatMessage(*chatMessage);
 			}
-
 		});
 	//发送消息
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
-			auto user_id = FriendManager::instance()->getOneselfID();
-			auto& avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
-			auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
-			//图片消息
-			if (!m_imageMessagePath.isEmpty())
-			{
-				for (const QString& imagePath : m_imageMessagePath)
+			AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User, [=](const QPixmap& pixmap)
 				{
-					QPixmap pixmap(imagePath);
-					createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
-					updateChatMessage(user_id, m_friend->getFriendId(), QVariant::fromValue(pixmap));
-					m_imageMessagePath.removeOne(imagePath);
-					//像服务端发送
-					QByteArray byteArray;
-					QBuffer buffer(&byteArray);
-					buffer.open(QIODevice::WriteOnly);
-					// 将 QPixmap 转换为 PNG 并存入 QByteArray
-					if (!pixmap.save(&buffer, "PNG")) {
-						qDebug() << "Failed to convert avatar to PNG format.";
-						return;
+					auto user_id = FriendManager::instance()->getOneselfID();
+					auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100), 66);
+					if (!m_imageMessagePath.isEmpty())
+					{
+						//图片消息
+						sendImageMessageToServer(user_id, headPix);
 					}
-					QVariantMap params;
-					params["user_id"] = user_id;
-					params["to"] = m_friend->getFriendId();
-					params["message"] = "picture";
-					params["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
-					params["size"] = byteArray.size();
-
-					//二进制数据的发送
-					auto packet = PacketCreate::binaryPacket("pictureCommunication", params, byteArray);
-					QByteArray userData;
-					PacketCreate::addPacket(userData, packet);
-					auto allData = PacketCreate::allBinaryPacket(userData);
-
-					MessageSender::instance()->sendBinaryData(allData);
-				}
-				ui->messageTextEdit->clear();
-				return;
-			}
-			//文字消息
-			QString msg = ui->messageTextEdit->toPlainText();
-			if (msg.isEmpty())
-				return;
-			//消息显示至聊天框
-			createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight);
-			//将消息加入至聊天记录中
-			updateChatMessage(user_id, m_friend->getFriendId(), QVariant::fromValue(msg));
-			//清空输入
-			ui->messageTextEdit->clear();
-			//发送给服务器通过服务器转发
-			QJsonObject json;
-			json["user_id"] = user_id;
-			json["message"] = msg;
-			json["to"] = m_friend->getFriendId();
-			json["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
-			if (user_id == m_friend->getFriendId())
-			{
-				EventBus::instance()->emit textCommunication(json);
-				return;
-			}
-			QVariantMap messageMap = json.toVariantMap();
-			MessageSender::instance()->sendMessage("textCommunication", messageMap);
+					else
+					{
+						//文字消息
+						sendTextMessageToServer(user_id, headPix);
+					}
+				});
 		});
 	//选择待发送图片
 	connect(ui->pictureBtn, &QPushButton::clicked, this, [=]
@@ -257,6 +163,103 @@ void FriendChatPage::init()
 				});
 		});
 }
+//设置会话界面
+void FriendChatPage::setChatWidget(const QString& id)
+{
+	//数据加载
+	if (!m_friend)
+	{
+		m_friend = FriendManager::instance()->findFriend(id);
+	}
+	if (m_friend->getFriendId() != id)
+	{
+		m_friend = FriendManager::instance()->findFriend(id);
+	}
+	//界面显示
+	ui->nameLab->setText(m_friend->getFriendName());
+	//聊天记录加载
+	m_chat = ChatRecordManager::instance()->getUserChat(id);
+	this->loadChatMessage(*m_chat);
+}
+//消息存储
+void FriendChatPage::storeMessage(const QString& sender_id, const QString& receiver_id, const std::shared_ptr<MessageRecord>& message)
+{
+	if (sender_id == FriendManager::instance()->getOneselfID()) {
+		ChatRecordManager::instance()->addMessageToUserChat(receiver_id, message);
+	}
+	else {
+		ChatRecordManager::instance()->addMessageToUserChat(sender_id, message);
+	}
+}
+//判断当前会话
+bool FriendChatPage::isCurrentChat(const QString& id, ChatType type) const
+{
+	if (id == m_friend->getFriendId() && type == ChatType::User)
+		return true;
+	else
+		return false;
+}
+//消息的发送
+void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPixmap& headPix)
+{
+	for (const QString& imagePath : m_imageMessagePath)
+	{
+		QPixmap pixmap(imagePath);
+		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
+		updateChatMessage(user_id, m_friend->getFriendId(), QVariant::fromValue(pixmap));
+		m_imageMessagePath.removeOne(imagePath);
+		//像服务端发送
+		QByteArray byteArray;
+		QBuffer buffer(&byteArray);
+		buffer.open(QIODevice::WriteOnly);
+		// 将 QPixmap 转换为 PNG 并存入 QByteArray
+		if (!pixmap.save(&buffer, "PNG")) {
+			qDebug() << "Failed to convert avatar to PNG format.";
+			return;
+		}
+		QVariantMap params;
+		params["user_id"] = user_id;
+		params["to"] = m_friend->getFriendId();
+		params["message"] = "picture";
+		params["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+		params["size"] = byteArray.size();
+
+		//二进制数据的发送
+		auto packet = PacketCreate::binaryPacket("pictureCommunication", params, byteArray);
+		QByteArray userData;
+		PacketCreate::addPacket(userData, packet);
+		auto allData = PacketCreate::allBinaryPacket(userData);
+
+		MessageSender::instance()->sendBinaryData(allData);
+	}
+	ui->messageTextEdit->clear();
+}
+void FriendChatPage::sendTextMessageToServer(const QString& user_id, const QPixmap& headPix)
+{
+	QString msg = ui->messageTextEdit->toPlainText();
+	if (msg.isEmpty())
+		return;
+	//消息显示至聊天框
+	createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight);
+	//将消息加入至聊天记录中
+	updateChatMessage(user_id, m_friend->getFriendId(), QVariant::fromValue(msg));
+	//清空输入
+	ui->messageTextEdit->clear();
+	//发送给服务器通过服务器转发
+	QJsonObject json;
+	json["user_id"] = user_id;
+	json["message"] = msg;
+	json["to"] = m_friend->getFriendId();
+	json["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+	if (user_id == m_friend->getFriendId())
+	{
+		EventBus::instance()->emit textCommunication(json);
+		return;
+	}
+	QVariantMap messageMap = json.toVariantMap();
+	MessageSender::instance()->sendMessage("textCommunication", messageMap);
+}
+//消息气泡
 void FriendChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
 	MessageBubble* bubble = new MessageBubble(avatar, pixmap, bubbleType);

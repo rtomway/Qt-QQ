@@ -33,14 +33,13 @@ FriendManager::FriendManager()
 			auto user_id = user->getFriendId();
 			auto grouping = user->getGrouping();
 			//保存目录
-			if (ImageUtils::saveAvatarToLocal(pixmap, user_id, ChatType::User))
-			{
-				AvatarManager::instance()->updateAvatar(user_id, ChatType::User);
-			}
-			else
-			{
-				qDebug() << "头像接受失败";
-			}
+			ImageUtils::saveAvatarToLocal(pixmap.toImage(), user_id, ChatType::User, [=](bool result)
+				{
+					if (!result)
+						//AvatarManager::instance()->updateAvatar(user_id, ChatType::User);
+					//else
+						qDebug() << "头像保存失败";
+				});
 			this->addFriend(user);
 			emit NewFriend(user_id, grouping);
 		});
@@ -61,7 +60,7 @@ void FriendManager::setOneselfID(const QString& id)
 	qDebug() << "当前用户ID:" << m_oneselfID;
 }
 //获取当前用户id
-const QString FriendManager::getOneselfID() const
+const QString& FriendManager::getOneselfID() const
 {
 	return m_oneselfID;
 }
@@ -72,7 +71,7 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 	if (!m_user.contains(user_id))
 	{
 		m_user.insert(user_id, user);
-		ChatRecordManager::instance()->addChat(user_id, std::make_shared<ChatRecordMessage>(m_oneselfID, user_id, ChatType::User));
+		ChatRecordManager::instance()->addUserChat(user_id, std::make_shared<ChatRecordMessage>(m_oneselfID, user_id, ChatType::User));
 	}
 
 }
@@ -92,7 +91,7 @@ const QHash<QString, QSharedPointer<Friend>>& FriendManager::getFriends() const
 {
 	return m_user;
 }
-//好友搜索
+//获取全部好友信息
 QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString& text) const
 {
 	QHash<QString, QSharedPointer<Friend>> result;

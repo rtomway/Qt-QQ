@@ -57,7 +57,7 @@ void SearchFriend::init()
 		});
 
 }
-
+//添加搜索项
 void SearchFriend::addSearchItem(const QJsonObject& obj, const QPixmap& pixmap)
 {
 	//为item设置用户id
@@ -70,7 +70,7 @@ void SearchFriend::addSearchItem(const QJsonObject& obj, const QPixmap& pixmap)
 	//关联item和widget
 	m_searchList->setItemWidget(item, itemWidget);
 }
-
+//清空搜索列表
 void SearchFriend::clearFriendList()
 {
 	m_searchList->clear();

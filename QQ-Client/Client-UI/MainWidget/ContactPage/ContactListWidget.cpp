@@ -208,10 +208,15 @@ void ContactListWidget::init()
 			topItemWidget->setCount(topItem->childCount());
 		});
 	//新增群组
+	connect(GroupManager::instance(), &GroupManager::createGroupSuccess, this, [=](const QString& group_id)
+		{
+			qDebug() << "ContactListWidget新建群组";
+			addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
+		});
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
-			qDebug() << "ContactListWidget新增群组";
-			addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
+			qDebug() << "ContactListWidget新加群组";
+			addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
 		});
 }
 //获取分组

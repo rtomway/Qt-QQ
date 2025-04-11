@@ -29,6 +29,8 @@ public:
 private:
 	void init();
 	void installEventFilterForChildren(QWidget* parent);
+	void sendImageMessageToServer(const QString&user_id,const QPixmap&pixmap);
+	void sendTextMessageToServer(const QString& user_id, const QPixmap& pixmap);
 private:
 	QSharedPointer<Friend>m_friend{};
 	std::shared_ptr<ChatRecordMessage>m_chat;

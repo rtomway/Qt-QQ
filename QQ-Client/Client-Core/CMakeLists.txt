@@ -2,9 +2,8 @@
 
 # 创建一个静态库或者共享库
 add_library(Client-Core STATIC
-    MessageHandle.h
-    MessageHandle.cpp
- "EventBus.h" "EventBus.cpp" "MessageSender.h" "MessageSender.cpp")
+    "EventBus.h" "EventBus.cpp"
+)
 
 # 设置包含目录（确保主程序能访问头文件）
 target_include_directories(Client-Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

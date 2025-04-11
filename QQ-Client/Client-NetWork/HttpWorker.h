@@ -14,7 +14,6 @@ public:
 signals:
     void httpTextResponseReceived(const QByteArray& data);
     void httpDataResponseReceived(const QByteArray& data);
-
 private:
     QNetworkAccessManager* m_networkManager;
     QNetworkReply* m_reply;

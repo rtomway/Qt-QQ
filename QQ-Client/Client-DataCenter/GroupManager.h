@@ -27,6 +27,7 @@ private:
 private:
 	QHash<QString, QSharedPointer<Group>> m_groups;
 signals:
+	void createGroupSuccess(const QString& user_id);
 	void newGroup(const QString& user_id);
 };
 

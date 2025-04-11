@@ -14,19 +14,12 @@ void MessageRecord::readMessage()
 {
 	m_isRead = true;
 }
-
+// 获取发送者ID
 QString MessageRecord::getSenderId()
 {
 	return m_sender_id;
 }
-QString MessageRecord::getContent() const
-{
-	return QString();
-}
-QPixmap MessageRecord::getImageMessage() const
-{
-	return QPixmap();
-}
+// 获取消息类型
 QString MessageRecord::getType() const
 {
 	return QString();

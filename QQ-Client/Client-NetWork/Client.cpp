@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <Qpixmap>
+
 #include "MessageSender.h"
 #include "SConfigFile.h"
 

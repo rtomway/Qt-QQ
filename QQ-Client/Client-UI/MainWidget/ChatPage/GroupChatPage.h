@@ -19,6 +19,8 @@ class GroupChatPage :public ChatPage
 public:
 	GroupChatPage(QWidget* parent = nullptr);
 	~GroupChatPage();
+private:
+	void init();
 public:
 	//重写
 	void setChatWidget(const QString& id);
@@ -27,7 +29,8 @@ public:
 	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
 	void createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
 private:
-	void init();
+	void sendImageMessageToServer(const QString& user_id, const QPixmap& headPix);
+	void sendTextMessageToServer(const QString& user_id, const QPixmap& headPix);
 private:
 	QSharedPointer<Group>m_group{};
 	std::shared_ptr<ChatRecordMessage>m_chat;

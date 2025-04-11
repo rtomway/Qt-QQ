@@ -10,8 +10,8 @@ struct TempRequestInfo {
     QPixmap avatar;          // 对应用户或群组的头像
 };
 struct TempReplyInfo {
-    QJsonObject replyData;  // 请求相关的JSON数据
-    QPixmap avatar;          // 对应用户或群组的头像
+    QJsonObject replyData;  
+    QPixmap avatar;         
 };
 
 class TempManager :public QObject
@@ -23,21 +23,19 @@ public:
 	// 禁止拷贝构造函数和赋值操作符
 	TempManager(const TempManager&) = delete;
 	TempManager& operator=(const TempManager&) = delete;
+private:
+    TempManager();
 public:
-    // 添加临时请求（好友申请或群组邀请）
+    //请求
     void addFriendRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap);
     void addGroupRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap);
-    // 获取临时请求的详细信息
     TempRequestInfo getFriendRequestInfo(const QString& id);
     TempRequestInfo getGroupRequestInfo(const QString& id);
-    // 添加临时回复（好友申请或群组邀请）
+    //回复
     void addFriendReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap);
     void addGroupReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap);
-    // 获取临时回复的详细信息
     TempReplyInfo getFriendReplyInfo(const QString& id);
     TempReplyInfo getGroupReplyInfo(const QString& id);
-private:
-	TempManager();
 private:
     // 存储所有临时请求数据（如好友申请、群组邀请）
     QMap<QString, TempRequestInfo> m_tempFriendRequests;

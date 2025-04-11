@@ -49,11 +49,9 @@ void GNoticeItemWidget::init()
 	rightLayout->addWidget(m_cancelBtn);
 	m_okBtn->setFixedWidth(90);
 	m_cancelBtn->setFixedWidth(90);
-	//ui->preMessageLab->setText("留言：");
 	ui->preMessageLab->setVisible(false);
 }
-
-
+//设置item窗口
 void GNoticeItemWidget::setItemWidget(const QString& group_id)
 {
 	if (m_isReply)
@@ -77,7 +75,7 @@ void GNoticeItemWidget::setItemWidget(const QString& group_id)
 	m_noticeMessageLab->setText(m_json["noticeMessage"].toString());
 	m_timeLab->setText(m_json["time"].toString());
 }
-
+//设置通知类型
 void GNoticeItemWidget::setMode(bool isReply)
 {
 	m_isReply = isReply;

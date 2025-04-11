@@ -12,12 +12,10 @@ TopItemWidget::TopItemWidget(QWidget* parent)
 {
 	init();
 }
-
 TopItemWidget::~TopItemWidget()
 {
 	delete m_item;
 }
-
 void TopItemWidget::init()
 {
 	m_hLayout->addWidget(m_headLab);

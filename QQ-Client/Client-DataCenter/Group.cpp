@@ -1,9 +1,9 @@
 ﻿#include "Group.h"
 #include "QJsonArray"
 
+//设置群聊
 void Group::setGroup(const QJsonObject& groupObj)
 {
-	qDebug() << "setGroup" << groupObj;
 	m_groupId = groupObj["group_id"].toString();
 	m_groupName = groupObj["group_name"].toString();
 	m_groupOwnerId = groupObj["user_id"].toString();
@@ -21,9 +21,20 @@ void Group::addMember(const QJsonObject& memberObj)
 	Member member;
 	member.member_id = member_id;
 	member.member_name = memberObj["username"].toString();
-	member.member_role = memberObj["group_role"].toString();
+	if (!memberObj.contains("group_role"))
+	{
+		qDebug() << "group_role为空";
+	}
+	auto role = memberObj["group_role"].toString();
+	if (role == "ower")
+	{
+		member.member_role = "群主";
+	}
+	else if(role == "member")
+	{
+		member.member_role = "群成员";
+	}
 	m_members.insert(member_id, member);
-	qDebug() << "addmember:" << member.member_id << member.member_name << member.member_role;
 }
 //设置成员用户名
 void Group::setMemberName(const QString& member_id, const QString& member_name)
@@ -60,6 +71,7 @@ const QString& Group::getGrouping() const
 {
 	return m_grouping;
 }
+//获取指定成员
 const Member& Group::getMember(const QString& member_id) const
 {
 	auto it = m_members.find(member_id);  // 使用 find() 查找元素
@@ -73,14 +85,12 @@ const Member& Group::getMember(const QString& member_id) const
 		return defaultMember;  // 返回默认成员对象的引用
 	}
 }
-
-
-
+//获取全部成员
 const QHash<QString, Member>& Group::getMembers() const
 {
 	return m_members;
 }
-
+//群人数
 const int& Group::count() const
 {
 	return m_members.count();

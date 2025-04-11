@@ -2,12 +2,13 @@
 #define CONTACTDETAILWIDGET_H_
 
 #include <QWidget>
-#include "LineEditwithButton.h"
-#include "AngleRoundedWidget.h"
 #include <QJsonObject>
 #include <memory>
-#include<QCalendarWidget>
-#include<QWidgetAction>
+#include <QCalendarWidget>
+#include <QWidgetAction>
+
+#include "LineEditwithButton.h"
+#include "AngleRoundedWidget.h"
 
 namespace Ui { class ContactDetailWidget; }
 

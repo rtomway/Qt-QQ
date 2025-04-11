@@ -9,7 +9,7 @@ HttpWorker::HttpWorker(QObject* parent)
 {
 
 }
-
+//发送http请求
 void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const QString& Content_type)
 {
     QUrl url(m_baseUrl + type);

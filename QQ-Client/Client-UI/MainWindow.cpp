@@ -57,7 +57,7 @@ void MainWindow::init()
             hide();
         });
 }
-
+//登录窗口
 void MainWindow::showLoginWidget()
 {
     setMaximumSize(m_loginWidget->size());
@@ -68,7 +68,7 @@ void MainWindow::showLoginWidget()
 	m_loginWidget->setAutoFillBackground(true);
 	this->show();
 }
-
+//主窗口
 void MainWindow::showMainWidget()
 {
     m_mainWidget->resize(1080, 680);
@@ -81,12 +81,10 @@ void MainWindow::showMainWidget()
 	this->show();
 }
 
-
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
 	QMainWindow::resizeEvent(event);
 }
-
 void MainWindow::mousePressEvent(QMouseEvent* event)
 {
 	this->setFocus();
@@ -99,14 +97,12 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
 	}
 	m_bPressed = true;
 }
-
 void MainWindow::mouseReleaseEvent(QMouseEvent* event)
 {
 	QApplication::restoreOverrideCursor();//恢复鼠标指针性状
 	event->ignore();
 	m_bPressed = false;
 }
-
 void MainWindow::mouseMoveEvent(QMouseEvent* event)
 {
     if (this->isMaximized())
@@ -227,13 +223,11 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event)
     }
     event->ignore();
 }
-
 void MainWindow::showEvent(QShowEvent* event)
 {
     this->setAttribute(Qt::WA_Mapped);//解决不能及时刷新的bug
     QMainWindow::showEvent(event);
 }
-
 int MainWindow::countFlag(QPoint p, int row)
 {
     if (p.y() < MARGIN)
@@ -244,7 +238,6 @@ int MainWindow::countFlag(QPoint p, int row)
         return 20 + row;
 
 }
-
 void MainWindow::setCursorType(int flag)
 {
     Qt::CursorShape cursor;
@@ -271,7 +264,6 @@ void MainWindow::setCursorType(int flag)
     }
     setCursor(cursor);
 }
-
 int MainWindow::countRow(QPoint p)
 {
     return (p.x() < MARGIN) ? 1 : (p.x() > (this->width() - MARGIN) ? 3 : 2);

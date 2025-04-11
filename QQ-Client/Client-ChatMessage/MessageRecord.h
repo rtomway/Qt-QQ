@@ -9,14 +9,8 @@ class MessageRecord {
 public:
 	MessageRecord(QString sender, QString receiver, QDateTime time);
 	virtual ~MessageRecord() = default;
-	// 消息已读
 	void readMessage();
-	// 获取发送者ID
 	QString getSenderId();
-	// 获取文本消息
-	virtual QString getContent() const;
-	// 获取图片消息
-	virtual QPixmap getImageMessage() const;
 	// 获取消息类型
 	virtual QString getType() const;
 protected:
@@ -35,7 +29,6 @@ public:
 private:
 	QString m_textMessage;
 };
-
 // 图片消息类
 class ImageMessage : public MessageRecord {
 public:

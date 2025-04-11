@@ -13,7 +13,6 @@ FMessageItemWidget::FMessageItemWidget(QWidget* parent)
 {
 	init();
 }
-
 void FMessageItemWidget::init()
 {
 	ui->rightWidget->setLayout(new QVBoxLayout(ui->rightWidget));
@@ -30,7 +29,7 @@ void FMessageItemWidget::init()
 	m_countLab->setAlignment(Qt::AlignCenter);
 	ui->preMessageLab->setVisible(false);
 }
-
+//设置item窗口
 void FMessageItemWidget::setItemWidget(const QString& user_id)
 {
 	//数据绑定
@@ -42,24 +41,25 @@ void FMessageItemWidget::setItemWidget(const QString& user_id)
 	//json信息
 	m_friendJson = m_friend->getFriend();
 	//页面显示
-	auto& pixmap = AvatarManager::instance()->getAvatar(m_friendId, ChatType::User);
-	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
-	ui->headLab->setPixmap(headPix);
+	AvatarManager::instance()->getAvatar(m_friendId, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+			ui->headLab->setPixmap(headPix);
+		});
 	ui->nameLab->setText(m_friendJson["username"].toString());
 	//最新消息
 	if (!m_unReadMesssage.isEmpty())
 		ui->afterMessageLab->setText(m_unReadMesssage.last());
-	qDebug() << m_friendId << QString::number(m_unReadMesssage.count());
 	m_countLab->setText(QString::number(m_unReadMesssage.count()));
 	m_timeLab->setText(m_lastTime);
 }
-
+//清空未读消息
 void FMessageItemWidget::clearUnRead()
 {
 	m_countLab->setVisible(false);
 	m_unReadMesssage.clear();
 }
-
+//更新未读消息
 void FMessageItemWidget::updateUnReadMessage(const QString& message, const QString& time)
 {
 	if (message == "picture")

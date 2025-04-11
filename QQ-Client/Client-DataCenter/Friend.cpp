@@ -4,12 +4,12 @@
 #include "ImageUtil.h"
 
 //获取ID
-const QString Friend::getFriendId()const
+const QString& Friend::getFriendId()const
 {
 	return m_userID;
 }
 //获取用户名
-const QString Friend::getFriendName() const
+const QString& Friend::getFriendName() const
 {
 	return m_userName;
 }
@@ -34,7 +34,7 @@ void Friend::setFriend(const QJsonObject& obj)
 	m_json["grouping"] = m_grouping;
 }
 //获取好友信息
-const QJsonObject Friend::getFriend()const
+const QJsonObject& Friend::getFriend()const
 {
 	return m_json;
 }
@@ -45,7 +45,7 @@ void Friend::setGrouping(const QString& grouping)
 	m_json["grouping"] = m_grouping;
 }
 //获取分组
-const QString Friend::getGrouping() const
+const QString& Friend::getGrouping() const
 {
 	return m_grouping;
 }

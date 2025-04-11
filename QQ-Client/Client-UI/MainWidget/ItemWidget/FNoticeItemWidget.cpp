@@ -26,7 +26,6 @@ FNoticeItemWidget::FNoticeItemWidget(QWidget* parent)
 			m_addWidget->show();
 		});
 }
-
 void FNoticeItemWidget::init()
 {
 	auto nameLayout = ui->nameWidget->layout();
@@ -40,7 +39,7 @@ void FNoticeItemWidget::init()
 	m_cancelBtn->setFixedWidth(90);
 	ui->preMessageLab->setText("留言：");
 }
-
+//设置item窗口
 void FNoticeItemWidget::setItemWidget(const QString& user_id)
 {
 	auto noticeData = TempManager::instance()->getFriendRequestInfo(user_id);
@@ -52,7 +51,7 @@ void FNoticeItemWidget::setItemWidget(const QString& user_id)
 	m_noticeMessageLab->setText(m_json["noticeMessage"].toString());
 	m_timeLab->setText(m_json["time"].toString());
 }
-
+//设置通知类型
 void FNoticeItemWidget::setMode(bool isReply)
 {
 	m_isReply = isReply;

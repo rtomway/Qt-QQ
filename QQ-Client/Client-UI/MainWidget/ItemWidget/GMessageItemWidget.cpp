@@ -26,8 +26,9 @@ void GMessageItemWidget::init()
 				background-color:red;
 			)");
 	m_countLab->setAlignment(Qt::AlignCenter);
+	ui->preMessageLab->setText(QString());
 }
-
+//设置item窗口
 void GMessageItemWidget::setItemWidget(const QString& group_id)
 {
 	//数据绑定
@@ -38,24 +39,29 @@ void GMessageItemWidget::setItemWidget(const QString& group_id)
 	}
 	qDebug() << "GMessageItemWidget:" << m_groupId;
 	//页面显示
-	auto& pixmap = AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group);
-	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
-	ui->headLab->setPixmap(headPix);
+	AvatarManager::instance()->getAvatar(m_groupId, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			qDebug() << "----------群组消息项头像回调";
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+			ui->headLab->setPixmap(headPix);
+		});
 	ui->nameLab->setText(m_group->getGroupName());
 	//最新消息
 	if (!m_unReadMesssage.isEmpty())
+	{
+		ui->preMessageLab->setText(m_sender + ":");
 		ui->afterMessageLab->setText(m_unReadMesssage.last());
+	}
 	m_countLab->setText(QString::number(m_unReadMesssage.count()));
 	m_timeLab->setText(m_lastTime);
-	ui->preMessageLab->setText(m_sender + ":");
 }
-
+//清空未读消息
 void GMessageItemWidget::clearUnRead()
 {
 	m_countLab->setVisible(false);
 	m_unReadMesssage.clear();
 }
-
+//更新未读消息
 void GMessageItemWidget::updateUnReadMessage(const QString& user_id, const QString& message, const QString& time)
 {
 	if (message == "picture")

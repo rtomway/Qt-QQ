@@ -32,6 +32,8 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void groupTextCommunication(const QJsonObject& paramsObject);
 	void groupInviteSuccess(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void newGroupMember(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void loadGroupMember(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void loadGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 };
 
 #endif // !EVENTBUS_H_

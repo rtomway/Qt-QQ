@@ -48,12 +48,12 @@ QByteArray PacketCreate::lenthOfbinaryPacket(qint32 packetSize)
 	sizeStream << packetSize;
 	return packetSizeBytes;
 }
-//添加包
-void PacketCreate::addPacket(QByteArray& addData, const QByteArray& packet)
+//为指定包添加包
+void PacketCreate::addPacket(QByteArray& targetData, const QByteArray& packet)
 {
 	auto packetSizeBytes = lenthOfbinaryPacket(packet.size());
-	addData.append(packetSizeBytes);  // 先加上包长度
-	addData.append(packet);       // 再加上包数据
+	targetData.append(packetSizeBytes);  // 先加上包长度
+	targetData.append(packet);       // 再加上包数据
 }
 //发送的总数据包
 QByteArray PacketCreate::allBinaryPacket(const QByteArray& packet)

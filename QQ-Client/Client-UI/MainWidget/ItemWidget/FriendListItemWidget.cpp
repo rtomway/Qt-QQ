@@ -13,7 +13,7 @@ void FriendListItemWidget::init()
 {
 	ui->preMessageLab->setVisible(false);
 }
-
+//设置item窗口
 void FriendListItemWidget::setItemWidget(const QString& user_id)
 {
 	//数据绑定
@@ -26,13 +26,15 @@ void FriendListItemWidget::setItemWidget(const QString& user_id)
 	m_friendJson = m_friend->getFriend();
 	qDebug() << "FriendListItemWidget信息：" << m_friendJson;
 	//页面显示
-	auto& pixmap = AvatarManager::instance()->getAvatar(m_friendId, ChatType::User);
-	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
-	ui->headLab->setPixmap(headPix);
+	AvatarManager::instance()->getAvatar(m_friendId, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+			ui->headLab->setPixmap(headPix);
+		});
 	ui->nameLab->setText(m_friendJson["username"].toString());
 	ui->afterMessageLab->setText(m_friendJson["signature"].toString());
 }
-
+//设置分组
 void FriendListItemWidget::setGrouping(const QString& grouping)
 {
 	if (m_friend)

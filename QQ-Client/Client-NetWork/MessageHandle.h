@@ -36,6 +36,8 @@ private:
 	void handle_groupTextCommunication(const QJsonObject& paramsObjec = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_newGroupMember(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_groupInviteSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_groupMemberLoad(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_groupLoad(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 signals:
 	void connectToServer();
 };

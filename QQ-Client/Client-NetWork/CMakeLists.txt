@@ -2,12 +2,11 @@
 
 # 创建一个静态库或者共享库
 add_library(Client-NetWork STATIC
-    Client.cpp
-    Client.h
-   PacketCreate.h
-   PacketCreate.cpp
-    HttpWorker.h
-     HttpWorker.cpp
+     "Client.h" "Client.cpp"
+     "PacketCreate.h" "PacketCreate.cpp"
+     "HttpWorker.h" "HttpWorker.cpp"
+     "MessageHandle.h" "MessageHandle.cpp"
+     "MessageSender.h" "MessageSender.cpp"
 )
 
 # 设置包含目录（确保主程序能访问头文件）

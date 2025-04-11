@@ -17,6 +17,8 @@
 #include "AvatarManager.h"
 #include "GlobalTypes.h"
 
+#include <QtConcurrent/QtConcurrent>
+
 
 
 ContactDetailWidget::ContactDetailWidget(QWidget* parent)
@@ -247,57 +249,85 @@ void ContactDetailWidget::init()
 			friendObj.remove("grouping");
 			friendObj.remove("avatar_path");
 			QJsonDocument doc(friendObj);
-			QByteArray data =doc.toJson(QJsonDocument::Compact);
+			QByteArray data = doc.toJson(QJsonDocument::Compact);
 			MessageSender::instance()->emit sendHttpRequest("updateUserMessage", data, "application/json");
 			this->hide();
 		});
 }
+//更新头像
 void ContactDetailWidget::updateAvatar()
 {
 	//更新头像文件和缓存
-	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User);
-	AvatarManager::instance()->updateAvatar(m_userId, ChatType::User);
+	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User, [](bool result)
+		{
+			if (!result)
+				qDebug() << "头像保存失败";
+		});
 	//通知内部客户端
 	AvatarManager::instance()->emit UpdateUserAvatar(m_userId);
 	//通知服务端
-	QByteArray byteArray;
-	QBuffer buffer(&byteArray);
-	buffer.open(QIODevice::WriteOnly);
-	// 将 QPixmap 转换为 PNG 并存入 QByteArray
-	if (!m_headPix.save(&buffer, "PNG")) {
-		qDebug() << "Failed to convert avatar to PNG format.";
-		return;
-	}
-	QVariantMap params;
-	params["user_id"] = m_userId;
-	params["size"] = byteArray.size();
-	//二进制数据的发送
-	auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
-	QByteArray userData;
-	PacketCreate::addPacket(userData, packet);
-	auto allData = PacketCreate::allBinaryPacket(userData);
-	MessageSender::instance()->emit sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
-}
+	//QByteArray byteArray;
+	//QBuffer buffer(&byteArray);
+	//buffer.open(QIODevice::WriteOnly);
+	//// 将 QPixmap 转换为 PNG 并存入 QByteArray
+	//if (!m_headPix.save(&buffer, "PNG")) {
+	//	qDebug() << "Failed to convert avatar to PNG format.";
+	//	return;
+	//}
+	//QVariantMap params;
+	//params["user_id"] = m_userId;
+	//params["size"] = byteArray.size();
+	////二进制数据的发送
+	//auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
+	//QByteArray userData;
+	//PacketCreate::addPacket(userData, packet);
+	//auto allData = PacketCreate::allBinaryPacket(userData);
+	//MessageSender::instance()->emit sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+	QtConcurrent::run([=]() {
+		QByteArray byteArray;
+		QBuffer buffer(&byteArray);
+		buffer.open(QIODevice::WriteOnly);
+		if (!m_headPix.save(&buffer, "PNG")) {
+			qDebug() << "Failed to convert avatar to PNG format.";
+			return;
+		}
+		QVariantMap params;
+		params["user_id"] = m_userId;
+		params["size"] = byteArray.size();
 
+		auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
+		QByteArray userData;
+		PacketCreate::addPacket(userData, packet);
+		auto allData = PacketCreate::allBinaryPacket(userData);
+
+		// 发到主线程发信号
+		QMetaObject::invokeMethod(MessageSender::instance(), [=]() {
+			MessageSender::instance()->emit sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+			});
+		});
+}
+//设置用户信息
 void ContactDetailWidget::setUser(const QJsonObject& obj)
 {
 	m_json = obj;
 	m_userId = obj["user_id"].toString();
 	QSharedPointer<Friend> myfriend = FriendManager::instance()->findFriend(m_userId);
-	auto pixmap = ImageUtils::roundedPixmap(AvatarManager::instance()->getAvatar(m_userId, ChatType::User), QSize(80, 80));
-	m_headLab->setPixmap(pixmap);
+	AvatarManager::instance()->getAvatar(m_userId, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(80, 80));
+			m_headLab->setPixmap(headPix);
+		});
 	m_nickNameEdit->setText(m_json["username"].toString());
 	m_genderEdit->setText(m_json["gender"].toInt() == 1 ? "男" : "女");
 	m_ageEdit->setText(QString::number(m_json["age"].toInt()));
 	m_birthdayEdit->setText(m_json["birthday"].toString());
 	m_signaltureEdit->setText(m_json["signature"].toString());
 }
-
+//获取编辑信息
 const QJsonObject& ContactDetailWidget::getUser() const
 {
 	return m_json;
 }
-
 bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == m_headLab && event->type() == QEvent::MouseButtonPress)

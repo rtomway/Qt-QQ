@@ -77,31 +77,24 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 		messagePtr->readMessage();
 		//判断消息是谁发送
 		bool isSelf = ((messagePtr)->getSenderId() == FriendManager::instance()->getOneselfID());
-		/*QPixmap avatar;
-		if (isSelf) {
-			avatar = AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User);
-		}
-		else {
-			avatar = AvatarManager::instance()->getAvatar(messagePtr->getSenderId(), ChatType::User);
-		}*/
-		//获取发送者头像
-		auto& avatar = isSelf
-			? AvatarManager::instance()->getAvatar(m_oneself->getFriendId(), ChatType::User)
-			: AvatarManager::instance()->getAvatar(messagePtr->getSenderId(), ChatType::User);
-		auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
-		// 判断消息类型并处理
-		if (auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get())) {
-			qDebug() << "TextMessage";
-			auto content = textMessage->getTextMessage();
-			MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleTextRight : MessageBubble::BubbleTextLeft;
-			createTextMessageBubble(headPix, content, bubbleType, messagePtr->getSenderId());
-		}
-		else if (auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get())) {
-			qDebug() << "ImageMessage";
-			QPixmap image = imageMessage->getImageMessage();
-			MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleImageRight : MessageBubble::BubbleImageLeft;
-			createImageMessageBubble(headPix, image, bubbleType, messagePtr->getSenderId());
-		}
+		QString senderId = isSelf ? m_oneself->getFriendId() : messagePtr->getSenderId();
+		AvatarManager::instance()->getAvatar(senderId, ChatType::User,[=](const QPixmap& avatar) 
+			{
+				auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
+				// 判断消息类型并处理
+				if (auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get())) {
+					qDebug() << "TextMessage";
+					auto content = textMessage->getTextMessage();
+					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleTextRight : MessageBubble::BubbleTextLeft;
+					createTextMessageBubble(headPix, content, bubbleType, messagePtr->getSenderId());
+				}
+				else if (auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get())) {
+					qDebug() << "ImageMessage";
+					QPixmap image = imageMessage->getImageMessage();
+					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleImageRight : MessageBubble::BubbleImageLeft;
+					createImageMessageBubble(headPix, image, bubbleType, messagePtr->getSenderId());
+				}
+			});
 	}
 }
 //聊天记录更新
@@ -128,15 +121,19 @@ void ChatPage::updateChatMessage(const QString& sender_id, const QString& receiv
 //当前界面接受消息更新
 void ChatPage::updateReciveMessage(const QString& user_id, const QString& message)
 {
-	auto& avatar = AvatarManager::instance()->getAvatar(user_id, ChatType::User);
-	auto headPix = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
-	createTextMessageBubble(headPix, message, MessageBubble::BubbleTextLeft, user_id);
+	AvatarManager::instance()->getAvatar(user_id, ChatType::User, [=](const QPixmap& pixmap)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+			createTextMessageBubble(headPix, message, MessageBubble::BubbleTextLeft, user_id);
+		});
 }
 void ChatPage::updateReciveMessage(const QString& user_id, const QPixmap& pixmap)
 {
-	auto& avatar = AvatarManager::instance()->getAvatar(user_id, ChatType::User);
-	auto headPix = ImageUtils::roundedPixmap(avatar, QSize(40, 40));
-	createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageLeft, user_id);
+	AvatarManager::instance()->getAvatar(user_id, ChatType::User, [=](const QPixmap& pixmap_2)
+		{
+			auto headPix = ImageUtils::roundedPixmap(pixmap_2, QSize(40, 40));
+			createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleTextLeft, user_id);
+		});
 }
 
 void ChatPage::clearMessageWidget()

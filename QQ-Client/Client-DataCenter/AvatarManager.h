@@ -1,10 +1,11 @@
 ﻿#ifndef AVATARMANAGER_H_
 #define AVATARMANAGER_H_
 
-#include <QString>
 #include <QPixmap>
 #include <QCache>
 #include <QObject>
+#include <QSet>
+#include <QMap>
 
 #include "GlobalTypes.h"
 
@@ -16,17 +17,21 @@ public:
 	// 禁止拷贝构造函数和赋值操作符
 	AvatarManager(const AvatarManager&) = delete;
 	AvatarManager& operator=(const AvatarManager&) = delete;
-	// 获取头像，如果缓存中没有,加载并缓存
-	const QPixmap& getAvatar(const QString& user_id, ChatType type);
-	// 更新头像
-	void updateAvatar(const QString& user_id, ChatType type);
+	void getAvatar(const QString& user_id, ChatType type,std::function<void(const QPixmap&)>callback);
+	void loadAvatar(const QString& user_id, ChatType type);
+	void processPendingCallbacks(const QString& id, const QPixmap& avatar);
 private:
-	AvatarManager(); // 构造函数私有化，确保单例模式
+	AvatarManager(); 
 	// 使用 QCache 来缓存头像，避免重复加载
 	QCache<QString, QPixmap> m_userAvatarCache;
 	QCache<QString, QPixmap> m_groupAvatarCache;
+	// 正在加载中的头像，防止重复加载
+	QSet<QString> m_loadingIds;
+	// 存储等待的回调，头像加载完成后统一调用
+	QMap<QString, QList<std::function<void(const QPixmap&)>>> m_pendingCallbacks;
 signals:
 	void UpdateUserAvatar(const QString& user_id);
+	void loadAvatarSuccess(const QPixmap& avatar);
 };
 
 #endif // AVATARMANAGER_H_

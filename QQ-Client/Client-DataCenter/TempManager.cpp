@@ -6,7 +6,6 @@ TempManager* TempManager::instance()
 	static TempManager ins;
 	return &ins;
 }
-
 TempManager::TempManager()
 {
 	connect(EventBus::instance(), &EventBus::addFriend, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
@@ -33,8 +32,7 @@ TempManager::TempManager()
 			emit GroupInviteSuccess(group_id);
 		});
 }
-
-//请求
+// 添加临时请求（好友申请或群组邀请）
 void TempManager::addFriendRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap)
 {
 	// 检查好友请求是否已存在，如果存在则不重复添加
@@ -57,6 +55,7 @@ void TempManager::addGroupRequest(const QString& id, const QJsonObject& requestI
 		qDebug() << "Added group invite for group ID:" << id;
 	}
 }
+// 获取临时请求的详细信息
 TempRequestInfo TempManager::getFriendRequestInfo(const QString& id)
 {
 	// 如果存在请求，返回请求信息，否则返回空
@@ -73,8 +72,7 @@ TempRequestInfo TempManager::getGroupRequestInfo(const QString& id)
 	}
 	return TempRequestInfo();
 }
-
-//回复
+// 添加临时回复（好友申请或群组邀请）
 void TempManager::addFriendReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap)
 {
 	// 检查好友请求是否已存在，如果存在则不重复添加
@@ -97,6 +95,7 @@ void TempManager::addGroupReply(const QString& id, const QJsonObject& replyInfo,
 		qDebug() << "Added Group Reply for user ID:" << id;
 	//}
 }
+// 获取临时回复的详细信息
 TempReplyInfo TempManager::getFriendReplyInfo(const QString& id)
 {
 	if (m_tempFriendReplys.contains(id)) {
