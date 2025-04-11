@@ -16,7 +16,9 @@ class LoginWidget :public AngleRoundedWidget
 	Q_OBJECT 
 public:
 	LoginWidget( QWidget* parent = nullptr);
+private:
 	void init();
+	void initLayout();
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 signals:

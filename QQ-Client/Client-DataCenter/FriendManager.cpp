@@ -46,6 +46,7 @@ FriendManager::FriendManager()
 	connect(EventBus::instance(), &EventBus::deleteFriend, this, [=](const QString& user_id)
 		{
 			m_user.remove(user_id);
+			emit deleteFriend(user_id);
 		});
 }
 //单例

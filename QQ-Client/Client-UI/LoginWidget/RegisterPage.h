@@ -6,7 +6,7 @@
 
 namespace Ui { class RegisterPage; }
 
-class RegisterPage:public QWidget
+class RegisterPage :public QWidget
 {
 	Q_OBJECT
 public:

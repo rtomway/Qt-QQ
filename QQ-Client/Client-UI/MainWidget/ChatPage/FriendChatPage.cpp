@@ -297,10 +297,8 @@ bool FriendChatPage::eventFilter(QObject* watched, QEvent* event)
 	if (event->type() == QEvent::MouseButtonPress) {
 		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 		QPoint globalPos = mouseEvent->globalPos();
-		qDebug() << globalPos;
 		// 检查点击位置是否在 m_setWidget 内
 		if (!m_setWidget->geometry().contains(m_setWidget->mapFromGlobal(globalPos))) {
-			qDebug() << "点击位置";
 			// 检查点击位置是否在 moreBtn 内
 			if (!this->ui->moreBtn->geometry().contains(this->ui->moreBtn->mapFromGlobal(globalPos))) {
 				// 如果点击位置既不在 m_setWidget 也不在 moreBtn 内，则隐藏 m_setWidget

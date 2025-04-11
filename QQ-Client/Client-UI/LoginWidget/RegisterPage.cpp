@@ -1,4 +1,5 @@
 ﻿#include "RegisterPage.h"
+#include "RegisterPage.h"
 #include "ui_RegisterPage.h"
 #include <QFile>
 #include <QMouseEvent>
@@ -10,7 +11,7 @@
 
 RegisterPage::RegisterPage(QWidget* parent)
 	:QWidget(parent)
-	,ui(new Ui::RegisterPage)
+	, ui(new Ui::RegisterPage)
 {
 	ui->setupUi(this);
 	this->installEventFilter(this);
@@ -20,7 +21,8 @@ RegisterPage::RegisterPage(QWidget* parent)
 	if (file.open(QIODevice::ReadOnly))
 	{
 		this->setStyleSheet(file.readAll());
-	}else
+	}
+	else
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
@@ -79,7 +81,7 @@ bool RegisterPage::eventFilter(QObject* watched, QEvent* event)
 	{
 		ui->passwordLab->setVisible(true);
 	}
-	else if(watched == ui->passwordEdit && event->type() == QEvent::FocusOut)
+	else if (watched == ui->passwordEdit && event->type() == QEvent::FocusOut)
 	{
 		ui->passwordLab->setVisible(false);
 	}

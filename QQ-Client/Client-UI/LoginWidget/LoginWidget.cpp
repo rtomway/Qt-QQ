@@ -1,4 +1,5 @@
 ﻿#include "LoginWidget.h"
+#include "LoginWidget.h"
 #include <QBoxLayout>
 #include <QLabel>
 #include <QFile>
@@ -56,6 +57,77 @@ LoginWidget::LoginWidget(QWidget* parent)
 }
 
 void LoginWidget::init()
+{
+	initLayout();
+	//更多的菜单
+	auto moreMenu = new QMenu(this);
+	moreMenu->addAction("注册账号", this, [=]
+		{
+			m_registerPage = std::make_unique<RegisterPage>();
+			m_registerPage->show();
+		});
+	connect(EventBus::instance(), &EventBus::registerSuccess, this, [=](const QJsonObject& obj)
+		{
+			m_account->setText(obj["user_id"].toString());
+			m_password->setText(obj["password"].toString());
+		});
+	//密码更新
+	moreMenu->addAction("忘记密码", this, [=]
+		{
+
+		});
+	//窗口关闭
+	connect(m_exitBtn, &QPushButton::clicked, [=]
+		{
+			hide();
+		});
+	//点击别处使lineedit失去焦点
+	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
+	connect(this, &LoginWidget::editfinish, m_password, &LineEditwithButton::editfinished);
+	//个人信息配置
+	SConfigFile config("config.ini");
+	QFile configFile("config.ini");
+	m_account->setText(config.value("user_id").toString());
+	m_password->setText(config.value("password").toString());
+	//发送登录信号
+	connect(m_loginBtn, &QPushButton::clicked, [=]
+		{
+			auto user_id = m_account->getLineEditText();
+			auto password = m_password->getLineEditText();
+			if (user_id.isEmpty() || password.isEmpty())
+			{
+				QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
+				return;
+			}
+			QJsonObject loginObj;
+			loginObj["user_id"] = user_id;
+			loginObj["password"] = password;
+			QJsonDocument doc(loginObj);
+			auto data = doc.toJson(QJsonDocument::Compact);
+			MessageSender::instance()->emit sendHttpRequest("loginValidation", data, "application/json");
+
+			SConfigFile config("config.ini");
+			config.setValue("user_id", user_id);
+			config.setValue("password", password);
+		});
+	//登录成功
+	connect(EventBus::instance(), &EventBus::loginSuccess, [=]
+		{
+			emit Loginsuccess();
+			auto user_id = m_account->getLineEditText();
+			auto password = m_password->getLineEditText();
+			SConfigFile config("config.ini");
+			config.setValue("user_id", user_id);
+			config.setValue("password", password);
+		});
+	//点击更多弹出菜单
+	connect(m_moreBtn, &QPushButton::clicked, [=]
+		{
+			moreMenu->popup(mapToGlobal(QPoint(m_moreBtn->geometry().x(), m_moreBtn->geometry().y() - 70)));
+		});
+}
+//布局
+void LoginWidget::initLayout()
 {
 	//布局
 	auto mlayout = new QVBoxLayout(this);
@@ -130,78 +202,8 @@ void LoginWidget::init()
 
 	mlayout->addStretch();
 	mlayout->addLayout(lastLayout);
-
-	//更多的菜单
-	auto moreMenu = new QMenu(this);
-	moreMenu->addAction("注册账号", this, [=]
-		{
-			m_registerPage = std::make_unique<RegisterPage>();
-			m_registerPage->show();
-		});
-	connect(EventBus::instance(), &EventBus::registerSuccess, this, [=](const QJsonObject& obj)
-		{
-			m_account->setText(obj["user_id"].toString());
-			m_password->setText(obj["password"].toString());
-		});
-	//密码更新
-	moreMenu->addAction("忘记密码", this, [=]
-		{
-
-		});
-	//窗口关闭
-	connect(m_exitBtn, &QPushButton::clicked, [=]
-		{
-			hide();
-		});
-	//点击别处使lineedit失去焦点
-	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
-	connect(this, &LoginWidget::editfinish, m_password, &LineEditwithButton::editfinished);
-	//个人信息配置
-	SConfigFile config("config.ini");
-	QFile configFile("config.ini");
-	//if (configFile.exists())
-	//{
-		m_account->setText(config.value("user_id").toString());
-		m_password->setText(config.value("password").toString());
-	//}
-	//发送登录信号
-	connect(m_loginBtn, &QPushButton::clicked, [=]
-		{
-			auto user_id = m_account->getLineEditText();
-			auto password = m_password->getLineEditText();
-			if (user_id.isEmpty() || password.isEmpty())
-			{
-				QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
-				return;
-			}
-			QJsonObject loginObj;
-			loginObj["user_id"] = user_id;
-			loginObj["password"] = password;
-			QJsonDocument doc(loginObj);
-			auto data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->emit sendHttpRequest("loginValidation", data, "application/json");
-
-			SConfigFile config("config.ini");
-			config.setValue("user_id", user_id);
-			config.setValue("password", password);
-		});
-	//登录成功
-	connect(EventBus::instance(), &EventBus::loginSuccess, [=]
-		{
-			emit Loginsuccess();
-			auto user_id = m_account->getLineEditText();
-			auto password = m_password->getLineEditText();
-			SConfigFile config("config.ini");
-			config.setValue("user_id", user_id);
-			config.setValue("password", password);
-		});
-	//点击更多弹出菜单
-	connect(m_moreBtn, &QPushButton::clicked, [=]
-		{
-			moreMenu->popup(mapToGlobal(QPoint(m_moreBtn->geometry().x(), m_moreBtn->geometry().y() - 70)));
-		});
 }
-
+//可拖动重写
 bool LoginWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	//可拖动

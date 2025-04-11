@@ -5,6 +5,11 @@
 #include <QJsonObject>
 #include <QObject>
 
+#include "Client_MessageHandle/Client_LoginHandle.h"
+#include "Client_MessageHandle/Client_FriendHandle.h"
+#include "Client_MessageHandle/Client_GroupHandle.h"
+#include "Client_MessageHandle/Client_UserHandle.h"
+
 class MessageHandle :public QObject
 {
 	Q_OBJECT
@@ -13,31 +18,20 @@ public:
 	//消息处理接口
 	void handle_textMessage(const QJsonDocument& messageDoc);
 	void handle_binaryMessage(const QByteArray& message);
+	//消息注册
+	template <typename T>
+	void registerHandle(const QString& key, T& instance, void (T::* handler)(const QJsonObject&, const QByteArray&));
 private:
-	void token(const QString&token);
+	void token(const QString& token);
 private:
+	Client_LoginHandle m_loginHandle;
+	Client_FriendHandle m_friendHandle;
+	Client_GroupHandle m_groupHandle;
+	Client_UserHandle m_userHandle;
 	//消息处理函数表
-	QHash<QString, void(MessageHandle::*)(const QJsonObject&, const QByteArray&)>requestHash{};
+	QHash<QString, std::function<void(const QJsonObject&, const QByteArray&)>> requestHash;
 private:
 	void initRequestHash();
-	//各种消息处理函数
-	void handle_loginSuccess(const QJsonObject& paramsObject= QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_registerSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_textCommunication(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_pictureCommunication(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_addFriend(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_newFriend(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_rejectAddFriend(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_searchUser(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_updateUserMessage(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_updateUserAvatar(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_createGroupSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_groupInvite(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_groupTextCommunication(const QJsonObject& paramsObjec = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_newGroupMember(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_groupInviteSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_groupMemberLoad(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
-	void handle_groupLoad(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 signals:
 	void connectToServer();
 };

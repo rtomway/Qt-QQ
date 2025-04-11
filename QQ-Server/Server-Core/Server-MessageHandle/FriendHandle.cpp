@@ -1,4 +1,9 @@
 ﻿#include "FriendHandle.h"
+#include "FriendHandle.h"
+#include "FriendHandle.h"
+#include "FriendHandle.h"
+#include "FriendHandle.h"
+#include "FriendHandle.h"
 #include <QJsonArray>
 #include <QJsonDocument>
 
@@ -35,6 +40,8 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
 	qDebug() << "发送了申请信息";
 }
+
+
 //文字交流
 void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -155,7 +162,7 @@ QVariantMap FriendHandle::getUserMessage(const QString& user_id)
 	}
 }
 //好友分组更新
-void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder)
+void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	//auto paramsObject = QJsonDocument::fromJson(data);
 	auto user_id = paramsObj["user_id"].toString();
@@ -179,7 +186,7 @@ void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj,cons
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }
 //好友删除
-void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder)
+void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	qDebug() << "删除好友";
 	//auto paramsObject = QJsonDocument::fromJson(data);

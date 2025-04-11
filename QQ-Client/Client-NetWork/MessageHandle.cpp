@@ -17,27 +17,41 @@ MessageHandle::MessageHandle(QObject* parent)
 {
 	initRequestHash();
 }
+// 注册请求类型和对应的处理函数
+template <typename T>
+void MessageHandle::registerHandle(const QString& key, T& instance, void (T::* handler)(const QJsonObject&, const QByteArray&))
+{
+	requestHash[key] = [&instance, handler](const QJsonObject& obj, const QByteArray& data)
+		{
+			(instance.*handler)(obj, data);
+		};
+}
+//注册表
 void MessageHandle::initRequestHash()
 {
-	requestHash["loginSuccess"] = &MessageHandle::handle_loginSuccess;
-	requestHash["registerSuccess"] = &MessageHandle::handle_registerSuccess;
-	requestHash["textCommunication"] = &MessageHandle::handle_textCommunication;
-	requestHash["pictureCommunication"] = &MessageHandle::handle_pictureCommunication;
-	requestHash["addFriend"] = &MessageHandle::handle_addFriend;
-	requestHash["newFriend"] = &MessageHandle::handle_newFriend;
-	requestHash["rejectAddFriend"] = &MessageHandle::handle_rejectAddFriend;
-	requestHash["searchUser"] = &MessageHandle::handle_searchUser;
-	requestHash["updateUserMessage"] = &MessageHandle::handle_updateUserMessage;
-	requestHash["updateUserAvatar"] = &MessageHandle::handle_updateUserAvatar;
-	requestHash["createGroupSuccess"] = &MessageHandle::handle_createGroupSuccess;
-	requestHash["groupInvite"] = &MessageHandle::handle_groupInvite;
-	requestHash["groupTextCommunication"] = &MessageHandle::handle_groupTextCommunication;
-	requestHash["newGroupMember"] = &MessageHandle::handle_newGroupMember;
-	requestHash["groupInviteSuccess"] = &MessageHandle::handle_groupInviteSuccess;
-	requestHash["groupMemberLoad"] = &MessageHandle::handle_groupMemberLoad;
-	requestHash["groupLoad"] = &MessageHandle::handle_groupLoad;
-
+	//登录界面
+	registerHandle("loginSuccess", m_loginHandle, &Client_LoginHandle::handle_loginSuccess);
+	registerHandle("registerSuccess", m_loginHandle, &Client_LoginHandle::handle_registerSuccess);
+	//好友处理
+	registerHandle("addFriend", m_friendHandle, &Client_FriendHandle::handle_addFriend);
+	registerHandle("newFriend", m_friendHandle, &Client_FriendHandle::handle_newFriend);
+	registerHandle("rejectAddFriend", m_friendHandle, &Client_FriendHandle::handle_rejectAddFriend);
+	registerHandle("textCommunication", m_friendHandle, &Client_FriendHandle::handle_textCommunication);
+	registerHandle("pictureCommunication", m_friendHandle, &Client_FriendHandle::handle_pictureCommunication);
+	//用户
+	registerHandle("searchUser", m_userHandle, &Client_UserHandle::handle_searchUser);
+	registerHandle("updateUserMessage", m_userHandle, &Client_UserHandle::handle_updateUserMessage);
+	registerHandle("updateUserAvatar", m_userHandle, &Client_UserHandle::handle_updateUserAvatar);
+	//群组
+	registerHandle("groupTextCommunication", m_groupHandle, &Client_GroupHandle::handle_groupTextCommunication);
+	registerHandle("newGroupMember", m_groupHandle, &Client_GroupHandle::handle_newGroupMember);
+	registerHandle("groupInviteSuccess", m_groupHandle, &Client_GroupHandle::handle_groupInviteSuccess);
+	registerHandle("groupMemberLoad", m_groupHandle, &Client_GroupHandle::handle_groupMemberLoad);
+	registerHandle("groupLoad", m_groupHandle, &Client_GroupHandle::handle_groupLoad);
+	registerHandle("createGroupSuccess", m_groupHandle, &Client_GroupHandle::handle_createGroupSuccess);
+	registerHandle("groupInvite", m_groupHandle, &Client_GroupHandle::handle_groupInvite);
 }
+//记录token
 void MessageHandle::token(const QString& token)
 {
 	SConfigFile config("config.ini");
@@ -51,7 +65,7 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 	if (messageDoc.isObject())
 	{
 		QJsonObject obj = messageDoc.object();
-	
+
 		if (obj.contains("token"))
 		{
 			auto token = obj["token"].toString();
@@ -66,7 +80,7 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 		if (requestHash.contains(type))
 		{
 			auto handle = requestHash[type];
-			(this->*handle)(paramsObject, data);
+			handle(paramsObject, data);
 		}
 	}
 }
@@ -121,208 +135,10 @@ void MessageHandle::handle_binaryMessage(const QByteArray& message)
 		// 根据类型给处理函数处理
 		if (requestHash.contains(type)) {
 			auto handle = requestHash[type];
-			(this->*handle)(params, imageData);  // 调用对应的处理函数
+			handle(params, imageData);  // 调用对应的处理函数
 		}
 		else {
 			qDebug() << "未知的类型:" << type;
 		}
 	}
-}
-//消息处理
-void MessageHandle::handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	QJsonObject loginUser = paramsObject["loginUser"].toObject();
-	QJsonArray friendArray = paramsObject["friendArray"].toArray();
-	auto user_name = loginUser["username"].toString();
-	auto user_id = loginUser["user_id"].toString();
-	//当前登录用户信息
-	auto user = QSharedPointer<Friend>::create();
-	user->setFriend(loginUser);
-	qDebug() << "loginUser" << user->getFriend();
-	FriendManager::instance()->addFriend(user);
-	//AvatarManager::instance()->updateAvatar(user_id, ChatType::User);
-	FriendManager::instance()->setOneselfID(user_id);
-	//加载好友信息
-	for (const QJsonValue& value : friendArray)
-	{
-		QJsonObject friendObject = value.toObject();
-		auto friendUser = QSharedPointer<Friend>::create();
-		friendUser->setFriend(friendObject);
-		auto friend_id = friendUser->getFriendId();
-		FriendManager::instance()->addFriend(friendUser);
-		//AvatarManager::instance()->updateAvatar(friend_id, ChatType::User);
-	}
-	FriendManager::instance()->emit FriendManagerLoadSuccess();
-	EventBus::instance()->emit loginSuccess();
-}
-void MessageHandle::handle_registerSuccess(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	EventBus::instance()->emit registerSuccess(paramsObject);
-}
-//好友
-void MessageHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	EventBus::instance()->emit textCommunication(paramsObject);
-}
-void MessageHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	QPixmap pixmap;
-	if (data.isEmpty())
-	{
-		qDebug() << "无数据";
-	}
-	else if (!pixmap.loadFromData(data))
-	{
-		qDebug() << "client-头像加载失败";
-		return;
-	};
-	EventBus::instance()->emit pictureCommunication(paramsObject, pixmap);
-}
-void MessageHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	QPixmap pixmap;
-	if (data.isEmpty())
-	{
-		qDebug() << "无数据";
-		pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-	}
-	else if (!pixmap.loadFromData(data))
-	{
-		qDebug() << "client-头像加载失败";
-		return;
-	};
-	EventBus::instance()->emit addFriend(paramsObject, pixmap);
-}
-void MessageHandle::handle_newFriend(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar";
-		avatar = QPixmap(":/picture/Resource/Picture/qq.png");
-	}
-	EventBus::instance()->emit newFriend(paramsObject, avatar);
-}
-void MessageHandle::handle_rejectAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	QPixmap pixmap;
-	if (data.isEmpty())
-	{
-		qDebug() << "无数据";
-		pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-		EventBus::instance()->emit rejectAddFriend(paramsObject, pixmap);
-	}
-	if (!pixmap.loadFromData(data))
-	{
-		qDebug() << "client-头像加载失败";
-		return;
-	};
-	EventBus::instance()->emit rejectAddFriend(paramsObject, pixmap);
-}
-void MessageHandle::handle_searchUser(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar";
-		avatar = QPixmap(":/picture/Resource/Picture/qq.png");
-	}
-	EventBus::instance()->emit searchUser(paramsObject, avatar);
-}
-void MessageHandle::handle_updateUserMessage(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	EventBus::instance()->emit updateUserMessage(paramsObject);
-}
-void MessageHandle::handle_updateUserAvatar(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
-	qDebug() << "好友" << user_id << "的头像更新---------- - ";
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar for user:" << user_id;
-		return;
-	}
-
-	EventBus::instance()->emit updateUserAvatar(user_id, avatar);
-}
-//群组
-void MessageHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	qDebug() << "handle_createGroupSuccess:" << paramsObject;
-	EventBus::instance()->emit createGroupSuccess(paramsObject);
-}
-void MessageHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
-	qDebug() << "群聊邀请";
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar for user:" << user_id;
-		return;
-	}
-	EventBus::instance()->emit groupInvite(paramsObject, avatar);
-}
-void MessageHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	EventBus::instance()->emit groupTextCommunication(paramsObject);
-}
-void MessageHandle::handle_newGroupMember(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
-	qDebug() << "新群成员" << user_id;
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar for user:" << user_id;
-		return;
-	}
-
-	EventBus::instance()->emit newGroupMember(paramsObject, avatar);
-}
-void MessageHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
-	qDebug() << "邀请成功";
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar for user:" << user_id;
-		return;
-	}
-
-	EventBus::instance()->emit groupInviteSuccess(paramsObject, avatar);
-}
-void MessageHandle::handle_groupMemberLoad(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto user_id = paramsObject["user_id"].toString();
-	qDebug() << "邀请成功";
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to groupMemberLoad avatar for user:" << user_id;
-		return;
-	}
-
-	EventBus::instance()->emit loadGroupMember(paramsObject, avatar);
-}
-void MessageHandle::handle_groupLoad(const QJsonObject& paramsObject, const QByteArray& data)
-{
-	auto group_id = paramsObject["group_id"].toString();
-	qDebug() << "邀请成功";
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to groupLoad avatar for user:" << group_id;
-		return;
-	}
-
-	EventBus::instance()->emit loadGroup(paramsObject, avatar);
 }

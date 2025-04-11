@@ -28,9 +28,15 @@ public:
 	~MainWidget();
 private:
 	void init();
+	void initLayout();
 	void initStackedListWidget();
 	void initStackedPage();
 	void initMoreMenu();
+private:
+	//接收信号
+	void connectFriendManagerSignals();
+	void connectGroupManagerSignals();
+	void connectWindowControlSignals();
 private:
 	void additemCenter(const QString& src);
 	QString generateMessageItemKey(const QString id, ChatType type);

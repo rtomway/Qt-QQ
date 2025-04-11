@@ -9,11 +9,11 @@
 #include "CreateId.h"
 #include "PacketCreate.h"
 #include "DataBaseQuery.h"
-#include "MessageHandle/LoginHandle.h"
-#include "MessageHandle/FriendHandle.h"
-#include "MessageHandle/GroupHandle.h"
-#include "MessageHandle/RegisterHandle.h"
-#include "MessageHandle/UserHandle.h"
+#include "Server-MessageHandle/LoginHandle.h"
+#include "Server-MessageHandle/FriendHandle.h"
+#include "Server-MessageHandle/GroupHandle.h"
+#include "Server-MessageHandle/RegisterHandle.h"
+#include "Server-MessageHandle/UserHandle.h"
 
 MessageHandle::MessageHandle(QObject* parent)
 	:QObject(parent)
@@ -158,7 +158,7 @@ void MessageHandle::handle_message(const QString& type, const QHttpServerRequest
 	// 根据类型给处理函数处理
 	if (httpRequestHash.contains(type)) {
 		auto handle = httpRequestHash[type];
-		handle(paramsObj,QByteArray(), response);  // 调用对应的处理函数
+		handle(paramsObj, QByteArray(), response);  // 调用对应的处理函数
 	}
 	else {
 		qDebug() << "未知的类型:" << type;
@@ -218,7 +218,7 @@ void MessageHandle::handle_message(const QHttpServerRequest& request, QHttpServe
 		// 根据类型给处理函数处理
 		if (httpRequestHash.contains(type)) {
 			auto handle = httpRequestHash[type];
-			handle(params,imageData, responder);  // 调用对应的处理函数
+			handle(params, imageData, responder);  // 调用对应的处理函数
 		}
 		else {
 			qDebug() << "未知的类型:" << type;

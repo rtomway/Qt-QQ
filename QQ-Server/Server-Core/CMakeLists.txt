@@ -5,11 +5,11 @@ add_library(Server-Core STATIC
     MessageHandle.h
     MessageHandle.cpp
   "ConnectionManager.h" "ConnectionManager.cpp" 
-  "MessageHandle/LoginHandle.h" "MessageHandle/LoginHandle.cpp" 
-  "MessageHandle/RegisterHandle.h" "MessageHandle/RegisterHandle.cpp" 
-  "MessageHandle/FriendHandle.h" "MessageHandle/FriendHandle.cpp" 
-  "MessageHandle/GroupHandle.h" "MessageHandle/GroupHandle.cpp" 
-  "MessageHandle/UserHandle.h" "MessageHandle/UserHandle.cpp"
+  "Server-MessageHandle/LoginHandle.h" "Server-MessageHandle/LoginHandle.cpp" 
+  "Server-MessageHandle/RegisterHandle.h" "Server-MessageHandle/RegisterHandle.cpp" 
+  "Server-MessageHandle/FriendHandle.h" "Server-MessageHandle/FriendHandle.cpp" 
+  "Server-MessageHandle/GroupHandle.h" "Server-MessageHandle/GroupHandle.cpp" 
+  "Server-MessageHandle/UserHandle.h" "Server-MessageHandle/UserHandle.cpp"
 )
 
 # 设置包含目录（确保主程序能访问头文件）
