@@ -250,7 +250,7 @@ void ContactDetailWidget::init()
 			friendObj.remove("avatar_path");
 			QJsonDocument doc(friendObj);
 			QByteArray data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->emit sendHttpRequest("updateUserMessage", data, "application/json");
+			MessageSender::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
 			this->hide();
 		});
 }
@@ -282,7 +282,7 @@ void ContactDetailWidget::updateAvatar()
 	//QByteArray userData;
 	//PacketCreate::addPacket(userData, packet);
 	//auto allData = PacketCreate::allBinaryPacket(userData);
-	//MessageSender::instance()->emit sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+	//MessageSender::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 	QtConcurrent::run([=]() {
 		QByteArray byteArray;
 		QBuffer buffer(&byteArray);
@@ -302,7 +302,7 @@ void ContactDetailWidget::updateAvatar()
 
 		// 发到主线程发信号
 		QMetaObject::invokeMethod(MessageSender::instance(), [=]() {
-			MessageSender::instance()->emit sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+			MessageSender::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 			});
 		});
 }

@@ -70,7 +70,7 @@ void RegisterPage::init()
 			registerObj["password"] = ui->passwordEdit->text();
 			QJsonDocument doc(registerObj);
 			auto data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->emit sendHttpRequest("register", data, "application/json");
+			MessageSender::instance()->sendHttpRequest("register", data, "application/json");
 		});
 	connect(EventBus::instance(), &EventBus::registerSuccess, this, &RegisterPage::hide);
 }

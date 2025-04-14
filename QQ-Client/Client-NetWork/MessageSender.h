@@ -25,6 +25,7 @@ public:
 	void disConnect();
 	void sendMessage(const QString& type, const QVariantMap& params = {});
 	void sendBinaryData(const QByteArray& data);
+	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type);
 private:
 	MessageSender();
 private:
@@ -33,7 +34,7 @@ private:
 	HttpWorker* m_httpWorker;
 	QNetworkAccessManager* m_networkManager;
 signals:
-	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type);
+	void sendHttpRequestToThread(const QString& type, const QByteArray& data, const QString& Content_type);
 	void httpTextResponseReceived(const QByteArray& data);
 	void httpDataResponseReceived(const QByteArray& data);
 };

@@ -61,11 +61,6 @@ void ContactListWidget::init()
 	ui->stackedWidget->addWidget(m_groupList);
 	ui->stackedWidget->setCurrentWidget(m_friendList);
 
-	addGroupTopItem(QString("置顶群聊"));
-	addGroupTopItem(QString("我创建的群聊"));
-	addGroupTopItem(QString("我管理的群聊"));
-	addGroupTopItem(QString("我加入的群聊"));
-
 	m_buttonGroup.addButton(ui->friendBtn);
 	m_buttonGroup.addButton(ui->groupBtn);
 	m_buttonGroup.setExclusive(true);
@@ -77,32 +72,6 @@ void ContactListWidget::init()
 	ui->groupNoticeCountLab->setVisible(false);
 	ui->friendNoticeCountLab->setAlignment(Qt::AlignCenter);
 	ui->groupNoticeCountLab->setAlignment(Qt::AlignCenter);
-
-	//好友分组添加
-	connect(ui->friendmanage, &QPushButton::clicked, this, [=]
-		{
-			m_createFriendgrouping = std::make_unique<CreateFriendgrouping>();
-			m_createFriendgrouping->show();
-			connect(m_createFriendgrouping.get(), &CreateFriendgrouping::createGrouping, this, [=](const QString& grouping)
-				{
-					addFriendTopItem(grouping);
-				});
-		});
-	//登录时加载信息
-	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]()
-		{
-			auto friends = FriendManager::instance()->getFriends();
-			for (auto it = friends.begin(); it != friends.end(); ++it)
-			{
-				const QSharedPointer<Friend>& myfriend = it.value();
-				auto grouping = myfriend->getGrouping();
-				//判断该分组是否已存在
-				if (!m_fNamelist.contains(grouping))
-					addFriendTopItem(grouping);
-				//添加
-				addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
-			}
-		});
 	//列表切换
 	connect(&m_buttonGroup, &QButtonGroup::idClicked, this, [=](int id)
 		{
@@ -144,6 +113,59 @@ void ContactListWidget::init()
 			}
 
 		});
+
+	//好友分组添加
+	connect(ui->friendmanage, &QPushButton::clicked, this, [=]
+		{
+			m_createFriendgrouping = std::make_unique<CreateFriendgrouping>();
+			m_createFriendgrouping->show();
+			connect(m_createFriendgrouping.get(), &CreateFriendgrouping::createGrouping, this, [=](const QString& grouping)
+				{
+					addFriendTopItem(grouping);
+				});
+		});
+	//加载登录用户信息
+	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
+		{
+			auto loginUserId = FriendManager::instance()->getOneselfID();
+			auto myfriend = FriendManager::instance()->findFriend(loginUserId);
+			auto& grouping = myfriend->getGrouping();
+			//判断该分组是否已存在
+			if (!m_fNamelist.contains(grouping))
+				addFriendTopItem(grouping);
+			//添加
+			addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
+
+			addGroupTopItem(QString("置顶群聊"));
+			addGroupTopItem(QString("我创建的群聊"));
+			addGroupTopItem(QString("我管理的群聊"));
+			addGroupTopItem(QString("我加入的群聊"));
+		});
+	//登录后加载好友信息
+	connect(AvatarManager::instance(), &AvatarManager::loadFriendAvatarSuccess, this, [=](const QString& user_id)
+		{
+			auto myfriend = FriendManager::instance()->findFriend(user_id);
+			auto& grouping = myfriend->getGrouping();
+			//判断该分组是否已存在
+			if (!m_fNamelist.contains(grouping))
+				addFriendTopItem(grouping);
+			//添加
+			addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
+		});
+	//登录后加载群聊信息
+	connect(AvatarManager::instance(), &AvatarManager::loadGroupAvatarSuccess, this, [=](const QString& group_id)
+		{
+			auto group = GroupManager::instance()->findGroup(group_id);
+			if (group->getGroupOwerId() != FriendManager::instance()->getOneselfID())
+			{
+				addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
+			}
+			else
+			{
+				addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
+			}
+		});
+
 	//新增好友
 	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id, const QString& grouping)
 		{

@@ -10,7 +10,7 @@ add_library(Server-Core STATIC
   "Server-MessageHandle/FriendHandle.h" "Server-MessageHandle/FriendHandle.cpp" 
   "Server-MessageHandle/GroupHandle.h" "Server-MessageHandle/GroupHandle.cpp" 
   "Server-MessageHandle/UserHandle.h" "Server-MessageHandle/UserHandle.cpp"
-)
+ "HttpRouteManager.h" "HttpRouteManager.cpp")
 
 # 设置包含目录（确保主程序能访问头文件）
 target_include_directories(Server-Core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

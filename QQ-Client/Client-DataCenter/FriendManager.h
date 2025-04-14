@@ -36,7 +36,6 @@ private:
 	QHash<QString, QSharedPointer<Friend>>m_user;
 	QHash<QString, QString>m_grouping;
 signals:
-	void FriendManagerLoadSuccess();
 	void UpdateFriendMessage(const QString& user_id);
 	void updateFriendGrouping(const QString& user_id, const QString& oldGrouping);
 	void NewFriend(const QString& user_id, const QString& grouping);

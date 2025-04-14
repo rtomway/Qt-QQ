@@ -88,7 +88,7 @@ void AvatarManager::loadAvatar(const QString& id, ChatType type)
 				}
 				else
 				{
-					avatar = QPixmap();
+					avatar = QPixmap(":/picture/Resource/Picture/qq.png");
 				}
 				// 处理所有等待的回调函数
 				processPendingCallbacks(key, avatar);
@@ -107,7 +107,7 @@ void AvatarManager::loadAvatar(const QString& id, ChatType type)
 				}
 				else
 				{
-					avatar = QPixmap();
+					avatar = QPixmap(":/picture/Resource/Picture/qq.png");
 				}
 				// 处理所有等待的回调函数
 				processPendingCallbacks(key, avatar);

@@ -81,6 +81,15 @@ void MainWidget::init()
 	connectGroupManagerSignals();
 	connectWindowControlSignals();
 
+	//个人信息头像加载
+	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
+		{
+			AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID(), ChatType::User, [=](const QPixmap& pixmap)
+				{
+					auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(50, 50));
+					ui->headLab->setPixmap(headPix);
+				});
+		});
 	//接受到消息 用户消息项更新
 	connect(EventBus::instance(), &EventBus::textCommunication, this, [=](const QJsonObject& obj)
 		{
@@ -332,16 +341,6 @@ void MainWidget::initMoreMenu()
 //连接好友中心信号
 void MainWidget::connectFriendManagerSignals()
 {
-	//个人信息头像加载
-	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]
-		{
-			AvatarManager::instance()->getAvatar(FriendManager::instance()->getOneselfID(), ChatType::User, [=](const QPixmap& pixmap)
-				{
-					auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(50, 50));
-					ui->headLab->setPixmap(headPix);
-				});
-
-		});
 	//好友信息更新,消息项相关信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
 		{
@@ -421,7 +420,7 @@ void MainWidget::connectGroupManagerSignals()
 	//新加群组
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
-			qDebug() << "mainwidget 新加群组";
+			qDebug() << "------------------------------mainwidget 新加群组" << group_id;
 			ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(FriendManager::instance()->getOneselfID(), group_id, ChatType::Group));
 			addmessageListItem(group_id, ChatType::Group);
 		});

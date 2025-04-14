@@ -36,8 +36,6 @@ FriendManager::FriendManager()
 			ImageUtils::saveAvatarToLocal(pixmap.toImage(), user_id, ChatType::User, [=](bool result)
 				{
 					if (!result)
-						//AvatarManager::instance()->updateAvatar(user_id, ChatType::User);
-					//else
 						qDebug() << "头像保存失败";
 				});
 			this->addFriend(user);

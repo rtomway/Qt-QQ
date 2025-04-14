@@ -39,7 +39,7 @@ void GMessageItemWidget::setItemWidget(const QString& group_id)
 	}
 	qDebug() << "GMessageItemWidget:" << m_groupId;
 	//页面显示
-	AvatarManager::instance()->getAvatar(m_groupId, ChatType::User, [=](const QPixmap& pixmap)
+	AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group, [=](const QPixmap& pixmap)
 		{
 			qDebug() << "----------群组消息项头像回调";
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));

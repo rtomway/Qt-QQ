@@ -31,6 +31,10 @@ void MessageHandle::initRequestHash()
 {
 	//登录界面
 	registerHandle("loginSuccess", m_loginHandle, &Client_LoginHandle::handle_loginSuccess);
+	registerHandle("loadFriendList", m_loginHandle, &Client_LoginHandle::handle_loadFriendList);
+	registerHandle("loadGroupList", m_loginHandle, &Client_LoginHandle::handle_loadGroupList);
+	registerHandle("loadGroupAvatars", m_loginHandle, &Client_LoginHandle::handle_loadGroupAvatars);
+	registerHandle("loadFriendAvatars", m_loginHandle, &Client_LoginHandle::handle_loadFriendAvatars);
 	registerHandle("registerSuccess", m_loginHandle, &Client_LoginHandle::handle_registerSuccess);
 	//好友处理
 	registerHandle("addFriend", m_friendHandle, &Client_FriendHandle::handle_addFriend);
@@ -61,13 +65,14 @@ void MessageHandle::token(const QString& token)
 //消息处理接口
 void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 {
-	qDebug() << "接受到服务端的文本消息:";
+	qDebug() << "----------------------------接受到服务端的文本消息:-----------------------";
 	if (messageDoc.isObject())
 	{
 		QJsonObject obj = messageDoc.object();
 
 		if (obj.contains("token"))
 		{
+			qDebug() << "token" << "保存";
 			auto token = obj["token"].toString();
 			this->token(token);
 			return;
@@ -86,7 +91,7 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 }
 void MessageHandle::handle_binaryMessage(const QByteArray& message)
 {
-	qDebug() << "接受到服务端的数据消息:";
+	qDebug() << "----------------------------接受到服务端的数据消息:-----------------------";
 	QDataStream stream(message);
 	stream.setByteOrder(QDataStream::BigEndian);
 	stream.setVersion(QDataStream::Qt_6_5);

@@ -90,14 +90,14 @@ Client* Client::DisconnectFromServer(std::function<void()> callback)
 //接受Web文本信息
 void Client::onTextMessageReceived(const QString& message)
 {
-	qDebug() << "//接受Web文本信息";
+	qDebug() << "------------------------接受Web文本信息-----------------------";
 	QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
 	emit textMessageToWorkerThread(doc);
 }
 //接受Web二进制数据
 void Client::onBinaryMessageReceived(const QByteArray& message)
 {
-	qDebug() << "//接受Web二进制信息";
+	qDebug() << "------------------------接受Web二进制数据-----------------------";
 	emit binaryMessageToWorkerThread(message);
 }
 //回调

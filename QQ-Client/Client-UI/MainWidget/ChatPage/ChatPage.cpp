@@ -21,9 +21,9 @@ ChatPage::ChatPage(QWidget* parent)
 	, ui(new Ui::ChatPage)
 {
 	ui->setupUi(this);
-	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]
+	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
 		{
-			auto id = FriendManager::instance()->getOneselfID();
+			auto& id = FriendManager::instance()->getOneselfID();
 			m_oneself = FriendManager::instance()->findFriend(id);
 		});
 	init();
@@ -46,9 +46,9 @@ ChatPage::~ChatPage()
 void ChatPage::init()
 {
 	//在自己信息中心加载完成后读取
-	connect(FriendManager::instance(), &FriendManager::FriendManagerLoadSuccess, this, [=]
+	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
 		{
-			auto user_id = FriendManager::instance()->getOneselfID();
+			auto& user_id = FriendManager::instance()->getOneselfID();
 			m_oneself = FriendManager::instance()->findFriend(user_id);
 		});
 	//设置输入字体大小
@@ -78,7 +78,7 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 		//判断消息是谁发送
 		bool isSelf = ((messagePtr)->getSenderId() == FriendManager::instance()->getOneselfID());
 		QString senderId = isSelf ? m_oneself->getFriendId() : messagePtr->getSenderId();
-		AvatarManager::instance()->getAvatar(senderId, ChatType::User,[=](const QPixmap& avatar) 
+		AvatarManager::instance()->getAvatar(senderId, ChatType::User, [=](const QPixmap& avatar)
 			{
 				auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 				// 判断消息类型并处理

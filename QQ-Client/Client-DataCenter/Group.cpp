@@ -6,7 +6,7 @@ void Group::setGroup(const QJsonObject& groupObj)
 {
 	m_groupId = groupObj["group_id"].toString();
 	m_groupName = groupObj["group_name"].toString();
-	m_groupOwnerId = groupObj["user_id"].toString();
+	m_groupOwnerId = groupObj["owner_id"].toString();
 	// 解析成员列表
 	QJsonArray membersArray = groupObj["members"].toArray();
 	for (const auto& memberVal : membersArray)

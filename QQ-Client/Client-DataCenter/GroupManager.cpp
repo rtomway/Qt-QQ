@@ -10,25 +10,25 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto group_name = obj["group_name"].toString();
-			AvatarManager::instance()->getAvatar(obj["user_id"].toString(), ChatType::User,
-				[=](const QPixmap&pixmap)
-			{
-				ImageUtils::saveAvatarToLocal(pixmap.toImage(), group_id, ChatType::User, [=](bool result)
+			AvatarManager::instance()->getAvatar(obj["owner_id"].toString(), ChatType::User,
+				[=](const QPixmap& pixmap)
 				{
-					if (!result)
-					{
-						qDebug() << "头像保存失败";
-						return;
-					}
-					auto myGroup = QSharedPointer<Group>::create();
-					myGroup->setGroup(obj);
-					GroupManager::instance()->addGroup(myGroup);
-					qDebug() << "群组管理中心加载完成·······";
-					emit createGroupSuccess(group_id);
-					qDebug() << "新建群组：" << myGroup->getGroupId() << myGroup->getGroupName();
+					ImageUtils::saveAvatarToLocal(pixmap.toImage(), group_id, ChatType::Group, [=](bool result)
+						{
+							if (!result)
+							{
+								qDebug() << "头像保存失败";
+								return;
+							}
+							auto myGroup = QSharedPointer<Group>::create();
+							myGroup->setGroup(obj);
+							GroupManager::instance()->addGroup(myGroup);
+							qDebug() << "群组管理中心加载完成·······";
+							emit createGroupSuccess(group_id);
+							qDebug() << "新建群组：" << myGroup->getGroupId() << myGroup->getGroupName();
 
+						});
 				});
-			});
 		});
 	//新成员添加
 	connect(EventBus::instance(), &EventBus::newGroupMember, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
@@ -49,15 +49,17 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto group_name = obj["group_name"].toString();
-			ImageUtils::saveAvatarToLocal(pixmap.toImage(), group_id, ChatType::Group, [](bool result)
-				{
-					if (!result)
-						qDebug() << "头像保存失败";
-				});
 			auto myGroup = QSharedPointer<Group>::create();
 			myGroup->setGroup(obj);
 			GroupManager::instance()->addGroup(myGroup);
-			emit newGroup(group_id);
+			ImageUtils::saveAvatarToLocal(pixmap.toImage(), group_id, ChatType::Group, [=](bool result)
+				{
+					if (!result)
+					{
+						qDebug() << "头像保存失败";
+					}
+					emit newGroup(group_id);
+				});
 		});
 	//加载群聊
 	connect(EventBus::instance(), &EventBus::loadGroupMember, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
@@ -96,6 +98,11 @@ void GroupManager::removeGroup(const QString& groupId)
 QSharedPointer<Group> GroupManager::findGroup(const QString& groupId) const
 {
 	return m_groups.value(groupId, nullptr);
+}
+//获取群组列表
+const QHash<QString, QSharedPointer<Group>>& GroupManager::getGroups() const
+{
+	return m_groups;
 }
 
 

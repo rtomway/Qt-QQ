@@ -1,52 +1,18 @@
 ﻿#include "LoginHandle.h"
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QImage>
 
 #include "DataBaseQuery.h"
 #include "ConnectionManager.h"
+#include "ImageUtil.h"
+#include "PacketCreate.h"
+
 //#include "jwt-cpp/jwt.h"
 
-void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray& data)
+//登录认证
+void LoginHandle::handle_loginValidation(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	//auto paramsObject = QJsonDocument::fromJson(data);
-	qDebug() << "登录数据";
-	auto user_id = paramsObject["user_id"].toString();
-	auto password = paramsObject["password"].toString();
-	auto client_id = user_id;
-	//数据库查询
-	DataBaseQuery query;
-	QString queryStr = "select f.Fgrouping,u.* from user u join friendship f on (u.user_id=f.user_id and u.user_id=f.friend_id) where u.user_id=?";
-	QVariantList bindvalues;
-	bindvalues.append(user_id);
-	auto allQueryObj = query.executeQuery(queryStr, bindvalues);
-	//错误返回
-	if (allQueryObj.contains("error")) {
-		qDebug() << "Error executing query:" << allQueryObj["error"].toString();
-		return;
-	}
-	//查询数据验证
-	QJsonObject userDataObj; //存放返回客户端的所有信息
-	QJsonArray userArray = allQueryObj["data"].toArray();
-	for (const auto& userValue : userArray)
-	{
-		QJsonObject userObj = userValue.toObject();
-		userObj.remove("password");
-		userObj["grouping"] = userObj["Fgrouping"].toString();
-		qDebug() << "我的信息---------------------" << userObj;
-		userDataObj["loginUser"] = userObj;
-	}
-	userDataObj["friendArray"] = getFriendsMessage(user_id);
-	QJsonObject allData;
-	allData["type"] = "loginSuccess";
-	allData["params"] = userDataObj;
-	QJsonDocument doc(allData);
-
-	QString message = QString(doc.toJson(QJsonDocument::Compact));
-	ConnectionManager::instance()->sendTextMessage(client_id, message);
-}
-void LoginHandle::handle_loginValidation(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder)
-{
-	//auto paramsObject = QJsonDocument::fromJson(data);
 	auto user_id = paramsObj["user_id"].toString();
 	auto password = paramsObj["password"].toString();
 	auto client_id = user_id;
@@ -87,8 +53,162 @@ void LoginHandle::handle_loginValidation(const QJsonObject& paramsObj,const QByt
 	allData["token"] = QString::fromStdString(token);
 	QJsonDocument responseDoc(allData);
 	// 发送 HTTP 响应
+	//responder.writeHeader("Content-Type", "application/json");
 	responder.write(responseDoc);
 
+}
+//登录
+void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	qDebug() << "--------------------------登录用户数据的加载------------------------";
+	auto user_id = paramsObject["user_id"].toString();
+	auto password = paramsObject["password"].toString();
+	auto client_id = user_id;
+	//数据库查询
+	DataBaseQuery query;
+	QString queryStr = "select f.Fgrouping,u.* from user u join friendship f on (u.user_id=f.user_id and u.user_id=f.friend_id) where u.user_id=?";
+	QVariantList bindvalues;
+	bindvalues.append(user_id);
+	auto allQueryObj = query.executeQuery(queryStr, bindvalues);
+	//错误返回
+	if (allQueryObj.contains("error")) {
+		qDebug() << "Error executing query:" << allQueryObj["error"].toString();
+		return;
+	}
+	//查询数据验证
+	QJsonObject userDataObj; //存放返回客户端的所有信息
+	QJsonArray userArray = allQueryObj["data"].toArray();
+	for (const auto& userValue : userArray)
+	{
+		QJsonObject userObj = userValue.toObject();
+		userObj.remove("password");
+		userObj["grouping"] = userObj["Fgrouping"].toString();
+		userDataObj["loginUser"] = userObj;
+	}
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	userDataObj["size"] = imageData.size();
+	auto packet = PacketCreate::binaryPacket("loginSuccess", userDataObj.toVariantMap(), imageData);
+	QByteArray loginUserData;
+	PacketCreate::addPacket(loginUserData, packet);
+	auto allData = PacketCreate::allBinaryPacket(loginUserData);
+	ConnectionManager::instance()->sendBinaryMessage(user_id, allData);
+	/*QJsonObject allData;
+	allData["type"] = "loginSuccess";
+	allData["params"] = userDataObj;
+	QJsonDocument doc(allData);
+
+	QString message = QString(doc.toJson(QJsonDocument::Compact));
+	ConnectionManager::instance()->sendTextMessage(client_id, message);*/
+}
+//加载好友列表
+void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	qDebug() << "--------------------------加载好友列表------------------------";
+	auto user_id = paramsObj["user_id"].toString();
+	//数据库查询
+	DataBaseQuery query;
+	QString queryStr = QString("select f.Fgrouping,user.* from friendship f \
+			join user ON f.friend_id = user.user_id \
+	where f.user_id=? and f.friend_id != f.user_id ");
+	QVariantList bindvalues;
+	bindvalues.append(user_id);
+	auto allQueryObj = query.executeQuery(queryStr, bindvalues);
+	//错误返回
+	if (allQueryObj.contains("error")) {
+		qDebug() << "Error executing query:" << allQueryObj["error"].toString();
+		return;
+	}
+	//查询数据验证
+	QJsonArray friendListArray;
+	QJsonArray userListArray = allQueryObj["data"].toArray();
+	for (const auto& friendValue : userListArray)
+	{
+		QJsonObject friendObj = friendValue.toObject();
+		friendObj.remove("password");
+		friendObj["grouping"] = friendObj["Fgrouping"].toString();
+		qDebug() << "--------------------------loadFriend------------------------" << friendObj;
+		friendListArray.append(friendObj);
+	}
+	QJsonObject friendListObj;
+	friendListObj["friendList"] = friendListArray;
+	QJsonObject replyObj;
+	replyObj["params"] = friendListObj;
+	replyObj["type"] = "loadFriendList";
+	QJsonDocument friendListDoc(replyObj);
+	responder.write(friendListDoc);
+}
+//加载群组列表
+void LoginHandle::handle_loadGroupList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	qDebug() << "--------------------------加载群组列表------------------------";
+	auto user_id = paramsObj["user_id"].toString();
+	//查询相关群组信息以及用户角色
+	DataBaseQuery query;
+	QString queryStr = QString("SELECT g.group_id, g.group_name, g.owner_id\
+		FROM `group` g\
+		JOIN groupmembers gm ON g.group_id = gm.group_id\
+		WHERE gm.user_id =?;");
+	QVariantList bindvalues;
+	bindvalues.append(user_id);
+	auto ResultObj= query.executeQuery(queryStr, bindvalues);
+	if (ResultObj.contains("error"))
+	{
+		qDebug() << "加载群组列表 failed";
+		return;
+	}
+	auto groupArray = ResultObj["data"].toArray();
+	QJsonArray groupListArray;
+	for (auto groupValue : groupArray)
+	{
+		auto groupObj = groupValue.toObject();
+		groupListArray.append(groupObj);
+		qDebug() << "用户加入群组:" << groupObj["group_id"].toString();
+	}
+	QJsonObject loadGroupListObj;
+	loadGroupListObj["groupList"] = groupListArray;
+	QJsonObject allDataObj;
+	allDataObj["params"] = loadGroupListObj;
+	allDataObj["type"] = "loadGroupList";
+	QJsonDocument loadGroupListDoc(allDataObj);
+	//QByteArray data = loadGroupListDoc.toJson(QJsonDocument::Compact);
+	responder.write(loadGroupListDoc);
+}
+//加载群组头像
+void LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	auto group_IdArray = paramsObj["group_ids"].toArray();
+	QByteArray avatarsData;
+	for (auto groupId_values : group_IdArray)
+	{
+		auto group_id = groupId_values.toString();
+		auto imageData = ImageUtils::loadImage(group_id, ChatType::Group);
+		QVariantMap groupAvatarMap;
+		groupAvatarMap["group_id"] = group_id;
+		groupAvatarMap["size"] = imageData.size();
+		auto packet = PacketCreate::binaryPacket("loadGroupAvatars", groupAvatarMap, imageData);
+		PacketCreate::addPacket(avatarsData, packet);
+	}
+	auto allData = PacketCreate::allBinaryPacket(avatarsData);
+	QByteArray mimeType = "application/octet-stream";
+	responder.write(allData, mimeType);
+}
+void LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	auto friend_IdArray = paramsObj["friend_ids"].toArray();
+	QByteArray avatarsData;
+	for (auto friendId_values : friend_IdArray)
+	{
+		auto friend_id = friendId_values.toString();
+		auto imageData = ImageUtils::loadImage(friend_id, ChatType::User);
+		QVariantMap friendAvatarMap;
+		friendAvatarMap["friend_id"] = friend_id;
+		friendAvatarMap["size"] = imageData.size();
+		auto packet = PacketCreate::binaryPacket("loadFriendAvatars", friendAvatarMap, imageData);
+		PacketCreate::addPacket(avatarsData, packet);
+	}
+	auto allData = PacketCreate::allBinaryPacket(avatarsData);
+	QByteArray mimeType = "application/octet-stream";
+	responder.write(allData, mimeType);
 }
 //好友信息
 QJsonArray LoginHandle::getFriendsMessage(const QString& user_id)

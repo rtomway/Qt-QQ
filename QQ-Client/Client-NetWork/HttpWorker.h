@@ -7,17 +7,16 @@
 
 class HttpWorker : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit HttpWorker(QObject* parent = nullptr);
-    void sendRequest(const QString& url, const QByteArray& data, const QString& contentType);
+	explicit HttpWorker(QObject* parent = nullptr);
+	void sendRequest(const QString& url, const QByteArray& data, const QString& contentType);
 signals:
-    void httpTextResponseReceived(const QByteArray& data);
-    void httpDataResponseReceived(const QByteArray& data);
+	void httpTextResponseReceived(const QByteArray& data);
+	void httpDataResponseReceived(const QByteArray& data);
 private:
-    QNetworkAccessManager* m_networkManager;
-    QNetworkReply* m_reply;
-    QString m_baseUrl = "http://127.0.0.1:8889/";
+	QNetworkAccessManager* m_networkManager;
+	QString m_baseUrl = "http://127.0.0.1:8889/";
 };
 
 #endif // HTTPWORKER_H

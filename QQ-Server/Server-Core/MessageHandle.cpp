@@ -41,6 +41,10 @@ void MessageHandle::initHttpRequestHash()
 {
 	//登录注册
 	httpRequestHash["loginValidation"] = &LoginHandle::handle_loginValidation;
+	httpRequestHash["loadFriendList"] = &LoginHandle::handle_loadFriendList;
+	httpRequestHash["loadFriendAvatars"] = &LoginHandle::handle_loadFriendAvatars;
+	httpRequestHash["loadGroupList"] = &LoginHandle::handle_loadGroupList;
+	httpRequestHash["loadGroupAvatars"] = &LoginHandle::handle_loadGroupAvatars;
 	httpRequestHash["register"] = &RegisterHandle::handle_register;
 	//搜索
 	httpRequestHash["serachUser"] = &UserHandle::handle_searchUser;
@@ -51,7 +55,7 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["updateUserAvatar"] = &UserHandle::handle_updateUserAvatar;
 	httpRequestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;
 }
-
+//token验证
 bool MessageHandle::tokenRight(const QString& token)
 {
 	qDebug() << "TOKEN:" << token;

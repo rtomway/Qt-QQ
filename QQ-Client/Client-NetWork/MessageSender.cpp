@@ -15,13 +15,16 @@ MessageSender* MessageSender::instance()
 }
 MessageSender::MessageSender()
 	:m_workerThread(new QThread(this))
-	,m_httpWorker(new HttpWorker)
-	,m_networkManager(new QNetworkAccessManager(this))
+	, m_httpWorker(new HttpWorker)
+	, m_networkManager(new QNetworkAccessManager(this))
 {
+	//后台线程处理消息
+	m_httpWorker->moveToThread(m_workerThread);
+	m_workerThread->start();
 	//http请求
-	connect(this, &MessageSender::sendHttpRequest, m_httpWorker, &HttpWorker::sendRequest);
+	connect(this, &MessageSender::sendHttpRequestToThread, m_httpWorker, &HttpWorker::sendRequest);
 	//http文本消息响应
-	connect(m_httpWorker, &HttpWorker::httpTextResponseReceived,this,&MessageSender::httpTextResponseReceived);
+	connect(m_httpWorker, &HttpWorker::httpTextResponseReceived, this, &MessageSender::httpTextResponseReceived);
 	//http二进制数据响应
 	connect(m_httpWorker, &HttpWorker::httpDataResponseReceived, this, &MessageSender::httpDataResponseReceived);
 }
@@ -68,6 +71,11 @@ void MessageSender::sendMessage(const QString& type, const QVariantMap& params)
 void MessageSender::sendBinaryData(const QByteArray& data)
 {
 	m_client->getClientSocket()->sendBinaryMessage(data);
+}
+//发送http请求
+void MessageSender::sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type)
+{
+	emit sendHttpRequestToThread(type, data, Content_type);
 }
 
 

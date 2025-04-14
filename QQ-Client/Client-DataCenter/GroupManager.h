@@ -22,6 +22,7 @@ public:
 	void addGroup(const QSharedPointer<Group>& group);
 	void removeGroup(const QString& groupId);
 	QSharedPointer<Group> findGroup(const QString& groupId) const;
+	const QHash<QString, QSharedPointer<Group>>& getGroups()const;
 private:
 	explicit GroupManager();
 private:
@@ -29,6 +30,7 @@ private:
 signals:
 	void createGroupSuccess(const QString& user_id);
 	void newGroup(const QString& user_id);
+	void loadGroupListSuccess();
 };
 
 #endif // !GROUPMANAGER_H_

@@ -5,7 +5,7 @@
 #include <QWebSocket>
 #include <QWebSocketServer>
 #include <QHttpServer>
-#include <MessageHandle.h>
+#include "HttpRouteManager.h"
 
 class Server :public QObject
 {
@@ -18,9 +18,7 @@ protected:
 private:
 	QWebSocketServer* m_webSocketServer{};
 	QHttpServer* m_httpServer{};
-	MessageHandle messageHandle{};
-private:
-	void httpRoute();
+	HttpRouteManager* m_httpRouteManager{};
 };
 
 #endif // !SERVER_H_
