@@ -1,5 +1,4 @@
 ﻿#include "LoginWidget.h"
-#include "LoginWidget.h"
 #include <QBoxLayout>
 #include <QLabel>
 #include <QFile>
@@ -26,6 +25,7 @@
 #include "FriendManager.h"
 #include "Friend.h"
 #include "EventBus.h"
+#include "LoginUserManager.h"
 
 
 LoginWidget::LoginWidget(QWidget* parent)
@@ -111,7 +111,7 @@ void LoginWidget::init()
 			config.setValue("password", password);
 		});
 	//登录成功
-	connect(EventBus::instance(), &EventBus::loginSuccess, [=]
+	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, [=]
 		{
 			emit Loginsuccess();
 			auto user_id = m_account->getLineEditText();

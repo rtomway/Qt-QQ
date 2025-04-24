@@ -23,9 +23,9 @@ private:
 	QString m_groupId{};
 	QLabel* m_timeLab = nullptr;
 	QLabel* m_countLab = nullptr;
-	QStringList m_unReadMesssage{};
-	QString m_lastTime;
-	QString m_sender;
+	QStringList m_unReadMesssage = {};
+	QString m_lastTime{};
+	QString m_sender{};
 };
 
 #endif // !GMESSAGEITEMWIDGET_H_

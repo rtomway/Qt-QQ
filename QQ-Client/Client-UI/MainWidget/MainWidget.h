@@ -8,7 +8,8 @@
 #include <QButtonGroup>
 #include <QMenu>
 
-#include "ContactPage.h"
+#include "FriendProfilePage.h"
+#include "GroupProfilePage.h"
 #include "NoticeWidget.h"
 #include "ContactListWidget.h"
 #include "AddFriendWidget.h"
@@ -17,10 +18,11 @@
 #include "GlobalTypes.h"
 
 #include "ChatWidget.h"
+#include "AngleRoundedWidget.h"
 
 namespace Ui { class MainWidget; }
 
-class MainWidget :public QWidget
+class MainWidget :public AngleRoundedWidget
 {
 	Q_OBJECT
 public:
@@ -39,9 +41,10 @@ private:
 	void connectWindowControlSignals();
 private:
 	void additemCenter(const QString& src);
-	QString generateMessageItemKey(const QString id, ChatType type);
 	QListWidgetItem* addmessageListItem(const QString& Id, ChatType type);
+	QString itemKey(const QString& id, ChatType type);
 	QListWidgetItem* findListItem(const QString& user_id);
+	void clearChatMessageListWidget();
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 private:
@@ -49,6 +52,8 @@ private:
 	QButtonGroup* m_btn_Itemgroup{};
 	QMenu* m_moreMenu{};
 	QMenu* m_addpersonMenu{};
+	//当前登录用户id
+	QString m_loginUserId{};
 private:
 	//子列表界面
 	QListWidget* m_chatMessageListWidget{};
@@ -56,16 +61,16 @@ private:
 	ContactListWidget* m_contactListWidget{};
 	//子页面
 	ChatWidget* m_chatWidget{};
-	//MessagePage* m_messagePage{};
-	ContactPage* m_contactPage{};
+	FriendProfilePage* m_friendProfilePage{};
+	GroupProfilePage* m_groupProfilePage{};
 	NoticeWidget* m_noticePage{};
 	QWidget* m_emptyPage{};
 	//独立窗口
-	std::unique_ptr<ContactPage> m_contactWidget{};
+	std::unique_ptr<FriendProfilePage> m_friendProfileWidget{};
 	std::unique_ptr<AddFriendWidget> m_addFriendWidget{};
 	GroupInviteWidget* m_groupInviteWidget{};
 signals:
-	void quitsuccess();
+	void quitSuccess();
 	void hideWidget();
 	void expandWidget();
 	void exitWidget();

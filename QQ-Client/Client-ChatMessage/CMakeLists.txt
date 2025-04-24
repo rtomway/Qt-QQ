@@ -16,5 +16,5 @@ target_include_directories(Client-ChatMessage PUBLIC
 
 target_link_libraries(Client-ChatMessage PRIVATE
 	Qt6::Core Qt6::Widgets
-	Client-Util
+	Client-Util Client-DataCenter
 )

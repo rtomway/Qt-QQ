@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ContactPage</class>
- <widget class="QWidget" name="ContactPage">
+ <class>FriendProfilePage</class>
+ <widget class="QWidget" name="FriendProfilePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>FriendProfilePage</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_7">
    <property name="spacing">

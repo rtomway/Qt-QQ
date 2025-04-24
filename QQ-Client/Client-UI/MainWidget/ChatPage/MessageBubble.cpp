@@ -173,7 +173,7 @@ void MessageBubble::paintEvent(QPaintEvent* ev)
 
 	if ((m_type == BubbleImageLeft || m_type == BubbleImageRight) && !m_image.isNull()) {
 		// 绘制图片
-		QRect imageRect = m_bubbleRect.adjusted(0, 0, 0, 0);
+		QRect imageRect = m_bubbleRect.adjusted(0, 25, 0, 0);
 		painter.drawPixmap(imageRect, m_image);
 	}
 	else {

@@ -9,7 +9,8 @@ file(GLOB UI_SOURCES
     LoginWidget/*.cpp
     MainWidget/*.cpp
     MainWidget/AddFriendWidget/*.cpp
-    MainWidget/ContactPage/*.cpp
+    MainWidget/ContactProfilePage/*.cpp
+    MainWidget/ContactListWidget/*.cpp
     MainWidget/ChatPage/*.cpp
     MainWidget/NoticePage/*.cpp
     MainWidget/GroupInviteWidget/*.cpp
@@ -20,7 +21,8 @@ file(GLOB UI_HEADERS
     LoginWidget/*.h
     MainWidget/*.h
     MainWidget/AddFriendWidget/*.h
-    MainWidget/ContactPage/*.h
+    MainWidget/ContactProfilePage/*.h
+    MainWidget/ContactListWidget/*.h
     MainWidget/ChatPage/*.h
     MainWidget/NoticePage/*.h
     MainWidget/GroupInviteWidget/*.h
@@ -36,7 +38,8 @@ target_include_directories(Client-UI PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/LoginWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/AddFriendWidget
-    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactPage
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactProfilePage
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactListWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ChatPage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/NoticePage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/GroupInviteWidget

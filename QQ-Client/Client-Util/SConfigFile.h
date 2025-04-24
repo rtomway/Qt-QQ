@@ -7,16 +7,16 @@
 class SConfigFile
 {
 public:
-	SConfigFile(const QString&filename);
-	bool IsOpen()const {return m_settings.status() == QSettings::NoError(); }
+	SConfigFile(const QString& filename);
+	bool IsOpen()const { return m_settings.status() == QSettings::NoError(); }
 
-	void setValue(QAnyStringView key,const QVariant& value);
+	void setValue(QAnyStringView key, const QVariant& value);
 	QVariant value(QAnyStringView key)const;
-	QVariant value(QAnyStringView key,const QVariant& def_value)const;
+	QVariant value(QAnyStringView key, const QVariant& def_value)const;
 	void removeValue(QAnyStringView key);
-	
+
 private:
-	QSettings m_settings;
+	QSettings m_settings{};
 };
 
 #endif // !SCONFIGFILE_H_

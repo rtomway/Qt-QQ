@@ -1,54 +1,106 @@
 ﻿#include "ChatRecordManager.h"
+#include "LoginUserManager.h"
+
 
 ChatRecordManager* ChatRecordManager::instance() {
 	static ChatRecordManager ins;
 	return &ins;
 }
-// 获取指定用户的聊天记录，如果没有则返回空指针
-std::shared_ptr<ChatRecordMessage> ChatRecordManager::getUserChat(const QString& userId) 
-{
-	return m_friendChats.value(userId, nullptr);
-}
 // 添加新的聊天记录
-void ChatRecordManager::addUserChat(const QString& userId, std::shared_ptr<ChatRecordMessage> chatMessage) 
+void ChatRecordManager::addUserChat(const QString& userId, std::shared_ptr<ChatRecordMessage> chatMessage)
 {
 	if (!m_friendChats.contains(userId)) {
 		m_friendChats[userId] = chatMessage;
 	}
 }
-//为聊天记录添加消息
-void ChatRecordManager::addMessageToUserChat(const QString& user_id, const std::shared_ptr<MessageRecord>& message)
+//添加群聊聊天记录
+void ChatRecordManager::addGroupChat(const QString& groupId, std::shared_ptr<ChatRecordMessage> chatMessage)
 {
-	auto chat = getUserChat(user_id);
-	if(chat)
-	chat->addMessage(message);
+	if (!m_groupChats.contains(groupId))
+	{
+		m_groupChats[groupId] = chatMessage;
+	}
+}
+//为聊天记录添加消息
+void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
+{
+	qDebug() << "----------------------addMessageToChat---------------------";
+	// 创建消息指针
+	std::shared_ptr<MessageRecord> message;
+	switch (chatMessage.messageType)
+	{
+	case MessageType::Text:
+	{
+		// 创建文本消息
+		QString text = chatMessage.data.toString();
+		qDebug() << "存储创建文本消息" << text << chatMessage.sendId;
+		message = std::make_shared<TextMessage>(chatMessage.sendId, chatMessage.receiveId, chatMessage.time, text);
+		break;
+	}
+	case MessageType::Image:
+	{
+		// 创建图片消息
+		qDebug() << "存储创建图片消息";
+		QPixmap pixmap = chatMessage.data.value<QPixmap>();
+		message = std::make_shared<ImageMessage>(chatMessage.sendId, chatMessage.receiveId, chatMessage.time, pixmap);
+		break;
+	}
+	case MessageType::System:
+	{
+		// 创建系统消息
+		qDebug() << "存储创建系统消息";
+		QString text = chatMessage.data.toString();
+		message = std::make_shared<SystemMessage>(chatMessage.sendId, chatMessage.receiveId, chatMessage.time, text);
+		break;
+	}
+	default:
+		break;
+	}
+	QString getChatId;
+	auto& loginUserId = LoginUserManager::instance()->getLoginUserID();
+	if (chatMessage.chatType == ChatType::User && chatMessage.receiveId == loginUserId)
+	{
+		getChatId = chatMessage.sendId;
+	}
+	else
+	{
+		getChatId = chatMessage.receiveId;
+	}
+	qDebug() << "聊天记录存储id:" << getChatId;
+	auto chatRecord = getChatRecord(getChatId, chatMessage.chatType);
+	if (chatRecord)
+	{
+		qDebug() << "成功获取聊天记录:" << getChatId;
+		chatRecord->addMessage(message);
+	}
+	else
+	{
+		qDebug() << "聊天记录不存在:" << getChatId;
+	}
+
+}
+//获取聊天记录
+std::shared_ptr<ChatRecordMessage> ChatRecordManager::getChatRecord(const QString& id, ChatType type)
+{
+	switch (type)
+	{
+	case ChatType::User:
+		return m_friendChats.value(id, nullptr);
+		break;
+	case ChatType::Group:
+		return m_groupChats.value(id, nullptr);
+		break;
+	default:
+		break;
+	}
+	return std::shared_ptr<ChatRecordMessage>();
 }
 // 清除指定用户的聊天记录
 void ChatRecordManager::clearUserChat(const QString& userId)
 {
 	m_friendChats.remove(userId);
 }
-//获取群聊聊天记录
-std::shared_ptr<ChatRecordMessage> ChatRecordManager::getGroupChat(const QString& groupId)
-{
-	return m_groupChats.value(groupId, nullptr);
-}
-//添加群聊聊天记录
-void ChatRecordManager::addGroupChat(const QString& groupId, std::shared_ptr<ChatRecordMessage> chatMessage)
-{
-	if (!m_groupChats.contains(groupId)) 
-	{
-		m_groupChats[groupId] = chatMessage;
-	}
-}
-//为聊天记录添加消息
-void ChatRecordManager::addMessageToGroupChat(const QString& group_id, const std::shared_ptr<MessageRecord>& message)
-{
-	auto chat = getGroupChat(group_id);
-	if (chat)
-		chat->addMessage(message);
-}
-//清空聊天记录
+//清空指定群组聊天记录
 void ChatRecordManager::clearGroupChat(const QString& groupId)
 {
 	m_groupChats.remove(groupId);

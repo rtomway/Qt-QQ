@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QSharedPointer>
 
+#include "LoginUserManager.h"
 #include "FriendManager.h"
 #include "Friend.h"
 #include "EventBus.h"
@@ -18,6 +19,7 @@
 #include "ItemWidget.h"
 #include "FriendListItemWidget.h"
 #include "GroupListItemWidget.h"
+#include "SMaskWidget.h"
 
 QStringList ContactListWidget::m_fNamelist{};
 QStringList ContactListWidget::m_gNamelist{};
@@ -27,10 +29,12 @@ ContactListWidget::ContactListWidget(QWidget* parent)
 	, ui(new Ui::ContactListWidget)
 	, m_friendList(new QTreeWidget(this))
 	, m_groupList(new QTreeWidget(this))
+	,m_createFriendgrouping(new CreateFriendgrouping)
 {
 	ui->setupUi(this);
 	init();
-	QFile file(":/stylesheet/Resource/StyleSheet/ContactList.css");
+	externalSignals();
+	QFile file(":/stylesheet/Resource/StyleSheet/ContactListWidget.css");
 	if (file.open(QIODevice::ReadOnly))
 	{
 		setStyleSheet(file.readAll());
@@ -49,23 +53,25 @@ ContactListWidget::~ContactListWidget()
 
 void ContactListWidget::init()
 {
+	//隐藏tree根
 	m_friendList->setHeaderHidden(true);
-	m_friendList->setColumnWidth(0, m_friendList->width());
-
+	m_groupList->setHeaderHidden(true);
 	//QTreeWidget里的根和子项相同宽度
 	m_friendList->setIndentation(0);
 	m_groupList->setIndentation(0);
-
-	m_groupList->setHeaderHidden(true);
+	// 禁用所有双击展开
+	m_friendList->setExpandsOnDoubleClick(false);
+	m_groupList->setExpandsOnDoubleClick(false);
+	//treeList
 	ui->stackedWidget->addWidget(m_friendList);
 	ui->stackedWidget->addWidget(m_groupList);
 	ui->stackedWidget->setCurrentWidget(m_friendList);
-
+	//buttonGroup
 	m_buttonGroup.addButton(ui->friendBtn);
 	m_buttonGroup.addButton(ui->groupBtn);
 	m_buttonGroup.setExclusive(true);
 	m_buttonGroup.button(-2)->setChecked(true);
-
+	//noticeCount
 	ui->friendNoticeCountLab->setFixedSize(18, 18);
 	ui->groupNoticeCountLab->setFixedSize(18, 18);
 	ui->friendNoticeCountLab->setVisible(false);
@@ -75,10 +81,14 @@ void ContactListWidget::init()
 	//列表切换
 	connect(&m_buttonGroup, &QButtonGroup::idClicked, this, [=](int id)
 		{
-			if (id == -2)
+			if (id == -2)  //好友列表
+			{
 				ui->stackedWidget->setCurrentWidget(m_friendList);
-			else if (id == -3)
+			}
+			else if(id == -3)  //群组列表
+			{
 				ui->stackedWidget->setCurrentWidget(m_groupList);
+			}
 		});
 	//topitemWidget展开
 	connect(m_friendList, &QTreeWidget::itemClicked, [=](QTreeWidgetItem* item)
@@ -87,14 +97,19 @@ void ContactListWidget::init()
 			if (item->parent() == nullptr)
 			{
 				item->setExpanded(!item->isExpanded());
-				//通过itemwidget找到自定义的小部件topItemWidget
 				auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(item, 0));
 				topItemWidget->setAgale();
+				m_friendList->setStyleSheet(R"(
+				QTreeWidget::item:selected {background-color:transparent;}
+				)");
 			}
 			else     //点击用户 弹出用户信息
 			{
 				auto user_id = item->data(0, Qt::UserRole).toString();
 				emit clickedFriend(user_id);
+				m_friendList->setStyleSheet(R"(
+				QTreeWidget::item:selected {background-color: #0096FF;}
+				)");
 			}
 		});
 	connect(m_groupList, &QTreeWidget::itemClicked, [=](QTreeWidgetItem* item)
@@ -103,45 +118,96 @@ void ContactListWidget::init()
 			if (item->parent() == nullptr)
 			{
 				item->setExpanded(!item->isExpanded());
-				//通过itemwidget找到自定义的小部件topItemWidget
 				auto topItemWidget = qobject_cast<TopItemWidget*>(m_groupList->itemWidget(item, 0));
 				topItemWidget->setAgale();
+				m_groupList->setStyleSheet(R"(
+				QTreeWidget::item:selected {background-color:transparent;}
+				)");
 			}
 			else     //点击用户 弹出用户信息
 			{
-
+				auto group_id = item->data(0, Qt::UserRole).toString();
+				emit clickedGroup(group_id);
+				m_groupList->setStyleSheet(R"(
+				QTreeWidget::item:selected {background-color: #0096FF;}
+				)");
 			}
-
 		});
-
 	//好友分组添加
-	connect(ui->friendmanage, &QPushButton::clicked, this, [=]
+	connect(ui->createFriendGrouping, &QPushButton::clicked, this, [=]
 		{
-			m_createFriendgrouping = std::make_unique<CreateFriendgrouping>();
-			m_createFriendgrouping->show();
-			connect(m_createFriendgrouping.get(), &CreateFriendgrouping::createGrouping, this, [=](const QString& grouping)
-				{
-					addFriendTopItem(grouping);
-				});
+			//蒙层
+			SMaskWidget::instance()->popUp(m_createFriendgrouping);
+			auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
+			int x = (mainWidgetSize.width() - m_createFriendgrouping->width()) / 2;
+			int y = (mainWidgetSize.height() - m_createFriendgrouping->height()) / 2;
+			SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_createFriendgrouping->width(), m_createFriendgrouping->height()));
 		});
-	//加载登录用户信息
-	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
+	connect(m_createFriendgrouping, &CreateFriendgrouping::createGrouping, this, [=](const QString& grouping)
 		{
-			auto loginUserId = FriendManager::instance()->getOneselfID();
-			auto myfriend = FriendManager::instance()->findFriend(loginUserId);
-			auto& grouping = myfriend->getGrouping();
+			addFriendTopItem(grouping);
+		});
+}
+//外部信号
+void ContactListWidget::externalSignals()
+{
+	//加载登录用户信息
+	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
+		{
+			auto& loginUser = LoginUserManager::instance()->getLoginUser();
+			auto& grouping = loginUser->getGrouping();
 			//判断该分组是否已存在
 			if (!m_fNamelist.contains(grouping))
 				addFriendTopItem(grouping);
 			//添加
-			addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
+			addFriendItem(getFriendTopItem(grouping), loginUser->getFriendId());
 
-			addGroupTopItem(QString("置顶群聊"));
 			addGroupTopItem(QString("我创建的群聊"));
 			addGroupTopItem(QString("我管理的群聊"));
 			addGroupTopItem(QString("我加入的群聊"));
 		});
-	//登录后加载好友信息
+	//本地已有的头像可直接加载
+	connect(FriendManager::instance(), &FriendManager::loadLocalAvatarFriend, this, [=](const QStringList& friend_idList)
+		{
+			for (auto& friend_id : friend_idList)
+			{
+				auto myfriend = FriendManager::instance()->findFriend(friend_id);
+				auto& grouping = myfriend->getGrouping();
+				//判断该分组是否已存在
+				if (!m_fNamelist.contains(grouping))
+					addFriendTopItem(grouping);
+				//添加
+				addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
+			}
+		});
+	connect(GroupManager::instance(), &GroupManager::loadLocalAvatarGroup, this, [=](const QStringList& group_idList)
+		{
+			for (auto& group_id : group_idList)
+			{
+				auto group = GroupManager::instance()->findGroup(group_id);
+				if (group->getGroupOwerId() != LoginUserManager::instance()->getLoginUserID())
+				{
+					addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
+				}
+				else
+				{
+					addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
+				}
+			}
+		});
+	//需要向服务器申请头像的
+	connect(AvatarManager::instance(), &AvatarManager::loadGroupAvatarSuccess, this, [=](const QString& group_id)
+		{
+			auto group = GroupManager::instance()->findGroup(group_id);
+			if (group->getGroupOwerId() != LoginUserManager::instance()->getLoginUserID())
+			{
+				addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
+			}
+			else
+			{
+				addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
+			}
+		});
 	connect(AvatarManager::instance(), &AvatarManager::loadFriendAvatarSuccess, this, [=](const QString& user_id)
 		{
 			auto myfriend = FriendManager::instance()->findFriend(user_id);
@@ -152,20 +218,6 @@ void ContactListWidget::init()
 			//添加
 			addFriendItem(getFriendTopItem(grouping), myfriend->getFriendId());
 		});
-	//登录后加载群聊信息
-	connect(AvatarManager::instance(), &AvatarManager::loadGroupAvatarSuccess, this, [=](const QString& group_id)
-		{
-			auto group = GroupManager::instance()->findGroup(group_id);
-			if (group->getGroupOwerId() != FriendManager::instance()->getOneselfID())
-			{
-				addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
-			}
-			else
-			{
-				addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
-			}
-		});
-
 	//新增好友
 	connect(FriendManager::instance(), &FriendManager::NewFriend, this, [=](const QString& user_id, const QString& grouping)
 		{
@@ -175,7 +227,6 @@ void ContactListWidget::init()
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
-			qDebug() << "text信息更新" << user->getFriend();
 			auto groupingItem = getFriendTopItem(user->getGrouping());
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
@@ -232,12 +283,10 @@ void ContactListWidget::init()
 	//新增群组
 	connect(GroupManager::instance(), &GroupManager::createGroupSuccess, this, [=](const QString& group_id)
 		{
-			qDebug() << "ContactListWidget新建群组";
 			addGroupItem(getGroupTopItem("我创建的群聊"), group_id);
 		});
 	connect(GroupManager::instance(), &GroupManager::newGroup, this, [=](const QString& group_id)
 		{
-			qDebug() << "ContactListWidget新加群组";
 			addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
 		});
 }
@@ -274,14 +323,15 @@ void ContactListWidget::addFriendItem(QTreeWidgetItem* firendTopItem, const QStr
 	}
 	friendItem = new QTreeWidgetItem(firendTopItem);
 	//把自己置顶
-	if (user_id == FriendManager::instance()->getOneselfID())
+	if (user_id == LoginUserManager::instance()->getLoginUserID())
 	{
 		firendTopItem->removeChild(friendItem);
 		firendTopItem->insertChild(0, friendItem);
 	}
 	friendItem->setData(0, Qt::UserRole, user_id);
-	friendItem->setSizeHint(0, QSize(m_friendList->width(), 60));
-	//自定义Item
+	friendItem->setData(0, Qt::UserRole+1,"item");
+	friendItem->setSizeHint(0, QSize(m_friendList->width(),60));
+	//自定义ItemWidget
 	ItemWidget* itemWidget = new FriendListItemWidget(this);
 	itemWidget->setItemWidget(user_id);
 	m_friendList->setItemWidget(friendItem, 0, itemWidget);
@@ -310,6 +360,7 @@ QTreeWidgetItem* ContactListWidget::getFriendTopItem(QString friendName)
 			return item;
 		}
 	}
+	return nullptr;
 }
 //获取子item
 QTreeWidgetItem* ContactListWidget::findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId) {
@@ -378,6 +429,7 @@ QTreeWidgetItem* ContactListWidget::getGroupTopItem(QString groupName)
 			return item;
 		}
 	}
+	return nullptr;
 }
 //通知数量更新
 void ContactListWidget::updateFriendNoticeCount()
@@ -395,6 +447,8 @@ void ContactListWidget::updateGroupNoticeCount()
 //退出清除前一个账户信息
 void ContactListWidget::clearContactList()
 {
+	ui->stackedWidget->setCurrentWidget(m_friendList);
+	m_buttonGroup.button(-2)->setChecked(true);
 	m_friendList->clear();
 	m_groupList->clear();
 	m_fNamelist.clear();

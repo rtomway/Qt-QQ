@@ -24,7 +24,7 @@ public:
 	void addDialog(QWidget* dialog);
 	void popUp(QWidget* dialog);
 	void setPopPostion(PopPosition position);
-	void setPopGeometry(const QRect&rect);
+	void setPopGeometry(const QRect& rect);
 	QSize getMainWidgetSize();
 protected:
 	bool eventFilter(QObject* object, QEvent* ev)override;
@@ -32,9 +32,9 @@ protected:
 	void onResize();
 private:
 	QWidget* m_MainWidget{};
-	QWidgetSet m_dialogs;
+	QWidgetSet m_dialogs{};
 	QWidget* m_currentPopUp{};
-	PopPosition m_pos;
+	PopPosition m_pos{};
 };
 
 #endif // !SMASKWIDGET_H_

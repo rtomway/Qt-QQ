@@ -1,4 +1,4 @@
-﻿#include "ContactDetailWidget.h"
+﻿#include "FriendProfileEditWidget.h"
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QStandardPaths>
@@ -21,7 +21,7 @@
 
 
 
-ContactDetailWidget::ContactDetailWidget(QWidget* parent)
+FriendProfileEditWidget::FriendProfileEditWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
 	, m_editDetail(new QLabel(this))
 	, m_exitBtn(new QPushButton(this))
@@ -42,7 +42,7 @@ ContactDetailWidget::ContactDetailWidget(QWidget* parent)
 	setAttribute(Qt::WA_StyleSheet);
 }
 
-void ContactDetailWidget::init()
+void FriendProfileEditWidget::init()
 {
 	//窗口初始化
 	auto mlayout = new QVBoxLayout(this);
@@ -255,7 +255,7 @@ void ContactDetailWidget::init()
 		});
 }
 //更新头像
-void ContactDetailWidget::updateAvatar()
+void FriendProfileEditWidget::updateAvatar()
 {
 	//更新头像文件和缓存
 	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User, [](bool result)
@@ -307,7 +307,7 @@ void ContactDetailWidget::updateAvatar()
 		});
 }
 //设置用户信息
-void ContactDetailWidget::setUser(const QJsonObject& obj)
+void FriendProfileEditWidget::setUser(const QJsonObject& obj)
 {
 	m_json = obj;
 	m_userId = obj["user_id"].toString();
@@ -324,11 +324,11 @@ void ContactDetailWidget::setUser(const QJsonObject& obj)
 	m_signaltureEdit->setText(m_json["signature"].toString());
 }
 //获取编辑信息
-const QJsonObject& ContactDetailWidget::getUser() const
+const QJsonObject& FriendProfileEditWidget::getUser() const
 {
 	return m_json;
 }
-bool ContactDetailWidget::eventFilter(QObject* watched, QEvent* event)
+bool FriendProfileEditWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == m_headLab && event->type() == QEvent::MouseButtonPress)
 	{

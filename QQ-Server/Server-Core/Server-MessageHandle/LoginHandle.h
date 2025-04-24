@@ -12,6 +12,8 @@ public:
 	static void handle_loginValidation(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_loadFriendList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_loadGroupList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
+	static void handle_loadGroupMember(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
+	static void handle_loadGroupMemberAvatar(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_loadGroupAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_loadFriendAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static QJsonArray getFriendsMessage(const QString& user_id);

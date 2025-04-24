@@ -1,5 +1,5 @@
-﻿#ifndef FriendMANAGER_H_
-#define FriendMANAGER_H_
+﻿#ifndef FRIENDMANAGER_H_
+#define FRIENDMANAGER_H_
 
 #include <QJsonObject>
 #include <QObject>
@@ -18,24 +18,21 @@ public:
 	FriendManager& operator=(const FriendManager&) = delete;
 private:
 	FriendManager();
+	void loadFriendAvatarFromServer(const QStringList& friend_idList);
 public:
-	//当前客户端登录用户
-	static QString m_oneselfID;
-	static void setOneselfID(const QString& id);
-	const QString& getOneselfID()const;
 	//好友处理
 	void addFriend(const QSharedPointer<Friend>& user);
 	QSharedPointer<Friend>findFriend(const QString& id)const;
-	const QHash<QString, QSharedPointer<Friend>>& getFriends()const;
 	//好友搜索
 	QHash<QString, QSharedPointer<Friend>> findFriends(const QString& text)const;
 	//清除
 	void clearFriendManager();
 private:
 	//管理所有用户
-	QHash<QString, QSharedPointer<Friend>>m_user;
-	QHash<QString, QString>m_grouping;
+	QHash<QString, QSharedPointer<Friend>>m_friends{};
+	QHash<QString, QString>m_grouping{};
 signals:
+	void loadLocalAvatarFriend(const QStringList& friend_idList);
 	void UpdateFriendMessage(const QString& user_id);
 	void updateFriendGrouping(const QString& user_id, const QString& oldGrouping);
 	void NewFriend(const QString& user_id, const QString& grouping);
@@ -44,4 +41,4 @@ signals:
 };
 
 
-#endif // !FriendMANAGER_H_
+#endif // !FRIENDMANAGER_H_

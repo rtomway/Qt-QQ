@@ -11,76 +11,27 @@
 #include "EventBus.h"
 #include "ImageUtil.h"
 #include "AvatarManager.h"
+#include "LoginUserManager.h"
 
+//登录成功
 void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	QJsonObject loginUser = paramsObject["loginUser"].toObject();
-	auto user_name = loginUser["username"].toString();
+	EventBus::instance()->emit initLoginUser(loginUser);
 	auto user_id = loginUser["user_id"].toString();
-	//当前登录用户信息
-	auto user = QSharedPointer<Friend>::create();
-	user->setFriend(loginUser);
-	qDebug() << "loginUser" << user->getFriend();
-	FriendManager::instance()->addFriend(user);
-	FriendManager::instance()->setOneselfID(user_id);
-	//头像保存文件指定
-	ImageUtils::setLoginUser(user_id);
 	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
 		{
 			if (!result)
 				qDebug() << "头像保存失败";
-			else
-				EventBus::instance()->emit loginSuccess();
 		});
-
-	//登录成功申请好友信息
-	QJsonObject loadFriendListObj;
-	loadFriendListObj["user_id"] = user_id;
-	QJsonDocument loadFriendListDoc(loadFriendListObj);
-	QByteArray loadFriendListData = loadFriendListDoc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest("loadFriendList", loadFriendListData, "application/json");
-	//申请群组基本信息
-	QJsonObject loadGroupListObj;
-	loadGroupListObj["user_id"] = user_id;
-	QJsonDocument loadGroupListDoc(loadGroupListObj);
-	QByteArray loadGroupListData = loadGroupListDoc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest("loadGroupList", loadGroupListData, "application/json");
 }
-
+//加载好友列表数据
 void Client_LoginHandle::handle_loadFriendList(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------handle_loadFriendList--------------------";
-	QJsonArray friendArray = paramsObject["friendList"].toArray();
-	QStringList friend_IdList;
-	//加载好友信息
-	for (const QJsonValue& value : friendArray)
-	{
-		QJsonObject friendObject = value.toObject();
-		auto friendUser = QSharedPointer<Friend>::create();
-		friendUser->setFriend(friendObject);
-		auto& friend_id = friendUser->getFriendId();
-		friend_IdList.append(friend_id);
-		FriendManager::instance()->addFriend(friendUser);
-	}
-	//申请好友头像的加载
-	const int batchSize = 10;
-	int totalSize = friend_IdList.size();
-	for (int i = 0; i < totalSize; i += batchSize)
-	{
-		QJsonArray loadFriendAvatarIdArray;
-		QStringList currentBatch = friend_IdList.mid(i, batchSize);
-		for (const auto& friendId : currentBatch)
-		{
-			loadFriendAvatarIdArray.append(friendId);
-		}
-		QJsonObject loadFriendAvatarIdObj;
-		loadFriendAvatarIdObj["friend_ids"] = loadFriendAvatarIdArray;
-		QJsonDocument loadFriendAvatarIdDoc(loadFriendAvatarIdObj);
-		auto data = loadFriendAvatarIdDoc.toJson(QJsonDocument::Compact);
-		MessageSender::instance()->sendHttpRequest("loadFriendAvatars", data, "application/json");
-	}
+	qDebug() << "--------------------------handle_loadFriendList--------------------" << paramsObject;
+	EventBus::instance()->emit initFriendManager(paramsObject);
 }
-
+//加载好友头像
 void Client_LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "--------------------------handle_loadFriendAvatars--------------------";
@@ -93,41 +44,29 @@ void Client_LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObjec
 				AvatarManager::instance()->emit loadFriendAvatarSuccess(friend_id);
 		});
 }
-
+//加载群组列表数据
 void Client_LoginHandle::handle_loadGroupList(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "--------------------------handle_loadGroupList--------------------";
-	auto groupListArray = paramsObject["groupList"].toArray();
-	QStringList group_IdList;
-	for (auto groupValue : groupListArray)
-	{
-		auto groupObj = groupValue.toObject();
-		group_IdList.append(groupObj["group_id"].toString());
-		auto myGroup = QSharedPointer<Group>::create();
-		myGroup->setGroup(groupObj);
-		GroupManager::instance()->addGroup(myGroup);
-	}
-	const int batchSize = 10;
-	int totalSize = group_IdList.size();
-	// 按批次处理 group_IdList
-	for (int i = 0; i < totalSize; i += batchSize)
-	{
-		QJsonArray loadGroupAvatarIdArray;
-		// 获取当前批次的 10 个 group_id
-		QStringList currentBatch = group_IdList.mid(i, batchSize);
-		// 处理当前批次的 group_id
-		for (const auto& groupId : currentBatch)
-		{
-			loadGroupAvatarIdArray.append(groupId);
-		}
-		QJsonObject loadGroupAvatarIdObj;
-		loadGroupAvatarIdObj["group_ids"] = loadGroupAvatarIdArray;
-		QJsonDocument loadGroupAvatarIdDoc(loadGroupAvatarIdObj);
-		auto data = loadGroupAvatarIdDoc.toJson(QJsonDocument::Compact);
-		MessageSender::instance()->sendHttpRequest("loadGroupAvatars", data, "application/json");
-	}
+	EventBus::instance()->emit initGroupManager(paramsObject);
 }
-
+//加载群成员
+void Client_LoginHandle::handle_loadGroupMember(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	EventBus::instance()->emit loadGroupMember(paramsObject);
+}
+//加载群成员头像
+void Client_LoginHandle::handle_loadGroupMemberAvatar(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	qDebug() << "--------------------------handle_loadGroupAvatars--------------------";
+	auto user_id = paramsObject["user_id"].toString();
+	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
+		{
+			if (!result)
+				qDebug() << "头像保存失败";
+		});
+}
+//加载群组头像
 void Client_LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "--------------------------handle_loadGroupAvatars--------------------";
@@ -140,7 +79,7 @@ void Client_LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObject
 				AvatarManager::instance()->emit loadGroupAvatarSuccess(group_id);
 		});
 }
-
+//注册成功
 void Client_LoginHandle::handle_registerSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	EventBus::instance()->emit registerSuccess(paramsObject);

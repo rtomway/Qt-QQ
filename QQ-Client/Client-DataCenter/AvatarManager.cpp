@@ -11,6 +11,15 @@ AvatarManager* AvatarManager::instance()
 }
 AvatarManager::AvatarManager()
 {
+	//头像保存
+	connect(EventBus::instance(), &EventBus::saveAvatar, this, [=](const QString& id, ChatType type, const QByteArray& data)
+		{
+			ImageUtils::saveAvatarToLocal(data, id, type, [=](bool result)
+				{
+					if (!result)
+						qDebug() << "头像保存失败";
+				});
+		});
 	//更新用户头像
 	connect(EventBus::instance(), &EventBus::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
 		{
@@ -28,8 +37,24 @@ AvatarManager::AvatarManager()
 				});
 		});
 }
+//检测本地是否有该id头像缓存
+bool AvatarManager::hasLocalAvatar(const QString& id, ChatType type)
+{
+	QString avatarPath;
+	switch (type) {
+	case ChatType::User:
+		avatarPath = ImageUtils::getUserAvatarFolderPath() + "/" + id + ".png";
+		break;
+	case ChatType::Group:
+		avatarPath = ImageUtils::getGroupAvatarFolderPath() + "/" + id + ".png";
+		break;
+	default:
+		return false;
+	}
+	return QFile::exists(avatarPath);
+}
 // 获取头像，如果缓存中没有,加载并缓存
-void AvatarManager::getAvatar(const QString& id, ChatType type,std::function<void(const QPixmap&)>callback)
+void AvatarManager::getAvatar(const QString& id, ChatType type, std::function<void(const QPixmap&)>callback)
 {
 	QString avatarPath;
 	QPixmap* cached = nullptr;

@@ -14,6 +14,9 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/loadFriendList");
 	registerHttpRoute("/loadFriendAvatars");
 	registerHttpRoute("/loadGroupList");
+	registerHttpRoute("/loadGroupMember");
+	registerHttpRoute("/groupMemberLoad");
+	registerHttpRoute("/loadGroupMemberAvatar");
 	registerHttpRoute("/loadGroupAvatars");
 	registerHttpRoute("/register");
 	registerHttpRoute("/serachUser");

@@ -10,6 +10,7 @@
 #include "EventBus.h"
 #include "AvatarManager.h"
 #include "SConfigFile.h"
+#include "PacketCreate.h"
 
 
 MessageHandle::MessageHandle(QObject* parent)
@@ -26,6 +27,7 @@ void MessageHandle::registerHandle(const QString& key, T& instance, void (T::* h
 			(instance.*handler)(obj, data);
 		};
 }
+
 //注册表
 void MessageHandle::initRequestHash()
 {
@@ -33,6 +35,8 @@ void MessageHandle::initRequestHash()
 	registerHandle("loginSuccess", m_loginHandle, &Client_LoginHandle::handle_loginSuccess);
 	registerHandle("loadFriendList", m_loginHandle, &Client_LoginHandle::handle_loadFriendList);
 	registerHandle("loadGroupList", m_loginHandle, &Client_LoginHandle::handle_loadGroupList);
+	registerHandle("loadGroupMember", m_loginHandle, &Client_LoginHandle::handle_loadGroupMember);
+	registerHandle("loadGroupMemberAvatar", m_loginHandle, &Client_LoginHandle::handle_loadGroupMemberAvatar);
 	registerHandle("loadGroupAvatars", m_loginHandle, &Client_LoginHandle::handle_loadGroupAvatars);
 	registerHandle("loadFriendAvatars", m_loginHandle, &Client_LoginHandle::handle_loadFriendAvatars);
 	registerHandle("registerSuccess", m_loginHandle, &Client_LoginHandle::handle_registerSuccess);
@@ -48,13 +52,14 @@ void MessageHandle::initRequestHash()
 	registerHandle("updateUserAvatar", m_userHandle, &Client_UserHandle::handle_updateUserAvatar);
 	//群组
 	registerHandle("groupTextCommunication", m_groupHandle, &Client_GroupHandle::handle_groupTextCommunication);
+	registerHandle("groupPictureCommunication", m_groupHandle, &Client_GroupHandle::handle_groupPictureCommunication);
 	registerHandle("newGroupMember", m_groupHandle, &Client_GroupHandle::handle_newGroupMember);
 	registerHandle("groupInviteSuccess", m_groupHandle, &Client_GroupHandle::handle_groupInviteSuccess);
-	registerHandle("groupMemberLoad", m_groupHandle, &Client_GroupHandle::handle_groupMemberLoad);
-	registerHandle("groupLoad", m_groupHandle, &Client_GroupHandle::handle_groupLoad);
+	registerHandle("newGroup", m_groupHandle, &Client_GroupHandle::handle_newGroup);
 	registerHandle("createGroupSuccess", m_groupHandle, &Client_GroupHandle::handle_createGroupSuccess);
 	registerHandle("groupInvite", m_groupHandle, &Client_GroupHandle::handle_groupInvite);
 }
+
 //记录token
 void MessageHandle::token(const QString& token)
 {
@@ -62,6 +67,7 @@ void MessageHandle::token(const QString& token)
 	config.setValue("token", token);
 	emit connectToServer();
 }
+
 //消息处理接口
 void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 {
@@ -92,58 +98,17 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 void MessageHandle::handle_binaryMessage(const QByteArray& message)
 {
 	qDebug() << "----------------------------接受到服务端的数据消息:-----------------------";
-	QDataStream stream(message);
-	stream.setByteOrder(QDataStream::BigEndian);
-	stream.setVersion(QDataStream::Qt_6_5);
-	// 1️⃣ 读取 `allData` 的总大小（4 字节）
-	if (message.size() < sizeof(qint32)) {
-		qDebug() << "Incomplete packet: waiting for more data...";
-		return;
-	}
-	qint32 totalSize;
-	stream >> totalSize;
-	qDebug() << "Total data size:" << totalSize;
-	// 2️⃣ 开始循环解析多个数据包
-	while (!stream.atEnd()) {
-		if (message.size() - stream.device()->pos() < sizeof(qint32)) {
-			qDebug() << "Incomplete packet header size!";
-			return;
-		}
-		// 读取当前数据包的大小
-		qint32 packetSize;
-		stream >> packetSize;
-		if (message.size() - stream.device()->pos() < packetSize) {
-			qDebug() << "Incomplete full packet!";
-			return;
-		}
-		// 读取 JSON 头部大小
-		qint32 headerSize;
-		stream >> headerSize;
-		// 读取 JSON 头部
-		QByteArray headerData(headerSize, Qt::Uninitialized);
-		stream.readRawData(headerData.data(), headerSize);
-		// 解析 JSON
-		QJsonDocument jsonDoc = QJsonDocument::fromJson(headerData);
-		if (jsonDoc.isNull()) {
-			qDebug() << "Invalid JSON data!";
-			return;
-		}
-		QJsonObject jsonObj = jsonDoc.object();
-		QString type = jsonObj["type"].toString();
-		QJsonObject params = jsonObj["params"].toObject();
-		qDebug() << "Received packet type:" << type;
-		qDebug() << "Params:" << params;
-		// 读取二进制数据（图片）
-		int imageSize = params["size"].toInt();
-		QByteArray imageData(imageSize, Qt::Uninitialized);
-		stream.readRawData(imageData.data(), imageSize);
+
+	auto parsePacketList = PacketCreate::parseDataPackets(message);
+	for (auto& parsePacket : parsePacketList)
+	{
 		// 根据类型给处理函数处理
-		if (requestHash.contains(type)) {
-			auto handle = requestHash[type];
-			handle(params, imageData);  // 调用对应的处理函数
+		if (requestHash.contains(parsePacket.type)) {
+			auto& handle = requestHash[parsePacket.type];
+			handle(parsePacket.params, parsePacket.data);  // 调用对应的处理函数
 		}
 		else {
-			qDebug() << "未知的类型:" << type;
+			qDebug() << "未知的类型:" << parsePacket.type;
 		}
 	}
 }

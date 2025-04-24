@@ -14,7 +14,7 @@ class MainWindow :public QMainWindow
 {
 	Q_OBJECT
 public:
-	MainWindow(QWidget*parent=nullptr);
+	MainWindow(QWidget* parent = nullptr);
 	void init();
 private:
 	QStackedWidget* m_stackedWidget{};
@@ -30,6 +30,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent* event)override;
 	void mouseMoveEvent(QMouseEvent* event)override;
 	void showEvent(QShowEvent* event)override;
+	void enableMouseTracking(QWidget* w);
 private:
 	QPoint m_pressPos{};
 private:

@@ -23,18 +23,20 @@ public:
 public:
 	void setClient(Client* client);
 	void disConnect();
-	void sendMessage(const QString& type, const QVariantMap& params = {});
+	void sendMessage(const QString& message);
 	void sendBinaryData(const QByteArray& data);
-	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type);
+	// 使用 std::function 定义回调类型
+	using HttpCallback = std::function<void(const QJsonObject&, const QByteArray&)>;
+	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack = nullptr);
 private:
 	MessageSender();
 private:
 	Client* m_client{};
-	QThread* m_workerThread;
-	HttpWorker* m_httpWorker;
-	QNetworkAccessManager* m_networkManager;
+	QThread* m_workerThread{};
+	HttpWorker* m_httpWorker{};
+	QNetworkAccessManager* m_networkManager{};
 signals:
-	void sendHttpRequestToThread(const QString& type, const QByteArray& data, const QString& Content_type);
+	void sendHttpRequestToThread(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack);
 	void httpTextResponseReceived(const QByteArray& data);
 	void httpDataResponseReceived(const QByteArray& data);
 };

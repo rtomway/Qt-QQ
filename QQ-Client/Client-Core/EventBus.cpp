@@ -3,5 +3,5 @@
 EventBus* EventBus::instance()
 {
 	static EventBus ins;
-	return &ins;
+	return &ins; 
 }

@@ -3,19 +3,19 @@
 #include <QBoxLayout>
 
 CreateFriendgrouping::CreateFriendgrouping(QWidget* parent)
-	:QWidget(parent)
+	:AngleRoundedWidget(parent)
 	,ui(new Ui::CreateFriendgrouping)
 {
 	ui->setupUi(this);
 	init();
+	this->setFixedSize(300, 170);
 	this->setStyleSheet(R"(
-			QLabel{	font-size:18px;}
+			QWidget{ border: none;border-radius:10px;background-color:white;}
+			QLabel{	font-size:14px;color:gray}
 			QLineEdit{
-				 border: 0px;
-				padding: 0px;
-				 margin: 0px;
-				height:40px;
-				font-size:18px;
+				 border:1px solid rgb(240,240,240);
+				 border-radius:4px;
+				height:35px;
 			}
 			QPushButton{
 				border: none;
@@ -26,13 +26,16 @@ CreateFriendgrouping::CreateFriendgrouping(QWidget* parent)
 				font-size: 14px;
 			}
 			QPushButton:hover{
-				font-size: 18px;
+				font-size: 16px;
 			}
 		)");
+	setAttribute(Qt::WA_StyledBackground);
+	setAttribute(Qt::WA_StyleSheet);
 }
 
 void CreateFriendgrouping::init()
 {
+	ui->groupingEdit->setPlaceholderText("填写新分组");
 	//取消
 	connect(ui->cancelBtn, &QPushButton::clicked, this, [=]
 		{

@@ -14,6 +14,8 @@
 #include "AvatarManager.h"
 #include "GroupManager.h"
 #include "Group.h"
+#include "LoginUserManager.h"
+#include "PacketCreate.h"
 
 GroupInviteWidget::GroupInviteWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -23,6 +25,7 @@ GroupInviteWidget::GroupInviteWidget(QWidget* parent)
 {
 	ui->setupUi(this);
 	init();
+	this->setFixedSize(530, 580);
 	this->setObjectName("groupInviteWidget");
 	m_searchList->setObjectName("searchListWidget");
 	ui->selectedFriendList->setObjectName("selectedFriendList");
@@ -94,7 +97,7 @@ void GroupInviteWidget::init()
 				auto itemWidget = qobject_cast<FriendSelectedWidget*>(m_friendTree->itemWidget(item, 0));
 				auto user_id = itemWidget->getUserId();
 				//群主或已加入的成员不可操作
-				if (user_id == FriendManager::instance()->getOneselfID())
+				if (user_id == LoginUserManager::instance()->getLoginUserID())
 					return;
 				itemWidget->setChecked(!itemWidget->isChecked());
 			}
@@ -105,7 +108,7 @@ void GroupInviteWidget::init()
 			auto itemWidget = qobject_cast<FriendSelectedWidget*>(m_searchList->itemWidget(item));
 			auto user_id = itemWidget->getUserId();
 			//群主或已加入的成员不可操作
-			if (user_id == FriendManager::instance()->getOneselfID())
+			if (user_id == LoginUserManager::instance()->getLoginUserID())
 				return;
 
 			itemWidget->setChecked(!itemWidget->isChecked());
@@ -123,18 +126,19 @@ void GroupInviteWidget::init()
 				QMessageBox::warning(nullptr, "警告", "群名不能为空");
 				return;
 			}
-			QVariantMap createGroupMap;
-			auto user_id = FriendManager::instance()->getOneselfID();
-			createGroupMap["user_id"] = user_id;
-			createGroupMap["username"] = FriendManager::instance()->findFriend(user_id)->getFriendName();
-			createGroupMap["group_name"] = ui->groupNameEdit->text();
+			QJsonObject createGroupObj;
+			auto& user_id = LoginUserManager::instance()->getLoginUserID();
+			createGroupObj["user_id"] = user_id;
+			createGroupObj["username"] = FriendManager::instance()->findFriend(user_id)->getFriendName();
+			createGroupObj["group_name"] = ui->groupNameEdit->text();
 			// 将 QStringList 转换为 QJsonArray
 			QJsonArray inviteMembersArray;
 			for (const QString& member : m_selectedList) {
 				inviteMembersArray.append(member);
 			}
-			createGroupMap["inviteMembers"] = inviteMembersArray;
-			MessageSender::instance()->sendMessage("createGroup", createGroupMap);
+			createGroupObj["inviteMembers"] = inviteMembersArray;
+			auto message = PacketCreate::textPacket("createGroup", createGroupObj);
+			MessageSender::instance()->sendMessage(message);
 			qDebug() << "群聊创建发送";
 			clearFriendTree();
 			clearSearchList();
@@ -216,8 +220,6 @@ void GroupInviteWidget::removeFriendListItem(const QString& user_id)
 	auto listItem = findListItem(ui->selectedFriendList, user_id);
 	if (listItem)
 	{
-		auto itemWidget = dynamic_cast<FriendSelectedWidget*>(ui->selectedFriendList->itemWidget(listItem));
-		delete itemWidget;
 		auto row = ui->selectedFriendList->row(listItem);
 		delete ui->selectedFriendList->takeItem(row);;
 	}
@@ -302,9 +304,13 @@ void GroupInviteWidget::cloneFriendTree(ContactListWidget& contactListWidget)
 			//复制itemwidget属性
 			newItem->setData(0, Qt::UserRole, user_id);
 			newItemWidget->setUser(user_id);
-
-			if (user_id == FriendManager::instance()->getOneselfID())
-				newItem->setFlags(newItem->flags() & ~Qt::ItemIsEnabled);  // 取消可用状态
+			// 取消可用状态
+			if (user_id == LoginUserManager::instance()->getLoginUserID())
+			{
+				newItem->setFlags(newItem->flags() & ~Qt::ItemIsEnabled);
+				newItemWidget->setEnabled(false);
+			}
+				
 			//关联
 			m_friendTree->setItemWidget(newItem, 0, newItemWidget);
 			connect(newItemWidget, &FriendSelectedWidget::checkFriend, this, [=](bool isChecked)
@@ -331,7 +337,7 @@ void GroupInviteWidget::cloneGroupMember(const QString& group_id)
 		qDebug() << "群组未找到：" << group_id;
 		return;
 	}
-	auto groupMembers = currentGroup->getMembers();
+	auto& groupMembers = currentGroup->getMembers();
 	//当前群成员topitem
 	auto groupMemberTopItem = new QTreeWidgetItem(m_friendTree);
 	//自定义topItem
@@ -345,7 +351,7 @@ void GroupInviteWidget::cloneGroupMember(const QString& group_id)
 
 		auto groupMemberItem = new QTreeWidgetItem(groupMemberTopItem);
 		//把自己置顶
-		if (member_id == FriendManager::instance()->getOneselfID())
+		if (member_id == LoginUserManager::instance()->getLoginUserID())
 		{
 			groupMemberItem->removeChild(groupMemberItem);
 			groupMemberItem->insertChild(0, groupMemberItem);
@@ -370,27 +376,6 @@ void GroupInviteWidget::clearFriendTree()
 {
 	// 清空 QTreeWidget 中的项
 	m_friendTree->clear();
-
-	// 如果有需要，可以通过手动删除 `setItemWidget` 的小部件来避免内存泄漏
-	for (int i = 0; i < m_friendTree->topLevelItemCount(); ++i) {
-		QTreeWidgetItem* topItem = m_friendTree->topLevelItem(i);
-		TopItemWidget* topItemWidget = dynamic_cast<TopItemWidget*>(m_friendTree->itemWidget(topItem, 0));
-		delete topItem;
-		if (topItemWidget) {
-			delete topItemWidget;  // 显式删除小部件
-		}
-	}
-
-	// 如果是 QListWidget
-	for (int i = 0; i < ui->selectedFriendList->count(); ++i) {
-		QListWidgetItem* listItem = ui->selectedFriendList->item(i);
-		// 获取关联的小部件
-		QWidget* listItemWidget = ui->selectedFriendList->itemWidget(listItem);
-		if (listItemWidget) {
-			delete listItemWidget;  // 删除小部件
-		}
-		delete listItem;
-	}
 	// 清空 selectedFriendList 中的项
 	ui->selectedFriendList->clear();
 
@@ -401,16 +386,6 @@ void GroupInviteWidget::clearFriendTree()
 //清空搜索列表
 void GroupInviteWidget::clearSearchList()
 {
-	// 如果是 QListWidget
-	for (int i = 0; i < m_searchList->count(); ++i) {
-		QListWidgetItem* listItem = m_searchList->item(i);
-		// 获取关联的小部件
-		QWidget* itemWidget = m_searchList->itemWidget(listItem);
-		if (itemWidget) {
-			delete itemWidget;  // 删除小部件
-		}
-		delete listItem;
-	}
 	// 清空 m_searchList 中的项
 	m_searchList->clear();
 }

@@ -1,6 +1,5 @@
 ﻿#include "ChatPage.h"
 #include "ui_ChatPage.h"
-
 #include <QFile>
 #include <QPainter>
 #include <QPainterPath>
@@ -15,20 +14,22 @@
 #include "ChatRecordManager.h"
 #include "EventBus.h"
 #include "AvatarManager.h" 
+#include "TipMessageItemWidget.h"
+#include "LoginUserManager.h"
+
 
 ChatPage::ChatPage(QWidget* parent)
 	:QWidget(parent)
 	, ui(new Ui::ChatPage)
 {
 	ui->setupUi(this);
-	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
+	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
 		{
-			auto& id = FriendManager::instance()->getOneselfID();
-			m_oneself = FriendManager::instance()->findFriend(id);
+			m_loginUser = LoginUserManager::instance()->getLoginUser();
 		});
 	init();
 	this->setObjectName("MessagePage");
-	QFile file(":/stylesheet/Resource/StyleSheet/MessagePage.css");
+	QFile file(":/stylesheet/Resource/StyleSheet/ChatPage.css");
 	if (file.open(QIODevice::ReadOnly))
 	{
 		setStyleSheet(file.readAll());
@@ -38,7 +39,6 @@ ChatPage::ChatPage(QWidget* parent)
 		qDebug() << file.fileName() << "打开失败";
 	}
 }
-
 ChatPage::~ChatPage()
 {
 	delete ui;
@@ -46,10 +46,9 @@ ChatPage::~ChatPage()
 void ChatPage::init()
 {
 	//在自己信息中心加载完成后读取
-	connect(EventBus::instance(), &EventBus::loginSuccess, this, [=]
+	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
 		{
-			auto& user_id = FriendManager::instance()->getOneselfID();
-			m_oneself = FriendManager::instance()->findFriend(user_id);
+			m_loginUser = LoginUserManager::instance()->getLoginUser();
 		});
 	//设置输入字体大小
 	QFont font = ui->messageTextEdit->font();
@@ -64,10 +63,6 @@ void ChatPage::init()
 	ui->messageTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
-void ChatPage::installEventFilterForChildren(QWidget* parent)
-{
-
-}
 //聊天记录加载
 void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 {
@@ -75,67 +70,90 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 	for (const auto& messagePtr : chatMessage.getMessages())
 	{
 		messagePtr->readMessage();
+		auto type = messagePtr->getType();
+		auto time = messagePtr->getTime();
+		this->insertTipMessage(messagePtr->getTime());
 		//判断消息是谁发送
-		bool isSelf = ((messagePtr)->getSenderId() == FriendManager::instance()->getOneselfID());
-		QString senderId = isSelf ? m_oneself->getFriendId() : messagePtr->getSenderId();
+		bool isSelf = ((messagePtr)->getSenderId() == LoginUserManager::instance()->getLoginUserID());
+		QString senderId = isSelf ? m_loginUser->getFriendId() : messagePtr->getSenderId();
 		AvatarManager::instance()->getAvatar(senderId, ChatType::User, [=](const QPixmap& avatar)
 			{
 				auto headPix = ImageUtils::roundedPixmap(avatar, QSize(100, 100), 66);
 				// 判断消息类型并处理
-				if (auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get())) {
-					qDebug() << "TextMessage";
-					auto content = textMessage->getTextMessage();
+				switch (type)
+				{
+				case MessageType::Text:
+				{
+					auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get());
+					qDebug() << "---------------------------TextMessage----------------";
+					auto& message = textMessage->getTextMessage();
 					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleTextRight : MessageBubble::BubbleTextLeft;
-					createTextMessageBubble(headPix, content, bubbleType, messagePtr->getSenderId());
+					createTextMessageBubble(headPix, message, bubbleType, messagePtr->getSenderId());
+					break;
 				}
-				else if (auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get())) {
-					qDebug() << "ImageMessage";
-					QPixmap image = imageMessage->getImageMessage();
+				case MessageType::Image:
+				{
+					auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get());
+					qDebug() << "---------------------ImageMessage-------------------";
+					auto& message = imageMessage->getImageMessage();
 					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleImageRight : MessageBubble::BubbleImageLeft;
-					createImageMessageBubble(headPix, image, bubbleType, messagePtr->getSenderId());
+					createImageMessageBubble(headPix, message, bubbleType, messagePtr->getSenderId());
+					break;
+				}
+				case MessageType::System:
+				{
+					auto systemMessage = dynamic_cast<SystemMessage*>(messagePtr.get());
+					qDebug() << "--------------------------SystemMessage------------------";
+					auto& message = systemMessage->getSystemMessage();
+					insertTipMessage(message);
+					break;
+				}
+				default:
+					break;
 				}
 			});
 	}
 }
-//聊天记录更新
-void ChatPage::updateChatMessage(const QString& sender_id, const QString& receiver_id, const QVariant& msg)
-{
-	// 创建消息指针
-	std::shared_ptr<MessageRecord> message;
-
-	if (msg.type() == QVariant::String)
-	{
-		// 创建文本消息
-		qDebug() << "存储创建文本消息";
-		message = std::make_shared<TextMessage>(sender_id, receiver_id, QDateTime::currentDateTime(), msg.toString());
-	}
-	else if (msg.canConvert<QPixmap>())
-	{
-		// 创建图片消息
-		qDebug() << "存储创建图片消息";
-		QPixmap pixmap = msg.value<QPixmap>();
-		message = std::make_shared<ImageMessage>(sender_id, receiver_id, QDateTime::currentDateTime(), pixmap);
-	}
-	storeMessage(sender_id, receiver_id, message);
-}
 //当前界面接受消息更新
-void ChatPage::updateReciveMessage(const QString& user_id, const QString& message)
+void ChatPage::updateReceiveMessage(const QString& send_id, const QVariant& messageData, MessageType type)
 {
-	AvatarManager::instance()->getAvatar(user_id, ChatType::User, [=](const QPixmap& pixmap)
-		{
-			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
-			createTextMessageBubble(headPix, message, MessageBubble::BubbleTextLeft, user_id);
-		});
-}
-void ChatPage::updateReciveMessage(const QString& user_id, const QPixmap& pixmap)
-{
-	AvatarManager::instance()->getAvatar(user_id, ChatType::User, [=](const QPixmap& pixmap_2)
-		{
-			auto headPix = ImageUtils::roundedPixmap(pixmap_2, QSize(40, 40));
-			createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleTextLeft, user_id);
-		});
-}
+	switch (type)
+	{
+	case MessageType::Text:
+	{
+		auto message = messageData.toString();
+		AvatarManager::instance()->getAvatar(send_id, ChatType::User, [=](const QPixmap& pixmap)
+			{
+				insertTipMessage(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+				auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+				createTextMessageBubble(headPix, message, MessageBubble::BubbleTextLeft, send_id);
+			});
+		break;
+	}
+	case MessageType::Image:
+	{
+		auto pixmap = messageData.value<QPixmap>();
+		AvatarManager::instance()->getAvatar(send_id, ChatType::User, [=](const QPixmap& pixmap_2)
+			{
+				insertTipMessage(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+				auto headPix = ImageUtils::roundedPixmap(pixmap_2, QSize(40, 40));
+				createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageLeft, send_id);
+			});
+		break;
+	}
+	case MessageType::System:
+	{
+		auto message = messageData.toString();
+		insertTipMessage(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+		insertTipMessage(message);
+		break;
+	}
 
+	default:
+		break;
+	}
+}
+//清空
 void ChatPage::clearMessageWidget()
 {
 	ui->messageTextEdit->clear();

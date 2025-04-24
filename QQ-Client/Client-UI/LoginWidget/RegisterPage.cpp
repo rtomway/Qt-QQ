@@ -1,5 +1,4 @@
 ﻿#include "RegisterPage.h"
-#include "RegisterPage.h"
 #include "ui_RegisterPage.h"
 #include <QFile>
 #include <QMouseEvent>

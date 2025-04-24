@@ -23,7 +23,7 @@ private:
 	QLabel* m_timeLab{};
 	QPushButton* m_okBtn{};
 	QPushButton* m_cancelBtn{};
-	std::unique_ptr<AddWidget> m_addWidget;
+	std::unique_ptr<AddWidget> m_addWidget{};
 	bool m_isReply = false;
 };
 

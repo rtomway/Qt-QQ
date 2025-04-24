@@ -11,6 +11,7 @@
 #include "Friend.h"
 #include "EventBus.h"
 #include "MessageSender.h"
+#include "LoginUserManager.h"
 
 
 AddFriendWidget::AddFriendWidget(QWidget* parent)
@@ -89,7 +90,7 @@ void AddFriendWidget::init()
 			{
 				QJsonObject serachObj;
 				serachObj["search_id"] = search_id;
-				serachObj["user_id"] = FriendManager::instance()->getOneselfID();
+				serachObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 				QJsonDocument doc(serachObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
 				MessageSender::instance()->sendHttpRequest("serachUser", data, "application/json");

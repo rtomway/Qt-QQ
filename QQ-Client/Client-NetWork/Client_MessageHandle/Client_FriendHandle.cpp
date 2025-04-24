@@ -2,6 +2,7 @@
 #include <QPixmap>
 
 #include "EventBus.h"
+#include "ImageUtil.h"
 
 void Client_FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -21,13 +22,16 @@ void Client_FriendHandle::handle_addFriend(const QJsonObject& paramsObject, cons
 
 void Client_FriendHandle::handle_newFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar";
-		avatar = QPixmap(":/picture/Resource/Picture/qq.png");
-	}
-	EventBus::instance()->emit newFriend(paramsObject, avatar);
+	auto user_id = paramsObject["user_id"].toString();
+	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
+		{
+			if (!result)
+			{
+				qDebug() << "头像保存失败";
+				return;
+			}
+			EventBus::instance()->emit newFriend(paramsObject);
+		});
 }
 
 void Client_FriendHandle::handle_rejectAddFriend(const QJsonObject& paramsObject, const QByteArray& data)

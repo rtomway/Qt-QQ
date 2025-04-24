@@ -27,16 +27,16 @@ public:
 	bool isConnected()const;
 	QWebSocket* getClientSocket()const;
 private:
-	QWebSocket* m_client;
-	bool m_isConnected;
-	MessageHandle m_messageHandle;
+	QWebSocket* m_client{};
+	bool m_isConnected{};
+	MessageHandle m_messageHandle{};
 	//后台线程
 	QThread* m_workerThread;
 	//回调函数
-	std::function<void(const QString&)> m_messageCallback;
-	std::function<void(const QString&)> m_errorCallback;
-	std::function<void()> m_connectedCallback;
-	std::function<void()> m_disconnectedCallback;
+	std::function<void(const QString&)> m_messageCallback{};
+	std::function<void(const QString&)> m_errorCallback{};
+	std::function<void()> m_connectedCallback{};
+	std::function<void()> m_disconnectedCallback{};
 private slots:
 	void onTextMessageReceived(const QString& message);
 	void onBinaryMessageReceived(const QByteArray& data);

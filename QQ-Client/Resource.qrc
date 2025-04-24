@@ -77,13 +77,13 @@
         <file>Resource/StyleSheet/LineEditwithButton.css</file>
         <file>Resource/StyleSheet/LoginWidget.css</file>
         <file>Resource/StyleSheet/MainWidget.css</file>
-        <file>Resource/StyleSheet/MessagePage.css</file>
         <file>Resource/StyleSheet/RegisterPage.css</file>
-        <file>Resource/StyleSheet/ContactList.css</file>
-        <file>Resource/StyleSheet/ContactPage.css</file>
         <file>Resource/StyleSheet/AddFriendWidget.css</file>
         <file>Resource/StyleSheet/NoticeWidget.css</file>
         <file>Resource/StyleSheet/SearchFriend.css</file>
         <file>Resource/StyleSheet/GroupInviteWidget.css</file>
+        <file>Resource/StyleSheet/ChatPage.css</file>
+        <file>Resource/StyleSheet/FriendProfilePage.css</file>
+        <file>Resource/StyleSheet/ContactListWidget.css</file>
     </qresource>
 </RCC>

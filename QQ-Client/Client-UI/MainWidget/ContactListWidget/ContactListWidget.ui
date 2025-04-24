@@ -123,7 +123,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="friendmanage">
+    <widget class="QPushButton" name="createFriendGrouping">
      <property name="text">
       <string>好友分组添加</string>
      </property>

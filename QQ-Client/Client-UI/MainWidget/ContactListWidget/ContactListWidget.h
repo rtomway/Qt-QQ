@@ -15,13 +15,14 @@ class GroupInviteWidget;
 namespace Ui { class ContactListWidget; }
 class ContactListWidget :public QWidget
 {
-	friend class GroupInviteWidget; // 允许 AnotherClass 访问私有成员
 	Q_OBJECT
+		friend class GroupInviteWidget; 
 public:
 	ContactListWidget(QWidget* parent = nullptr);
 	~ContactListWidget();
 private:
 	void init();
+	void externalSignals();
 public:
 	//分组获取
 	static QStringList getfGrouping();
@@ -51,12 +52,13 @@ private:
 	static QStringList m_fNamelist;
 	static QStringList m_gNamelist;
 	QButtonGroup m_buttonGroup{};
-	std::unique_ptr<CreateFriendgrouping>m_createFriendgrouping{};
+	CreateFriendgrouping*m_createFriendgrouping{};
 private:
 	int m_fNoticeUnreadCount = 0;
 	int m_gNoticeUnreadCount = 0;
 signals:
 	void clickedFriend(const QString& user_id);
+	void clickedGroup(const QString& group_id);
 	void friendNotice();
 	void groupNotice();
 	void updateFriendgrouping();

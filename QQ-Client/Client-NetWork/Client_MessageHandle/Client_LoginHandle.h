@@ -10,6 +10,8 @@ public:
 	void handle_loadFriendList(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loadFriendAvatars(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loadGroupList(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_loadGroupMember(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_loadGroupMemberAvatar(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loadGroupAvatars(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_registerSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 };

@@ -2,9 +2,11 @@
 #define CREATEFRIENDGROUPING
 
 #include <QWidget>
+#include "AngleRoundedWidget.h"
 
 namespace Ui { class CreateFriendgrouping; }
-class CreateFriendgrouping :public QWidget
+
+class CreateFriendgrouping :public AngleRoundedWidget
 {
 	Q_OBJECT
 public:

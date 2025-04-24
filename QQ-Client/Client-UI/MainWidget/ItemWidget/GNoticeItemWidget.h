@@ -28,7 +28,7 @@ private:
 	QLabel* m_timeLab{};
 	QPushButton* m_okBtn{};
 	QPushButton* m_cancelBtn{};
-	GroupNoticeType m_type;
+	GroupNoticeType m_type{};
 	bool m_isReply = false;
 };
 

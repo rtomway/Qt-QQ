@@ -1,5 +1,5 @@
-﻿#ifndef CONTACTDETAILWIDGET_H_
-#define CONTACTDETAILWIDGET_H_
+﻿#ifndef	FRIENDPROFILEDITWIDGET_H_
+#define FRIENDPROFILEDITWIDGET_H_
 
 #include <QWidget>
 #include <QJsonObject>
@@ -10,13 +10,13 @@
 #include "LineEditwithButton.h"
 #include "AngleRoundedWidget.h"
 
-namespace Ui { class ContactDetailWidget; }
+namespace Ui { class FriendProfileEditWidget; }
 
-class ContactDetailWidget :public AngleRoundedWidget
+class FriendProfileEditWidget :public AngleRoundedWidget
 {
 	Q_OBJECT
 public:
-	ContactDetailWidget(QWidget* parent = nullptr);
+	FriendProfileEditWidget(QWidget* parent = nullptr);
 	void init();
 private:
 	void updateAvatar();
@@ -33,14 +33,14 @@ private:
 	LineEditwithButton* m_provinceEdit{};
 	LineEditwithButton* m_areaEdit{};
 private:
-	QPixmap m_headPix;
+	QPixmap m_headPix{};
 	QString m_avatarOldPath{};
 	QString m_avatarNewPath{};
-	bool m_avatarIsChange{false};
+	bool m_avatarIsChange{ false };
 	QJsonObject m_json{};
 	QString m_userId{};
-	std::unique_ptr<QWidgetAction>m_calendarAction;
-	std::unique_ptr<QCalendarWidget>m_calendarWidget;
+	std::unique_ptr<QWidgetAction>m_calendarAction{};
+	std::unique_ptr<QCalendarWidget>m_calendarWidget{};
 public:
 	void setUser(const QJsonObject& obj);
 	const QJsonObject& getUser()const;
@@ -48,4 +48,4 @@ protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 };
 
-#endif // !CONTACTDETAILWIDGET_H_
+#endif // !FRIENDPROFILEDITWIDGET_H_

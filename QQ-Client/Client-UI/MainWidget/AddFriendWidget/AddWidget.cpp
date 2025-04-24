@@ -8,6 +8,8 @@
 #include "FriendManager.h"
 #include "ImageUtil.h"
 #include "ContactListWidget.h"
+#include "LoginUserManager.h"
+#include "PacketCreate.h"
 
 
 AddWidget::AddWidget(QWidget* parent)
@@ -66,24 +68,25 @@ void AddWidget::init()
 		{
 			if (m_isSend)//申请
 			{
-				auto oneselfID = FriendManager::instance()->getOneselfID();
-				auto oneself = FriendManager::instance()->findFriend(oneselfID);
-				auto paramsObject = oneself->getFriend().toVariantMap();
-				paramsObject["to"] = m_friendId;
-				paramsObject["message"] = ui->messageEdit->text();
-				paramsObject["noticeMessage"] = "请求加为好友";
-				paramsObject["grouping"] = m_grouping->getLineEditText();
-				MessageSender::instance()->sendMessage("addFriend", paramsObject);
+				auto& applicateFriendObj = LoginUserManager::instance()->getLoginUser()->getFriend();
+				applicateFriendObj["to"] = m_friendId;
+				applicateFriendObj["message"] = ui->messageEdit->text();
+				applicateFriendObj["noticeMessage"] = "请求加为好友";
+				applicateFriendObj["grouping"] = m_grouping->getLineEditText();
+
+				auto message = PacketCreate::textPacket("addFriend", applicateFriendObj);
+				MessageSender::instance()->sendMessage(message);
 			}
 			else  //添加
 			{
 				//用户信息
-				QVariantMap friendMap;
-				friendMap["to"] = m_friendId;
-				friendMap["user_id"] = FriendManager::instance()->getOneselfID();
-				friendMap["grouping"] = m_grouping->getLineEditText();
-				friendMap["replyMessage"] = "同意了你的好友申请";
-				MessageSender::instance()->sendMessage("friendAddSuccess", friendMap);
+				QJsonObject friendObj;
+				friendObj["to"] = m_friendId;
+				friendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				friendObj["grouping"] = m_grouping->getLineEditText();
+				friendObj["replyMessage"] = "同意了你的好友申请";
+				auto message = PacketCreate::textPacket("friendAddSuccess", friendObj);
+				MessageSender::instance()->sendMessage(message);
 			}
 			this->close();
 		});

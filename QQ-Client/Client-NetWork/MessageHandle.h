@@ -24,12 +24,12 @@ public:
 private:
 	void token(const QString& token);
 private:
-	Client_LoginHandle m_loginHandle;
-	Client_FriendHandle m_friendHandle;
-	Client_GroupHandle m_groupHandle;
-	Client_UserHandle m_userHandle;
+	Client_LoginHandle m_loginHandle{};
+	Client_FriendHandle m_friendHandle{};
+	Client_GroupHandle m_groupHandle{};
+	Client_UserHandle m_userHandle{};
 	//消息处理函数表
-	QHash<QString, std::function<void(const QJsonObject&, const QByteArray&)>> requestHash;
+	QHash<QString, std::function<void(const QJsonObject&, const QByteArray&)>> requestHash{};
 private:
 	void initRequestHash();
 signals:

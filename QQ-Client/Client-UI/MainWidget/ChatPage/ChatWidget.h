@@ -7,6 +7,7 @@
 #include "FriendChatPage.h"
 #include "GroupChatPage.h"
 #include "ChatPage.h"
+#include "MessageRecord.h"
 
 class ChatWidget :public QWidget
 {
@@ -16,10 +17,9 @@ public:
 public:
 	void loadChatPage(ChatType type, const QString& id);
 	bool isCurrentChat(ChatType type, const QString& id);
-	void updateReceiveMessage(const QString& user_id, const QString& message);
-	void updateReceiveMessage(const QString& user_id, const QPixmap& pixmap);
+	bool isStackedCurrentChat(ChatType type, const QString& id);
+	void updateReceiveMessage(const ChatMessage& chatMessage);
 	void clearChatWidget();
-	void updateChatMessage(ChatType type, const QString& sender_id, const QString& receiver_id, const QVariant& msg);
 private:
 	void init();
 	void initStackedWidget();
@@ -27,7 +27,7 @@ private:
 	QStackedWidget* m_stackedChatWidget{};
 	FriendChatPage* m_friendChatPage{};
 	GroupChatPage* m_groupChatPage{};
-	ChatPage* m_currentPage = nullptr;
+	ChatPage* m_currentPage{};
 };
 
 #endif // !CHATWIDGET_H_

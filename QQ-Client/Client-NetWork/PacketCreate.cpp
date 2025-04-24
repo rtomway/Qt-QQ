@@ -1,10 +1,25 @@
 ﻿#include "PacketCreate.h"
-
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDataStream>
 #include <QIODevice>
 
+#include "SConfigFile.h"
+
+//json文本包
+QString PacketCreate::textPacket(const QString& type, const QJsonObject& paramsObj)
+{
+	QJsonObject jsonData;
+	jsonData["type"] = type;
+	jsonData["params"] = paramsObj;
+	//token
+	SConfigFile config("config.ini");
+	jsonData["token"] = config.value("token").toString();
+	//发送Json数据
+	QJsonDocument doc(jsonData);
+	QString message = QString(doc.toJson(QJsonDocument::Compact));
+	return message;
+}
 //单个数据包
 QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& params, const QByteArray& data)
 {
@@ -68,4 +83,67 @@ QByteArray PacketCreate::allBinaryPacket(const QByteArray& packet)
 	stream << totalSize; // 先写入总大小
 	stream.writeRawData(packet.constData(), packet.size()); // 再写入用户数据
 	return allData;
+}
+//解析多个数据包
+QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
+{
+	//存储的结构体列表
+	QList<ParsedPacket> parsedPacketList;
+
+	QDataStream stream(allData);
+	stream.setByteOrder(QDataStream::BigEndian);
+	stream.setVersion(QDataStream::Qt_6_5);
+	// 1️⃣ 读取 `allData` 的总大小（4 字节）
+	if (allData.size() < sizeof(qint32)) {
+		qDebug() << "Incomplete packet: waiting for more data...";
+		return parsedPacketList;
+	}
+	qint32 totalSize;
+	stream >> totalSize;
+	qDebug() << "Total data size:" << totalSize;
+	
+	// 2️⃣ 开始循环解析多个数据包
+	while (!stream.atEnd())
+	{
+		if (allData.size() - stream.device()->pos() < sizeof(qint32)) {
+			qDebug() << "Incomplete packet header size!";
+			return parsedPacketList;
+		}
+		// 读取当前数据包的大小
+		qint32 packetSize;
+		stream >> packetSize;
+		if (allData.size() - stream.device()->pos() < packetSize) {
+			qDebug() << "Incomplete full packet!";
+			return parsedPacketList;
+		}
+		// 读取 JSON 头部大小
+		qint32 headerSize;
+		stream >> headerSize;
+		// 读取 JSON 头部
+		QByteArray headerData(headerSize, Qt::Uninitialized);
+		stream.readRawData(headerData.data(), headerSize);
+		// 解析 JSON
+		QJsonDocument jsonDoc = QJsonDocument::fromJson(headerData);
+		if (jsonDoc.isNull()) {
+			qDebug() << "Invalid JSON data!";
+			return parsedPacketList;
+		}
+		//数据
+		QJsonObject jsonObj = jsonDoc.object();
+		QString type = jsonObj["type"].toString();
+		QJsonObject params = jsonObj["params"].toObject();
+		qDebug() << "Received packet type:" << type;
+		qDebug() << "Params:" << params;
+		// 读取二进制数据（图片）
+		int imageSize = params["size"].toInt();
+		QByteArray imageData(imageSize, Qt::Uninitialized);
+		stream.readRawData(imageData.data(), imageSize);
+		//存储的结构体
+		ParsedPacket parsedPacket;
+		parsedPacket.params = params;
+		parsedPacket.type = type;
+		parsedPacket.data = imageData;
+		parsedPacketList.append(parsedPacket);
+	}
+	return parsedPacketList;
 }

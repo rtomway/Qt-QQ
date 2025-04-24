@@ -5,6 +5,7 @@
 
 #include "MessageSender.h"
 #include "SConfigFile.h"
+#include "PacketCreate.h"
 
 Client::Client(QObject* parent)
 	:QObject(parent)
@@ -40,9 +41,10 @@ Client::Client(QObject* parent)
 				->Connected([=]
 					{
 						SConfigFile config("config.ini");
-						QVariantMap connectMap;
-						connectMap["user_id"] = config.value("user_id");
-						MessageSender::instance()->sendMessage("login", connectMap);
+						QJsonObject connectObj;
+						connectObj["user_id"] = config.value("user_id").toString();
+						auto message = PacketCreate::textPacket("login", connectObj);
+						MessageSender::instance()->sendMessage(message);
 					});
 		});
 }

@@ -6,6 +6,8 @@
 #include "FriendManager.h"
 #include "MessageSender.h"
 #include "EventBus.h"
+#include "LoginUserManager.h"
+#include "PacketCreate.h"
 
 
 FriendSetWidget::FriendSetWidget(QWidget* parent)
@@ -41,10 +43,11 @@ void FriendSetWidget::init()
 			this->hide();
 			//数据更新
 			EventBus::instance()->deleteFriend(m_userId);
-			QVariantMap deleteMap;
-			deleteMap["user_id"] = FriendManager::instance()->getOneselfID();
-			deleteMap["friend_id"] = m_userId;
-			MessageSender::instance()->sendMessage("deleteFriend", deleteMap);
+			QJsonObject deleteObj;
+			deleteObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+			deleteObj["friend_id"] = m_userId;
+			auto message = PacketCreate::textPacket("deleteFriend", deleteObj);
+			MessageSender::instance()->sendMessage(message);
 		});
 }
 

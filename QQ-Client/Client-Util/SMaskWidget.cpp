@@ -128,11 +128,11 @@ void SMaskWidget::resizeEvent(QResizeEvent* ev)
 }
 void SMaskWidget::onResize()
 {
-	if (m_currentPopUp)
+	/*if (m_currentPopUp)
 	{
 		m_currentPopUp->setFixedHeight(580);
 		m_currentPopUp->setFixedWidth(540);
-	}
+	}*/
 }
 
 

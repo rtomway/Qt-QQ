@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
 	mainwindow.show();
 
 
+
 	// 程序退出时调试内存泄漏
 	int ret = a.exec();
 

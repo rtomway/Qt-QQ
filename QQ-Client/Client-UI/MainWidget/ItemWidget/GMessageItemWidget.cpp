@@ -26,6 +26,7 @@ void GMessageItemWidget::init()
 				background-color:red;
 			)");
 	m_countLab->setAlignment(Qt::AlignCenter);
+	m_countLab->setVisible(false);
 	ui->preMessageLab->setText(QString());
 }
 //设置item窗口

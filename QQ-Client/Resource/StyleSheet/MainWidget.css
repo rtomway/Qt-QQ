@@ -1,5 +1,7 @@
 ﻿/*窗口*/
 QWidget#MainWidget {
+    background-color: rgb(240,240,240);
+    border: none;
     border-radius: 10px;
 }
 QWidget#leftWidget {
@@ -44,7 +46,7 @@ QPushButton#expandBtn:hover {
 QPushButton#exitBtn:hover {
     background-color: red
 }
-QPushButton#fileBtn {
+/*QPushButton#fileBtn {
     border-image: url(:/icon/Resource/Icon/file_2.png);
 }
     QPushButton#fileBtn:hover {
@@ -55,7 +57,7 @@ QPushButton#collectBtn {
 }
     QPushButton#collectBtn:hover {
         border-image: url(:/icon/Resource/Icon/collect_hover.png);
-    }
+    }*/
 QPushButton#otherBtn {
     border-image: url(:/icon/Resource/Icon/more_1.png);
 }

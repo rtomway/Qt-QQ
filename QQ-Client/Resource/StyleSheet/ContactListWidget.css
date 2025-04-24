@@ -14,7 +14,7 @@ QPushButton#friendmanage {
     
 }
 
-QPushButton#friendmanage:hover {
+QPushButton#createFriendGrouping:hover {
     background-color: rgb(240,240,240);
 }
 
@@ -39,17 +39,12 @@ QLabel {
     font: 13px;
 }
 
-QLabel:hover {
-    background-color: rgb(240,240,240);
-}
-
 QLabel#friendNoticeCountLab {
     border: none;
     border-radius: 9px;
     color: white;
     background-color: red;
 }
-
 QLabel#groupNoticeCountLab {
     border: none;
     border-radius: 9px;
@@ -63,35 +58,32 @@ QTreeWidget {
     font: 15px;
     background-color: transparent;
 }
-
 QTreeWidget::item {
     height: 30px;
     font: 15px;
     background-color: transparent;
 }
-
+QTreeWidget QWidget{
+    background-color: transparent;
+}
 QTreeWidget::item:hover {
     background-color: rgb(240,240,240);
 }
-
 QTreeWidget QScrollBar:vertical {
     border: none;
     background-color: transparent;
     width: 8px;
 }
-
 QTreeWidget QScrollBar::handle:vertical {
     border: none;
     background-color: transparent;
     border-radius: 3px;
     min-height: 2px;
 }
-
 QTreeWidget QScrollBar::add-line:vertical {
     border: 0px;
     height: 0px;
 }
-
 QTreeWidget QScrollBar::sub-line:vertical {
     border: 0px;
     height: 0px;

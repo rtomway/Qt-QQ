@@ -40,42 +40,29 @@ void MessageSender::disConnect()
 	m_client->disconnect();
 }
 //Web发送文本消息
-void MessageSender::sendMessage(const QString& type, const QVariantMap& params)
+void MessageSender::sendMessage(const QString& message)
 {
-	if (m_client->isConnected())
-	{
-		QJsonObject jsonData;
-		jsonData["type"] = type;
-		//QVariantMap转为QJsonObject
-		QJsonObject paramsObject;
-		for (auto it = params.begin(); it != params.end(); it++)
-		{
-			//将不同类型数据转为Json
-			paramsObject[it.key()] = QJsonValue::fromVariant(it.value());
-		}
-		jsonData["params"] = paramsObject;
-		//token
-		SConfigFile config("config.ini");
-		jsonData["token"] = config.value("token").toString();
-		//发送Json数据
-		QJsonDocument doc(jsonData);
-		QString message = QString(doc.toJson(QJsonDocument::Compact));
-		m_client->getClientSocket()->sendTextMessage(message);
-	}
-	else
+	if (!m_client->isConnected())
 	{
 		qWarning() << "数据发送失败 连接已断开......";
+		return;
 	}
+	m_client->getClientSocket()->sendTextMessage(message);
 }
 //Web发送二进制数据
 void MessageSender::sendBinaryData(const QByteArray& data)
 {
+	if (!m_client->isConnected())
+	{
+		qWarning() << "数据发送失败 连接已断开......";
+		return;
+	}
 	m_client->getClientSocket()->sendBinaryMessage(data);
 }
 //发送http请求
-void MessageSender::sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type)
+void MessageSender::sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type,HttpCallback callBack)
 {
-	emit sendHttpRequestToThread(type, data, Content_type);
+	emit sendHttpRequestToThread(type, data, Content_type, callBack);
 }
 
 

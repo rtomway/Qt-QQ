@@ -1,9 +1,4 @@
 ﻿#include "FriendHandle.h"
-#include "FriendHandle.h"
-#include "FriendHandle.h"
-#include "FriendHandle.h"
-#include "FriendHandle.h"
-#include "FriendHandle.h"
 #include <QJsonArray>
 #include <QJsonDocument>
 
@@ -40,8 +35,6 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
 	qDebug() << "发送了申请信息";
 }
-
-
 //文字交流
 void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {

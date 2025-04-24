@@ -20,6 +20,7 @@ public:
 	const QString& getUserId();
 	void setChecked(bool isCheck);
 	bool isChecked();
+	void setEnabled(bool status);
 private:
 	void init();
 private:

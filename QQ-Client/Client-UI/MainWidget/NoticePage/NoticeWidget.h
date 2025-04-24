@@ -25,6 +25,7 @@ private:
 	void addNoticeItem(const QString& id, ChatType type,bool isReply);
 public:
 	void setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget);
+	void clearNoticeWidget();
 private:
 	QStackedWidget* m_stackedWidget{};
 	QListWidget* m_friendNoticeList{};

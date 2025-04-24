@@ -39,7 +39,7 @@ QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantL
                 {
                     queryObj[fieldName] = query->value(i).toDate().toString("MM-dd");
                 }
-                else if (fieldName == "age" || fieldName == "gender")
+                else if (fieldName == "age" || fieldName == "gender"|| fieldName == "groupMemberCount")
                 {
                     queryObj[fieldName] = query->value(i).toInt();
                 }

@@ -24,16 +24,18 @@ private:
 public:
 	//重写
 	void setChatWidget(const QString& id);
-	void storeMessage(const QString& sender_id, const QString& receiver_id, const std::shared_ptr<MessageRecord>& message);
-	bool isCurrentChat(const QString& id, ChatType type) const;
+	void refreshChatWidget()override;
+	bool isCurrentChat(const QString& id) const;
 	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
 	void createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
+	void insertTipMessage(const QString& text);
+	void clearChatPage();
 private:
 	void sendImageMessageToServer(const QString& user_id, const QPixmap& headPix);
 	void sendTextMessageToServer(const QString& user_id, const QPixmap& headPix);
 private:
 	QSharedPointer<Group>m_group{};
-	std::shared_ptr<ChatRecordMessage>m_chat;
+	std::shared_ptr<ChatRecordMessage>m_chat{};
 private:
 	QStringList m_imageMessagePath{};
 	QString m_textMessage{};

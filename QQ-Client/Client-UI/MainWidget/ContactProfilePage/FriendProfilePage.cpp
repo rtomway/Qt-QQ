@@ -1,5 +1,5 @@
-﻿#include "ContactPage.h"
-#include "ui_ContactPage.h"
+﻿#include "FriendProfilePage.h"
+#include "ui_FriendProfilePage.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QToolButton>
@@ -10,17 +10,18 @@
 #include "FriendManager.h"
 #include "MessageSender.h"
 #include "AvatarManager.h"
+#include "LoginUserManager.h"
 
 
-ContactPage::ContactPage(QWidget* parent)
+FriendProfilePage::FriendProfilePage(QWidget* parent)
 	:AngleRoundedWidget(parent)
-	, ui(new Ui::ContactPage)
-	, m_detailEditWidget(new ContactDetailWidget)
-	, m_oneself(nullptr)
+	, ui(new Ui::FriendProfilePage)
+	, m_detailEditWidget(new FriendProfileEditWidget)
+	, m_friend(nullptr)
 {
 	ui->setupUi(this);
 	init();
-	QFile file(":/stylesheet/Resource/StyleSheet/ContactPage.css");
+	QFile file(":/stylesheet/Resource/StyleSheet/FriendProfilePage.css");
 	if (file.open(QIODevice::ReadOnly))
 	{
 		this->setStyleSheet(file.readAll());
@@ -31,13 +32,13 @@ ContactPage::ContactPage(QWidget* parent)
 	}
 	this->setWindowFlag(Qt::FramelessWindowHint);
 }
-ContactPage::~ContactPage()
+FriendProfilePage::~FriendProfilePage()
 {
 	delete ui;
 }
-void ContactPage::init()
+void FriendProfilePage::init()
 {
-	this->setObjectName("ContactPage");
+	this->setObjectName("FriendProfilePage");
 
 	ui->headLab->setPixmap(ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/h2.jpg"), QSize(100, 100)));
 	ui->nameLab->setText("哈哈");
@@ -56,7 +57,7 @@ void ContactPage::init()
 	ui->signaltureBtn->setIcon(QIcon(":/icon/Resource/Icon/signalture.png"));
 	//获取好友分组
 	auto groupingName = ContactListWidget::getfGrouping();
-	for (auto name : groupingName)
+	for (auto& name : groupingName)
 	{
 		ui->groupcomBox->addItem(name);
 	}
@@ -74,13 +75,13 @@ void ContactPage::init()
 			auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
 			int x = (mainWidgetSize.width() - m_detailEditWidget->width()) / 2;
 			int y = (mainWidgetSize.height() - m_detailEditWidget->height()) / 2;
-			SMaskWidget::instance()->setPopGeometry(QRect(x, y, this->width(), this->height()));
+			SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_detailEditWidget->width(), m_detailEditWidget->height()));
 		});
 	//更新用户信息
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
 			qDebug() << "------------user_id:" << user_id;
-			this->setUser(user_id);
+			this->setFriendProfile(user_id);
 		});
 	//更新用户头像
 	connect(AvatarManager::instance(), &AvatarManager::UpdateUserAvatar, this, [=](const QString& user_id)
@@ -99,7 +100,7 @@ void ContactPage::init()
 			{
 				this->hide();
 			}
-			FriendManager::instance()->emit chatWithFriend(m_friendId);
+			emit chatWithFriend(m_friendId);
 		});
 	//分组改变
 	connect(ui->groupcomBox, &QComboBox::currentIndexChanged, [=](int index)
@@ -107,13 +108,13 @@ void ContactPage::init()
 			if (m_isBlockedComboBox)
 				return;
 			auto grouping = ui->groupcomBox->itemText(index);
-			if (m_oneself && !grouping.isEmpty())
+			if (m_friend && !grouping.isEmpty())
 			{
-				auto oldGrouping = m_oneself->getGrouping();
-				m_oneself->setGrouping(grouping);
+				auto& oldGrouping = m_friend->getGrouping();
+				m_friend->setGrouping(grouping);
 				FriendManager::instance()->emit updateFriendGrouping(m_friendId, oldGrouping);
 				//发送给服务端
-				auto user_id = FriendManager::instance()->getOneselfID();
+				auto& user_id = LoginUserManager::instance()->getLoginUserID();
 				QJsonObject groupingObj;
 				groupingObj["user_id"] = user_id;
 				groupingObj["friend_id"] = m_friendId;
@@ -125,7 +126,7 @@ void ContactPage::init()
 		});
 }
 //更新好友分组
-void ContactPage::updateFriendgrouping()
+void FriendProfilePage::updateFriendgrouping()
 {
 	ui->groupcomBox->clear();
 	auto groupingName = ContactListWidget::getfGrouping();
@@ -135,19 +136,18 @@ void ContactPage::updateFriendgrouping()
 	}
 }
 //用户设置
-void ContactPage::setUser(const QString& user_id)
+void FriendProfilePage::setFriendProfile(const QString& user_id)
 {
 	//m_oneself为空或id不等,存入新的Friend
-	if (!m_oneself || m_oneself->getFriendId() != user_id)
+	if (!m_friend || m_friend->getFriendId() != user_id)
 	{
-		m_oneself = FriendManager::instance()->findFriend(user_id);
+		m_friend = FriendManager::instance()->findFriend(user_id);
 	}
 	//获取friend信息
 	m_friendId = user_id;
-	qDebug() << "ContactPage,m_friendId" << m_friendId;
-	m_json = m_oneself->getFriend();
+	m_json = m_friend->getFriend();
 	//未设置信息隐藏
-	if (FriendManager::instance()->getOneselfID() != m_friendId)
+	if (LoginUserManager::instance()->getLoginUserID() != m_friendId)
 	{
 		ui->editdetailBtn->setVisible(false);
 	}
@@ -217,9 +217,9 @@ void ContactPage::setUser(const QString& user_id)
 	m_isBlockedComboBox = false;
 }
 //清空
-void ContactPage::clearWidget()
+void FriendProfilePage::clearWidget()
 {
-	m_oneself = nullptr;
+	m_friend = nullptr;
 	//退出后禁止信号
 	m_isBlockedComboBox = true;
 }

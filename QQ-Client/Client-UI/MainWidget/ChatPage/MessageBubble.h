@@ -33,19 +33,19 @@ protected:
 	int realLineNumber()const;		//消息文本实际行数(不能完全显示，换行之后的)
 private:
 	BubbleType	m_type = BubbleTextRight;
-	QRect		m_profileRect;		//头像矩形
-	QRect		m_bubbleRect;		//气泡矩形
+	QRect		m_profileRect{};		//头像矩形
+	QRect		m_bubbleRect{};		//气泡矩形
 	int			m_textMargin = 10;	//文本距离气泡左边的距离
-	QRect		m_textRect;			//文本矩形
+	QRect		m_textRect{};			//文本矩形
 
 	int _xOffset = -3;
 	int _yOffset = 0;
 
-	QPixmap m_head_img;
-	QString m_message;
-	QPixmap m_image;
-	QString m_groupMemberName;
-	QString m_groupRole;
+	QPixmap m_head_img{};
+	QString m_message{};
+	QPixmap m_image{};
+	QString m_groupMemberName{};
+	QString m_groupRole{};
 };
 
 

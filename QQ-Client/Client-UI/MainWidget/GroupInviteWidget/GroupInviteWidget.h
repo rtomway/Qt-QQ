@@ -41,7 +41,7 @@ private:
 	Ui::GroupInviteWidget* ui{};
 	QTreeWidget* m_friendTree{};
 	QListWidget* m_searchList{};
-	QString m_groupId;
+	QString m_groupId{};
 	QStringList m_selectedList{};
 };
 

@@ -22,18 +22,20 @@ public:
 public:
 	//重写
 	void setChatWidget(const QString& id);
-	void storeMessage(const QString& sender_id, const QString& receiver_id, const std::shared_ptr<MessageRecord>& message);
-	bool isCurrentChat(const QString& id, ChatType type) const;
+	void refreshChatWidget()override;
+	bool isCurrentChat(const QString& id) const;
 	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
 	void createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
+	void insertTipMessage(const QString& text);
+	void clearChatPage();
 private:
 	void init();
 	void installEventFilterForChildren(QWidget* parent);
-	void sendImageMessageToServer(const QString&user_id,const QPixmap&pixmap);
+	void sendImageMessageToServer(const QString& user_id, const QPixmap& pixmap);
 	void sendTextMessageToServer(const QString& user_id, const QPixmap& pixmap);
 private:
 	QSharedPointer<Friend>m_friend{};
-	std::shared_ptr<ChatRecordMessage>m_chat;
+	std::shared_ptr<ChatRecordMessage>m_chat{};
 	FriendSetWidget* m_setWidget{};
 	QPropertyAnimation* m_animation{};
 protected:

@@ -1,16 +1,15 @@
-#ifndef ROTATIONLABEL
+﻿#ifndef ROTATIONLABEL
 #define ROTATIONLABEL
 
 #include <QLabel>
 #include <QPainter>
 #include <QPropertyAnimation>
-#include <QTransform>
 #include <QMouseEvent>
 
 class RotationLabel :public QLabel
 {
 	Q_OBJECT
-	Q_PROPERTY(qreal rotation READ rotation WRITE setRotation)
+		Q_PROPERTY(qreal rotation READ rotation WRITE setRotation)
 public:
 	RotationLabel(QWidget* parent = nullptr);
 	qreal rotation()const;
@@ -18,7 +17,7 @@ public:
 	void setAgale();
 private:
 	qreal m_rotation{};
-	QPropertyAnimation* m_animation;
+	QPropertyAnimation* m_animation{};
 	bool m_agale{};
 protected:
 	void paintEvent(QPaintEvent* event) override;

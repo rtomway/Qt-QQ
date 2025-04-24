@@ -1,11 +1,14 @@
 ﻿#include "GNoticeItemWidget.h"
 #include "ui_ItemWidget.h"
+#include <QBoxLayout>
+
 #include "TempManager.h"
 #include "AvatarManager.h"
 #include "FriendManager.h"
 #include "ImageUtil.h"
+#include "LoginUserManager.h"
 #include "MessageSender.h"
-#include <QBoxLayout>
+#include "PacketCreate.h"
 
 GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 	:ItemWidget(parent)
@@ -23,14 +26,16 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 			m_okBtn->setEnabled(false);
 			if (m_type == GroupNoticeType::GroupInvite)
 			{
-				QVariantMap groupInviteMap;
-				auto loginUser = FriendManager::instance()->findFriend(FriendManager::instance()->getOneselfID());
-				groupInviteMap["user_id"] = loginUser->getFriendId();
-				groupInviteMap["username"] = loginUser->getFriendName();
-				groupInviteMap["group_id"] = m_json["group_id"].toString();
-				groupInviteMap["groupOwerId"] = m_json["user_id"].toString();
-				groupInviteMap["group_name"] = m_json["group_name"].toString();
-				MessageSender::instance()->sendMessage("groupInviteSuccess", groupInviteMap);
+				QJsonObject groupInviteObj;
+				auto& loginUser = LoginUserManager::instance()->getLoginUser();
+				groupInviteObj["user_id"] = loginUser->getFriendId();
+				groupInviteObj["username"] = loginUser->getFriendName();
+				groupInviteObj["group_id"] = m_json["group_id"].toString();
+				groupInviteObj["groupOwerId"] = m_json["user_id"].toString();
+				groupInviteObj["group_name"] = m_json["group_name"].toString();
+				groupInviteObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+				auto message = PacketCreate::textPacket("groupInviteSuccess", groupInviteObj);
+				MessageSender::instance()->sendMessage(message);
 			}
 			else if (m_type == GroupNoticeType::GroupRequestAdd)
 			{

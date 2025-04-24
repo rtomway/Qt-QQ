@@ -1,6 +1,7 @@
 ﻿#include "FMessageItemWidget.h"
 #include "ui_ItemWidget.h"
 #include <QBoxLayout>
+#include <QPointer>
 
 #include "ImageUtil.h"
 #include "AvatarManager.h"
@@ -12,6 +13,10 @@ FMessageItemWidget::FMessageItemWidget(QWidget* parent)
 	, m_countLab(new QLabel("dfasdf", this))
 {
 	init();
+}
+FMessageItemWidget::~FMessageItemWidget()
+{
+
 }
 void FMessageItemWidget::init()
 {
@@ -27,6 +32,7 @@ void FMessageItemWidget::init()
 				background-color:red;
 			)");
 	m_countLab->setAlignment(Qt::AlignCenter);
+	m_countLab->setVisible(false);
 	ui->preMessageLab->setVisible(false);
 }
 //设置item窗口
@@ -49,9 +55,11 @@ void FMessageItemWidget::setItemWidget(const QString& user_id)
 	ui->nameLab->setText(m_friendJson["username"].toString());
 	//最新消息
 	if (!m_unReadMesssage.isEmpty())
+	{
 		ui->afterMessageLab->setText(m_unReadMesssage.last());
-	m_countLab->setText(QString::number(m_unReadMesssage.count()));
-	m_timeLab->setText(m_lastTime);
+		m_countLab->setText(QString::number(m_unReadMesssage.count()));
+		m_timeLab->setText(m_lastTime);
+	}
 }
 //清空未读消息
 void FMessageItemWidget::clearUnRead()

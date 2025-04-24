@@ -25,6 +25,7 @@ void ChatWidget::initStackedWidget()
 	m_stackedChatWidget->addWidget(m_friendChatPage);
 	m_stackedChatWidget->addWidget(m_groupChatPage);
 }
+//会话界面加载
 void ChatWidget::loadChatPage(ChatType type, const QString& id)
 {
 	switch (type)
@@ -43,38 +44,70 @@ void ChatWidget::loadChatPage(ChatType type, const QString& id)
 		break;
 	}
 }
-
+//判断当前加载界面id是否对应
 bool ChatWidget::isCurrentChat(ChatType type, const QString& id)
 {
-	return m_currentPage->isCurrentChat(id, type);
+	bool isCurrentChat = false;
+	switch (type)
+	{
+	case ChatType::User:
+		isCurrentChat = m_friendChatPage->isCurrentChat(id);
+		break;
+	case ChatType::Group:
+		isCurrentChat = m_groupChatPage->isCurrentChat(id);
+		break;
+	default:
+		isCurrentChat = false;
+		break;
+	}
+	return isCurrentChat;
 }
-
-void ChatWidget::updateReceiveMessage(const QString& user_id, const QString& message)
+//判断当前界面m_current
+bool ChatWidget::isStackedCurrentChat(ChatType type, const QString& id)
 {
-	if (m_currentPage)
-		m_currentPage->updateReciveMessage(user_id, message);
+	bool isStackedCurrentChat = false;
+	switch (type)
+	{
+	case ChatType::User:
+		if (m_currentPage == m_friendChatPage && m_friendChatPage->isCurrentChat(id))
+		{
+			isStackedCurrentChat = true;
+		}
+		break;
+	case ChatType::Group:
+		if (m_currentPage == m_groupChatPage && m_groupChatPage->isCurrentChat(id))
+		{
+			isStackedCurrentChat = true;
+		}
+		break;
+	default:
+		break;
+	}
+	return isStackedCurrentChat;
 }
-
-void ChatWidget::updateReceiveMessage(const QString& user_id, const QPixmap& pixmap)
+//当前界面接收消息
+void ChatWidget::updateReceiveMessage(const ChatMessage& chatMessage)
 {
-	if (m_currentPage)
-		m_currentPage->updateReciveMessage(user_id, pixmap);
-}
+	auto& send_id = chatMessage.sendId;
+	auto& messageType = chatMessage.messageType;
+	auto& messageData = chatMessage.data;
+	switch (chatMessage.chatType)
+	{
+	case ChatType::User:
+		m_friendChatPage->updateReceiveMessage(send_id, messageData, messageType);
+		break;
+	case ChatType::Group:
+		m_groupChatPage->updateReceiveMessage(send_id, messageData, messageType);
+		break;
+	default:
 
+		break;
+	}
+}
+//清除会话界面
 void ChatWidget::clearChatWidget()
 {
-	if (m_currentPage)
-		m_currentPage->clearMessageWidget();
+	m_friendChatPage->clearChatPage();
+	m_groupChatPage->clearChatPage();
 }
 
-void ChatWidget::updateChatMessage(ChatType type, const QString& sender_id, const QString& receiver_id, const QVariant& msg)
-{
-	if (type == ChatType::User)
-	{
-		m_friendChatPage->updateChatMessage(sender_id, receiver_id, msg);
-	}
-	else if (type == ChatType::Group)
-	{
-		m_groupChatPage->updateChatMessage(sender_id, receiver_id, msg);
-	}
-}

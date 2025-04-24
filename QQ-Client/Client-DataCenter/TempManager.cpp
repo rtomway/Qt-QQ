@@ -77,22 +77,22 @@ void TempManager::addFriendReply(const QString& id, const QJsonObject& replyInfo
 {
 	// 检查好友请求是否已存在，如果存在则不重复添加
 	//if (!m_tempFriendReplys.contains(id)) {
-		TempReplyInfo reply;
-		reply.replyData = replyInfo;
-		reply.avatar = pixmap;
-		m_tempFriendReplys[id] = reply;
-		qDebug() << "Added friend Reply for user ID:" << id;
+	TempReplyInfo reply;
+	reply.replyData = replyInfo;
+	reply.avatar = pixmap;
+	m_tempFriendReplys[id] = reply;
+	qDebug() << "Added friend Reply for user ID:" << id;
 	//}
 }
 void TempManager::addGroupReply(const QString& id, const QJsonObject& replyInfo, const QPixmap& pixmap)
 {
 	// 检查群组回复是否已存在，如果存在则不重复添加
 	//if (!m_tempFriendReplys.contains(id)) {
-		TempReplyInfo reply;
-		reply.replyData = replyInfo;
-		reply.avatar = pixmap;
-		m_tempGroupReplys[id] = reply;
-		qDebug() << "Added Group Reply for user ID:" << id;
+	TempReplyInfo reply;
+	reply.replyData = replyInfo;
+	reply.avatar = pixmap;
+	m_tempGroupReplys[id] = reply;
+	qDebug() << "Added Group Reply for user ID:" << id;
 	//}
 }
 // 获取临时回复的详细信息
