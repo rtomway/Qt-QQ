@@ -1,5 +1,6 @@
 ﻿#include "AvatarManager.h"
 #include <QFile>
+#include <QDir>
 
 #include "ImageUtil.h"
 #include "EventBus.h"

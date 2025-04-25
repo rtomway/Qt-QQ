@@ -14,9 +14,8 @@ MessageSender* MessageSender::instance()
 	return &ins;
 }
 MessageSender::MessageSender()
-	:m_workerThread(new QThread(this))
+	: m_workerThread(new QThread(this))
 	, m_httpWorker(new HttpWorker)
-	, m_networkManager(new QNetworkAccessManager(this))
 {
 	//后台线程处理消息
 	m_httpWorker->moveToThread(m_workerThread);
@@ -60,7 +59,7 @@ void MessageSender::sendBinaryData(const QByteArray& data)
 	m_client->getClientSocket()->sendBinaryMessage(data);
 }
 //发送http请求
-void MessageSender::sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type,HttpCallback callBack)
+void MessageSender::sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack)
 {
 	emit sendHttpRequestToThread(type, data, Content_type, callBack);
 }

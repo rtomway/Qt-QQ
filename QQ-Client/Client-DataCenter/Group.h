@@ -26,8 +26,8 @@ public:
 	const QString& getGroupOwerId()const;
 	const QString& getGroupName()const;
 	const QString& getGrouping()const;
-	const Member& getMember(const QString& member_id)const;
-	const QStringList& getGroupMembersIdList()const;
+	Member getMember(const QString& member_id)const;
+	QStringList getGroupMembersIdList()const;
 	const QHash<QString, Member>& getMembers() const;
 	const int& count()const;
 	//群组操作

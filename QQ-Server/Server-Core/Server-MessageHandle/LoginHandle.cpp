@@ -120,7 +120,6 @@ void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByt
 		QJsonObject friendObj = friendValue.toObject();
 		friendObj.remove("password");
 		friendObj["grouping"] = friendObj["Fgrouping"].toString();
-		qDebug() << "--------------------------loadFriend------------------------" << friendObj;
 		friendListArray.append(friendObj);
 	}
 	QJsonObject friendListObj;
@@ -155,7 +154,6 @@ void LoginHandle::handle_loadGroupList(const QJsonObject& paramsObj, const QByte
 	for (auto groupValue : groupArray)
 	{
 		auto groupObj = groupValue.toObject();
-		qDebug() << "群人数:" << groupObj["groupMemberCount"].toInt();
 		groupListArray.append(groupObj);
 	}
 	QJsonObject loadGroupListObj;
@@ -188,7 +186,6 @@ void LoginHandle::handle_loadGroupMember(const QJsonObject& paramsObj, const QBy
 		//获取群成员
 		QJsonObject memberObj = memberValue.toObject();
 		groupMemberArray.append(memberObj);
-		qDebug() << "服务端-----------群臣元--------" << memberObj;
 	}
 	QJsonObject groupMemberObj;
 	groupMemberObj["groupMemberArray"] = groupMemberArray;
@@ -237,6 +234,7 @@ void LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObj, const QB
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+//加载好友头像
 void LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	auto friend_IdArray = paramsObj["friend_ids"].toArray();
@@ -279,7 +277,6 @@ QJsonArray LoginHandle::getFriendsMessage(const QString& user_id)
 		QJsonObject userObj = userValue.toObject();
 		userObj.remove("password");
 		userObj["grouping"] = userObj["Fgrouping"].toString();
-		qDebug() << "好友信息---------------------" << userObj;
 		friendArray.append(userObj);
 	}
 	return friendArray;

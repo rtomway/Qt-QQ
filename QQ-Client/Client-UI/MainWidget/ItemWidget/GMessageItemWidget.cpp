@@ -75,7 +75,7 @@ void GMessageItemWidget::updateUnReadMessage(const QString& user_id, const QStri
 	}
 	m_countLab->setVisible(true);
 	m_lastTime = time;
-	auto& member = m_group->getMember(user_id);
+	auto member = m_group->getMember(user_id);
 	m_sender = member.member_name;
 }
 

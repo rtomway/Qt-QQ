@@ -34,7 +34,6 @@ private:
 	Client* m_client{};
 	QThread* m_workerThread{};
 	HttpWorker* m_httpWorker{};
-	QNetworkAccessManager* m_networkManager{};
 signals:
 	void sendHttpRequestToThread(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack);
 	void httpTextResponseReceived(const QByteArray& data);

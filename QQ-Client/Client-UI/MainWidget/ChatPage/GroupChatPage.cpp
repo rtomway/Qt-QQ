@@ -206,7 +206,7 @@ void GroupChatPage::sendTextMessageToServer(const QString& user_id, const QPixma
 //消息气泡
 void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
-	auto& member = m_group->getMember(user_id);
+	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
 	qDebug() << "*************************************接收群组图片消息:" << memberName;
@@ -219,7 +219,7 @@ void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixma
 }
 void GroupChatPage::createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
-	auto& member = m_group->getMember(user_id);
+	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
 	qDebug() << "member:" << memberName << memberRole;

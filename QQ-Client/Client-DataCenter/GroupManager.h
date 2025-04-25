@@ -29,7 +29,7 @@ private:
 	explicit GroupManager();
 	void loadGroupInfoFromServer(const QString& group_id, const QString& requestType);
 	void loadGroupAvatarFromServer(const QStringList& group_idList, const QString& requestType);
-	void ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback);
+	void ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback)const;
 private:
 	QHash<QString, QSharedPointer<Group>> m_groups{};
 signals:
@@ -39,7 +39,7 @@ signals:
 	void newGroupMember(const QString& group_id, const QString& user_id);
 	void loadGroupListSuccess();
 	void groupTextCommunication(const QJsonObject& obj);
-	void groupPictureCommunication(const QJsonObject& obj,const QPixmap&pixmap);
+	void groupPictureCommunication(const QJsonObject& obj, const QPixmap& pixmap);
 };
 
 #endif // !GROUPMANAGER_H_

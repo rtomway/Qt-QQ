@@ -1,5 +1,4 @@
 ﻿#include "Client_GroupHandle.h"
-#include "Client_GroupHandle.h"
 #include <QPixmap>
 
 #include "ImageUtil.h"
@@ -11,23 +10,26 @@ void Client_GroupHandle::handle_createGroupSuccess(const QJsonObject& paramsObje
 	auto group_id = paramsObject["group_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=](bool result)
 		{
-			if(result)
-			EventBus::instance()->emit createGroupSuccess(paramsObject);
+			if (result)
+				EventBus::instance()->emit createGroupSuccess(paramsObject);
 		});
-	
+
 }
 void Client_GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	auto user_id = paramsObject["user_id"].toString();
-	qDebug() << "群聊邀请";
-	// 1️⃣ 把 QByteArray 转换成 QPixmap
-	QPixmap avatar;
-	if (!avatar.loadFromData(data))  // 从二进制数据加载图片
-	{
-		qWarning() << "Failed to load avatar for user:" << user_id;
-		return;
-	}
-	EventBus::instance()->emit groupInvite(paramsObject, avatar);
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+		auto user_id = paramsObject["user_id"].toString();
+		qDebug() << "群聊邀请";
+		// 1️⃣ 把 QByteArray 转换成 QPixmap
+		QPixmap avatar;
+		if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+		{
+			qWarning() << "Failed to load avatar for user:" << user_id;
+			return;
+		}
+		EventBus::instance()->emit groupInvite(paramsObject, avatar);
+		});
 }
 void Client_GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -35,17 +37,20 @@ void Client_GroupHandle::handle_groupTextCommunication(const QJsonObject& params
 }
 void Client_GroupHandle::handle_groupPictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	QPixmap pixmap;
-	if (data.isEmpty())
-	{
-		qDebug() << "无数据";
-	}
-	else if (!pixmap.loadFromData(data))
-	{
-		qDebug() << "client-头像加载失败";
-		return;
-	};
-	EventBus::instance()->emit groupPictureCommunication(paramsObject, pixmap);
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+		QPixmap pixmap;
+		if (data.isEmpty())
+		{
+			qDebug() << "无数据";
+		}
+		else if (!pixmap.loadFromData(data))
+		{
+			qDebug() << "client-头像加载失败";
+			return;
+		};
+		EventBus::instance()->emit groupPictureCommunication(paramsObject, pixmap);
+		});
 }
 void Client_GroupHandle::handle_newGroupMember(const QJsonObject& paramsObject, const QByteArray& data)
 {

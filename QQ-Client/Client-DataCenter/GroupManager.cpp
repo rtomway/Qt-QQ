@@ -11,6 +11,7 @@
 #include "ChatRecordManager.h"
 #include "ChatRecordMessage.h"
 
+constexpr int MIN_GROUPMEMBER_COUNT_FOR_LOADING = 3;  // 低于此人数时加载群信息
 
 GroupManager::GroupManager()
 {
@@ -53,7 +54,7 @@ GroupManager::GroupManager()
 					localGroup_IdList.append(group_id);
 				}
 				//向服务器申请群成员信息加载
-				if (myGroup->count() <= 1)
+				if (myGroup->count() <= MIN_GROUPMEMBER_COUNT_FOR_LOADING)
 				{
 					loadGroupInfoFromServer(group_id, "loadGroupMember");
 				}
@@ -74,14 +75,14 @@ GroupManager::GroupManager()
 			auto group = this->findGroup(group_id);
 			auto groupMemberArray = obj["groupMemberArray"].toArray();
 			group->batchLoadGroupMember(groupMemberArray);
-			auto& groupMemberIdList = group->getGroupMembersIdList();
+			auto groupMemberIdList = group->getGroupMembersIdList();
 			QStringList loadAvatarFromServer_idList;
 			for (auto& member_id : groupMemberIdList)
 			{
 				//头像是否申请的分组
 				if (!AvatarManager::instance()->hasLocalAvatar(member_id, ChatType::User))
 				{
-					loadAvatarFromServer_idList.append(group_id);
+					loadAvatarFromServer_idList.append(member_id);
 				}
 			}
 			if (!loadAvatarFromServer_idList.isEmpty())
@@ -134,7 +135,7 @@ GroupManager::GroupManager()
 			auto user_id = obj["user_id"].toString();
 			auto message = obj["message"].toString();
 			auto group = GroupManager::instance()->findGroup(group_id);
-			auto& member = group->getMember(user_id);
+			auto member = group->getMember(user_id);
 			this->ensureGroupMemberLoad(group_id, user_id, [=]()
 				{
 					emit groupTextCommunication(obj);
@@ -147,7 +148,7 @@ GroupManager::GroupManager()
 			auto user_id = obj["user_id"].toString();
 			auto message = obj["message"].toString();
 			auto group = GroupManager::instance()->findGroup(group_id);
-			auto& member = group->getMember(user_id);
+			auto member = group->getMember(user_id);
 			this->ensureGroupMemberLoad(group_id, user_id, [=]()
 				{
 					emit groupPictureCommunication(obj, pixmap);
@@ -163,7 +164,6 @@ GroupManager* GroupManager::instance()
 void GroupManager::loadGroupInfoFromServer(const QString& id, const QString& requestType)
 {
 	QJsonObject loadListObj;
-	loadListObj["request_id"] = id;
 	loadListObj["id"] = id;
 	QJsonDocument loadListDoc(loadListObj);
 	QByteArray loadListData = loadListDoc.toJson(QJsonDocument::Compact);
@@ -193,7 +193,7 @@ void GroupManager::loadGroupAvatarFromServer(const QStringList& group_idList, co
 	}
 }
 //确保群成员已加载
-void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback)
+void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback)const
 {
 	auto group = this->findGroup(group_id);
 	if (!group)
@@ -201,7 +201,7 @@ void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString&
 		qWarning() << "群组不存在:" << group_id;
 		return;
 	}
-	auto& member = group->getMember(user_id);
+	auto member = group->getMember(user_id);
 	if (!member.member_id.isEmpty()) {
 		callback();
 		return;
@@ -236,8 +236,10 @@ void GroupManager::addGroup(const QSharedPointer<Group>& group)
 	if (!m_groups.contains(group_id))
 	{
 		m_groups.insert(group_id, group);
-		qDebug() << "------------------------------添加群组聊天记录" << group_id << group->getGroupName();
-		ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(LoginUserManager::instance()->getLoginUserID(), group_id, ChatType::Group));
+		qDebug() << "-------------添加群组聊天记录-------------------";
+		qDebug() << group_id << group->getGroupName();
+		auto& loginUserId = LoginUserManager::instance()->getLoginUserID();
+		ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(loginUserId, group_id, ChatType::Group));
 	}
 }
 //移除群组

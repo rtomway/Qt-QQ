@@ -494,7 +494,7 @@ void MainWidget::connectGroupManagerSignals()
 	connect(GroupManager::instance(), &GroupManager::newGroupMember, this, [=](const QString& group_id, const QString& user_id)
 		{
 			auto group = GroupManager::instance()->findGroup(group_id);
-			auto& member = group->getMember(user_id);
+			auto member = group->getMember(user_id);
 			auto& user_name = member.member_name;
 			//更新聊天记录
 			ChatMessage chatMessage;

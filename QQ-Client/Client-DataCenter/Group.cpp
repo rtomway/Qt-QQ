@@ -8,22 +8,7 @@ void Group::setGroup(const QJsonObject& groupObj)
 	m_groupName = groupObj["group_name"].toString();
 	m_groupOwnerId = groupObj["owner_id"].toString();
 	m_groupMemberCount = groupObj["groupMemberCount"].toInt();
-	for (auto it = groupObj.begin(); it != groupObj.end(); ++it)
-	{
-		if (it.key() != "members")
-		{
-			m_groupJson[it.key()] = it.value();
-		}
-	}
-	// 解析成员列表
-	if (groupObj.contains("members"))
-	{
-		QJsonArray membersArray = groupObj["members"].toArray();
-		for (const auto& memberVal : membersArray)
-		{
-			addMember(memberVal.toObject());
-		}
-	}
+	m_groupJson = groupObj;
 }
 //获取群组基本信息
 const QJsonObject& Group::getGroupProfile()
@@ -49,6 +34,7 @@ const QString& Group::getGroupName() const
 //批量加载群成员
 void Group::batchLoadGroupMember(const QJsonArray& memberArray)
 {
+	qDebug() << "--------------------loadGroupMembers----------------";
 	for (auto memberValue : memberArray)
 	{
 		auto memberObj = memberValue.toObject();
@@ -56,21 +42,23 @@ void Group::batchLoadGroupMember(const QJsonArray& memberArray)
 		member.member_id = memberObj["user_id"].toString();
 		member.member_name = memberObj["username"].toString();
 		member.member_role = memberRole(memberObj["group_role"].toString());
-		qDebug() << "loadGroupMember-------" << memberObj << member.member_id << member.member_name;
+		qDebug() << member.member_id << member.member_name << member.member_role;
 		m_members.insert(member.member_id, member);
 	}
 }
 //加载单个群成员
 void Group::loadGroupMember(const QJsonObject& memberObj)
 {
+	qDebug() << "--------------------loadGroupMember----------------";
 	Member member;
 	member.member_id = memberObj["user_id"].toString();
 	member.member_name = memberObj["username"].toString();
 	member.member_role = memberRole(memberObj["group_role"].toString());
+	qDebug() << member.member_id << member.member_name << member.member_role;
 	m_members.insert(member.member_id, member);
 }
 //获取群成员id列表
-const QStringList& Group::getGroupMembersIdList() const
+QStringList Group::getGroupMembersIdList() const
 {
 	QStringList groupMemberIdList;
 	for (auto it = m_members.cbegin(); it != m_members.cend(); it++)
@@ -121,17 +109,15 @@ const QString& Group::getGrouping() const
 	return m_grouping;
 }
 //获取指定成员
-const Member& Group::getMember(const QString& member_id) const
+Member Group::getMember(const QString& member_id) const
 {
 	auto it = m_members.find(member_id);  // 使用 find() 查找元素
 	if (it != m_members.end()) {
-		qDebug() << "有该成员";
 		return it.value();  // 返回元素的引用
 	}
 	else {
-		qDebug() << "没有该成员";
-		static const Member defaultMember;  // 使用静态的默认成员对象
-		return defaultMember;  // 返回默认成员对象的引用
+		qDebug() << "不存在成员:" << member_id;
+		return Member();
 	}
 }
 //获取全部成员

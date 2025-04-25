@@ -15,7 +15,7 @@ NoticeWidget::NoticeWidget(QWidget* parent)
 	, m_stackedWidget(new QStackedWidget(this))
 	, m_friendNoticeList(new QListWidget(this))
 	, m_groupNoticeList(new QListWidget(this))
-	, m_noticeTitle(new QLabel("好友通知", this))
+	, m_noticeTitle(new QLabel(this))
 {
 	init();
 	initStackedWidget();
@@ -43,6 +43,10 @@ void NoticeWidget::setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidg
 void NoticeWidget::init()
 {
 	m_noticeTitle->setObjectName("titleLabel");
+	m_friendNoticeList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_friendNoticeList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_groupNoticeList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_groupNoticeList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	auto mlayout = new QVBoxLayout(this);
 	mlayout->addWidget(m_noticeTitle);
 	mlayout->addWidget(m_stackedWidget);
@@ -59,7 +63,7 @@ void NoticeWidget::init()
 			addNoticeItem(group_id, ChatType::Group, false);
 			emit groupNotice();
 		});
-	//群聊邀请
+	//群聊邀请成功
 	connect(TempManager::instance(), &TempManager::GroupInviteSuccess, this, [=](const QString& group_id)
 		{
 			addNoticeItem(group_id, ChatType::Group, true);
