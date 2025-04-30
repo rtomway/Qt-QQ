@@ -61,12 +61,18 @@ void NoticeWidget::init()
 	connect(TempManager::instance(), &TempManager::GroupInvite, this, [=](const QString& group_id)
 		{
 			addNoticeItem(group_id, ChatType::Group, false);
-			emit groupNotice();
+			this->emit groupNotice();
 		});
 	//群聊邀请成功
 	connect(TempManager::instance(), &TempManager::GroupInviteSuccess, this, [=](const QString& group_id)
 		{
 			addNoticeItem(group_id, ChatType::Group, true);
+			this->emit groupNotice();
+		});
+	//申请加入群聊
+	connect(TempManager::instance(), &TempManager::groupAddRequest, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group, false);
 			emit groupNotice();
 		});
 }

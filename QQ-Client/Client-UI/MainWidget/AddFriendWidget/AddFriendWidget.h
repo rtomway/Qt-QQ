@@ -21,9 +21,11 @@ public:
 	void init();
 
 private:
-	search_type type{search_type::User};
+	search_type m_seatchType{search_type::User};
 	QListWidget* m_userList{};
 	QListWidget* m_groupList{};
+	QString m_lastUserId{};
+	QString m_lastGroupId{};
 private:
 	void addListWidgetItem(QListWidget*list,const QJsonObject&obj, const QPixmap& pixmap);
 private:

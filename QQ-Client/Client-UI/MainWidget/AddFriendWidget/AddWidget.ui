@@ -110,7 +110,7 @@
        <widget class="QLineEdit" name="messageEdit"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="nickNameLab">
         <property name="text">
          <string>备注</string>
         </property>
@@ -120,7 +120,7 @@
        <widget class="QLineEdit" name="nicknameEdit"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="groupIngLab">
         <property name="text">
          <string>分组</string>
         </property>

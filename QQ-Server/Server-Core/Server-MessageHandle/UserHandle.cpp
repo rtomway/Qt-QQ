@@ -35,9 +35,9 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArra
 		search_id = userObj["user_id"].toString();
 		//判断是不是好友
 		if (friendList.contains(search_id))
-			userObj["isFriend"] = true;
+			userObj["hasAdd"] = true;
 		else
-			userObj["isFriend"] = false;
+			userObj["hasAdd"] = false;
 		QByteArray image = ImageUtils::loadImage(search_id, ChatType::User);
 		userObj["size"] = image.size();
 		qDebug() << "搜索信息" << userObj;
@@ -50,6 +50,76 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArra
 	qDebug() << "发送";
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
+}
+//群组搜索
+void UserHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	auto search_id = paramsObj["search_id"].toString();
+	auto user_id = paramsObj["user_id"].toString();
+	//数据库查询
+	DataBaseQuery query;
+	QStringList groupIdList;
+	QByteArray groupData;
+	auto groupResult = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+		{
+			//查询相似群组
+			auto group_id = "%" + search_id + "%";
+			QString queryStr = "select group_id,group_name from `group` where group_id like ?";
+			QVariantList bindvalues;
+			bindvalues.append(group_id);
+			auto allQueryObj = query.executeQuery(queryStr, bindvalues, queryPtr);
+			//错误返回
+			if (allQueryObj.contains("error")) {
+				qDebug() << "Error executing query:" << allQueryObj["error"].toString();
+				return false;
+			}
+			//查询已加入群组
+			QString queryGroupStr = "select group_id from groupmembers where user_id=?";
+			QVariantList bindvalues_2;
+			bindvalues_2.append(user_id);
+			auto allQueryObj_2 = query.executeQuery(queryGroupStr, bindvalues_2, queryPtr);
+			//错误返回
+			if (allQueryObj_2.contains("error")) {
+				qDebug() << "Error executing query:" << allQueryObj_2["error"].toString();
+				return false;
+			}
+			QJsonArray groupIdArray = allQueryObj_2["data"].toArray();
+			for (const auto& groupValue : groupIdArray)
+			{
+				auto groupIdObj = groupValue.toObject();
+				auto addedGroup_id = groupIdObj["group_id"].toString();
+				groupIdList.append(addedGroup_id);
+				qDebug() << "dddddddddddddd" << addedGroup_id;
+			}
+			//包装查询数据
+			QJsonArray groupArray = allQueryObj["data"].toArray();
+			for (const auto& groupValue : groupArray)
+			{
+				auto groupObj = groupValue.toObject();
+				auto groupId = groupObj["group_id"].toString();
+				if (groupIdList.contains(groupId))
+				{
+					qDebug()<<"true---------"<<groupObj["group_id"].toString();
+					groupObj["hasAdd"] = true;
+				}
+				else
+				{
+					qDebug() << "false---------" << groupObj["group_id"].toString();
+					groupObj["hasAdd"] = false;
+				}
+				auto imageData = ImageUtils::loadImage(groupId, ChatType::Group);
+				groupObj["size"] = imageData.size();
+				auto groupPacket = PacketCreate::binaryPacket("searchGroup", groupObj.toVariantMap(), imageData);
+				PacketCreate::addPacket(groupData, groupPacket);
+			}
+			return true;
+		});
+	if (groupResult)
+	{
+		auto allData = PacketCreate::allBinaryPacket(groupData);
+		QByteArray mimeType = "application/octet-stream";
+		responder.write(allData, mimeType);
+	}
 }
 //用户信息更新
 void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)

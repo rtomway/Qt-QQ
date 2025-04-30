@@ -100,7 +100,7 @@ void FriendProfilePage::init()
 			{
 				this->hide();
 			}
-			emit chatWithFriend(m_friendId);
+			FriendManager::instance()->emit chatWithFriend(m_friendId);
 		});
 	//分组改变
 	connect(ui->groupcomBox, &QComboBox::currentIndexChanged, [=](int index)
@@ -110,8 +110,10 @@ void FriendProfilePage::init()
 			auto grouping = ui->groupcomBox->itemText(index);
 			if (m_friend && !grouping.isEmpty())
 			{
-				auto& oldGrouping = m_friend->getGrouping();
+				auto oldGrouping = m_friend->getGrouping();
+				qDebug() << "oldGrouping" << oldGrouping;
 				m_friend->setGrouping(grouping);
+
 				FriendManager::instance()->emit updateFriendGrouping(m_friendId, oldGrouping);
 				//发送给服务端
 				auto& user_id = LoginUserManager::instance()->getLoginUserID();

@@ -6,6 +6,7 @@
 class Client_GroupHandle
 {
 public:
+	void handle_addGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_createGroupSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_groupInvite(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_groupTextCommunication(const QJsonObject& paramsObjec = QJsonObject(), const QByteArray& data = QByteArray());

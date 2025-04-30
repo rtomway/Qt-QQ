@@ -39,7 +39,14 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 			}
 			else if (m_type == GroupNoticeType::GroupRequestAdd)
 			{
-
+				QJsonObject groupAddObj;
+				groupAddObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				groupAddObj["applicant_id"] = m_json["user_id"].toString();
+				groupAddObj["applicant_name"] = m_json["username"].toString();
+				groupAddObj["group_id"] = m_json["group_id"].toString();
+				groupAddObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+				auto message = PacketCreate::textPacket("groupAddSuccess", groupAddObj);
+				MessageSender::instance()->sendMessage(message);
 			}
 		});
 }
@@ -74,11 +81,18 @@ void GNoticeItemWidget::setItemWidget(const QString& group_id)
 		m_headPix = noticeData.avatar;
 		m_type = static_cast<GroupNoticeType>(m_json["groupType"].toInt());
 	}
+	if (m_json.contains("message") && !m_json["message"].toString().isEmpty())
+	{
+		ui->preMessageLab->setVisible(true);
+		ui->preMessageLab->setText("留言:");
+		ui->afterMessageLab->setText(m_json["message"].toString());
+	}
 	auto headPix = ImageUtils::roundedPixmap(m_headPix, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 	ui->nameLab->setText(m_json["username"].toString());
 	m_noticeMessageLab->setText(m_json["noticeMessage"].toString());
 	m_timeLab->setText(m_json["time"].toString());
+
 }
 //设置通知类型
 void GNoticeItemWidget::setMode(bool isReply)

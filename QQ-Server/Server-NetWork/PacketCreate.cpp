@@ -13,6 +13,7 @@ QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& pa
 	jsonData["type"] = type;
 
 	QJsonObject paramsObject;
+	paramsObject["size"] = data.size();
 	for (auto it = params.begin(); it != params.end(); ++it) {
 		paramsObject[it.key()] = QJsonValue::fromVariant(it.value());
 	}

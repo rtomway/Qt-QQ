@@ -20,6 +20,7 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/loadGroupAvatars");
 	registerHttpRoute("/register");
 	registerHttpRoute("/serachUser");
+	registerHttpRoute("/searchGroup");
 	registerHttpRoute("/updateFriendGrouping");
 	registerHttpRoute("/updateUserMessage");
 	registerHttpRoute("/updateUserAvatar");

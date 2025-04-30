@@ -64,7 +64,7 @@ void SearchFriend::addSearchItem(const QJsonObject& obj, const QPixmap& pixmap)
 	auto item = new QListWidgetItem(m_searchList);
 	item->setSizeHint(QSize(m_searchList->width(), 70));
 	//将用户相关信息添加到item关联窗口
-	auto itemWidget = new SearchItemWidget(m_searchList);
+	auto itemWidget = new SearchItemWidget(ChatType::User,m_searchList);
 	itemWidget->setUser(obj);
 	itemWidget->setPixmap(pixmap);
 	//关联item和widget

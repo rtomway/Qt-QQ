@@ -76,7 +76,7 @@ FriendManager::FriendManager()
 			auto user = QSharedPointer<Friend>::create();
 			user->setFriend(obj);
 			auto& user_id = user->getFriendId();
-			auto& grouping = user->getGrouping();
+			auto grouping = user->getGrouping();
 			this->addFriend(user);
 			emit NewFriend(user_id, grouping);
 		});

@@ -98,6 +98,11 @@ GroupManager::GroupManager()
 			auto myGroup = QSharedPointer<Group>::create();
 			myGroup->setGroup(obj);
 			GroupManager::instance()->addGroup(myGroup);
+			QJsonObject groupMemberObj;
+			groupMemberObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+			groupMemberObj["username"] = LoginUserManager::instance()->getLoginUserName();
+			groupMemberObj["group_role"] = "owner";
+			myGroup->loadGroupMember(groupMemberObj);
 			emit createGroupSuccess(group_id);
 		});
 	//新成员添加

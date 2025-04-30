@@ -157,7 +157,6 @@ QVariantMap FriendHandle::getUserMessage(const QString& user_id)
 //好友分组更新
 void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	//auto paramsObject = QJsonDocument::fromJson(data);
 	auto user_id = paramsObj["user_id"].toString();
 	auto friend_id = paramsObj["friend_id"].toString();
 	auto grouping = paramsObj["grouping"].toString();

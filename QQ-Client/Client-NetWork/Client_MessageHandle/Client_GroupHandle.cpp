@@ -4,6 +4,24 @@
 #include "ImageUtil.h"
 #include "EventBus.h"
 
+void Client_GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+		QPixmap pixmap;
+		if (data.isEmpty())
+		{
+			qDebug() << "无数据";
+			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
+		}
+		else if (!pixmap.loadFromData(data))
+		{
+			qDebug() << "client-头像加载失败";
+			return;
+		};
+		EventBus::instance()->emit addGroup(paramsObject, pixmap);
+		});
+}
 void Client_GroupHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "handle_createGroupSuccess:" << paramsObject;

@@ -29,7 +29,7 @@ ContactListWidget::ContactListWidget(QWidget* parent)
 	, ui(new Ui::ContactListWidget)
 	, m_friendList(new QTreeWidget(this))
 	, m_groupList(new QTreeWidget(this))
-	,m_createFriendgrouping(new CreateFriendgrouping)
+	, m_createFriendgrouping(new CreateFriendgrouping)
 {
 	ui->setupUi(this);
 	init();
@@ -85,7 +85,7 @@ void ContactListWidget::init()
 			{
 				ui->stackedWidget->setCurrentWidget(m_friendList);
 			}
-			else if(id == -3)  //群组列表
+			else if (id == -3)  //群组列表
 			{
 				ui->stackedWidget->setCurrentWidget(m_groupList);
 			}
@@ -99,17 +99,11 @@ void ContactListWidget::init()
 				item->setExpanded(!item->isExpanded());
 				auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(item, 0));
 				topItemWidget->setAgale();
-				m_friendList->setStyleSheet(R"(
-				QTreeWidget::item:selected {background-color:transparent;}
-				)");
 			}
 			else     //点击用户 弹出用户信息
 			{
 				auto user_id = item->data(0, Qt::UserRole).toString();
 				emit clickedFriend(user_id);
-				m_friendList->setStyleSheet(R"(
-				QTreeWidget::item:selected {background-color: #0096FF;}
-				)");
 			}
 		});
 	connect(m_groupList, &QTreeWidget::itemClicked, [=](QTreeWidgetItem* item)
@@ -120,17 +114,11 @@ void ContactListWidget::init()
 				item->setExpanded(!item->isExpanded());
 				auto topItemWidget = qobject_cast<TopItemWidget*>(m_groupList->itemWidget(item, 0));
 				topItemWidget->setAgale();
-				m_groupList->setStyleSheet(R"(
-				QTreeWidget::item:selected {background-color:transparent;}
-				)");
 			}
 			else     //点击用户 弹出用户信息
 			{
 				auto group_id = item->data(0, Qt::UserRole).toString();
 				emit clickedGroup(group_id);
-				m_groupList->setStyleSheet(R"(
-				QTreeWidget::item:selected {background-color: #0096FF;}
-				)");
 			}
 		});
 	//好友分组添加
@@ -155,7 +143,7 @@ void ContactListWidget::externalSignals()
 	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
 		{
 			auto& loginUser = LoginUserManager::instance()->getLoginUser();
-			auto& grouping = loginUser->getGrouping();
+			auto grouping = loginUser->getGrouping();
 			//判断该分组是否已存在
 			if (!m_fNamelist.contains(grouping))
 				addFriendTopItem(grouping);
@@ -172,7 +160,7 @@ void ContactListWidget::externalSignals()
 			for (auto& friend_id : friend_idList)
 			{
 				auto myfriend = FriendManager::instance()->findFriend(friend_id);
-				auto& grouping = myfriend->getGrouping();
+				auto grouping = myfriend->getGrouping();
 				//判断该分组是否已存在
 				if (!m_fNamelist.contains(grouping))
 					addFriendTopItem(grouping);
@@ -211,7 +199,7 @@ void ContactListWidget::externalSignals()
 	connect(AvatarManager::instance(), &AvatarManager::loadFriendAvatarSuccess, this, [=](const QString& user_id)
 		{
 			auto myfriend = FriendManager::instance()->findFriend(user_id);
-			auto& grouping = myfriend->getGrouping();
+			auto grouping = myfriend->getGrouping();
 			//判断该分组是否已存在
 			if (!m_fNamelist.contains(grouping))
 				addFriendTopItem(grouping);
@@ -252,8 +240,10 @@ void ContactListWidget::externalSignals()
 		{
 			//从旧分组中移除 
 			auto oldTopItem = getFriendTopItem(oldGrouping);
+			qDebug() << "oldTopItem" << oldGrouping;
 			if (oldTopItem)
 			{
+				qDebug() << "存在";
 				auto item = findItemByIdInGroup(oldTopItem, user_id);
 				oldTopItem->removeChild(item);
 				auto oldTopItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(oldTopItem, 0));
@@ -270,7 +260,7 @@ void ContactListWidget::externalSignals()
 			addFriendItem(getFriendTopItem(grouping), user_id);
 		});
 	//删除好友
-	connect(EventBus::instance(), &EventBus::deleteFriend, this, [=](const QString& user_id)
+	connect(FriendManager::instance(), &FriendManager::deleteFriend, this, [=](const QString& user_id)
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto grouping = user->getGrouping();
@@ -329,8 +319,7 @@ void ContactListWidget::addFriendItem(QTreeWidgetItem* firendTopItem, const QStr
 		firendTopItem->insertChild(0, friendItem);
 	}
 	friendItem->setData(0, Qt::UserRole, user_id);
-	friendItem->setData(0, Qt::UserRole+1,"item");
-	friendItem->setSizeHint(0, QSize(m_friendList->width(),60));
+	friendItem->setSizeHint(0, QSize(m_friendList->width(), 60));
 	//自定义ItemWidget
 	ItemWidget* itemWidget = new FriendListItemWidget(this);
 	itemWidget->setItemWidget(user_id);

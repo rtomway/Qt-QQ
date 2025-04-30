@@ -33,9 +33,11 @@ void MessageHandle::initWebRequestHash()
 	webRequestHash["friendAddFail"] = &FriendHandle::handle_friendAddFail;
 	//群组处理
 	webRequestHash["createGroup"] = &GroupHandle::handle_createGroup;
+	webRequestHash["addGroup"] = &GroupHandle::handle_addGroup;
 	webRequestHash["groupTextCommunication"] = &GroupHandle::handle_groupTextCommunication;
 	webRequestHash["groupPictureCommunication"] = &GroupHandle::handle_groupPictureCommunication;
 	webRequestHash["groupInviteSuccess"] = &GroupHandle::handle_groupInviteSuccess;
+	webRequestHash["groupAddSuccess"] = &GroupHandle::handle_groupAddSuccess;
 }
 void MessageHandle::initHttpRequestHash()
 {
@@ -50,7 +52,7 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["register"] = &RegisterHandle::handle_register;
 	//搜索
 	httpRequestHash["serachUser"] = &UserHandle::handle_searchUser;
-	httpRequestHash["searchGroup"] = &GroupHandle::handle_searchGroup;
+	httpRequestHash["searchGroup"] = &UserHandle::handle_searchGroup;
 	//更新
 	httpRequestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
 	httpRequestHash["updateUserMessage"] = &UserHandle::handle_updateUserMessage;

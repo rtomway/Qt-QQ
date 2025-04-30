@@ -25,6 +25,7 @@ QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantL
 	// 绑定查询参数
 	for (const auto& value : bindValues) {
 		query->addBindValue(value);
+        qDebug() << "绑定查询参数" << value;
 	}
     QJsonObject allQueryObj;
     QJsonArray queryArray;

@@ -29,7 +29,7 @@ void GroupProfilePage::init()
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
 		{
-			emit chatWithGroup(m_groupId);
+			GroupManager::instance()->emit chatWithGroup(m_groupId);
 		});
 }
 

@@ -9,6 +9,7 @@
 #include "SearchItemWidget.h"
 #include "FriendManager.h"
 #include "Friend.h"
+#include "GroupManager.h"
 #include "EventBus.h"
 #include "MessageSender.h"
 #include "LoginUserManager.h"
@@ -52,7 +53,7 @@ void AddFriendWidget::init()
 			m_groupList->clear();
 			ui->stackedWidget->setCurrentWidget(m_userList);
 			ui->searchLine->setPlaceholderText("用户搜索");
-			type = search_type::User;
+			m_seatchType = search_type::User;
 			ui->userBtn->setStyleSheet(
 				"QPushButton{background-color:rgb(240,240,240)}"
 			);
@@ -67,7 +68,7 @@ void AddFriendWidget::init()
 			m_userList->clear();
 			ui->stackedWidget->setCurrentWidget(m_groupList);
 			ui->searchLine->setPlaceholderText("群聊搜索");
-			type = search_type::Grouop;
+			m_seatchType = search_type::Grouop;
 			ui->groupBtn->setStyleSheet(
 				"QPushButton{background-color:rgb(240,240,240)}"
 			);
@@ -76,30 +77,53 @@ void AddFriendWidget::init()
 				"QPushButton:hover{background-color:rgb(240,240,240)}"
 			);
 		});
+	//会话界面窗口关闭
+	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, [=]
+		{
+			this->close();
+		});
+	connect(GroupManager::instance(), &GroupManager::chatWithGroup, this, [=]
+		{
+			this->close();
+		});
 	//搜索图标
 	ui->searchBtn->setCheckable(false);
 	ui->searchBtn->setIcon(QIcon(":/icon/Resource/Icon/search.png"));
 	//搜索栏
 	connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
 		{
-			if (type == search_type::Grouop)
-				return;
-			m_userList->clear();
 			auto search_id = ui->searchLine->text();
-			if (!search_id.isEmpty())
+			if (search_id.isEmpty())
+				return;
+			//好友搜索
+			if (m_seatchType == search_type::User)
 			{
+				m_userList->clear();
 				QJsonObject serachObj;
 				serachObj["search_id"] = search_id;
 				serachObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 				QJsonDocument doc(serachObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
 				MessageSender::instance()->sendHttpRequest("serachUser", data, "application/json");
+				return;
 			}
+			//群组搜索
+			m_groupList->clear();
+			QJsonObject searchObj;
+			searchObj["search_id"] = search_id;
+			searchObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+			QJsonDocument doc(searchObj);
+			auto data = doc.toJson(QJsonDocument::Compact);
+			MessageSender::instance()->sendHttpRequest("searchGroup", data, "application/json");
 		});
 	//搜索结果
 	connect(EventBus::instance(), &EventBus::searchUser, this, [=](const QJsonObject& paramsObject, const QPixmap& pixmap)
 		{
 			addListWidgetItem(m_userList, paramsObject, pixmap);
+		});
+	connect(EventBus::instance(), &EventBus::searchGroup, this, [=](const QJsonObject& paramsObject, const QPixmap& pixmap)
+		{
+			addListWidgetItem(m_groupList, paramsObject, pixmap);
 		});
 }
 //查询结果返回添加到对应list上
@@ -109,15 +133,18 @@ void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& ob
 	auto item = new QListWidgetItem(list);
 	item->setSizeHint(QSize(list->width(), 70));
 	//将用户相关信息添加到item关联窗口
-	auto itemWidget = new SearchItemWidget(list);
+	SearchItemWidget* itemWidget = nullptr;
 	if (list == m_userList)
 	{
+		itemWidget = new SearchItemWidget(ChatType::User,list);
 		itemWidget->setUser(obj);
 		itemWidget->setPixmap(pixmap);
 	}
 	else
 	{
+		itemWidget = new SearchItemWidget(ChatType::Group, list);
 		itemWidget->setGroup(obj);
+		itemWidget->setPixmap(pixmap);
 	}
 	//关联item和widget
 	list->setItemWidget(item, itemWidget);

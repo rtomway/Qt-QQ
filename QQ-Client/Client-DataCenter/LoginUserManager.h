@@ -23,12 +23,14 @@ public:
 	void initLoginUser(const QJsonObject& loginUserObj);
 	void loadListDataFromServer(const QString& type);
 	const QString& getLoginUserID()const;
+	const QString& getLoginUserName()const;
 	const QSharedPointer<Friend>& getLoginUser()const;
 	//清除
 	void clearFriendManager();
 private:
 	//当前登录用户
 	QString m_loginUserId{};
+	QString m_loginUserName{};
 	QSharedPointer<Friend>m_loginUser{};
 signals:
 	void loginUserLoadSuccess();

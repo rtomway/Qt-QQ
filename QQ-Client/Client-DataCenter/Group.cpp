@@ -135,7 +135,7 @@ const int& Group::count() const
 QString Group::memberRole(const QString& role)
 {
 	QString memberRole;
-	if (role == "ower")
+	if (role == "owner")
 	{
 		memberRole = "群主";
 	}

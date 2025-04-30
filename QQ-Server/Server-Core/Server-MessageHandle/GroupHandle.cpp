@@ -8,165 +8,107 @@
 #include "ImageUtil.h"
 #include "ConnectionManager.h"
 #include "PacketCreate.h"
+#include "GroupDBUtils.h"
 
-//群组搜索
-void GroupHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
-{
-	auto search_id = paramsObj["search_id"].toString();
-	auto user_id = paramsObj["user_id"].toString();
-	//数据库查询
-	DataBaseQuery query;
-	auto groupResult = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
-		{
-			//查询相似群组
-			auto group_id = "%" + search_id + "%";
-			QString queryStr = "select group_id,group_name from `group` where group_id like ?";
-			QVariantList bindvalues;
-			bindvalues.append(group_id);
-			auto allQueryObj = query.executeQuery(queryStr, bindvalues, queryPtr);
-			//错误返回
-			if (allQueryObj.contains("error")) {
-				qDebug() << "Error executing query:" << allQueryObj["error"].toString();
-				return false;
-			}
-			//查询已加入群组
-			QString queryGroupStr = "select group_id from group_id where user_id=?";
-			QVariantList bindvalues_2;
-			bindvalues_2.append(user_id);
-			auto allQueryObj_2 = query.executeQuery(queryStr, bindvalues, queryPtr);
-			//错误返回
-			if (allQueryObj_2.contains("error")) {
-				qDebug() << "Error executing query:" << allQueryObj_2["error"].toString();
-				return false;
-			}
-			QJsonArray groupIdArray = allQueryObj_2["data"].toArray();
-			QStringList groupIdList;
-			for (const auto& groupValue : groupIdArray)
-			{
-				auto groupIdObj = groupValue.toObject();
-				auto addedGroup_id = groupIdObj["group_id"].toString();
-				groupIdList.append(addedGroup_id);
-			}
-			//包装查询数据
-			QJsonArray groupArray = allQueryObj["data"].toArray();
-			QByteArray groupData;
-			for (const auto& groupValue : groupArray)
-			{
-				auto groupObj = groupValue.toObject();
-				auto groupId = groupObj["group_id"].toString();
-				if (groupIdList.contains(groupId))
-				{
-					groupObj["hasAdd"] = true;
-				}
-				else
-				{
-					groupObj["hasAdd"] = false;
-				}
-				auto imageData = ImageUtils::loadImage(groupId, ChatType::Group);
-				groupObj["size"] = imageData.size();
-				auto groupPacket = PacketCreate::binaryPacket("searchGroup", groupObj.toVariantMap(), imageData);
-				PacketCreate::addPacket(groupData, groupPacket);
-			}
-			auto allData = PacketCreate::allBinaryPacket(groupData);
-			QByteArray mimeType = "application/octet-stream";
-			responder.write(allData, mimeType);
-			return false;
-		});
-}
 //添加群组
 void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	qDebug() << "------------------------------群聊创建（服务器）--------------------------";
-	auto groupOwerId = paramsObject["user_id"].toString();
-	auto groupOwerName = paramsObject["username"].toString();
-	auto groupId = CreateId::generateUserID(CreateId::Id::Group);
-	auto groupName = paramsObject["group_name"].toString();
-	auto groupAvatar = groupId + ".png";
-
+	Group groupParams;
+	groupParams.owner_id = paramsObject["user_id"].toString();
+	groupParams.group_id = CreateId::generateUserID(CreateId::Id::Group);
+	groupParams.group_name = paramsObject["group_name"].toString();
+	groupParams.group_avatarPath = ImageUtils::getGroupAvatarFolderPath() + "/" + groupParams.group_id + ".png";
+	groupParams.create_time = QDateTime::currentDateTime();
+	GroupMember groupMemberParams;
+	groupMemberParams.group_id = groupParams.group_id;
+	groupMemberParams.user_id = groupParams.owner_id;
+	groupMemberParams.username= paramsObject["username"].toString();
+	groupMemberParams.group_role = "owner";
+	//数据库操作
 	DataBaseQuery query;
 	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
 		{
-			QString queryStr_1 = "insert into `group` (group_id,group_name,owner_id,create_time,group_avatar)values(?,?,?,?,?)";
-			QVariantList bindvalues_1;
-			bindvalues_1.append(groupId);
-			bindvalues_1.append(groupName);
-			bindvalues_1.append(groupOwerId);
-			bindvalues_1.append(QDate::currentDate());
-			bindvalues_1.append(groupAvatar);
-			auto insertResult_1 = query.executeNonQuery(queryStr_1, bindvalues_1, queryPtr);
-			if (!insertResult_1) {
-				qDebug() << "insertResult_1失败";
-				return false;  // 查询失败，回滚事务
+			if (!GroupDBUtils::insertGroup(groupParams, query, queryPtr))
+			{
+				return false;
 			}
-			QString queryStr_2 = "insert into groupMembers (group_id,user_id,username,group_role)values(?,?,?,?)";
-			QVariantList bindvalues_2;
-			bindvalues_2.append(groupId);
-			bindvalues_2.append(groupOwerId);
-			bindvalues_2.append(groupOwerName);
-			bindvalues_2.append("ower");
-			auto insertResult_2 = query.executeNonQuery(queryStr_2, bindvalues_2, queryPtr);
-			if (!insertResult_2) {
-				qDebug() << "insertResult_2失败";
-				return false;  // 查询失败，回滚事务
+			if (!GroupDBUtils::insertGroupMember(groupMemberParams, query, queryPtr))
+			{
+				return false;
 			}
-			//所有操作都成功
+			if (!GroupDBUtils::groupMemberCountAdd(groupParams.group_id, query, queryPtr))
+			{
+				return false;
+			}
 			return true;
 		});
-
-	if (result)
+	if (!result)
 	{
-		//头像保存服务器
-		auto imageData = ImageUtils::loadImage(groupOwerId, ChatType::User);
-		QImage groupImage;
-		groupImage.loadFromData(imageData);
-		ImageUtils::saveAvatarToLocal(groupImage, groupId, ChatType::Group);
-
-		//将创建成功返回客户端
-		QJsonObject groupObj;
-		groupObj["group_id"] = groupId;
-		groupObj["group_name"] = groupName;
-		groupObj["owner_id"] = groupOwerId;
-		groupObj["groupMemberCount"] = 0;
-		groupObj["size"] = imageData.size();
-		QJsonArray memberArray;
-		QJsonObject memberObj;
-		memberObj["user_id"] = groupOwerId;
-		memberObj["username"] = groupOwerName;
-		memberObj["group_role"] = "ower";
-		memberArray.append(memberObj);
-		groupObj["members"] = memberArray;
-
-		auto groupPacket = PacketCreate::binaryPacket("createGroupSuccess", groupObj.toVariantMap(), imageData);
-		QByteArray groupData;
-		PacketCreate::addPacket(groupData, groupPacket);
-		auto groupAllData = PacketCreate::allBinaryPacket(groupData);
-		ConnectionManager::instance()->sendBinaryMessage(groupOwerId, groupAllData);
-
-		//通知邀请的好友
-		QVariantMap groupInviteMap;
-		groupInviteMap["user_id"] = groupOwerId;
-		groupInviteMap["username"] = groupOwerName;
-		groupInviteMap["group_id"] = groupId;
-		groupInviteMap["group_name"] = groupName;
-		groupInviteMap["groupType"] = 0;
-		groupInviteMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-		groupInviteMap["noticeMessage"] = "邀请你加入群聊" + groupName;
-		groupInviteMap["size"] = imageData.size();
-
-		auto groupInvitePacket = PacketCreate::binaryPacket("groupInvite", groupInviteMap, imageData);
-		QByteArray groupInviteData;
-		PacketCreate::addPacket(groupInviteData, groupInvitePacket);
-		auto allData = PacketCreate::allBinaryPacket(groupInviteData);
-		qDebug() << "群聊创建成功发送邀请好友";
-		auto friendIdListArray = paramsObject["inviteMembers"].toArray();
-		qDebug() << "inviteMembers:" << friendIdListArray;
-		for (const auto& friendIdValue : friendIdListArray)
-		{
-			QString friendId = friendIdValue.toString();  // 将 QJsonValue 转换为 QString
-			qDebug() << "Sending to friendId:" << friendId;
-			ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
-		}
+		return;
 	}
+	//头像保存服务器
+	auto imageData = ImageUtils::loadImage(groupParams.owner_id, ChatType::User);
+	QImage groupImage;
+	groupImage.loadFromData(imageData);
+	ImageUtils::saveAvatarToLocal(groupImage,groupParams.group_id, ChatType::Group);
+	//群组数据包
+	QJsonObject groupObj;
+	groupObj["group_id"] = groupParams.group_id;
+	groupObj["group_name"] = groupParams.group_name;
+	groupObj["owner_id"] = groupParams.owner_id;
+	groupObj["groupMemberCount"] = 1;
+	auto groupPacket = PacketCreate::binaryPacket("createGroupSuccess", groupObj.toVariantMap(), imageData);
+	QByteArray groupData;
+	PacketCreate::addPacket(groupData, groupPacket);
+	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
+	ConnectionManager::instance()->sendBinaryMessage(groupParams.owner_id, groupAllData);
+	//通知邀请好友
+	QVariantMap groupInviteMap;
+	groupInviteMap["user_id"] = groupParams.owner_id;
+	groupInviteMap["username"] = groupMemberParams.username;
+	groupInviteMap["group_id"] = groupParams.group_id;
+	groupInviteMap["group_name"] = groupParams.group_name;
+	groupInviteMap["groupType"] = 0;
+	groupInviteMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	groupInviteMap["noticeMessage"] = "邀请你加入群聊" + groupParams.group_name;
+	auto groupInvitePacket = PacketCreate::binaryPacket("groupInvite", groupInviteMap, imageData);
+	QByteArray groupInviteData;
+	PacketCreate::addPacket(groupInviteData, groupInvitePacket);
+	auto allData = PacketCreate::allBinaryPacket(groupInviteData);
+	auto friendIdListArray = paramsObject["inviteMembers"].toArray();
+	for (const auto& friendIdValue : friendIdListArray)
+	{
+		QString friendId = friendIdValue.toString(); 
+		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
+	}
+}
+//申请添加群组
+void GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	qDebug() << "添加群组"<< paramsObject;
+	qDebug() << "发送方:" << paramsObject["user_id"].toString();
+	qDebug() << "接受方:" << paramsObject["to"].toString();
+	auto send_id = paramsObject["user_id"].toString();
+	auto group_id = paramsObject["to"].toString();
+	DataBaseQuery query;
+	Group queryGroup;
+	queryGroup =GroupDBUtils::queryGroup(group_id, query);
+	//数据包装入信息
+	QVariantMap senderMessage;
+	senderMessage = paramsObject.toVariantMap();
+	senderMessage["group_id"] = group_id;
+	senderMessage["groupType"] = 1;
+	senderMessage["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	auto imageData = ImageUtils::loadImage(send_id, ChatType::User);
+	senderMessage["size"] = imageData.size();
+	//包装数据包
+	auto userPacket = PacketCreate::binaryPacket("addGroup", senderMessage, imageData);
+	QByteArray userData;
+	PacketCreate::addPacket(userData, userPacket);
+	auto allData = PacketCreate::allBinaryPacket(userData);
+	//发送数据
+	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
 }
 //群聊文本交流
 void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
@@ -181,27 +123,13 @@ void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject,
 	auto group_id = paramsObject["group_id"].toString();
 	auto user_id = paramsObject["user_id"].toString();
 	DataBaseQuery query;
-	QString queryStr("select user_id from groupmembers where group_id=? and user_id!=?");
-	QVariantList bindvalues;
-	bindvalues.append(group_id);
-	bindvalues.append(user_id);
-	auto memberObj = query.executeQuery(queryStr, bindvalues);
-	if (memberObj.contains("error"))
+	auto memberId_list = GroupDBUtils::queryGroupMemberIdList(group_id, query);
+	qDebug() << "发送者:" << user_id;
+	for (auto& member_id : memberId_list)
 	{
-		qDebug() << "查询群成员失败";
-	}
-	else
-	{
-		//转发
-		auto memberArray = memberObj["data"].toArray();
-		qDebug() << "发送者：" << user_id;
-		for (const auto& memberValue : memberArray)
-		{
-			QJsonObject userObj = memberValue.toObject();
-			auto member_id = userObj["user_id"].toString();
-			qDebug() << "发送者：" << user_id << "----群成员接收:" << member_id;
-			ConnectionManager::instance()->sendTextMessage(member_id, message);
-		}
+		if(member_id!=user_id)
+		ConnectionManager::instance()->sendTextMessage(member_id, message);
+		qDebug() << "接收者:" << member_id;
 	}
 }
 //群聊图片发送
@@ -216,27 +144,13 @@ void GroupHandle::handle_groupPictureCommunication(const QJsonObject& paramsObje
 	auto group_id = paramsObject["group_id"].toString();
 	auto user_id = paramsObject["user_id"].toString();
 	DataBaseQuery query;
-	QString queryStr("select user_id from groupmembers where group_id=? and user_id!=?");
-	QVariantList bindvalues;
-	bindvalues.append(group_id);
-	bindvalues.append(user_id);
-	auto memberObj = query.executeQuery(queryStr, bindvalues);
-	if (memberObj.contains("error"))
+	auto memberId_list = GroupDBUtils::queryGroupMemberIdList(group_id, query);
+	qDebug() << "发送者:" << user_id;
+	for (auto& member_id : memberId_list)
 	{
-		qDebug() << "查询群成员失败";
-	}
-	else
-	{
-		//转发
-		auto memberArray = memberObj["data"].toArray();
-		qDebug() << "发送者：" << user_id;
-		for (const auto& memberValue : memberArray)
-		{
-			QJsonObject userObj = memberValue.toObject();
-			auto member_id = userObj["user_id"].toString();
-			qDebug() << "发送者：" << user_id << "----群成员接收:" << member_id;
+		if (member_id != user_id)
 			ConnectionManager::instance()->sendBinaryMessage(member_id, allData);
-		}
+		qDebug() << "接收者:" << member_id;
 	}
 }
 //单个成员加载
@@ -245,32 +159,19 @@ void GroupHandle::handle_groupMemberLoad(const QJsonObject& paramsObj, const QBy
 	qDebug() << "------------------------------------单个成员加载---------------------------------------";
 	auto member_id = paramsObj["member_id"].toString();
 	auto group_id = paramsObj["group_id"].toString();
+	//获取群成员
 	DataBaseQuery query;
-	QString queryStr("select user_id,username,group_role from groupmembers where group_id=? and user_id=?");
-	QVariantList bindvalues;
-	bindvalues.append(group_id);
-	bindvalues.append(member_id);
-	auto queryResult = query.executeQuery(queryStr, bindvalues);
-	if (queryResult.contains("error"))
-	{
-		qDebug() << "queryResult failed";
-		return;
-	}
+	auto groupMember = GroupDBUtils::queryGroupMember(group_id, member_id, query);
+	//包装群成员信息
+	QVariantMap memberMap;
+	memberMap["group_id"] = groupMember.group_id;
+	memberMap["user_id"] = groupMember.user_id;
+	memberMap["username"] = groupMember.username;
+	memberMap["group_role"] = groupMember.group_role;
+	auto imageData = ImageUtils::loadImage(member_id, ChatType::User);
+	auto packet = PacketCreate::binaryPacket("groupMemberLoad", memberMap, imageData);
 	QByteArray groupMemberData;
-	auto memberArray = queryResult["data"].toArray();
-	for (const auto& memberValue : memberArray)
-	{
-		//获取群成员
-		QJsonObject userObj = memberValue.toObject();
-		auto member_id = userObj["user_id"].toString();
-		//包装群成员信息
-		auto imageData = ImageUtils::loadImage(member_id, ChatType::User);
-		QVariantMap memberMap = userObj.toVariantMap();
-		memberMap["group_id"] = group_id;
-		memberMap["size"] = imageData.size();
-		auto packet = PacketCreate::binaryPacket("groupMemberLoad", memberMap, imageData);
-		PacketCreate::addPacket(groupMemberData, packet);
-	}
+	PacketCreate::addPacket(groupMemberData, packet);
 	auto allData = PacketCreate::allBinaryPacket(groupMemberData);
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
@@ -279,106 +180,141 @@ void GroupHandle::handle_groupMemberLoad(const QJsonObject& paramsObj, const QBy
 void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto user_id = paramsObject["user_id"].toString();
-	auto userName = paramsObject["username"].toString();
 	auto group_id = paramsObject["group_id"].toString();
-	auto groupOwerId = paramsObject["groupOwerId"].toString();
-	auto groupName = paramsObject["group_name"].toString();
-	//成员加入信息
+	GroupMember groupMember;
+	groupMember.user_id = paramsObject["user_id"].toString();
+	groupMember.username = paramsObject["username"].toString();
+	groupMember.group_id = paramsObject["group_id"].toString();
+	groupMember.group_role = "member";
+	DataBaseQuery query;
+	Group queryGroup;
+	QStringList member_idList;
+	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+		{
+			if (!GroupDBUtils::insertGroupMember(groupMember, query, queryPtr))
+			{
+				return false;
+			}
+			if (!GroupDBUtils::groupMemberCountAdd(group_id, query, queryPtr))
+			{
+				return false;
+			}
+			queryGroup = GroupDBUtils::queryGroup(group_id, query, queryPtr);
+			if (queryGroup.group_id.isEmpty())
+			{
+				return false;
+			}
+			member_idList = GroupDBUtils::queryGroupMemberIdList(group_id, query, queryPtr);
+			if (member_idList.isEmpty())
+			{
+				return false;
+			}
+		});
+	if (!result)
+		return;
+	//新成员信息
 	QVariantMap newMemberMap = paramsObject.toVariantMap();
-	newMemberMap["group_role"] = "member";
-	qDebug() << "newMemberMap" << newMemberMap;
-	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
-	newMemberMap["size"] = imageData.size();
-	auto newMemberPacket = PacketCreate::binaryPacket("newGroupMember", newMemberMap, imageData);
+	newMemberMap["group_role"] = groupMember.group_role;
+	auto newMemberImageData = ImageUtils::loadImage(user_id, ChatType::User);
+	auto newMemberPacket = PacketCreate::binaryPacket("newGroupMember", newMemberMap, newMemberImageData);
 	QByteArray newMemberData;
 	PacketCreate::addPacket(newMemberData, newMemberPacket);
 	auto newMemberAllData = PacketCreate::allBinaryPacket(newMemberData);
-	//通知群管理信息包
+	//向群成员客户端发送新成员信息
+	for (auto& member_id : member_idList)
+	{
+		qDebug() << "向群成员客户端发送新成员信息:" << member_id;
+		if(member_id!=groupMember.user_id)
+		ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
+	}
+	//通知群主邀请成功
 	QVariantMap inviteReplyMap;
 	inviteReplyMap["user_id"] = user_id;
-	inviteReplyMap["username"] = userName;
-	inviteReplyMap["noticeMessage"] = "同意加入群组" + groupName;
+	inviteReplyMap["username"] = groupMember.username;
+	inviteReplyMap["noticeMessage"] = "同意加入群组" + queryGroup.group_name;
 	inviteReplyMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
-	inviteReplyMap["size"] = imageData.size();
-	auto replyPacket = PacketCreate::binaryPacket("groupInviteSuccess", inviteReplyMap, imageData);
+	auto replyPacket = PacketCreate::binaryPacket("groupInviteSuccess", inviteReplyMap, newMemberImageData);
 	QByteArray replyData;
 	PacketCreate::addPacket(replyData, replyPacket);
 	auto replyAllData = PacketCreate::allBinaryPacket(replyData);
 	//向群主发送通知信息
-	ConnectionManager::instance()->sendBinaryMessage(groupOwerId, replyAllData);
+	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, replyAllData);
+	//包装群聊信息
+	QVariantMap groupMap;
+	groupMap["group_id"] = group_id;
+	groupMap["group_name"] = queryGroup.group_name;
+	groupMap["owner_id"] = queryGroup.owner_id;
+	groupMap["groupMemberCount"] = queryGroup.groupMemberCount;
+	auto imageData = ImageUtils::loadImage(group_id, ChatType::Group);
+	auto packet = PacketCreate::binaryPacket("newGroup", groupMap, imageData);
+	QByteArray groupData;
+	PacketCreate::addPacket(groupData, packet);
+	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
+	//向新成员发送群组信息
+	ConnectionManager::instance()->sendBinaryMessage(user_id,groupAllData);
+}
+//群组申请加入成功
+void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto group_id = paramsObject["group_id"].toString();
+	auto user_id= paramsObject["user_id"].toString();
+	GroupMember newGroupMember;
+	newGroupMember.user_id = paramsObject["applicate_id"].toString();
+	newGroupMember.username = paramsObject["applicant_name"].toString();
+	newGroupMember.group_id = paramsObject["group_id"].toString();
+	newGroupMember.group_role = "member";
 	//查询该群成员
 	DataBaseQuery query;
-	QStringList memberIdList;
-	QByteArray groupData;
-	QByteArray groupAllData;
+	QStringList member_idList;
+	Group queryGroup;
 	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
 		{
-			//插入群成员
-			QString queryStr("insert into groupmembers (group_id,user_id,username)values(?,?,?)");
-			QVariantList bindvalues;
-			bindvalues.append(group_id);
-			bindvalues.append(user_id);
-			bindvalues.append(userName);
-			auto insertResult = query.executeNonQuery(queryStr, bindvalues, queryPtr);
-			if (!insertResult)
+			if (!GroupDBUtils::insertGroupMember(newGroupMember, query, queryPtr))
 			{
-				qDebug() << "insertResult failed";
 				return false;
 			}
-			//群人数增加
-			QString queryStr_2("update `group` set groupMemberCount=groupMemberCount+1 where group_id=?");
-			QVariantList bindvalues_2;
-			bindvalues_2.append(group_id);
-			auto updateResult = query.executeNonQuery(queryStr_2, bindvalues_2, queryPtr);
-			if (!updateResult)
+			if (!GroupDBUtils::groupMemberCountAdd(group_id, query, queryPtr))
 			{
-				qDebug() << "updateResult failed";
 				return false;
 			}
-			//查询群组信息
-			QString queryStr_3(
-				"select gm.user_id,g.groupMemberCount\
-				from `group` g\
-				join groupMembers gm on gm.group_id=g.group_id\
-				where g.group_id=?"
-			);
-			QVariantList bindvalues_3;
-			bindvalues_3.append(group_id);
-			auto queryResult_3 = query.executeQuery(queryStr_3, bindvalues_3, queryPtr);
-			if (queryResult_3.contains("error"))
+			queryGroup = GroupDBUtils::queryGroup(group_id, query, queryPtr);
+			if (queryGroup.group_id.isEmpty())
 			{
-				qDebug() << "queryResult failed";
 				return false;
 			}
-			auto groupArray = queryResult_3["data"].toArray();
-			int groupMemberCount = 0;
-			for (const auto& groupValue : groupArray)
+			member_idList = GroupDBUtils::queryGroupMemberIdList(group_id, query, queryPtr);
+			if (member_idList.isEmpty())
 			{
-				QJsonObject groupObj = groupValue.toObject();
-				auto member_id = groupObj["user_id"].toString();
-				if (member_id != user_id)
-					memberIdList.append(member_id);
-				groupMemberCount = groupObj["groupMemberCount"].toInt();
+				return false;
 			}
-			//包装群聊信息
-			QVariantMap groupMap;
-			groupMap["group_id"] = group_id;
-			groupMap["group_name"] = groupName;
-			groupMap["owner_id"] = groupOwerId;
-			groupMap["groupMemberCount"] = groupMemberCount;
-			auto imageData = ImageUtils::loadImage(group_id, ChatType::Group);
-			groupMap["size"] = imageData.size();
-			auto packet = PacketCreate::binaryPacket("newGroup", groupMap, imageData);
-			PacketCreate::addPacket(groupData, packet);
-			groupAllData = PacketCreate::allBinaryPacket(groupData);
 		});
 	if (!result)
 		return;
-	//向新成员发送群组信息
-	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
+	//新成员信息
+	QVariantMap newMemberMap = paramsObject.toVariantMap();
+	newMemberMap["group_role"] = newGroupMember.group_role;
+	auto newMemberImageData = ImageUtils::loadImage(user_id, ChatType::User);
+	auto newMemberPacket = PacketCreate::binaryPacket("newGroupMember", newMemberMap, newMemberImageData);
+	QByteArray newMemberData;
+	PacketCreate::addPacket(newMemberData, newMemberPacket);
+	auto newMemberAllData = PacketCreate::allBinaryPacket(newMemberData);
 	//向群成员客户端发送新成员信息
-	for (auto& member_id : memberIdList)
+	for (auto& member_id : member_idList)
 	{
+		if (member_id != newGroupMember.user_id)
 		ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
 	}
+	//包装群聊信息
+	QVariantMap groupMap;
+	groupMap["group_id"] = group_id;
+	groupMap["group_name"] = queryGroup.group_name;
+	groupMap["owner_id"] = queryGroup.owner_id;
+	groupMap["groupMemberCount"] = queryGroup.groupMemberCount;
+	auto imageData = ImageUtils::loadImage(group_id, ChatType::Group);
+	auto packet = PacketCreate::binaryPacket("newGroup", groupMap, imageData);
+	QByteArray groupData;
+	PacketCreate::addPacket(groupData, packet);
+	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
+	//向新成员发送群组信息
+	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
 }

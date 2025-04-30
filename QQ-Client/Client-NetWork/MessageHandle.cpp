@@ -48,9 +48,11 @@ void MessageHandle::initRequestHash()
 	registerHandle("pictureCommunication", m_friendHandle, &Client_FriendHandle::handle_pictureCommunication);
 	//用户
 	registerHandle("searchUser", m_userHandle, &Client_UserHandle::handle_searchUser);
+	registerHandle("searchGroup", m_userHandle, &Client_UserHandle::handle_searchGroup);
 	registerHandle("updateUserMessage", m_userHandle, &Client_UserHandle::handle_updateUserMessage);
 	registerHandle("updateUserAvatar", m_userHandle, &Client_UserHandle::handle_updateUserAvatar);
 	//群组
+	registerHandle("addGroup", m_groupHandle, &Client_GroupHandle::handle_addGroup);
 	registerHandle("groupTextCommunication", m_groupHandle, &Client_GroupHandle::handle_groupTextCommunication);
 	registerHandle("groupPictureCommunication", m_groupHandle, &Client_GroupHandle::handle_groupPictureCommunication);
 	registerHandle("newGroupMember", m_groupHandle, &Client_GroupHandle::handle_newGroupMember);

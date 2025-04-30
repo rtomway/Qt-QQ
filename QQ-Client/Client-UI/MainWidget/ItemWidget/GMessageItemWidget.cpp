@@ -46,6 +46,7 @@ void GMessageItemWidget::setItemWidget(const QString& group_id)
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 			ui->headLab->setPixmap(headPix);
 		});
+	qDebug() << "GMessageItemWidget:"<< m_group << m_group->getGroupName();
 	ui->nameLab->setText(m_group->getGroupName());
 	//最新消息
 	if (!m_unReadMesssage.isEmpty())

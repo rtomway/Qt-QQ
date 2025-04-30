@@ -627,7 +627,7 @@ void MainWidget::connectWindowControlSignals()
 			m_chatWidget->loadChatPage(type, id);
 		});
 	//跳转会话界面
-	connect(m_friendProfilePage, &FriendProfilePage::chatWithFriend, this, [=](const QString& user_id)
+	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, [=](const QString& user_id)
 		{
 			m_btn_Itemgroup->button(-2)->setChecked(true);
 			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
@@ -642,12 +642,13 @@ void MainWidget::connectWindowControlSignals()
 			m_chatMessageListWidget->setCurrentItem(messageItem);
 			emit m_chatMessageListWidget->itemClicked(messageItem);
 		});
-	connect(m_groupProfilePage, &GroupProfilePage::chatWithGroup, this, [=](const QString& group_id)
+	connect(GroupManager::instance(), &GroupManager::chatWithGroup, this, [=](const QString& group_id)
 		{
 			m_btn_Itemgroup->button(-2)->setChecked(true);
 			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
 			ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
-			auto messageItem = findListItem("group_" + group_id);
+			auto key = itemKey(group_id, ChatType::Group);
+			auto messageItem = findListItem(key);
 			if (!messageItem) //判断消息项是否存在
 			{
 				auto group = GroupManager::instance()->findGroup(group_id);

@@ -30,6 +30,7 @@ void LoginUserManager::initLoginUser(const QJsonObject& loginUserObj)
 	FriendManager::instance()->addFriend(loginUser);
 	m_loginUser = loginUser;
 	m_loginUserId = user_id;
+	m_loginUserName = user_name;
 	//头像保存文件指定
 	ImageUtils::setLoginUser(m_loginUserId);
 	//向内部发送信号
@@ -39,6 +40,11 @@ void LoginUserManager::initLoginUser(const QJsonObject& loginUserObj)
 const QString& LoginUserManager::getLoginUserID() const
 {
 	return m_loginUserId;
+}
+
+const QString& LoginUserManager::getLoginUserName() const
+{
+	return m_loginUserName;
 }
 
 const QSharedPointer<Friend>& LoginUserManager::getLoginUser() const

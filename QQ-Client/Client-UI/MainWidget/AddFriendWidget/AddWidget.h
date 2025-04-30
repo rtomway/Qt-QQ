@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QJsonObject>
 #include <QPixmap>
+#include "GlobalTypes.h"
 
 #include "LineEditwithButton.h"
 
@@ -19,13 +20,15 @@ private:
 	void init();
 public:
 	void setUser(const QJsonObject& obj, const QPixmap& pixmap);
+	void setGroup(const QJsonObject& obj, const QPixmap& pixmap);
 private:
 	Ui::AddWidget* ui{};
 	LineEditwithButton* m_grouping{};
-	QString m_friendName{};
-	QString m_friendId{};
-	QPixmap m_friendHead{};
+	QString m_addName{};
+	QString m_addId{};
+	QPixmap m_addHeadPix{};
 	bool m_isSend{};
+	ChatType m_type{ ChatType::User };
 };
 
 

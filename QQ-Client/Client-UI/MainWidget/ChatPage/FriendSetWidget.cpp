@@ -23,13 +23,17 @@ FriendSetWidget::FriendSetWidget(QWidget* parent)
 void FriendSetWidget::setId(const QString& user_id)
 {
 	m_userId = user_id;
+	if (m_userId == LoginUserManager::instance()->getLoginUserID())
+	{
+		ui->deleteBtn->setVisible(false);
+	}
 }
 
 void FriendSetWidget::init()
 {
 	this->setStyleSheet(R"(
 		QWidget{ border: none;background-color:white;}
-		QPushButton{border:1px solid rgb(220,220,220);height:25px;border-radius:5px;}
+		QPushButton{border:1px solid rgb(220,220,220);height:25px;border-radius:5px;color:red}
 		QPushButton:hover{background-color:rgb(220,220,220);}"
 		)");
 	ui->deleteBtn->setFixedWidth(200);

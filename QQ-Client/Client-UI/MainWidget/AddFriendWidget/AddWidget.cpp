@@ -66,10 +66,27 @@ void AddWidget::init()
 	//发送
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
+			//群组
+			if (m_type == ChatType::Group)
+			{
+				QJsonObject applicateGroupObj;
+				applicateGroupObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				applicateGroupObj["username"] = LoginUserManager::instance()->getLoginUserName();
+				applicateGroupObj["to"] = m_addId;
+				qDebug() << "applicateGroupObj[to] :" << m_addId;
+				applicateGroupObj["message"] = ui->messageEdit->text();
+				applicateGroupObj["noticeMessage"] = "请求加入群组"+ m_addName;
+
+				auto message = PacketCreate::textPacket("addGroup", applicateGroupObj);
+				MessageSender::instance()->sendMessage(message);
+				this->close();
+				return;
+			}
+			//好友
 			if (m_isSend)//申请
 			{
 				auto& applicateFriendObj = LoginUserManager::instance()->getLoginUser()->getFriend();
-				applicateFriendObj["to"] = m_friendId;
+				applicateFriendObj["to"] = m_addId;
 				applicateFriendObj["message"] = ui->messageEdit->text();
 				applicateFriendObj["noticeMessage"] = "请求加为好友";
 				applicateFriendObj["grouping"] = m_grouping->getLineEditText();
@@ -81,7 +98,7 @@ void AddWidget::init()
 			{
 				//用户信息
 				QJsonObject friendObj;
-				friendObj["to"] = m_friendId;
+				friendObj["to"] = m_addId;
 				friendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 				friendObj["grouping"] = m_grouping->getLineEditText();
 				friendObj["replyMessage"] = "同意了你的好友申请";
@@ -100,10 +117,11 @@ void AddWidget::init()
 //用户信息
 void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 {
-	m_friendName = obj["username"].toString();
-	m_friendId = obj["user_id"].toString();
-	ui->nameLab->setText(m_friendName);
-	ui->idLab->setText(m_friendId);
+	m_type = ChatType::User;
+	m_addName = obj["username"].toString();
+	m_addId = obj["user_id"].toString();
+	ui->nameLab->setText(m_addName);
+	ui->idLab->setText(m_addId);
 	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(60, 60));
 	ui->headLab->setPixmap(headPix);
 	if (!obj["isSend"].toBool())
@@ -117,6 +135,24 @@ void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 	else
 	{
 		m_isSend = true;
-		m_grouping->getLineEditText();
+		ui->messageLab->setText("好友申请信息");
+	}
+}
+
+void AddWidget::setGroup(const QJsonObject& obj, const QPixmap& pixmap)
+{
+	m_type = ChatType::Group;
+	m_addName = obj["group_name"].toString();
+	m_addId = obj["group_id"].toString();
+	ui->nameLab->setText(m_addName);
+	ui->idLab->setText(m_addId);
+	auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(60, 60));
+	ui->headLab->setPixmap(headPix);
+	if (obj["isSend"].toBool())
+	{
+		m_isSend = true;
+		m_grouping->setVisible(false);
+		ui->groupIngLab->setVisible(false);
+		ui->messageLab->setText("群组申请信息");
 	}
 }

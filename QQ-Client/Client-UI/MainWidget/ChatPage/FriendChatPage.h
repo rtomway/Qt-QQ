@@ -30,14 +30,18 @@ public:
 	void clearChatPage();
 private:
 	void init();
-	void installEventFilterForChildren(QWidget* parent);
 	void sendImageMessageToServer(const QString& user_id, const QPixmap& pixmap);
 	void sendTextMessageToServer(const QString& user_id, const QPixmap& pixmap);
+private:
+	void installEventFilterForChildren(QWidget* parent);
+	void showSetWidget();
+	void hideSetWidget();
 private:
 	QSharedPointer<Friend>m_friend{};
 	std::shared_ptr<ChatRecordMessage>m_chat{};
 	FriendSetWidget* m_setWidget{};
-	QPropertyAnimation* m_animation{};
+	QPropertyAnimation* m_showAnimation{};
+	QPropertyAnimation* m_hideAnimation{};
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 	void resizeEvent(QResizeEvent* ev)override;

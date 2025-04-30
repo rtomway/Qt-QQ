@@ -14,6 +14,12 @@ TempManager::TempManager()
 			addFriendRequest(user_id, obj, pixmap);
 			emit FriendRequest(user_id);
 		});
+	connect(EventBus::instance(), &EventBus::addGroup, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+		{
+			auto group_id = obj["group_id"].toString();
+			addGroupRequest(group_id, obj, pixmap);
+			emit groupAddRequest(group_id);
+		});
 	connect(EventBus::instance(), &EventBus::rejectAddFriend, this, [=](const QJsonObject& obj)
 		{
 			auto user_id = obj["user_id"].toString();

@@ -40,6 +40,7 @@ signals:
 	void loadGroupListSuccess();
 	void groupTextCommunication(const QJsonObject& obj);
 	void groupPictureCommunication(const QJsonObject& obj, const QPixmap& pixmap);
+	void chatWithGroup(const QString& group_id);
 };
 
 #endif // !GROUPMANAGER_H_

@@ -45,7 +45,7 @@ void Friend::setGrouping(const QString& grouping)
 	m_json["grouping"] = m_grouping;
 }
 //获取分组
-const QString& Friend::getGrouping() const
+QString Friend::getGrouping() const
 {
 	return m_grouping;
 }
