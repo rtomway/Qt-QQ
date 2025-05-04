@@ -10,8 +10,11 @@ add_library(Server-Core STATIC
   "Server-MessageHandle/FriendHandle.h" "Server-MessageHandle/FriendHandle.cpp" 
   "Server-MessageHandle/GroupHandle.h" "Server-MessageHandle/GroupHandle.cpp" 
   "Server-MessageHandle/UserHandle.h" "Server-MessageHandle/UserHandle.cpp"
- "HttpRouteManager.h" "HttpRouteManager.cpp" "Server-DBUtils/GroupDBUtils.h" "Server-DBUtils/GroupDBUtils.cpp"
-)
+ "HttpRouteManager.h" "HttpRouteManager.cpp" 
+ "Server-DBUtils/GroupDBUtils.h" "Server-DBUtils/GroupDBUtils.cpp"
+ "Server-DBUtils/LoginDBUtils.h" "Server-DBUtils/LoginDBUtils.cpp" 
+ "Server-DBUtils/FriendDBUtils.h" "Server-DBUtils/FriendDBUtils.cpp" 
+ "Server-DBUtils/UserDBUtils.h" "Server-DBUtils/UserDBUtils.cpp")
 # 添加 include 路径（让头文件可见）
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/Server-DBUtils

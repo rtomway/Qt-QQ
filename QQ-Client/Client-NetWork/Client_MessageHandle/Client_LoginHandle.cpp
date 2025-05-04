@@ -16,7 +16,8 @@
 //登录成功
 void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	QJsonObject loginUser = paramsObject["loginUser"].toObject();
+	QJsonObject loginUser = paramsObject;
+	qDebug() << "handle_loginSuccess" << loginUser;
 	EventBus::instance()->emit initLoginUser(loginUser);
 	auto user_id = loginUser["user_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)

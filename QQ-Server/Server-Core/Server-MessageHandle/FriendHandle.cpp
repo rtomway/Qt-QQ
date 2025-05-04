@@ -6,6 +6,8 @@
 #include "ConnectionManager.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
+#include "FriendDBUtils.h"
+#include "UserDBUtils.h"
 
 QString FriendHandle::m_sendGrouping = QString();
 QString FriendHandle::m_receiveGrouping = QString();
@@ -73,32 +75,40 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 	auto receive_id = paramsObject["to"].toString();
 	//保存分组信息
 	m_receiveGrouping = paramsObject["grouping"].toString();
+	MyFriend friend_1(send_id,receive_id,m_sendGrouping);
+	MyFriend friend_2(receive_id, send_id, m_receiveGrouping);
 	//好友列表新增
 	DataBaseQuery query;
-	QString queryStr = "insert into friendship (user_id,friend_id,Fgrouping)values(?,?,?),(?,?,?)";
-	QVariantList bindvalues;
-	bindvalues.append(send_id);
-	bindvalues.append(receive_id);
-	bindvalues.append(m_receiveGrouping);
-	bindvalues.append(receive_id);
-	bindvalues.append(send_id);
-	bindvalues.append(m_sendGrouping);
-	auto queryResult = query.executeNonQuery(queryStr, bindvalues);
-	bindvalues.clear();
-	//错误返回
-	if (!queryResult) {
-		qDebug() << "Error query:";
+	QVariantMap sendMap;
+	QVariantMap receiveMap;
+	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+	{
+			if (!FriendDBUtils::insertFriend(friend_1,query,queryPtr))
+			{
+				return false;
+			}
+			if (!FriendDBUtils::insertFriend(friend_2, query, queryPtr))
+			{
+				return false;
+			}
+			sendMap = UserDBUtils::queryUserDetail(send_id, query, queryPtr).toVariantMap();
+			sendMap["Fgrouping"] = m_receiveGrouping;
+			if (sendMap.contains("error"))
+			{
+				return false;
+			}
+			receiveMap = UserDBUtils::queryUserDetail(receive_id, query, queryPtr).toVariantMap();
+			receiveMap["Fgrouping"] = m_sendGrouping;
+			if (receiveMap.contains("error"))
+			{
+				return false;
+			}
+	});
+	if (!result)
 		return;
-	}
 	//通知两边客户端
-	QVariantMap receiveMap = getUserMessage(receive_id);
-	receiveMap["grouping"] = m_sendGrouping;
-	QVariantMap sendMap = getUserMessage(send_id);
-	sendMap["grouping"] = m_receiveGrouping;
 	auto reveiveImage = ImageUtils::loadImage(receive_id, ChatType::User);
 	auto sendImage = ImageUtils::loadImage(send_id, ChatType::User);
-	receiveMap["size"] = reveiveImage.size();
-	sendMap["size"] = sendImage.size();
 	//打包
 	auto receivePacket = PacketCreate::binaryPacket("newFriend", receiveMap, reveiveImage);
 	QByteArray receiveData;
@@ -130,50 +140,17 @@ void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const Q
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
 }
-//获取用户信息
-QVariantMap FriendHandle::getUserMessage(const QString& user_id)
-{
-	//查询用户信息
-	DataBaseQuery query;
-	QString queryStr = "select * from user where user_id=?";
-	QVariantList bindvalues;
-	bindvalues.append(user_id);
-	auto allQueryObj = query.executeQuery(queryStr, bindvalues);
-	//错误返回
-	if (allQueryObj.contains("error")) {
-		qDebug() << "Error executing query:" << allQueryObj["error"].toString();
-		return QVariantMap();
-	}
-	//查询数据验证
-	QJsonObject userDataObj; //存放返回客户端的所有信息
-	QJsonArray userArray = allQueryObj["data"].toArray();
-	for (const auto& userValue : userArray)
-	{
-		QJsonObject userObj = userValue.toObject();
-		userObj.remove("password");
-		return userObj.toVariantMap();
-	}
-}
 //好友分组更新
 void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	auto user_id = paramsObj["user_id"].toString();
 	auto friend_id = paramsObj["friend_id"].toString();
 	auto grouping = paramsObj["grouping"].toString();
-	//数据库查询
-	//注册信息插入
+	MyFriend myFriend(user_id, friend_id, grouping);
 	DataBaseQuery query;
-	QString queryStr = "update friendship f set Fgrouping = ? where f.user_id=? and f.friend_id=?";
-	QVariantList bindvalues;
-	bindvalues.append(grouping);
-	bindvalues.append(user_id);
-	bindvalues.append(friend_id);
-	auto queryResult = query.executeNonQuery(queryStr, bindvalues);
-	bindvalues.clear();
-	//错误返回
-	if (!queryResult) {
-		qDebug() << "Error query:";
-		return;
+	if (!FriendDBUtils::updateFriendGrouping(myFriend, query))
+	{
+
 	}
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }
@@ -181,22 +158,13 @@ void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, con
 void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	qDebug() << "删除好友";
-	//auto paramsObject = QJsonDocument::fromJson(data);
 	auto user_id = paramsObj["user_id"].toString();
 	auto friend_id = paramsObj["friend_id"].toString();
-	// 数据库查询
-	//注册信息插入
+	MyFriend myFriend(user_id, friend_id);
 	DataBaseQuery query;
-	QString queryStr = "delete from friendship where user_id=? and friend_id=?";
-	QVariantList bindvalues;
-	bindvalues.append(user_id);
-	bindvalues.append(friend_id);
-	auto queryResult = query.executeNonQuery(queryStr, bindvalues);
-	bindvalues.clear();
-	//错误返回
-	if (!queryResult) {
-		qDebug() << "Error query:";
-		return;
+	if (!FriendDBUtils::deleteFriend(myFriend, query))
+	{
+
 	}
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }

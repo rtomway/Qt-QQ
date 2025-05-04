@@ -34,6 +34,7 @@ public:
 	static Group queryGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static QStringList queryGroupMemberIdList(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static GroupMember queryGroupMember(const QString& group_id, const QString&member_id,DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static QStringList queryGroupIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 };
 
 #endif // !GROUPDBUTILS_H_

@@ -144,3 +144,26 @@ GroupMember GroupDBUtils::queryGroupMember(const QString& group_id, const QStrin
 	groupMember.group_role = groupMemberObj["group_role"].toString();
 	return groupMember;
 }
+//查询群组id
+QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+{
+	qDebug() << "------------------------------------查询所有群组ID---------------------------------------";
+	QString queryStr = QString("select group_id from groupmembers where user_id=?");
+	QVariantList bindValues;
+	bindValues.append(user_id);
+	auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
+	if (queryResult.contains("error"))
+	{
+		qDebug() << "查询所有群组id失败";
+	}
+	QStringList group_idList;
+	auto groupArray = queryResult["data"].toArray();
+	for (auto groupIdValues : groupArray)
+	{
+		auto group_idObj = groupIdValues.toObject();
+		auto group_id = group_idObj["group_id"].toString();
+		group_idList.append(group_id);
+		qDebug() << "查询所有群组id----------:" << group_id;
+	}
+	return group_idList;
+}

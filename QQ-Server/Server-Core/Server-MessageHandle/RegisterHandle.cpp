@@ -10,7 +10,6 @@
 //注册
 void RegisterHandle::handle_register(const QJsonObject& paramsObj,const QByteArray& data, QHttpServerResponder& responder)
 {
-	//auto paramsObject = QJsonDocument::fromJson(data);
 	auto user_id = CreateId::generateUserID(CreateId::Id::User);
 	QString username = paramsObj["username"].toString();
 	QString password = paramsObj["password"].toString();

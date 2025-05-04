@@ -16,7 +16,6 @@ public:
 	static void handle_loadGroupMemberAvatar(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_loadGroupAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_loadFriendAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
-	static QJsonArray getFriendsMessage(const QString& user_id);
 };
 
 #endif // !LOGINHANDLE_H_
