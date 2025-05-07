@@ -269,6 +269,19 @@ void ContactListWidget::externalSignals()
 			topItem->removeChild(item);
 			auto topItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(topItem, 0));
 			topItemWidget->setCount(topItem->childCount());
+			FriendManager::instance()->removeFriend(user_id);
+		});
+	//退出分组
+	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString&group_id,const QString& user_id)
+		{
+			auto exitGroup = GroupManager::instance()->findGroup(group_id);
+			auto& grouping = exitGroup->getGrouping();
+			auto topItem = getGroupTopItem(grouping);
+			auto item = findItemByIdInGroup(topItem, group_id);
+			topItem->removeChild(item);
+			auto topItemWidget = qobject_cast<TopItemWidget*>(m_groupList->itemWidget(topItem, 0));
+			topItemWidget->setCount(topItem->childCount());
+			GroupManager::instance()->removeGroup(group_id);
 		});
 	//新增群组
 	connect(GroupManager::instance(), &GroupManager::createGroupSuccess, this, [=](const QString& group_id)

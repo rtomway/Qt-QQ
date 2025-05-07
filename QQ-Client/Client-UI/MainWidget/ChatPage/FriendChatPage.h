@@ -22,6 +22,7 @@ public:
 public:
 	//重写
 	void setChatWidget(const QString& id);
+	void initSetWidget()override;
 	void refreshChatWidget()override;
 	bool isCurrentChat(const QString& id) const;
 	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
@@ -33,18 +34,9 @@ private:
 	void sendImageMessageToServer(const QString& user_id, const QPixmap& pixmap);
 	void sendTextMessageToServer(const QString& user_id, const QPixmap& pixmap);
 private:
-	void installEventFilterForChildren(QWidget* parent);
-	void showSetWidget();
-	void hideSetWidget();
-private:
 	QSharedPointer<Friend>m_friend{};
 	std::shared_ptr<ChatRecordMessage>m_chat{};
-	FriendSetWidget* m_setWidget{};
-	QPropertyAnimation* m_showAnimation{};
-	QPropertyAnimation* m_hideAnimation{};
-protected:
-	bool eventFilter(QObject* watched, QEvent* event) override;
-	void resizeEvent(QResizeEvent* ev)override;
+
 private:
 	QStringList m_imageMessagePath{};
 	QString m_textMessage{};

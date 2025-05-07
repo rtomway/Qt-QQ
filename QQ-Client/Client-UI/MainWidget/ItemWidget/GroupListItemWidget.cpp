@@ -39,4 +39,10 @@ void GroupListItemWidget::setGrouping(const QString& grouping)
 	m_group->setGrouping(grouping);
 }
 
+void GroupListItemWidget::showGroupId()
+{
+	ui->messageWidget->setVisible(true);
+	ui->preMessageLab->setText(m_groupId);
+}
+
 

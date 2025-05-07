@@ -318,3 +318,63 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	//向新成员发送群组信息
 	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
 }
+//退出群组
+void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	GroupMember groupMember;
+	groupMember.user_id = paramsObj["user_id"].toString();
+	groupMember.username = paramsObj["username"].toString();
+	groupMember.group_id = paramsObj["group_id"].toString();
+	DataBaseQuery query;
+	Group queryGroup;
+	QString groupOwner_id;
+	QStringList groupMember_idList;
+	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+		{
+			if (!GroupDBUtils::deleteGroupMember(groupMember, query, queryPtr))
+			{
+				return false;
+			}
+			if (!GroupDBUtils::groupMemberCountSub(groupMember.group_id,query, queryPtr))
+			{
+				return false;
+			}
+			groupMember_idList = GroupDBUtils::queryGroupMemberIdList(groupMember.group_id, query, queryPtr);
+			queryGroup = GroupDBUtils::queryGroup(groupMember.group_id, query, queryPtr);
+			if (queryGroup.group_id.isEmpty())
+			{
+				return false;
+			}
+			groupOwner_id = queryGroup.owner_id;
+			return true;
+		});
+	if (!result)
+		return;
+	//给群主发送成员退出通知
+	QVariantMap MemberExitGroupMap;
+	MemberExitGroupMap["user_id"] = groupMember.user_id;
+	MemberExitGroupMap["username"] = groupMember.username;
+	MemberExitGroupMap["group_id"] = groupMember.group_id;
+	MemberExitGroupMap["noticeMessage"] = "退出群组" + queryGroup.group_name;
+	MemberExitGroupMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	auto imageData = ImageUtils::loadImage(groupMember.user_id, ChatType::User);
+	auto packet = PacketCreate::binaryPacket("groupMemberExitGroup", MemberExitGroupMap, imageData);
+	QByteArray MemberExitGroupData;
+	PacketCreate::addPacket(MemberExitGroupData, packet);
+	auto allData = PacketCreate::allBinaryPacket(MemberExitGroupData);
+	//向群主发送通知信息
+	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
+	//通知群组其他成员
+	QJsonObject exitGroupObj;
+	exitGroupObj["type"] = "removeGroupMember";
+	exitGroupObj["params"] = paramsObj;
+	QJsonDocument doc(paramsObj);
+	auto message = QString(doc.toJson(QJsonDocument::Compact));
+	for (auto& member_id : groupMember_idList)
+	{
+		if (member_id != groupMember.user_id)
+			ConnectionManager::instance()->sendTextMessage(member_id, message);
+	}
+	//返回客户端操作结果
+	responder.write(QHttpServerResponder::StatusCode::NoContent);
+}

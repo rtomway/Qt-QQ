@@ -41,6 +41,7 @@ signals:
 	void groupTextCommunication(const QJsonObject& obj);
 	void groupPictureCommunication(const QJsonObject& obj, const QPixmap& pixmap);
 	void chatWithGroup(const QString& group_id);
+	void exitGroup(const QString& group_id, const QString& user_id);
 };
 
 #endif // !GROUPMANAGER_H_

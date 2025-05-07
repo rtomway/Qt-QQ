@@ -15,6 +15,8 @@ public:
 	void handle_groupInviteSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_groupMemberLoad(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_newGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_removeMember(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_groupMemberExitGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 };
 
 #endif // !CLIENT_GROUPHANDLE_H_

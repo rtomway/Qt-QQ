@@ -5,9 +5,10 @@
 #include <QJsonObject>
 
 #include "Friend.h"
+#include "AngleRoundedWidget.h"
 
 namespace Ui { class ItemWidget; }
-class ItemWidget :public QWidget
+class ItemWidget :public AngleRoundedWidget
 {
 	Q_OBJECT
 public:

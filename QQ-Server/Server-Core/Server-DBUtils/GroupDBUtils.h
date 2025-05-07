@@ -24,17 +24,18 @@ struct GroupMember
 	QString username;
 };
 
-
 class GroupDBUtils
 {
 public:
 	static bool insertGroup(const Group& groupParams,DataBaseQuery&query, std::shared_ptr<QSqlQuery> queryPtr=nullptr);
 	static bool insertGroupMember(const GroupMember& groupMemberParams, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static bool groupMemberCountAdd(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static bool groupMemberCountSub(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static Group queryGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static QStringList queryGroupMemberIdList(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static GroupMember queryGroupMember(const QString& group_id, const QString&member_id,DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static QStringList queryGroupIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static bool deleteGroupMember(const GroupMember& groupMember, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 };
 
 #endif // !GROUPDBUTILS_H_

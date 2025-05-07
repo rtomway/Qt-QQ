@@ -11,6 +11,7 @@ public:
 	GroupListItemWidget(QWidget* parent = nullptr);
 	virtual void setItemWidget(const QString& group_id)override;
 	void setGrouping(const QString& grouping);
+	void showGroupId();
 private:
 	void init();
 private:

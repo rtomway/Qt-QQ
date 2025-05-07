@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget* parent)
 	//显示需要刷新背景颜色 否则跟随父窗口背景色
 	m_loginWidget->setAutoFillBackground(true);
 	qDebug() << "mainWindow:" << this->size();
+
+
 }
 
 void MainWindow::init()

@@ -49,6 +49,7 @@ signals:
 	void GroupInvite(const QString& group_id);
 	void GroupInviteSuccess(const QString& group_id);
 	void groupAddRequest(const QString& group_id);
+	void groupMemberExitGroup(const QString& group_id);
 };
 
 #endif // !TEMPMANAGER_H_

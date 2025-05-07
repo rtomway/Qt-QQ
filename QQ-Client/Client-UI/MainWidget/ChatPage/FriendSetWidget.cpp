@@ -27,6 +27,10 @@ void FriendSetWidget::setId(const QString& user_id)
 	{
 		ui->deleteBtn->setVisible(false);
 	}
+	else
+	{
+		ui->deleteBtn->setVisible(true);
+	}
 }
 
 void FriendSetWidget::init()
@@ -46,7 +50,7 @@ void FriendSetWidget::init()
 			}
 			this->hide();
 			//数据更新
-			EventBus::instance()->deleteFriend(m_userId);
+			EventBus::instance()->emit deleteFriend(m_userId);
 			QJsonObject deleteObj;
 			deleteObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 			deleteObj["friend_id"] = m_userId;

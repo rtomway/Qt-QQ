@@ -60,6 +60,8 @@ void MessageHandle::initRequestHash()
 	registerHandle("newGroup", m_groupHandle, &Client_GroupHandle::handle_newGroup);
 	registerHandle("createGroupSuccess", m_groupHandle, &Client_GroupHandle::handle_createGroupSuccess);
 	registerHandle("groupInvite", m_groupHandle, &Client_GroupHandle::handle_groupInvite);
+	registerHandle("removeGroupMember", m_groupHandle, &Client_GroupHandle::handle_removeMember);
+	registerHandle("groupMemberExitGroup", m_groupHandle, &Client_GroupHandle::handle_groupMemberExitGroup);
 }
 
 //记录token

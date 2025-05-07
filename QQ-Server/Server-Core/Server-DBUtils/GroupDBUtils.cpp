@@ -67,6 +67,25 @@ bool GroupDBUtils::groupMemberCountAdd(const QString& group_id, DataBaseQuery& q
 	}
 	return true;
 }
+//群人数减1
+bool GroupDBUtils::groupMemberCountSub(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+{
+	qDebug() << "------------------------------------群人数减1---------------------------------------";
+	QString queryStr = QString(
+		"update `group`\
+		set groupMemberCount=groupMemberCount-1\
+		where group_id=?"
+	);
+	QVariantList bindValues;
+	bindValues.append(group_id);
+	auto updateResult = query.executeNonQuery(queryStr, bindValues, queryPtr);
+	if (!updateResult)
+	{
+		qDebug() << "groupMemberCountSub failed";
+		return false;
+	}
+	return true;
+}
 //群组查询
 Group GroupDBUtils::queryGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -166,4 +185,23 @@ QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery
 		qDebug() << "查询所有群组id----------:" << group_id;
 	}
 	return group_idList;
+}
+//删除群成员
+bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+{
+	qDebug() << "------------------------------------插入群成员---------------------------------------";
+	QString queryStr = QString(
+		"delete from groupMembers\
+		where group_id=? and user_id=?"
+	);
+	QVariantList bindValues;
+	bindValues.append(groupMember.group_id);
+	bindValues.append(groupMember.user_id);
+	auto deleteResult = query.executeNonQuery(queryStr, bindValues, queryPtr);
+	if (!deleteResult)
+	{
+		qDebug() << "deleteGroupMember failed";
+		return false;
+	}
+	return true;
 }

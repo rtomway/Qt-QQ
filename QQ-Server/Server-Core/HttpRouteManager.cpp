@@ -25,6 +25,7 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/updateUserMessage");
 	registerHttpRoute("/updateUserAvatar");
 	registerHttpRoute("/deleteFriend");
+	registerHttpRoute("/exitGroup");
 }
 
 void HttpRouteManager::registerHttpRoute(const QString& path)

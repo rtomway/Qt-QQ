@@ -8,10 +8,11 @@
 #include <QPixmap>
 #include <memory>
 #include <QPropertyAnimation>
+#include <QWindow>
 
 #include "ChatRecordMessage.h"
-#include "FriendSetWidget.h"
 #include "MessageBubble.h"
+
 
 class GroupChatPage :public ChatPage
 {
@@ -24,6 +25,7 @@ private:
 public:
 	//重写
 	void setChatWidget(const QString& id);
+	void initSetWidget()override;
 	void refreshChatWidget()override;
 	bool isCurrentChat(const QString& id) const;
 	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());

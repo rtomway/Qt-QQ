@@ -75,6 +75,12 @@ void NoticeWidget::init()
 			addNoticeItem(group_id, ChatType::Group, false);
 			emit groupNotice();
 		});
+	//群成员退出群聊
+	connect(TempManager::instance(), &TempManager::groupMemberExitGroup, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group,true);
+			emit groupNotice();
+		});
 }
 //init堆栈窗口
 void NoticeWidget::initStackedWidget()

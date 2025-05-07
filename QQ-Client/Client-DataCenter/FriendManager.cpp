@@ -83,7 +83,6 @@ FriendManager::FriendManager()
 	//好友删除
 	connect(EventBus::instance(), &EventBus::deleteFriend, this, [=](const QString& user_id)
 		{
-			m_friends.remove(user_id);
 			emit deleteFriend(user_id);
 		});
 }
@@ -138,6 +137,11 @@ QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString&
 		}
 	}
 	return result;
+}
+//删除好友
+void FriendManager::removeFriend(const QString& friend_id)
+{
+	m_friends.remove(friend_id);
 }
 //将好友中心清空(切换用户)
 void FriendManager::clearFriendManager()

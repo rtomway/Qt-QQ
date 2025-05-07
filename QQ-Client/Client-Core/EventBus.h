@@ -42,6 +42,9 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void newGroupMember(const QJsonObject& paramsObject);
 	void groupMemberload(const QJsonObject& paramsObject);
 	void newGroup(const QJsonObject& paramsObject);
+	void exitGroup(const QString& group_id, const QString& user_id);
+	void groupMemberExitGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void removeGroupMember(const QJsonObject& paramsObject);
 	//用户
 	void searchUser(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void searchGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);

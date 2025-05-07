@@ -25,6 +25,8 @@ public:
 	QSharedPointer<Friend>findFriend(const QString& id)const;
 	//好友搜索
 	QHash<QString, QSharedPointer<Friend>> findFriends(const QString& text)const;
+	//删除好友
+	void removeFriend(const QString& friend_id);
 	//清除
 	void clearFriendManager();
 private:

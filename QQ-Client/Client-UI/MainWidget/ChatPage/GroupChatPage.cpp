@@ -3,6 +3,11 @@
 #include <QVariant>
 #include <QFileDialog>
 #include <QBuffer>
+#include <QTimer>
+#include <QMouseEvent>
+#include <QApplication>
+#include <QMessageBox>
+#include <QJsonDocument>
 
 #include "GroupManager.h"
 #include "ChatRecordManager.h"
@@ -12,6 +17,8 @@
 #include "ImageUtil.h"
 #include "TipMessageItemWidget.h"
 #include "PacketCreate.h"
+#include "GroupListItemWidget.h"
+#include "EventBus.h"
 
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
@@ -81,6 +88,19 @@ void GroupChatPage::init()
 				}
 			}
 		});
+	//设置面板
+	connect(ui->moreBtn, &QPushButton::clicked, this, [=]
+		{
+			m_setWidget->setId(m_group->getGroupId());
+			qDebug() << "设置面板";
+			qDebug() << m_setWidget->isHidden();
+			if (!m_setWidget->isHidden())
+			{
+				hideSetWidget();
+				return;
+			}
+			showSetWidget();
+		});
 }
 //设置会话界面信息
 void GroupChatPage::setChatWidget(const QString& id)
@@ -112,7 +132,7 @@ void GroupChatPage::setChatWidget(const QString& id)
 	}
 	//界面信息
 	m_title = QString("%1(%2)").arg(m_group->getGroupName()).arg(m_group->count());
-
+	initSetWidget();
 	refreshChatWidget();
 }
 //刷新会话界面
@@ -202,6 +222,40 @@ void GroupChatPage::sendTextMessageToServer(const QString& user_id, const QPixma
 	groupMessageObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 	auto message = PacketCreate::textPacket("groupTextCommunication", groupMessageObj);
 	MessageSender::instance()->sendMessage(message);
+}
+//初始化设置面板
+void GroupChatPage::initSetWidget()
+{
+	m_setWidget->clearListWidget();
+	auto groupItemWidget = new GroupListItemWidget(m_setWidget);
+	groupItemWidget->setItemWidget(m_group->getGroupId());
+	groupItemWidget->showGroupId();
+	groupItemWidget->setStyleSheet(R"(
+		QWidget{ border: none;border-radius:10px;background-color:white;}
+		)");
+	m_setWidget->addItemWidget(groupItemWidget,80);
+	auto exitGroupBtn = new QPushButton(m_setWidget);
+	exitGroupBtn->setText("退出群聊");
+	exitGroupBtn->setStyleSheet(R"(
+		QPushButton{background-color:white;border:1px solid white;height:25px;border-radius:5px;color:red}
+		QPushButton:hover{background-color:rgb(240,240,240);}
+		)");
+	m_setWidget->addItemWidget(exitGroupBtn, 30);
+	connect(exitGroupBtn, &QPushButton::clicked, this, [=]
+		{
+			auto deleteResult = QMessageBox::question(nullptr, "退出群聊", "请确认是否退出");
+			if (deleteResult == QMessageBox::No)
+				return;
+			m_setWidget->hide();
+			EventBus::instance()->emit exitGroup(m_group->getGroupId(),m_loginUser->getFriendId());
+			QJsonObject deleteObj;
+			deleteObj["user_id"] = m_loginUser->getFriendId();
+			deleteObj["username"] = m_loginUser->getFriendName();
+			deleteObj["group_id"] = m_group->getGroupId();
+			QJsonDocument doc(deleteObj);
+			QByteArray data = doc.toJson(QJsonDocument::Compact);
+			MessageSender::instance()->sendHttpRequest("exitGroup", data, "application/json");
+		});
 }
 //消息气泡
 void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)

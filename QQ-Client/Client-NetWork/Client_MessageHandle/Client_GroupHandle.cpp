@@ -105,3 +105,24 @@ void Client_GroupHandle::handle_newGroup(const QJsonObject& paramsObject, const 
 		});
 
 }
+void Client_GroupHandle::handle_removeMember(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	EventBus::instance()->emit removeGroupMember(paramsObject);
+}
+void Client_GroupHandle::handle_groupMemberExitGroup(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+		QPixmap pixmap;
+		if (data.isEmpty())
+		{
+			qDebug() << "无数据";
+		}
+		else if (!pixmap.loadFromData(data))
+		{
+			qDebug() << "client-头像加载失败";
+			return;
+		};
+		EventBus::instance()->emit groupMemberExitGroup(paramsObject, pixmap);
+		});
+}

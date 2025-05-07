@@ -7,7 +7,7 @@
 #include "ImageUtil.h"
 
 ItemWidget::ItemWidget(QWidget* parent)
-	:QWidget(parent)
+	:AngleRoundedWidget(parent)
 	, ui(new Ui::ItemWidget)
 {
 	ui->setupUi(this);
@@ -20,6 +20,7 @@ ItemWidget::~ItemWidget()
 void ItemWidget::init()
 {
 	ui->nameLab->setStyleSheet(QString("QLabel{font-size:14px}"));
+	this->setStyleSheet(QString("QWidget{border:none;border-radius:10px}"));
 	QPixmap pixmap = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/qq.png"), QSize(40, 40));
 	ui->headLab->setPixmap(pixmap);
 }

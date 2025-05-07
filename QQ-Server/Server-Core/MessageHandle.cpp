@@ -60,6 +60,7 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["deleteFriend"] = &FriendHandle::handle_deleteFriend;
 	//群组
 	httpRequestHash["groupMemberLoad"] = &GroupHandle::handle_groupMemberLoad;
+	httpRequestHash["exitGroup"] = &GroupHandle::handle_exitGroup;
 }
 
 //token验证

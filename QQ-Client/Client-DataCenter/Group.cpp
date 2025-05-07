@@ -34,7 +34,6 @@ const QString& Group::getGroupName() const
 //批量加载群成员
 void Group::batchLoadGroupMember(const QJsonArray& memberArray)
 {
-	qDebug() << "--------------------loadGroupMembers----------------";
 	for (auto memberValue : memberArray)
 	{
 		auto memberObj = memberValue.toObject();
@@ -42,19 +41,16 @@ void Group::batchLoadGroupMember(const QJsonArray& memberArray)
 		member.member_id = memberObj["user_id"].toString();
 		member.member_name = memberObj["username"].toString();
 		member.member_role = memberRole(memberObj["group_role"].toString());
-		qDebug() << member.member_id << member.member_name << member.member_role;
 		m_members.insert(member.member_id, member);
 	}
 }
 //加载单个群成员
 void Group::loadGroupMember(const QJsonObject& memberObj)
 {
-	qDebug() << "--------------------loadGroupMember----------------";
 	Member member;
 	member.member_id = memberObj["user_id"].toString();
 	member.member_name = memberObj["username"].toString();
 	member.member_role = memberRole(memberObj["group_role"].toString());
-	qDebug() << member.member_id << member.member_name << member.member_role;
 	m_members.insert(member.member_id, member);
 }
 //获取群成员id列表

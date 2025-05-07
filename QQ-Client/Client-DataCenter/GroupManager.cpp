@@ -159,6 +159,21 @@ GroupManager::GroupManager()
 					emit groupPictureCommunication(obj, pixmap);
 				});
 		});
+	//退出群聊
+	connect(EventBus::instance(), &EventBus::exitGroup, this, [=](const QString& group_id, const QString& user_id)
+		{
+			emit exitGroup(group_id, user_id);
+		});
+	//有群成员退出群聊
+	connect(EventBus::instance(), &EventBus::groupMemberExitGroup, this, [=](const QJsonObject& obj)
+		{
+			auto group_id = obj["group_id"].toString();
+			auto user_id = obj["user_id"].toString();
+			auto user_name = obj["user_name"].toString();
+			auto group = findGroup(group_id);
+			group->removeMember(user_id);
+			
+		});
 }
 GroupManager* GroupManager::instance()
 {
@@ -241,8 +256,6 @@ void GroupManager::addGroup(const QSharedPointer<Group>& group)
 	if (!m_groups.contains(group_id))
 	{
 		m_groups.insert(group_id, group);
-		qDebug() << "-------------添加群组聊天记录-------------------";
-		qDebug() << group_id << group->getGroupName();
 		auto& loginUserId = LoginUserManager::instance()->getLoginUserID();
 		ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(loginUserId, group_id, ChatType::Group));
 	}

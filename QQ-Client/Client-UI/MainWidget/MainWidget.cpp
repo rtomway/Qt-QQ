@@ -25,6 +25,7 @@
 #include "MessageRecord.h"
 #include "LoginUserManager.h"
 
+
 MainWidget::MainWidget(QWidget* parent)
 	:AngleRoundedWidget(parent)
 	, ui(new Ui::MainWidget)
@@ -458,7 +459,8 @@ void MainWidget::connectFriendManagerSignals()
 	//删除好友
 	connect(FriendManager::instance(), &FriendManager::deleteFriend, this, [=](const QString& user_id)
 		{
-			auto item = findListItem(user_id);
+			auto key = itemKey(user_id, ChatType::User);
+			auto item = findListItem(key);
 			m_chatMessageListWidget->takeItem(m_chatMessageListWidget->row(item));
 			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
 			m_friendProfilePage->clearWidget();
@@ -531,6 +533,15 @@ void MainWidget::connectGroupManagerSignals()
 				newItemWidget->updateUnReadMessage(user_id, message, time.toString("MM-dd hh:mm"));
 				newItemWidget->setItemWidget(group_id);
 			}
+		});
+	//退出群组
+	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString& group_id,const QString& user_id)
+		{
+			auto key = itemKey(group_id, ChatType::Group);
+			auto item = findListItem(key);
+			m_chatMessageListWidget->takeItem(m_chatMessageListWidget->row(item));
+			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
+			m_groupProfilePage->clearWidget();
 		});
 }
 //连接成员对象控件等信号

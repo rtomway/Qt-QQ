@@ -10,9 +10,9 @@
 #include "ChatRecordMessage.h"
 #include "Friend.h"
 #include "Group.h"
-#include "FriendSetWidget.h"
 #include "MessageBubble.h"
 #include "MessageRecord.h"
+#include "SetPannelWidget.h"
 
 namespace Ui { class ChatPage; }
 
@@ -38,8 +38,18 @@ protected:
 protected:
 	void loadChatMessage(const ChatRecordMessage& chatMessage);
 protected:
+	virtual void initSetWidget()=0;
+	void showSetWidget();
+	void hideSetWidget();
+protected:
+	bool eventFilter(QObject* watched, QEvent* event) override;
+	void resizeEvent(QResizeEvent* ev)override;
+protected:
 	QSharedPointer<Friend>m_loginUser{};
 	QString m_title{};
+	SetPannelWidget* m_setWidget{};
+	QPropertyAnimation* m_showAnimation{};
+	QPropertyAnimation* m_hideAnimation{};
 	bool m_currentChat{ false };
 };
 
