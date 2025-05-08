@@ -32,6 +32,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void newFriend(const QJsonObject& paramsObject);
 	void rejectAddFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void deleteFriend(const QString& user_id);
+	void friendDeleted(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	//群组
 	void addGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void createGroupSuccess(const QJsonObject& paramsObject);
@@ -39,6 +40,8 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void groupPictureCommunication(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void groupTextCommunication(const QJsonObject& paramsObject);
 	void groupInviteSuccess(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void rejectAddGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void groupAddFailed(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void newGroupMember(const QJsonObject& paramsObject);
 	void groupMemberload(const QJsonObject& paramsObject);
 	void newGroup(const QJsonObject& paramsObject);

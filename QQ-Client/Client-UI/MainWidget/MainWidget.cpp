@@ -462,7 +462,10 @@ void MainWidget::connectFriendManagerSignals()
 			auto key = itemKey(user_id, ChatType::User);
 			auto item = findListItem(key);
 			m_chatMessageListWidget->takeItem(m_chatMessageListWidget->row(item));
-			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
+			if (m_chatWidget->isStackedCurrentChat(ChatType::User, user_id))
+			{
+				ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
+			}
 			m_friendProfilePage->clearWidget();
 		});
 }

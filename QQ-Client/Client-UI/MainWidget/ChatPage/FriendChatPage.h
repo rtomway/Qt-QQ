@@ -10,7 +10,6 @@
 
 #include "Friend.h"
 #include "ChatRecordMessage.h"
-#include "FriendSetWidget.h"
 #include "MessageBubble.h"
 
 class FriendChatPage :public ChatPage

@@ -177,6 +177,7 @@ void FriendChatPage::initSetWidget()
 				EventBus::instance()->emit deleteFriend(m_friend->getFriendId());
 				QJsonObject deleteObj;
 				deleteObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				deleteObj["username"] = LoginUserManager::instance()->getLoginUserName();
 				deleteObj["friend_id"] = m_friend->getFriendId();
 				QJsonDocument doc(deleteObj);
 				QByteArray data = doc.toJson(QJsonDocument::Compact);

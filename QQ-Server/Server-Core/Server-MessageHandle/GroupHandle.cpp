@@ -318,6 +318,41 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	//向新成员发送群组信息
 	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
 }
+//群聊邀请成员失败
+void GroupHandle::handle_groupInviteFailed(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto groupOwner_id = paramsObject["groupOwnerId"].toString();
+	auto user_id= paramsObject["user_id"].toString();
+	//数据包装入信息
+	QVariantMap senderMessage;
+	senderMessage = paramsObject.toVariantMap();
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	//包装数据包
+	auto userPacket = PacketCreate::binaryPacket("rejectAddGroup", senderMessage, imageData);
+	QByteArray userData;
+	PacketCreate::addPacket(userData, userPacket);
+	auto allData = PacketCreate::allBinaryPacket(userData);
+	//发送数据
+	ConnectionManager::instance()->sendBinaryMessage(groupOwner_id, allData);
+}
+//群组申请加入失败
+void GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	auto group_id = paramsObject["group_id"].toString();
+	auto receive_id = paramsObject["to"].toString();
+	//数据包装入信息
+	QVariantMap senderMessage;
+	senderMessage = paramsObject.toVariantMap();
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	//包装数据包
+	auto userPacket = PacketCreate::binaryPacket("groupAddFailed", senderMessage, imageData);
+	QByteArray userData;
+	PacketCreate::addPacket(userData, userPacket);
+	auto allData = PacketCreate::allBinaryPacket(userData);
+	//发送数据
+	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
+}
 //退出群组
 void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {

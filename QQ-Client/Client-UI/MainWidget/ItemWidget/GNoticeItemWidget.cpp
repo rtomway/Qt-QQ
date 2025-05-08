@@ -18,7 +18,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 	, m_cancelBtn(new QPushButton("拒绝", this))
 {
 	init();
-	//同意好友添加
+	//同意加入群组
 	connect(m_okBtn, &QPushButton::clicked, this, [=]
 		{
 			m_okBtn->setText("已同意");
@@ -46,6 +46,38 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 				groupAddObj["group_id"] = m_json["group_id"].toString();
 				groupAddObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 				auto message = PacketCreate::textPacket("groupAddSuccess", groupAddObj);
+				MessageSender::instance()->sendMessage(message);
+			}
+		});
+	//拒绝加入群组
+	connect(m_cancelBtn, &QPushButton::clicked, this, [=]
+		{
+			m_cancelBtn->setText("已拒绝");
+			m_cancelBtn->setEnabled(false);
+			m_okBtn->setVisible(false);
+			if (m_type == GroupNoticeType::GroupInvite)
+			{
+				QJsonObject groupInviteReplyObj;
+				groupInviteReplyObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				groupInviteReplyObj["username"] = LoginUserManager::instance()->getLoginUserName();
+				groupInviteReplyObj["groupOwnerId"] = m_json["user_id"].toString();
+				groupInviteReplyObj["group_id"] = m_json["group_id"].toString();
+				groupInviteReplyObj["noticeMessage"] = "拒绝了你的群组邀请";
+				groupInviteReplyObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+				auto message = PacketCreate::textPacket("groupInviteFailed", groupInviteReplyObj);
+				MessageSender::instance()->sendMessage(message);
+			}
+			else if (m_type == GroupNoticeType::GroupRequestAdd)
+			{
+				QJsonObject groupAddReplyObj;
+				groupAddReplyObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				groupAddReplyObj["username"] = LoginUserManager::instance()->getLoginUserName();
+				groupAddReplyObj["to"] = m_json["user_id"].toString();
+				groupAddReplyObj["group_id"] = m_json["group_id"].toString();
+				groupAddReplyObj["group_name"] = m_json["group_name"].toString();
+				groupAddReplyObj["noticeMessage"] = "拒绝了你加入群组"+ m_json["group_name"].toString();
+				groupAddReplyObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
+				auto message = PacketCreate::textPacket("groupAddFailed", groupAddReplyObj);
 				MessageSender::instance()->sendMessage(message);
 			}
 		});

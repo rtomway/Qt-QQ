@@ -44,12 +44,15 @@ private:
 	QMap<QString, TempReplyInfo> m_tempFriendReplys{};
 	QMap<QString, TempReplyInfo> m_tempGroupReplys{};
 signals:
-	void FriendRequest(const QString& user_id);
-	void FriendResponse(const QString& user_id);
+	void friendAddRequest(const QString& user_id);
+	void friendAddReply(const QString& user_id);
+	void friendDeleted(const QString& user_id);
 	void GroupInvite(const QString& group_id);
 	void GroupInviteSuccess(const QString& group_id);
 	void groupAddRequest(const QString& group_id);
 	void groupMemberExitGroup(const QString& group_id);
+	void rejectAddGroup(const QString& group_id);
+	void groupAddFailed(const QString& group_id);
 };
 
 #endif // !TEMPMANAGER_H_

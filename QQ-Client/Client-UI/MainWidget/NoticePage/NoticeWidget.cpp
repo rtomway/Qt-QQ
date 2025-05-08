@@ -52,10 +52,28 @@ void NoticeWidget::init()
 	mlayout->addWidget(m_stackedWidget);
 
 	//好友申请
-	connect(TempManager::instance(), &TempManager::FriendRequest, this, [=](const QString& user_id)
+	connect(TempManager::instance(), &TempManager::friendAddRequest, this, [=](const QString& user_id)
 		{
 			addNoticeItem(user_id, ChatType::User, false);
 			emit friendNotice();
+		});
+	//拒绝好友申请
+	connect(TempManager::instance(), &TempManager::friendAddReply, this, [=](const QString& user_id)
+		{
+			addNoticeItem(user_id, ChatType::User, true);
+			emit friendNotice();
+		});
+	//群聊邀请失败
+	connect(TempManager::instance(), &TempManager::rejectAddGroup, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group, true);
+			emit groupNotice();
+		});
+	//群聊申请失败
+	connect(TempManager::instance(), &TempManager::groupAddFailed, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group, true);
+			emit groupNotice();
 		});
 	//群聊邀请
 	connect(TempManager::instance(), &TempManager::GroupInvite, this, [=](const QString& group_id)
@@ -80,6 +98,12 @@ void NoticeWidget::init()
 		{
 			addNoticeItem(group_id, ChatType::Group,true);
 			emit groupNotice();
+		});
+	//被好友移除
+	connect(TempManager::instance(), &TempManager::friendDeleted, this, [=](const QString& user_id)
+		{
+			addNoticeItem(user_id, ChatType::User, true);
+			emit friendNotice();
 		});
 }
 //init堆栈窗口

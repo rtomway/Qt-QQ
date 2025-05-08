@@ -38,6 +38,8 @@ void MessageHandle::initWebRequestHash()
 	webRequestHash["groupPictureCommunication"] = &GroupHandle::handle_groupPictureCommunication;
 	webRequestHash["groupInviteSuccess"] = &GroupHandle::handle_groupInviteSuccess;
 	webRequestHash["groupAddSuccess"] = &GroupHandle::handle_groupAddSuccess;
+	webRequestHash["groupInviteFailed"] = &GroupHandle::handle_groupInviteFailed;
+	webRequestHash["groupAddFailed"] = &GroupHandle::handle_groupAddFailed;
 }
 void MessageHandle::initHttpRequestHash()
 {

@@ -21,12 +21,7 @@ AddWidget::AddWidget(QWidget* parent)
 	this->setFixedSize(350, 500);
 	init();
 	this->setStyleSheet(R"(
-			QLineEdit{
-				border:none;
-				border-radius:5px;
-				background-color:white;
-				height:30px;
-			}
+			QLineEdit{border:none;border-radius:5px;background-color:white;height:30px;}
 			QPushButton{
 				border:none;
 				border-radius:5px;
@@ -85,12 +80,14 @@ void AddWidget::init()
 			//好友
 			if (m_isSend)//申请
 			{
-				auto& applicateFriendObj = LoginUserManager::instance()->getLoginUser()->getFriend();
+				QJsonObject applicateFriendObj;
+				applicateFriendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+				applicateFriendObj["username"] = LoginUserManager::instance()->getLoginUserName();
 				applicateFriendObj["to"] = m_addId;
 				applicateFriendObj["message"] = ui->messageEdit->text();
 				applicateFriendObj["noticeMessage"] = "请求加为好友";
-				applicateFriendObj["grouping"] = m_grouping->getLineEditText();
-
+				applicateFriendObj["Fgrouping"] = m_grouping->getLineEditText();
+				qDebug() << applicateFriendObj << m_addId;
 				auto message = PacketCreate::textPacket("addFriend", applicateFriendObj);
 				MessageSender::instance()->sendMessage(message);
 			}

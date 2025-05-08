@@ -85,6 +85,13 @@ FriendManager::FriendManager()
 		{
 			emit deleteFriend(user_id);
 		});
+	//被好友删除
+	connect(EventBus::instance(), &EventBus::friendDeleted, this, [=](const QJsonObject& obj)
+		{
+			auto user_id = obj["user_id"].toString();
+			emit deleteFriend(user_id);
+		});
+
 }
 //申请头像的加载(10个一批)
 void FriendManager::loadFriendAvatarFromServer(const QStringList& friend_idList)

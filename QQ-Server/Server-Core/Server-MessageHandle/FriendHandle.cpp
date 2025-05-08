@@ -14,27 +14,25 @@ QString FriendHandle::m_receiveGrouping = QString();
 //好友添加
 void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "添加好友";
+	qDebug() << "添加好友"<< paramsObject;
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
 	auto send_id = paramsObject["user_id"].toString();
 	auto receive_id = paramsObject["to"].toString();
-	auto client_id = receive_id;
 	//保存分组信息
-	m_sendGrouping = paramsObject["grouping"].toString();
+	m_sendGrouping = paramsObject["Fgrouping"].toString();
 	//数据包装入信息
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
 	senderMessage["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 	auto imageData = ImageUtils::loadImage(send_id, ChatType::User);
-	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = PacketCreate::binaryPacket("addFriend", senderMessage, imageData);
 	QByteArray userData;
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
-	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
+	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
 	qDebug() << "发送了申请信息";
 }
 //文字交流
@@ -131,7 +129,6 @@ void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const Q
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
 	auto imageData = ImageUtils::loadImage(send_id, ChatType::User);
-	senderMessage["size"] = imageData.size();
 	//包装数据包
 	auto userPacket = PacketCreate::binaryPacket("rejectAddFriend", senderMessage, imageData);
 	QByteArray userData;
@@ -157,14 +154,40 @@ void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, con
 //好友删除
 void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	qDebug() << "删除好友";
+	qDebug() << "删除好友"<< paramsObj;
 	auto user_id = paramsObj["user_id"].toString();
 	auto friend_id = paramsObj["friend_id"].toString();
-	MyFriend myFriend(user_id, friend_id);
+	MyFriend myFriend_1(user_id, friend_id);
+	MyFriend myFriend_2(friend_id, user_id);
 	DataBaseQuery query;
-	if (!FriendDBUtils::deleteFriend(myFriend, query))
+	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+		{
+			if (!FriendDBUtils::deleteFriend(myFriend_1, query, queryPtr))
+			{
+				return false;
+			}
+			if (!FriendDBUtils::deleteFriend(myFriend_2, query, queryPtr))
+			{
+				return false;
+			}
+		});
+	if (!result)
 	{
-
+		return;
 	}
+	//好友移除通知
+	QVariantMap deleteNoticeMap;
+	deleteNoticeMap["user_id"] = user_id;
+	deleteNoticeMap["username"] = paramsObj["username"].toString();
+	deleteNoticeMap["noticeMessage"] = "将你从好友中移除";
+	deleteNoticeMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	auto packet = PacketCreate::binaryPacket("friendDeleted", deleteNoticeMap, imageData);
+	QByteArray deleteNoticeData;
+	PacketCreate::addPacket(deleteNoticeData, packet);
+	auto allData = PacketCreate::allBinaryPacket(deleteNoticeData);
+	//通知被移除好友
+	ConnectionManager::instance()->sendBinaryMessage(friend_id, allData);
+	//回复客户端
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }

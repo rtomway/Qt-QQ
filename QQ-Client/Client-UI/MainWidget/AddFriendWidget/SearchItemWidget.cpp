@@ -32,7 +32,6 @@ void SearchItemWidget::init()
 			{
 			case ChatType::User:
 			{
-				qDebug() << "searchItemWidget:" << m_isAdded;
 				if (m_isAdded)
 				{
 					FriendManager::instance()->emit chatWithFriend(m_search_id);

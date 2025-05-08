@@ -42,6 +42,7 @@ void MessageHandle::initRequestHash()
 	registerHandle("registerSuccess", m_loginHandle, &Client_LoginHandle::handle_registerSuccess);
 	//好友处理
 	registerHandle("addFriend", m_friendHandle, &Client_FriendHandle::handle_addFriend);
+	registerHandle("friendDeleted", m_friendHandle, &Client_FriendHandle::handle_friendDeleted);
 	registerHandle("newFriend", m_friendHandle, &Client_FriendHandle::handle_newFriend);
 	registerHandle("rejectAddFriend", m_friendHandle, &Client_FriendHandle::handle_rejectAddFriend);
 	registerHandle("textCommunication", m_friendHandle, &Client_FriendHandle::handle_textCommunication);
@@ -52,13 +53,15 @@ void MessageHandle::initRequestHash()
 	registerHandle("updateUserMessage", m_userHandle, &Client_UserHandle::handle_updateUserMessage);
 	registerHandle("updateUserAvatar", m_userHandle, &Client_UserHandle::handle_updateUserAvatar);
 	//群组
+	registerHandle("createGroupSuccess", m_groupHandle, &Client_GroupHandle::handle_createGroupSuccess);
+	registerHandle("groupInviteSuccess", m_groupHandle, &Client_GroupHandle::handle_groupInviteSuccess);
 	registerHandle("addGroup", m_groupHandle, &Client_GroupHandle::handle_addGroup);
+	registerHandle("rejectAddGroup", m_groupHandle, &Client_GroupHandle::handle_rejectAddGroup);
+	registerHandle("groupAddFailed", m_groupHandle, &Client_GroupHandle::handle_groupAddFailed);
 	registerHandle("groupTextCommunication", m_groupHandle, &Client_GroupHandle::handle_groupTextCommunication);
 	registerHandle("groupPictureCommunication", m_groupHandle, &Client_GroupHandle::handle_groupPictureCommunication);
 	registerHandle("newGroupMember", m_groupHandle, &Client_GroupHandle::handle_newGroupMember);
-	registerHandle("groupInviteSuccess", m_groupHandle, &Client_GroupHandle::handle_groupInviteSuccess);
 	registerHandle("newGroup", m_groupHandle, &Client_GroupHandle::handle_newGroup);
-	registerHandle("createGroupSuccess", m_groupHandle, &Client_GroupHandle::handle_createGroupSuccess);
 	registerHandle("groupInvite", m_groupHandle, &Client_GroupHandle::handle_groupInvite);
 	registerHandle("removeGroupMember", m_groupHandle, &Client_GroupHandle::handle_removeMember);
 	registerHandle("groupMemberExitGroup", m_groupHandle, &Client_GroupHandle::handle_groupMemberExitGroup);
