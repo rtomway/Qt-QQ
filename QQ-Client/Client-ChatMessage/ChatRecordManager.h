@@ -8,9 +8,7 @@
 
 class ChatRecordManager {
 public:
-	// 获取单例实例的静态方法
 	static ChatRecordManager* instance();
-	// 禁止拷贝构造函数和赋值操作符
 	ChatRecordManager(const ChatRecordManager&) = delete;
 	ChatRecordManager& operator=(const ChatRecordManager&) = delete;
 	//聊天记录操作

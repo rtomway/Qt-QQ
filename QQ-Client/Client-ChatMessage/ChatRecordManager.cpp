@@ -2,14 +2,16 @@
 #include "LoginUserManager.h"
 
 
-ChatRecordManager* ChatRecordManager::instance() {
+ChatRecordManager* ChatRecordManager::instance() 
+{
 	static ChatRecordManager ins;
 	return &ins;
 }
 // 添加新的聊天记录
 void ChatRecordManager::addUserChat(const QString& userId, std::shared_ptr<ChatRecordMessage> chatMessage)
 {
-	if (!m_friendChats.contains(userId)) {
+	if (!m_friendChats.contains(userId)) 
+	{
 		m_friendChats[userId] = chatMessage;
 	}
 }
@@ -24,7 +26,6 @@ void ChatRecordManager::addGroupChat(const QString& groupId, std::shared_ptr<Cha
 //为聊天记录添加消息
 void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 {
-	qDebug() << "----------------------addMessageToChat---------------------";
 	// 创建消息指针
 	std::shared_ptr<MessageRecord> message;
 	switch (chatMessage.messageType)
@@ -33,14 +34,12 @@ void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 	{
 		// 创建文本消息
 		QString text = chatMessage.data.toString();
-		qDebug() << "存储创建文本消息" << text << chatMessage.sendId;
 		message = std::make_shared<TextMessage>(chatMessage.sendId, chatMessage.receiveId, chatMessage.time, text);
 		break;
 	}
 	case MessageType::Image:
 	{
 		// 创建图片消息
-		qDebug() << "存储创建图片消息";
 		QPixmap pixmap = chatMessage.data.value<QPixmap>();
 		message = std::make_shared<ImageMessage>(chatMessage.sendId, chatMessage.receiveId, chatMessage.time, pixmap);
 		break;
@@ -48,7 +47,6 @@ void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 	case MessageType::System:
 	{
 		// 创建系统消息
-		qDebug() << "存储创建系统消息";
 		QString text = chatMessage.data.toString();
 		message = std::make_shared<SystemMessage>(chatMessage.sendId, chatMessage.receiveId, chatMessage.time, text);
 		break;
@@ -66,11 +64,9 @@ void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 	{
 		getChatId = chatMessage.receiveId;
 	}
-	qDebug() << "聊天记录存储id:" << getChatId;
 	auto chatRecord = getChatRecord(getChatId, chatMessage.chatType);
 	if (chatRecord)
 	{
-		qDebug() << "成功获取聊天记录:" << getChatId;
 		chatRecord->addMessage(message);
 	}
 	else
@@ -106,7 +102,8 @@ void ChatRecordManager::clearGroupChat(const QString& groupId)
 	m_groupChats.remove(groupId);
 }
 // 清空所有聊天记录
-void ChatRecordManager::clearAllChats() {
+void ChatRecordManager::clearAllChats() 
+{
 	m_friendChats.clear();
 	m_groupChats.clear();
 }

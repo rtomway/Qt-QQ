@@ -214,7 +214,7 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		chatMessage.sendId = user_id;
 		chatMessage.receiveId = m_friend->getFriendId();
 		chatMessage.data = QVariant::fromValue(pixmap);
-		chatMessage.messageType = MessageType::Text;
+		chatMessage.messageType = MessageType::Image;
 		chatMessage.chatType = ChatType::User;
 		chatMessage.time = QDateTime::currentDateTime();
 		ChatRecordManager::instance()->addMessageToChat(chatMessage);

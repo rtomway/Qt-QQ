@@ -23,6 +23,7 @@ public:
 public:
 	void setClient(Client* client);
 	void disConnect();
+	Client* getClient();
 	void sendMessage(const QString& message);
 	void sendBinaryData(const QByteArray& data);
 	// 使用 std::function 定义回调类型
@@ -35,6 +36,8 @@ private:
 	QThread* m_workerThread{};
 	HttpWorker* m_httpWorker{};
 signals:
+	void connectToServer(const QString& user_id);
+
 	void sendHttpRequestToThread(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack);
 	void httpTextResponseReceived(const QByteArray& data);
 	void httpDataResponseReceived(const QByteArray& data);

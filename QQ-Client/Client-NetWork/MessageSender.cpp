@@ -6,6 +6,8 @@
 #include <QHttpMultiPart>
 #include "Client.h"
 #include "SConfigFile.h"
+#include "PacketCreate.h"
+#include "TokenManager.h"
 
 
 MessageSender* MessageSender::instance()
@@ -37,6 +39,11 @@ void MessageSender::disConnect()
 {
 	qDebug() << "客户端关闭连接";
 	m_client->disconnect();
+}
+//获取客户端
+Client* MessageSender::getClient()
+{
+	return m_client;
 }
 //Web发送文本消息
 void MessageSender::sendMessage(const QString& message)

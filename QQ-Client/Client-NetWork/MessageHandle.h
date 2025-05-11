@@ -22,8 +22,6 @@ public:
 	template <typename T>
 	void registerHandle(const QString& key, T& instance, void (T::* handler)(const QJsonObject&, const QByteArray&));
 private:
-	void token(const QString& token);
-private:
 	Client_LoginHandle m_loginHandle{};
 	Client_FriendHandle m_friendHandle{};
 	Client_GroupHandle m_groupHandle{};
@@ -32,8 +30,6 @@ private:
 	QHash<QString, std::function<void(const QJsonObject&, const QByteArray&)>> requestHash{};
 private:
 	void initRequestHash();
-signals:
-	void connectToServer();
 };
 
 #endif // !MESSAGEHANDLE_H_

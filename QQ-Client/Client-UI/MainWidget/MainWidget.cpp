@@ -147,7 +147,7 @@ void MainWidget::init()
 			chatMessage.receiveId = m_loginUserId;
 			chatMessage.data = QVariant::fromValue(pixmap);
 			chatMessage.time = QDateTime::fromString(time, "MM-dd hh:mm");
-			chatMessage.messageType = MessageType::Text;
+			chatMessage.messageType = MessageType::Image;
 			chatMessage.chatType = ChatType::User;
 			ChatRecordManager::instance()->addMessageToChat(chatMessage);
 			//消息项处理
@@ -538,7 +538,7 @@ void MainWidget::connectGroupManagerSignals()
 			}
 		});
 	//退出群组
-	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString& group_id,const QString& user_id)
+	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString& group_id, const QString& user_id)
 		{
 			auto key = itemKey(group_id, ChatType::Group);
 			auto item = findListItem(key);

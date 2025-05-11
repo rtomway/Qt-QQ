@@ -35,14 +35,13 @@ Client::Client(QObject* parent)
 			emit binaryMessageToWorkerThread(data);
 		});
 	//用户身份验证成功，发起连接请求并且获取用户信息
-	connect(&m_messageHandle, &MessageHandle::connectToServer, this, [=]
+	connect(MessageSender::instance(), &MessageSender::connectToServer, this, [=](const QString&user_id)
 		{
 			connectToServer("ws://localhost:8888")
 				->Connected([=]
 					{
-						SConfigFile config("config.ini");
 						QJsonObject connectObj;
-						connectObj["user_id"] = config.value("user_id").toString();
+						connectObj["user_id"] = user_id;
 						auto message = PacketCreate::textPacket("login", connectObj);
 						MessageSender::instance()->sendMessage(message);
 					});

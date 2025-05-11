@@ -24,7 +24,7 @@ private:
 private:
 	void initWebRequestHash();
 	void initHttpRequestHash();
-	bool tokenRight(const QString&token);
+	bool tokenRight(const QString&token,const QString&user_id);
 signals:
 	void addClient(const QString& user_id, QWebSocket* client);
 };

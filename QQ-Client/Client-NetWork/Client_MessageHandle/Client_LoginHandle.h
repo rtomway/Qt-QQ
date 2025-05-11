@@ -6,6 +6,7 @@
 class Client_LoginHandle
 {
 public:
+	void handle_loginValidationSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loginSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loadFriendList(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loadFriendAvatars(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
@@ -14,6 +15,8 @@ public:
 	void handle_loadGroupMemberAvatar(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_loadGroupAvatars(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_registerSuccess(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+signals:
+	void connectToServer();
 };
 
 #endif // !CLIENT_LOGINHANDLE_H_

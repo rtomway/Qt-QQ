@@ -8,6 +8,7 @@
 #include "CreateId.h"
 #include "PacketCreate.h"
 #include "DataBaseQuery.h"
+#include "jwt-cpp/jwt.h"
 #include "Server-MessageHandle/LoginHandle.h"
 #include "Server-MessageHandle/FriendHandle.h"
 #include "Server-MessageHandle/GroupHandle.h"
@@ -66,10 +67,32 @@ void MessageHandle::initHttpRequestHash()
 }
 
 //token验证
-bool MessageHandle::tokenRight(const QString& token)
+bool MessageHandle::tokenRight(const QString& token, const QString& user_id)
 {
-	qDebug() << "TOKEN:" << token;
-	return true;
+	try {
+		auto decoded = jwt::decode(token.toStdString());
+
+		// 校验签名
+		auto verifier = jwt::verify()
+			.allow_algorithm(jwt::algorithm::hs256{ "xu-server" })
+			.with_issuer("auth0");
+
+		verifier.verify(decoded);
+
+		// 检查 payload 中的 user_id
+		std::string payload_user_id = decoded.get_payload_claim("user_id").as_string();
+		if (payload_user_id != user_id.toStdString()) {
+			qDebug() << "[Token无效] user_id不匹配";
+			return false;
+		}
+
+		qDebug() << "[Token验证成功]";
+		return true;
+	}
+	catch (const std::exception& e) {
+		qDebug() << "[Token验证失败]" << e.what();
+		return false;
+	}
 }
 
 //web消息处理接口
@@ -83,10 +106,15 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
 		client_id = paramsObject["user_id"].toString();
-		auto token = obj["token"].toString();
-		if (tokenRight(token))
+		if (!client_id.isEmpty())
 		{
-			qDebug() << "tokenRight";
+			auto token = paramsObject["token"].toString();
+			qDebug() << "token" << token;
+			if (!tokenRight(token, client_id))
+			{
+				qDebug() << "token认证失败";
+				return;
+			}
 			emit this->addClient(client_id, socket);
 		}
 		qDebug() << "客户端发来消息:" << client_id << "type:" << type;
@@ -108,6 +136,14 @@ void MessageHandle::handle_message(const QByteArray& message, QWebSocket* socket
 	for (auto& parsePacket : parsePacketList)
 	{
 		qDebug() << "客户端发来消息type:" << parsePacket.type;
+		//验证token
+		auto token = parsePacket.params["token"].toString();
+		auto user_id = parsePacket.params["user_id"].toString();
+		if (!tokenRight(token, user_id))
+		{
+			qDebug() << "token认证失败";
+			return;
+		}
 		// 根据类型给处理函数处理
 		if (webRequestHash.contains(parsePacket.type)) {
 			auto handle = webRequestHash[parsePacket.type];
@@ -122,6 +158,32 @@ void MessageHandle::handle_message(const QByteArray& message, QWebSocket* socket
 //http消息处理接口
 void MessageHandle::handle_message(const QString& type, const QHttpServerRequest& request, QHttpServerResponder& response)
 {
+	//token验证
+	if (type != "loginValidation")
+	{
+		QString token;
+		QString user_id;
+		for (auto& requestHeader : request.headers())
+		{
+			if (requestHeader.first == "user_id")
+			{
+				user_id = requestHeader.second;
+			}
+			if (requestHeader.first == "Authorization")
+			{
+				token = requestHeader.second;
+			}
+		}
+		// 可能是 Bearer 开头，记得处理
+		if (token.startsWith("Bearer "))
+			token = token.mid(7);
+		if (!tokenRight(token, user_id))
+		{
+			qDebug() << "token认证失败";
+			return;
+		}
+	}
+
 	auto requestBody = request.body();
 	auto paramsObj = QJsonDocument::fromJson(requestBody).object();
 	// 根据类型给处理函数处理
@@ -135,6 +197,28 @@ void MessageHandle::handle_message(const QString& type, const QHttpServerRequest
 }
 void MessageHandle::handle_message(const QHttpServerRequest& request, QHttpServerResponder& responder)
 {
+	//token验证
+	QString token;
+	QString user_id;
+	for (auto& requestHeader : request.headers())
+	{
+		if (requestHeader.first == "user_id")
+		{
+			user_id = requestHeader.second;
+		}
+		if (requestHeader.first == "Authorization")
+		{
+			token = requestHeader.second;
+		}
+	}
+	// 可能是 Bearer 开头，记得处理
+	if (token.startsWith("Bearer "))
+		token = token.mid(7);
+	if (!tokenRight(token, user_id))
+	{
+		qDebug() << "token认证失败";
+		return;
+	}
 	auto message = request.body();
 	auto parsePacketList = PacketCreate::parseDataPackets(message);
 	for (auto& parsePacket : parsePacketList)

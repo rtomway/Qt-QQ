@@ -32,6 +32,7 @@ void MessageHandle::registerHandle(const QString& key, T& instance, void (T::* h
 void MessageHandle::initRequestHash()
 {
 	//登录界面
+	registerHandle("loginValidationSuccess", m_loginHandle, &Client_LoginHandle::handle_loginValidationSuccess);
 	registerHandle("loginSuccess", m_loginHandle, &Client_LoginHandle::handle_loginSuccess);
 	registerHandle("loadFriendList", m_loginHandle, &Client_LoginHandle::handle_loadFriendList);
 	registerHandle("loadGroupList", m_loginHandle, &Client_LoginHandle::handle_loadGroupList);
@@ -67,14 +68,6 @@ void MessageHandle::initRequestHash()
 	registerHandle("groupMemberExitGroup", m_groupHandle, &Client_GroupHandle::handle_groupMemberExitGroup);
 }
 
-//记录token
-void MessageHandle::token(const QString& token)
-{
-	SConfigFile config("config.ini");
-	config.setValue("token", token);
-	emit connectToServer();
-}
-
 //消息处理接口
 void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 {
@@ -82,14 +75,6 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 	if (messageDoc.isObject())
 	{
 		QJsonObject obj = messageDoc.object();
-
-		if (obj.contains("token"))
-		{
-			qDebug() << "token" << "保存";
-			auto token = obj["token"].toString();
-			this->token(token);
-			return;
-		}
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
 		qDebug() << type << requestHash.contains(type);

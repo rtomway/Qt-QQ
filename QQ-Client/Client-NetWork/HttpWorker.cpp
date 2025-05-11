@@ -3,6 +3,8 @@
 #include <QUrl>
 #include <QDebug>
 #include "PacketCreate.h"
+#include "TokenManager.h"
+#include "LoginUserManager.h"
 
 HttpWorker::HttpWorker(QObject* parent)
 	: QObject(parent),
@@ -17,6 +19,16 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 	//请求
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, Content_type);
+
+	// 添加 Authorization token 头（如果有）
+	QString token = TokenManager::getToken();
+	if (!token.isEmpty()) {
+		QString authHeader = "Bearer " + token;
+		request.setRawHeader("Authorization", authHeader.toUtf8());
+	}
+	auto& user_id = LoginUserManager::instance()->getLoginUserID();
+	request.setRawHeader("user_id", user_id.toUtf8());
+
 	QNetworkReply* reply = m_networkManager->post(request, data);
 	qDebug() << "------------------发送http请求-----------------";
 	qDebug() << url;

@@ -4,17 +4,18 @@
 #include <QDataStream>
 #include <QIODevice>
 
-#include "SConfigFile.h"
+#include "TokenManager.h"
 
 //json文本包
 QString PacketCreate::textPacket(const QString& type, const QJsonObject& paramsObj)
 {
 	QJsonObject jsonData;
 	jsonData["type"] = type;
-	jsonData["params"] = paramsObj;
+	auto obj = paramsObj;
 	//token
-	SConfigFile config("config.ini");
-	jsonData["token"] = config.value("token").toString();
+	obj["token"] = TokenManager::getToken();
+	jsonData["params"] = obj;
+
 	//发送Json数据
 	QJsonDocument doc(jsonData);
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
@@ -31,6 +32,8 @@ QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& pa
 	for (auto it = params.begin(); it != params.end(); ++it) {
 		paramsObject[it.key()] = QJsonValue::fromVariant(it.value());
 	}
+	//token
+	paramsObject["token"] = TokenManager::getToken();
 	jsonData["params"] = paramsObject;
 	qDebug() << "params:" << jsonData;
 	QJsonDocument doc(jsonData);
@@ -101,7 +104,7 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 	qint32 totalSize;
 	stream >> totalSize;
 	qDebug() << "Total data size:" << totalSize;
-	
+
 	// 2️⃣ 开始循环解析多个数据包
 	while (!stream.atEnd())
 	{

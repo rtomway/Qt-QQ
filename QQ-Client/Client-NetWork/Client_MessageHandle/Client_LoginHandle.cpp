@@ -1,4 +1,5 @@
 ﻿#include "Client_LoginHandle.h"
+#include "Client_LoginHandle.h"
 #include <QPixmap>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -12,6 +13,19 @@
 #include "ImageUtil.h"
 #include "AvatarManager.h"
 #include "LoginUserManager.h"
+#include "TokenManager.h"
+#include "Client.h"
+
+//登录认证成功
+void Client_LoginHandle::handle_loginValidationSuccess(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	//保存token
+	auto token = paramsObject["token"].toString();
+	TokenManager::setToken(token);
+	//连接登录
+	MessageSender::instance()->emit connectToServer(user_id);
+}
 
 //登录成功
 void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data)
