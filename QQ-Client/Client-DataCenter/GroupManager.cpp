@@ -11,7 +11,7 @@
 #include "ChatRecordManager.h"
 #include "ChatRecordMessage.h"
 
-constexpr int MIN_GROUPMEMBER_COUNT_FOR_LOADING = 3;  // 低于此人数时加载群信息
+constexpr int MIN_GROUPMEMBER_COUNT_FOR_LOADING = 50;  // 低于此人数时加载群信息
 
 GroupManager::GroupManager()
 {

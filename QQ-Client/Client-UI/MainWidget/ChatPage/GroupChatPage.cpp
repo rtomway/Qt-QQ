@@ -19,6 +19,7 @@
 #include "PacketCreate.h"
 #include "GroupListItemWidget.h"
 #include "EventBus.h"
+#include "GroupMemberGridWidget.h"
 
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
@@ -234,6 +235,13 @@ void GroupChatPage::initSetWidget()
 		QWidget{ border: none;border-radius:10px;background-color:white;}
 		)");
 	m_setWidget->addItemWidget(groupItemWidget,80);
+
+	auto groupMemberGrid = new GroupMemberGridWidget(this);
+	groupMemberGrid->setGroupMembersGrid(m_group->getGroupId());
+	groupMemberGrid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+	m_setWidget->addItemWidget(groupMemberGrid, groupMemberGrid->sizeHint().height());
+	
+
 	auto exitGroupBtn = new QPushButton(m_setWidget);
 	exitGroupBtn->setText("退出群聊");
 	exitGroupBtn->setStyleSheet(R"(

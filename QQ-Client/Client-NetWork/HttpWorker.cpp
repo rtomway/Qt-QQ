@@ -2,6 +2,7 @@
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QDebug>
+#include <QCoreApplication>
 #include "PacketCreate.h"
 #include "TokenManager.h"
 #include "LoginUserManager.h"
@@ -65,13 +66,6 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 				reply->deleteLater();
 				return;
 			}
-			// 分块读取或限制响应大小
-			//qint64 maxSize = 10 * 1024 * 1024; // 限制为10MB
-			//if (reply->bytesAvailable() > maxSize) {
-			//	qWarning() << "响应数据过大，放弃读取";
-			//	reply->abort();
-			//	return;
-			//}
 			QByteArray responseData = reply->readAll();
 			QByteArray contentType = reply->rawHeader("Content-Type");
 			qDebug() << "http响应头:" << contentType;
@@ -80,8 +74,11 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 			{
 				//解析返回数据包
 				auto parsePacketList = PacketCreate::parseDataPackets(responseData);
-				//回调
-				callBack(parsePacketList.first().params, parsePacketList.first().data);
+				//回调,主线程进行，GuI操作
+				QMetaObject::invokeMethod(QCoreApplication::instance(), [callBack, parsePacketList]()
+					{
+						callBack(parsePacketList.first().params, parsePacketList.first().data);
+					});
 				reply->deleteLater();
 				return;
 			}

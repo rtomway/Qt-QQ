@@ -53,6 +53,24 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArra
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+//查询user信息
+void UserHandle::handle_queryUser(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	auto query_id = paramsObj["query_id"].toString();
+	auto user_id= paramsObj["user_id"].toString();
+	DataBaseQuery query;
+	auto queryUserObj= UserDBUtils::queryUserDetail(query_id, query);
+	if (queryUserObj.contains("error"))
+	{
+		
+	}
+	QByteArray userData;
+	auto packet = PacketCreate::binaryPacket("queryUser", queryUserObj.toVariantMap(), QByteArray());
+	PacketCreate::addPacket(userData, packet);
+	auto allData = PacketCreate::allBinaryPacket(userData);
+	QByteArray mimeType = "application/octet-stream";
+	responder.write(allData, mimeType);
+}
 //群组搜索
 void UserHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {

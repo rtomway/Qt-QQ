@@ -259,7 +259,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	auto group_id = paramsObject["group_id"].toString();
 	auto user_id= paramsObject["user_id"].toString();
 	GroupMember newGroupMember;
-	newGroupMember.user_id = paramsObject["applicate_id"].toString();
+	newGroupMember.user_id = paramsObject["applicant_id"].toString();
 	newGroupMember.username = paramsObject["applicant_name"].toString();
 	newGroupMember.group_id = paramsObject["group_id"].toString();
 	newGroupMember.group_role = "member";

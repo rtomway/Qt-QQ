@@ -10,7 +10,7 @@ public:
 	SetPannelWidget(QWidget* parent = nullptr);
 	void init();
 	void setId(const QString& id);
-	void addItemWidget(QWidget* widget,int height);
+	void addItemWidget(QWidget* widget,int height=0);
 	void addSpaceItem(int height=10);
 	void clearListWidget();
 private:

@@ -1,0 +1,41 @@
+﻿QWidget#UserProfilePage {
+    background-color: rgb(251, 249, 249);
+    border-radius: 10px;
+}
+
+QLabel#nameLab {
+    font-size: 18px;
+}
+QToolButton#likeBtn {
+    border: none;
+    background-color: white;
+    border-radius: 4px;
+}
+
+QToolButton#likeBtn:hover {
+    background-color: rgb(240,240,240);
+}
+
+QPushButton#editdetailBtn {
+    border: 1px solid gray;
+    border-radius: 4px;
+    height: 35px;
+    font-size: 14px;
+}
+
+QPushButton#editdetailBtn:hover {
+    background-color: rgb(240,240,240);
+}
+
+QPushButton#sendmessageBtn {
+    border: none;
+    background-color: #0096FF;
+    border-radius: 4px;
+    color: white;
+    height: 35px;
+    font-size: 14px;
+}
+
+QPushButton#sendmessageBtn:hover {
+    background-color: #048eee;
+}

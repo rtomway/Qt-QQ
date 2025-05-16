@@ -4,6 +4,7 @@
         <file>Resource/Picture/h1.jpg</file>
         <file>Resource/Picture/h2.jpg</file>
         <file>Resource/Picture/h3.jpg</file>
+        <file>Resource/Picture/invite.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>Resource/Icon/add.png</file>
@@ -85,5 +86,6 @@
         <file>Resource/StyleSheet/ChatPage.css</file>
         <file>Resource/StyleSheet/FriendProfilePage.css</file>
         <file>Resource/StyleSheet/ContactListWidget.css</file>
+        <file>Resource/StyleSheet/UserProfilePage.css</file>
     </qresource>
 </RCC>

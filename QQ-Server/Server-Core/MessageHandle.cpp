@@ -56,6 +56,7 @@ void MessageHandle::initHttpRequestHash()
 	//搜索
 	httpRequestHash["serachUser"] = &UserHandle::handle_searchUser;
 	httpRequestHash["searchGroup"] = &UserHandle::handle_searchGroup;
+	httpRequestHash["queryUser"] = &UserHandle::handle_queryUser;
 	//更新
 	httpRequestHash["updateFriendGrouping"] = &FriendHandle::handle_updateFriendGrouping;
 	httpRequestHash["updateUserMessage"] = &UserHandle::handle_updateUserMessage;
@@ -64,6 +65,7 @@ void MessageHandle::initHttpRequestHash()
 	//群组
 	httpRequestHash["groupMemberLoad"] = &GroupHandle::handle_groupMemberLoad;
 	httpRequestHash["exitGroup"] = &GroupHandle::handle_exitGroup;
+	
 }
 
 //token验证
