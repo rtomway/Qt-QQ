@@ -82,10 +82,10 @@
         <file>Resource/StyleSheet/AddFriendWidget.css</file>
         <file>Resource/StyleSheet/NoticeWidget.css</file>
         <file>Resource/StyleSheet/SearchFriend.css</file>
-        <file>Resource/StyleSheet/GroupInviteWidget.css</file>
         <file>Resource/StyleSheet/ChatPage.css</file>
         <file>Resource/StyleSheet/FriendProfilePage.css</file>
         <file>Resource/StyleSheet/ContactListWidget.css</file>
         <file>Resource/StyleSheet/UserProfilePage.css</file>
+        <file>Resource/StyleSheet/GroupMemberOperatorWidget.css</file>
     </qresource>
 </RCC>

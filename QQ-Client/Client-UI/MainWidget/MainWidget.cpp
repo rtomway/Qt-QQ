@@ -24,6 +24,7 @@
 #include "MessageSender.h"
 #include "MessageRecord.h"
 #include "LoginUserManager.h"
+#include "GroupCreateWidget.h"
 
 
 MainWidget::MainWidget(QWidget* parent)
@@ -39,7 +40,7 @@ MainWidget::MainWidget(QWidget* parent)
 	, m_chatMessageListWidget(new QListWidget(this))
 	, m_friendSearchListWidget(new SearchFriend(this))
 	, m_contactListWidget(new ContactListWidget(this))
-	, m_groupInviteWidget(new GroupInviteWidget(this))
+	, m_groupInviteWidget(new GroupCreateWidget(this))
 {
 	ui->setupUi(this);
 	init();
@@ -276,11 +277,6 @@ void MainWidget::initLayout()
 	ui->qqLab->setAlignment(Qt::AlignCenter);
 	additemCenter(QString(":/icon/Resource/Icon/message.png"));
 	additemCenter(QString(":/icon/Resource/Icon/contact.png"));
-	/*additemCenter(QString(":/icon/Resource/Icon/QQspace.png"));
-	additemCenter(QString(":/icon/Resource/Icon/channel.png"));
-	additemCenter(QString(":/icon/Resource/Icon/game.png"));
-	additemCenter(QString(":/icon/Resource/Icon/shortview.png"));
-	additemCenter(QString(":/icon/Resource/Icon/more_2.png"));*/
 	ui->listWidget->setIconSize(QSize(50, 50));
 	m_btn_Itemgroup->button(-2)->setChecked(true);
 	//页面切换
@@ -338,8 +334,7 @@ void MainWidget::initLayout()
 	//群聊创建
 	connect(creatGroup, &QAction::triggered, [=]
 		{
-			m_groupInviteWidget->cloneFriendTree(*m_contactListWidget);
-			m_groupInviteWidget->setGroupWidgetMode(GroupInviteWidget::CreateGroup);
+			m_groupInviteWidget->loadData();
 			//蒙层
 			SMaskWidget::instance()->popUp(m_groupInviteWidget);
 			auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();

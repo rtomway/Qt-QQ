@@ -291,8 +291,12 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	if (!result)
 		return;
 	//新成员信息
-	QVariantMap newMemberMap = paramsObject.toVariantMap();
+	QVariantMap newMemberMap;
 	newMemberMap["group_role"] = newGroupMember.group_role;
+	newMemberMap["user_id"] = newGroupMember.user_id;
+	newMemberMap["username"] = newGroupMember.username;
+	newMemberMap["group_id"] = newGroupMember.group_id;
+	qDebug() << "新成员信息:" << newMemberMap;
 	auto newMemberImageData = ImageUtils::loadImage(user_id, ChatType::User);
 	auto newMemberPacket = PacketCreate::binaryPacket("newGroupMember", newMemberMap, newMemberImageData);
 	QByteArray newMemberData;
@@ -316,7 +320,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	PacketCreate::addPacket(groupData, packet);
 	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
 	//向新成员发送群组信息
-	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
+	ConnectionManager::instance()->sendBinaryMessage(newGroupMember.user_id, groupAllData);
 }
 //群聊邀请成员失败
 void GroupHandle::handle_groupInviteFailed(const QJsonObject& paramsObject, const QByteArray& data)
@@ -352,6 +356,29 @@ void GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const Q
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
+}
+//群聊邀请
+void GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto user_id = paramsObject["user_id"].toString();
+	auto username = paramsObject["username"].toString();
+	auto group_id = paramsObject["group_id"].toString();
+	auto group_name = paramsObject["group_name"].toString();
+	QVariantMap groupInviteMap=paramsObject.toVariantMap();
+	groupInviteMap["groupType"] = 0;
+	groupInviteMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
+	groupInviteMap["noticeMessage"] = "邀请你加入群聊" + group_name;
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	auto groupInvitePacket = PacketCreate::binaryPacket("groupInvite", groupInviteMap, imageData);
+	QByteArray groupInviteData;
+	PacketCreate::addPacket(groupInviteData, groupInvitePacket);
+	auto allData = PacketCreate::allBinaryPacket(groupInviteData);
+	auto friendIdListArray = paramsObject["inviteMembers"].toArray();
+	for (const auto& friendIdValue : friendIdListArray)
+	{
+		QString friendId = friendIdValue.toString();
+		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
+	}
 }
 //退出群组
 void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)

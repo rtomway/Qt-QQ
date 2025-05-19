@@ -28,6 +28,7 @@ public:
 	QSize getMainWidgetSize();
 protected:
 	bool eventFilter(QObject* object, QEvent* ev)override;
+	void mousePressEvent(QMouseEvent* event) override;
 	void resizeEvent(QResizeEvent* ev)override;
 	void onResize();
 private:

@@ -4,6 +4,8 @@
 
 #include "AvatarManager.h"
 #include "ImageUtil.h"
+#include "FriendManager.h"
+#include "LoginUserManager.h"
 
 UserProfilePage::UserProfilePage(QWidget* parent)
 	:AngleRoundedWidget(parent)
@@ -24,6 +26,18 @@ UserProfilePage::UserProfilePage(QWidget* parent)
 	//设置弹窗属性，点击窗口外部，窗口自动关闭
 	this->setWindowFlag(Qt::Popup);
 	this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+	this->setFixedWidth(350);
+	//发消息
+	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
+		{
+			//小窗口编辑关闭
+			if (!this->parent())
+			{
+				this->hide();
+			}
+			FriendManager::instance()->emit chatWithFriend(m_user_id);
+		});
 }
 
 UserProfilePage::~UserProfilePage()
@@ -44,13 +58,17 @@ void UserProfilePage::init()
 		new QLabel(m_json["gender"].toInt() == 1 ? "男" : (m_json["gender"].toInt() == 2 ? "女" : "未知")));
 	ui->formLayout->addRow("签名:",new QLabel(m_json["signature"].toString()));
 
+	if (m_user_id != LoginUserManager::instance()->getLoginUserID())
+	{
+		ui->editdetailBtn->setVisible(false);
+	}
+
 }
 
 void UserProfilePage::setUserProfilePage(const QJsonObject& obj, bool isFriend)
 {
 	m_isFriend = isFriend;
 	m_json = obj;
-	qDebug() << "setUserProfilePage:" << m_json;
 	m_user_id = obj["user_id"].toString();
 	init();
 }

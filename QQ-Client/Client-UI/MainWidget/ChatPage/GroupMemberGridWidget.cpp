@@ -64,7 +64,7 @@ void GroupMemberGridWidget::init()
 	gridLayout->setAlignment(Qt::AlignTop);
 	for (const auto& member : members)
 	{
-		auto memberAvatarItem = new GroupMemberAvatarWidget(member.member_id, member.member_name,MemberWidgetType::Avatar, this);
+		auto memberAvatarItem = new GroupMemberAvatarWidget(m_group->getGroupId(), member.member_id, member.member_name, MemberWidgetType::Avatar, this);
 		m_avatarList.append(memberAvatarItem);
 		//将群成员头像添加到布局中
 		gridLayout->addWidget(memberAvatarItem, row, column);
@@ -78,10 +78,10 @@ void GroupMemberGridWidget::init()
 		{
 			column++;
 			break;
-		}	
+		}
 	}
 	//网格末尾添加邀请按钮
-	auto inviteItem = new GroupMemberAvatarWidget(QString(),"邀请", MemberWidgetType::Invite, this);
+	auto inviteItem = new GroupMemberAvatarWidget(m_group->getGroupId(), QString(), "邀请", MemberWidgetType::Invite, this);
 	m_avatarList.append(inviteItem);
 	gridLayout->addWidget(inviteItem, row, column);
 	mLayout->addLayout(gridLayout);
@@ -90,5 +90,5 @@ void GroupMemberGridWidget::init()
 
 void GroupMemberGridWidget::clearGroupMemberGrid()
 {
-	
+
 }

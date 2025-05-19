@@ -51,7 +51,7 @@ ChatPage::ChatPage(QWidget* parent)
 	// 设置初始的裁剪区域，确保初始时不可见
 	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
 	m_setWidget->setMask(region);  // 裁剪区域
-	
+
 }
 ChatPage::~ChatPage()
 {
@@ -264,4 +264,4 @@ void ChatPage::hideSetWidget()
 
 	// 启动动画
 	m_hideAnimation->start();
-} 
+}

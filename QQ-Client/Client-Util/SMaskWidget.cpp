@@ -7,7 +7,7 @@
 
 SMaskWidget::SMaskWidget(QWidget* parent)
 	:QWidget(parent)
-	,m_pos(PopPosition::MiddleWidget)
+	, m_pos(PopPosition::MiddleWidget)
 {
 	setStyleSheet(R"(
 	 background-color:rgba(194,195,201,0.4);
@@ -29,7 +29,7 @@ void SMaskWidget::setMainWidget(QWidget* widget)
 		qWarning() << "widget不能为空";
 		return;
 	}
-	if (m_MainWidget) 
+	if (m_MainWidget)
 	{
 		qWarning() << "m_MainWidget已存在,will be changed";
 	}
@@ -64,12 +64,15 @@ void SMaskWidget::addDialog(QWidget* dialog)
 //弹出窗口
 void SMaskWidget::popUp(QWidget* dialog)
 {
+	this->raise();  // 强制置顶
+	dialog->raise(); // 弹出窗口也要置顶
+
 	addDialog(dialog);
 	if (dialog && m_dialogs.contains(dialog))
 	{
-		m_currentPopUp = dialog; 
+		m_currentPopUp = dialog;
 		auto child = this->findChildren<QWidget*>();
-		
+
 		dialog->setFocus();
 		this->show();
 		dialog->show();
@@ -103,7 +106,7 @@ bool SMaskWidget::eventFilter(QObject* object, QEvent* ev)
 		{
 			this->hide();
 		}
-		else if(ev->type()==QEvent::Resize)
+		else if (ev->type() == QEvent::Resize)
 		{
 			onResize();
 		}
@@ -120,6 +123,10 @@ bool SMaskWidget::eventFilter(QObject* object, QEvent* ev)
 		}
 	}
 	return false;
+}
+void SMaskWidget::mousePressEvent(QMouseEvent* event)
+{
+	event->accept();
 }
 //放缩重写
 void SMaskWidget::resizeEvent(QResizeEvent* ev)

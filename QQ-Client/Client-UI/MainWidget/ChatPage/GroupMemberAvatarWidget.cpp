@@ -12,22 +12,26 @@
 #include "Friend.h"
 #include "MessageSender.h"
 #include "LoginUserManager.h"
+#include "SMaskWidget.h"
+#include "GroupInviteWidget.h"
 
-GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& groupMember_id, const QString& groupMember_name,MemberWidgetType type,QWidget* parent)
+GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const QString& groupMember_id, const QString& groupMember_name, MemberWidgetType type, QWidget* parent)
 	:QWidget(parent)
-	,m_avatarLab(new QLabel(this))
-	,m_groupMember_id(groupMember_id)
-	,m_nameLab(new QLabel(groupMember_name,this))
-	,m_type(type)
+	, m_avatarLab(new QLabel(this))
+	, m_group_id(group_id)
+	, m_groupMember_id(groupMember_id)
+	, m_nameLab(new QLabel(groupMember_name, this))
+	, m_type(type)
+	, m_groupInviteWidget(new GroupInviteWidget(group_id, this))
 {
-	this->setAttribute(Qt::WA_Hover, true);  // 必须启用！
-	this->setMouseTracking(true);  // 关键！启用鼠标跟踪
-	this->setAttribute(Qt::WA_StyledBackground, true); // 必须启用
+	this->setAttribute(Qt::WA_Hover, true);
+	this->setMouseTracking(true);
+	this->setAttribute(Qt::WA_StyledBackground, true);
 	this->installEventFilter(this);
-	
+
 	//鼠标点击穿透子控件
-	m_avatarLab->setAttribute(Qt::WA_TransparentForMouseEvents, true);  
-	m_nameLab->setAttribute(Qt::WA_TransparentForMouseEvents, true);    
+	m_avatarLab->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+	m_nameLab->setAttribute(Qt::WA_TransparentForMouseEvents, true);
 	m_nameLab->setAlignment(Qt::AlignHCenter);
 	switch (m_type)
 	{
@@ -37,19 +41,19 @@ GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& groupMember_id, 
 			{
 				m_avatarLab->setPixmap(ImageUtils::roundedPixmap(pixmap, QSize(30, 30)));
 			});
-	}	
-		break;
+	}
+	break;
 	case Invite:
 	{
 		auto pixmap = QPixmap(":/picture/Resource/Picture/invite.png");
 		m_avatarLab->setPixmap(ImageUtils::roundedPixmap(pixmap, QSize(30, 30)));
 	}
-		break;
+	break;
 	default:
 		break;
 	}
-	
-	
+
+
 	init();
 }
 
@@ -61,13 +65,13 @@ GroupMemberAvatarWidget::~GroupMemberAvatarWidget()
 
 void GroupMemberAvatarWidget::init()
 {
-	this->setFixedSize(40,65);
+	this->setFixedSize(40, 65);
 	this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_avatarLab->setFixedHeight(40);
 	m_nameLab->setFixedHeight(15);
 	auto vLayout = new QVBoxLayout(this);
 	vLayout->setAlignment(Qt::AlignHCenter);  // 关键！水平居中
-	vLayout->setContentsMargins(0,0,0,0);
+	vLayout->setContentsMargins(0, 0, 0, 0);
 	vLayout->setSpacing(0);
 	vLayout->addWidget(m_avatarLab);
 	vLayout->addWidget(m_nameLab);
@@ -88,7 +92,7 @@ void GroupMemberAvatarWidget::leftButtonPress()
 			isFriend = true;
 			m_userProfileWidget->setUserProfilePage(user->getFriend(), isFriend);
 			auto position = this->mapToGlobal(QPoint(0, 0));
-			m_userProfileWidget->setGeometry(position.x() - m_userProfileWidget->width()+this->width(), position.y(),0,0);
+			m_userProfileWidget->setGeometry(position.x() - m_userProfileWidget->width(), position.y(), 0, 0);
 			m_userProfileWidget->show();
 			return;
 		}
@@ -99,7 +103,7 @@ void GroupMemberAvatarWidget::leftButtonPress()
 		QJsonDocument doc(queryObj);
 		QByteArray data = doc.toJson(QJsonDocument::Compact);
 		MessageSender::instance()->sendHttpRequest("queryUser", data, "application/json",
-			[this,isFriend](const QJsonObject& params, const QByteArray& avatarData)
+			[this, isFriend](const QJsonObject& params, const QByteArray& avatarData)
 			{
 				qDebug() << "接收数据:" << params;
 				m_userProfileWidget->setUserProfilePage(params, isFriend);
@@ -107,11 +111,20 @@ void GroupMemberAvatarWidget::leftButtonPress()
 				m_userProfileWidget->setGeometry(position.x() - m_userProfileWidget->width() + this->width(), position.y(), 0, 0);
 				m_userProfileWidget->show();
 			});
-		
+
 	}
-		break;
+	break;
 	case Invite:
-		break;
+	{
+		m_groupInviteWidget->loadData();
+		//蒙层
+		SMaskWidget::instance()->popUp(m_groupInviteWidget);
+		auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
+		int x = (mainWidgetSize.width() - m_groupInviteWidget->width()) / 2;
+		int y = (mainWidgetSize.height() - m_groupInviteWidget->height()) / 2;
+		SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_groupInviteWidget->width(), m_groupInviteWidget->height()));
+	}
+	break;
 	default:
 		break;
 	}
@@ -143,7 +156,7 @@ bool GroupMemberAvatarWidget::eventFilter(QObject* watched, QEvent* event)
 		this->setStyleSheet("QWidget{background-color:transparent;}QLabel{background-color:transparent;}");
 		return true;  // 事件已处理
 	}
-	
+
 	if (event->type() == QEvent::MouseButtonPress)
 	{
 		qDebug() << "点击";

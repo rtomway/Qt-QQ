@@ -41,6 +41,7 @@ void MessageHandle::initWebRequestHash()
 	webRequestHash["groupAddSuccess"] = &GroupHandle::handle_groupAddSuccess;
 	webRequestHash["groupInviteFailed"] = &GroupHandle::handle_groupInviteFailed;
 	webRequestHash["groupAddFailed"] = &GroupHandle::handle_groupAddFailed;
+	webRequestHash["groupInvite"] = &GroupHandle::handle_groupInvite;
 }
 void MessageHandle::initHttpRequestHash()
 {

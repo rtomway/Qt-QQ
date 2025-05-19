@@ -142,6 +142,12 @@ void ContactListWidget::externalSignals()
 	//加载登录用户信息
 	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
 		{
+			//默认分组
+			addFriendTopItem("我的好友");
+			addGroupTopItem(QString("我创建的群聊"));
+			addGroupTopItem(QString("我管理的群聊"));
+			addGroupTopItem(QString("我加入的群聊"));
+
 			auto& loginUser = LoginUserManager::instance()->getLoginUser();
 			auto grouping = loginUser->getGrouping();
 			//判断该分组是否已存在
@@ -150,9 +156,6 @@ void ContactListWidget::externalSignals()
 			//添加
 			addFriendItem(getFriendTopItem(grouping), loginUser->getFriendId());
 
-			addGroupTopItem(QString("我创建的群聊"));
-			addGroupTopItem(QString("我管理的群聊"));
-			addGroupTopItem(QString("我加入的群聊"));
 		});
 	//本地已有的头像可直接加载
 	connect(FriendManager::instance(), &FriendManager::loadLocalAvatarFriend, this, [=](const QStringList& friend_idList)
@@ -272,7 +275,7 @@ void ContactListWidget::externalSignals()
 			FriendManager::instance()->removeFriend(user_id);
 		});
 	//退出分组
-	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString&group_id,const QString& user_id)
+	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString& group_id, const QString& user_id)
 		{
 			auto exitGroup = GroupManager::instance()->findGroup(group_id);
 			auto& grouping = exitGroup->getGrouping();

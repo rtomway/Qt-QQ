@@ -122,6 +122,11 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 		m_friends.insert(user_id, user);
 		ChatRecordManager::instance()->addUserChat(user_id, std::make_shared<ChatRecordMessage>(LoginUserManager::instance()->getLoginUserID(), user_id, ChatType::User));
 	}
+	if (!m_grouping.contains(user->getGrouping()) && !user->getGrouping().isEmpty())
+	{
+		m_grouping.insert(user_id, user->getGrouping());
+		qDebug() << m_grouping;
+	}
 }
 //搜索好友
 QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
@@ -134,7 +139,7 @@ QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 		return nullptr; // 如果未找到，返回空用户
 	}
 }
-//获取全部好友信息
+//获取相关好友信息
 QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString& text) const
 {
 	QHash<QString, QSharedPointer<Friend>> result;
@@ -144,6 +149,26 @@ QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString&
 		}
 	}
 	return result;
+}
+//获取所有好友信息
+QList<QSharedPointer<Friend>> FriendManager::getAllFriends() const
+{
+	return m_friends.values();
+}
+//获取所有好友分组
+QStringList FriendManager::getAllFriendGroupings() const
+{
+	QSet<QString> uniqueGroupings;
+	for (const QString& grouping : m_grouping.values())
+	{
+		uniqueGroupings.insert(grouping);
+	}
+	return QStringList(uniqueGroupings.begin(), uniqueGroupings.end());
+}
+//获取所有好友Id
+QStringList FriendManager::getAllFriendIdList() const
+{
+	return m_friends.keys();
 }
 //删除好友
 void FriendManager::removeFriend(const QString& friend_id)

@@ -38,7 +38,7 @@ protected:
 protected:
 	void loadChatMessage(const ChatRecordMessage& chatMessage);
 protected:
-	virtual void initSetWidget()=0;
+	virtual void initSetWidget() = 0;
 	void showSetWidget();
 	void hideSetWidget();
 protected:

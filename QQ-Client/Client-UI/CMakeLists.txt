@@ -13,7 +13,7 @@ file(GLOB UI_SOURCES
     MainWidget/ContactListWidget/*.cpp
     MainWidget/ChatPage/*.cpp
     MainWidget/NoticePage/*.cpp
-    MainWidget/GroupInviteWidget/*.cpp
+    MainWidget/GroupMemberOperatorWidget/*.cpp
     MainWidget/ItemWidget/*.cpp
 )
 file(GLOB UI_HEADERS
@@ -25,7 +25,7 @@ file(GLOB UI_HEADERS
     MainWidget/ContactListWidget/*.h
     MainWidget/ChatPage/*.h
     MainWidget/NoticePage/*.h
-    MainWidget/GroupInviteWidget/*.h
+    MainWidget/GroupMemberOperatorWidget/*.h
     MainWidget/ItemWidget/*.h
 )
 # 为 UI 模块添加一个目标
@@ -42,7 +42,7 @@ target_include_directories(Client-UI PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactListWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ChatPage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/NoticePage
-    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/GroupInviteWidget
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/GroupMemberOperatorWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/MessageListItem
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ItemWidget
 )

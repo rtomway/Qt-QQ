@@ -14,7 +14,7 @@
 #include "ContactListWidget.h"
 #include "AddFriendWidget.h"
 #include "SearchFriend.h"
-#include "GroupInviteWidget.h"
+#include "GroupMemberOperatorWidget.h"
 #include "GlobalTypes.h"
 
 #include "ChatWidget.h"
@@ -68,7 +68,7 @@ private:
 	//独立窗口
 	std::unique_ptr<FriendProfilePage> m_friendProfileWidget{};
 	std::unique_ptr<AddFriendWidget> m_addFriendWidget{};
-	GroupInviteWidget* m_groupInviteWidget{};
+	GroupMemberOperatorWidget* m_groupInviteWidget{};
 signals:
 	void quitSuccess();
 	void hideWidget();
