@@ -18,7 +18,6 @@ private:
 	EventBus() {};
 signals:   //接受到消息发送信号通知UI界面更新同步
 	//登录
-	
 	void initLoginUser(const QJsonObject& paramsObject);
 	void initFriendManager(const QJsonObject& paramsObject);
 	void initGroupManager(const QJsonObject& paramsObject);
@@ -47,6 +46,8 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void groupMemberload(const QJsonObject& paramsObject);
 	void newGroup(const QJsonObject& paramsObject);
 	void exitGroup(const QString& group_id, const QString& user_id);
+	void disbandGroup(const QString& group_id);
+	void notice_disbandGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void groupMemberExitGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void removeGroupMember(const QJsonObject& paramsObject);
 	//用户

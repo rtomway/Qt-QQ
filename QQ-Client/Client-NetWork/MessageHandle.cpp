@@ -66,6 +66,7 @@ void MessageHandle::initRequestHash()
 	registerHandle("groupInvite", m_groupHandle, &Client_GroupHandle::handle_groupInvite);
 	registerHandle("removeGroupMember", m_groupHandle, &Client_GroupHandle::handle_removeMember);
 	registerHandle("groupMemberExitGroup", m_groupHandle, &Client_GroupHandle::handle_groupMemberExitGroup);
+	registerHandle("disbandGroup", m_groupHandle, &Client_GroupHandle::handle_disbandGroup);
 }
 
 //消息处理接口

@@ -205,3 +205,20 @@ bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQue
 	}
 	return true;
 }
+//删除群组
+bool GroupDBUtils::deleteGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+{
+	qDebug() << "------------------------------------删除群组---------------------------------------";
+	QString queryStr = QString(
+		"delete from `group` where group_id=?"
+	);
+	QVariantList bindValues;
+	bindValues.append(group_id);
+	auto deleteResult = query.executeNonQuery(queryStr, bindValues, queryPtr);
+	if (!deleteResult)
+	{
+		qDebug() << "deleteGroupMember failed";
+		return false;
+	}
+	return true;
+}

@@ -13,6 +13,7 @@ QJsonObject UserDBUtils::queryUserDetail(const QString& user_id, DataBaseQuery& 
 	bindValues.append(user_id);
 	auto queryResult = query.executeQuery(queryStr, bindValues,queryPtr);
 	QJsonObject queryUserObj;
+	qDebug() << "queryUserDetail-------------:"<<queryResult;
 	if (queryResult.contains("error"))
 	{
 		qDebug() << "queryUserDetail failed";

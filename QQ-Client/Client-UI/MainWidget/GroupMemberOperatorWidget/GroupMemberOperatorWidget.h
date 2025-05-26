@@ -18,6 +18,7 @@ public:
 	GroupMemberOperatorWidget(QWidget* parent = nullptr);
 	~GroupMemberOperatorWidget();
 	virtual void loadData() = 0;
+	
 protected:
 	virtual bool shouldFilterUser(const QString& user_id) = 0;
 	virtual void initUi() = 0;

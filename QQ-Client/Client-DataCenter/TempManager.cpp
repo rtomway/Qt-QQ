@@ -62,6 +62,12 @@ TempManager::TempManager()
 			addGroupReply(group_id, obj, pixmap);
 			emit groupAddFailed(group_id);
 		});
+	connect(EventBus::instance(), &EventBus::notice_disbandGroup, this, [=](const QJsonObject& obj, const QPixmap& pixmap)
+		{
+			auto group_id = obj["group_id"].toString();
+			addGroupReply(group_id, obj, pixmap);
+			emit groupDisband(group_id);
+		});
 }
 // 添加临时请求（好友申请或群组邀请）
 void TempManager::addFriendRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap)

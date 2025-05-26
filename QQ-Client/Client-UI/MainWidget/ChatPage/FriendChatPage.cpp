@@ -108,9 +108,6 @@ void FriendChatPage::init()
 	//设置面板
 	connect(ui->moreBtn, &QPushButton::clicked, this, [=]
 		{
-			m_setWidget->setId(m_friend->getFriendId());
-			qDebug() << "设置面板";
-			qDebug() << m_setWidget->isHidden();
 			if (!m_setWidget->isHidden())
 			{
 				hideSetWidget();
@@ -151,40 +148,8 @@ void FriendChatPage::setChatWidget(const QString& id)
 		qDebug() << "-------------好友聊天记录的加载";
 		loadChatMessage(*m_chat);
 	}
-	initSetWidget();
+	
 	refreshChatWidget();
-}
-//设置面板
-void FriendChatPage::initSetWidget()
-{
-	m_setWidget->clearListWidget();
-	if (m_friend->getFriendId() != LoginUserManager::instance()->getLoginUserID())
-	{
-		auto deleteBtn = new QPushButton(m_setWidget);
-		deleteBtn->setText("删除好友");
-		deleteBtn->setStyleSheet(R"(
-		QPushButton{background-color:white;border:1px solid white;height:25px;border-radius:5px;color:red}
-		QPushButton:hover{background-color:rgb(240,240,240);}
-		)");
-		m_setWidget->addItemWidget(deleteBtn, 30);
-		connect(deleteBtn, &QPushButton::clicked, this, [=]
-			{
-				auto deleteResult = QMessageBox::question(nullptr, "删除好友", "请确认是否删除");
-				if (deleteResult == QMessageBox::No)
-					return;
-				m_setWidget->hide();
-				//数据更新
-				EventBus::instance()->emit deleteFriend(m_friend->getFriendId());
-				QJsonObject deleteObj;
-				deleteObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-				deleteObj["username"] = LoginUserManager::instance()->getLoginUserName();
-				deleteObj["friend_id"] = m_friend->getFriendId();
-				QJsonDocument doc(deleteObj);
-				QByteArray data = doc.toJson(QJsonDocument::Compact);
-				MessageSender::instance()->sendHttpRequest("deleteFriend", data, "application/json");
-			});
-	}
-
 }
 //刷新会话界面
 void FriendChatPage::refreshChatWidget()

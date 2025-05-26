@@ -31,6 +31,7 @@ public:
 	QStringList getAllFriendGroupings()const;
 	//获取所有好友Id
 	QStringList getAllFriendIdList()const;
+	bool isFriend(const QString& user_id);
 	//删除好友
 	void removeFriend(const QString& friend_id);
 	//清除

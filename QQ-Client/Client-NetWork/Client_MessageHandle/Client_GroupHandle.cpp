@@ -1,4 +1,5 @@
 ﻿#include "Client_GroupHandle.h"
+#include "Client_GroupHandle.h"
 #include <QPixmap>
 
 #include "ImageUtil.h"
@@ -162,5 +163,27 @@ void Client_GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, 
 			return;
 		};
 		EventBus::instance()->emit groupAddFailed(paramsObject, pixmap);
+		});
+}
+
+void Client_GroupHandle::handle_disbandGroup(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	auto group_id = paramsObject["group_id"].toString();
+	EventBus::instance()->emit disbandGroup(group_id);
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
+		{
+			QPixmap pixmap;
+			if (data.isEmpty())
+			{
+				qDebug() << "无数据";
+				pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
+				EventBus::instance()->emit notice_disbandGroup(paramsObject, pixmap);
+			}
+			if (!pixmap.loadFromData(data))
+			{
+				qDebug() << "client-头像加载失败";
+				return;
+			};
+			EventBus::instance()->emit notice_disbandGroup(paramsObject, pixmap);
 		});
 }

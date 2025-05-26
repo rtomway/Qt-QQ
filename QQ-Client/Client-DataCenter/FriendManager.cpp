@@ -170,6 +170,13 @@ QStringList FriendManager::getAllFriendIdList() const
 {
 	return m_friends.keys();
 }
+//判断是否是好友
+bool FriendManager::isFriend(const QString& user_id)
+{
+	if (m_friends.keys().contains(user_id)&& user_id != LoginUserManager::instance()->getLoginUserID())
+		return true;
+	return false;
+}
 //删除好友
 void FriendManager::removeFriend(const QString& friend_id)
 {

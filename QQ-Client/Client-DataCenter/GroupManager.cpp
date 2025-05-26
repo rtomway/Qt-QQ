@@ -174,6 +174,11 @@ GroupManager::GroupManager()
 			group->removeMember(user_id);
 			
 		});
+	//群聊解散
+	connect(EventBus::instance(), &EventBus::disbandGroup, this, [=](const QString& group_id)
+		{
+			emit exitGroup(group_id,LoginUserManager::instance()->getLoginUserID());
+		});
 }
 GroupManager* GroupManager::instance()
 {

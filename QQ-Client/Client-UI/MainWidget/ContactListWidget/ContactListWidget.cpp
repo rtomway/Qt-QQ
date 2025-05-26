@@ -277,6 +277,10 @@ void ContactListWidget::externalSignals()
 	//退出分组
 	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString& group_id, const QString& user_id)
 		{
+			auto list = GroupManager::instance()->getGroups().keys();
+			for (auto& id : list)
+				qDebug() << "---------群组:" << id;
+			qDebug() << "---id--:" << group_id;
 			auto exitGroup = GroupManager::instance()->findGroup(group_id);
 			auto& grouping = exitGroup->getGrouping();
 			auto topItem = getGroupTopItem(grouping);

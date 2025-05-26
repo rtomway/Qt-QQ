@@ -23,7 +23,7 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 	GroupMember groupMemberParams;
 	groupMemberParams.group_id = groupParams.group_id;
 	groupMemberParams.user_id = groupParams.owner_id;
-	groupMemberParams.username= paramsObject["username"].toString();
+	groupMemberParams.username = paramsObject["username"].toString();
 	groupMemberParams.group_role = "owner";
 	//数据库操作
 	DataBaseQuery query;
@@ -51,7 +51,7 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 	auto imageData = ImageUtils::loadImage(groupParams.owner_id, ChatType::User);
 	QImage groupImage;
 	groupImage.loadFromData(imageData);
-	ImageUtils::saveAvatarToLocal(groupImage,groupParams.group_id, ChatType::Group);
+	ImageUtils::saveAvatarToLocal(groupImage, groupParams.group_id, ChatType::Group);
 	//群组数据包
 	QJsonObject groupObj;
 	groupObj["group_id"] = groupParams.group_id;
@@ -79,21 +79,21 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 	auto friendIdListArray = paramsObject["inviteMembers"].toArray();
 	for (const auto& friendIdValue : friendIdListArray)
 	{
-		QString friendId = friendIdValue.toString(); 
+		QString friendId = friendIdValue.toString();
 		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
 	}
 }
 //申请添加群组
 void GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "添加群组"<< paramsObject;
+	qDebug() << "添加群组" << paramsObject;
 	qDebug() << "发送方:" << paramsObject["user_id"].toString();
 	qDebug() << "接受方:" << paramsObject["to"].toString();
 	auto send_id = paramsObject["user_id"].toString();
 	auto group_id = paramsObject["to"].toString();
 	DataBaseQuery query;
 	Group queryGroup;
-	queryGroup =GroupDBUtils::queryGroup(group_id, query);
+	queryGroup = GroupDBUtils::queryGroup(group_id, query);
 	//数据包装入信息
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
@@ -127,8 +127,8 @@ void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject,
 	qDebug() << "发送者:" << user_id;
 	for (auto& member_id : memberId_list)
 	{
-		if(member_id!=user_id)
-		ConnectionManager::instance()->sendTextMessage(member_id, message);
+		if (member_id != user_id)
+			ConnectionManager::instance()->sendTextMessage(member_id, message);
 		qDebug() << "接收者:" << member_id;
 	}
 }
@@ -224,8 +224,8 @@ void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, con
 	for (auto& member_id : member_idList)
 	{
 		qDebug() << "向群成员客户端发送新成员信息:" << member_id;
-		if(member_id!=groupMember.user_id)
-		ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
+		if (member_id != groupMember.user_id)
+			ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
 	}
 	//通知群主邀请成功
 	QVariantMap inviteReplyMap;
@@ -251,13 +251,13 @@ void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, con
 	PacketCreate::addPacket(groupData, packet);
 	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
 	//向新成员发送群组信息
-	ConnectionManager::instance()->sendBinaryMessage(user_id,groupAllData);
+	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
 }
 //群组申请加入成功
 void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto group_id = paramsObject["group_id"].toString();
-	auto user_id= paramsObject["user_id"].toString();
+	auto user_id = paramsObject["user_id"].toString();
 	GroupMember newGroupMember;
 	newGroupMember.user_id = paramsObject["applicant_id"].toString();
 	newGroupMember.username = paramsObject["applicant_name"].toString();
@@ -306,7 +306,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	for (auto& member_id : member_idList)
 	{
 		if (member_id != newGroupMember.user_id)
-		ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
+			ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
 	}
 	//包装群聊信息
 	QVariantMap groupMap;
@@ -326,7 +326,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 void GroupHandle::handle_groupInviteFailed(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto groupOwner_id = paramsObject["groupOwnerId"].toString();
-	auto user_id= paramsObject["user_id"].toString();
+	auto user_id = paramsObject["user_id"].toString();
 	//数据包装入信息
 	QVariantMap senderMessage;
 	senderMessage = paramsObject.toVariantMap();
@@ -364,7 +364,7 @@ void GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByt
 	auto username = paramsObject["username"].toString();
 	auto group_id = paramsObject["group_id"].toString();
 	auto group_name = paramsObject["group_name"].toString();
-	QVariantMap groupInviteMap=paramsObject.toVariantMap();
+	QVariantMap groupInviteMap = paramsObject.toVariantMap();
 	groupInviteMap["groupType"] = 0;
 	groupInviteMap["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 	groupInviteMap["noticeMessage"] = "邀请你加入群聊" + group_name;
@@ -397,7 +397,7 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 			{
 				return false;
 			}
-			if (!GroupDBUtils::groupMemberCountSub(groupMember.group_id,query, queryPtr))
+			if (!GroupDBUtils::groupMemberCountSub(groupMember.group_id, query, queryPtr))
 			{
 				return false;
 			}
@@ -439,4 +439,42 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 	}
 	//返回客户端操作结果
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
+}
+//解散群组
+void GroupHandle::handle_disbandGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
+{
+	auto user_id = paramsObj["user_id"].toString();
+	auto username = paramsObj["username"].toString();
+	auto group_id = paramsObj["group_id"].toString();
+	auto group_name = paramsObj["group_name"].toString();
+	//删除群组
+	DataBaseQuery query;
+	QStringList groupMember_idList;
+	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+		{
+			groupMember_idList = GroupDBUtils::queryGroupMemberIdList(group_id, query, queryPtr);
+			if (!GroupDBUtils::deleteGroup(group_id, query, queryPtr))
+			{
+				return false;
+			}
+			return true;
+		});
+	if (!result)
+	{
+
+	}
+	//通知所有群成员群组解散
+	auto disbandNoticeObj = paramsObj.toVariantMap();
+	disbandNoticeObj["noticeMessage"] = "解散了群组" + group_name;
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	auto packet = PacketCreate::binaryPacket("disbandGroup", disbandNoticeObj, imageData);
+	QByteArray disbandNoticeData;
+	PacketCreate::addPacket(disbandNoticeData, packet);
+	auto allData = PacketCreate::allBinaryPacket(disbandNoticeData);
+	for (auto& groupMember_id : groupMember_idList)
+	{
+		if (groupMember_id != user_id)
+			ConnectionManager::instance()->sendBinaryMessage(groupMember_id, allData);
+	}
+
 }

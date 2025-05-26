@@ -66,7 +66,7 @@ void MessageHandle::initHttpRequestHash()
 	//群组
 	httpRequestHash["groupMemberLoad"] = &GroupHandle::handle_groupMemberLoad;
 	httpRequestHash["exitGroup"] = &GroupHandle::handle_exitGroup;
-	
+	httpRequestHash["disbandGroup"] = &GroupHandle::handle_disbandGroup;
 }
 
 //token验证

@@ -14,6 +14,7 @@
 #include "LoginUserManager.h"
 #include "SMaskWidget.h"
 #include "GroupInviteWidget.h"
+#include "UserProfileDispatcher.h"
 
 GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const QString& groupMember_id, const QString& groupMember_name, MemberWidgetType type, QWidget* parent)
 	:QWidget(parent)
@@ -22,7 +23,6 @@ GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const 
 	, m_groupMember_id(groupMember_id)
 	, m_nameLab(new QLabel(groupMember_name, this))
 	, m_type(type)
-	, m_groupInviteWidget(new GroupInviteWidget(group_id, this))
 {
 	this->setAttribute(Qt::WA_Hover, true);
 	this->setMouseTracking(true);
@@ -62,7 +62,6 @@ GroupMemberAvatarWidget::~GroupMemberAvatarWidget()
 	qDebug() << "GroupMemberAvatarWidget destroyed: " << this;
 }
 
-
 void GroupMemberAvatarWidget::init()
 {
 	this->setFixedSize(40, 65);
@@ -84,45 +83,13 @@ void GroupMemberAvatarWidget::leftButtonPress()
 	{
 	case Avatar:
 	{
-		m_userProfileWidget = std::make_unique<UserProfilePage>();
-		bool isFriend = false;
-		auto user = FriendManager::instance()->findFriend(m_groupMember_id);
-		if (user)
-		{
-			isFriend = true;
-			m_userProfileWidget->setUserProfilePage(user->getFriend(), isFriend);
-			auto position = this->mapToGlobal(QPoint(0, 0));
-			m_userProfileWidget->setGeometry(position.x() - m_userProfileWidget->width(), position.y(), 0, 0);
-			m_userProfileWidget->show();
-			return;
-		}
-		//向服务器发送queryUser
-		QJsonObject queryObj;
-		queryObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-		queryObj["query_id"] = m_groupMember_id;
-		QJsonDocument doc(queryObj);
-		QByteArray data = doc.toJson(QJsonDocument::Compact);
-		MessageSender::instance()->sendHttpRequest("queryUser", data, "application/json",
-			[this, isFriend](const QJsonObject& params, const QByteArray& avatarData)
-			{
-				qDebug() << "接收数据:" << params;
-				m_userProfileWidget->setUserProfilePage(params, isFriend);
-				auto position = this->mapToGlobal(QPoint(0, 0));
-				m_userProfileWidget->setGeometry(position.x() - m_userProfileWidget->width() + this->width(), position.y(), 0, 0);
-				m_userProfileWidget->show();
-			});
-
+		auto position = this->mapToGlobal(QPoint(0, 0));
+		UserProfileDispatcher::instance()->showUserProfile(m_groupMember_id, position);
 	}
 	break;
 	case Invite:
 	{
-		m_groupInviteWidget->loadData();
-		//蒙层
-		SMaskWidget::instance()->popUp(m_groupInviteWidget);
-		auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
-		int x = (mainWidgetSize.width() - m_groupInviteWidget->width()) / 2;
-		int y = (mainWidgetSize.height() - m_groupInviteWidget->height()) / 2;
-		SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_groupInviteWidget->width(), m_groupInviteWidget->height()));
+		emit groupInvite(m_group_id);
 	}
 	break;
 	default:
@@ -147,7 +114,6 @@ bool GroupMemberAvatarWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	if (event->type() == QEvent::HoverEnter)
 	{
-		qDebug() << "hover";
 		this->setStyleSheet("QWidget{background-color:rgb(240,240,240);}QLabel{background-color:transparent;}");
 		return true;  // 事件已处理
 	}
@@ -159,17 +125,14 @@ bool GroupMemberAvatarWidget::eventFilter(QObject* watched, QEvent* event)
 
 	if (event->type() == QEvent::MouseButtonPress)
 	{
-		qDebug() << "点击";
 		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 
 		if (mouseEvent->button() == Qt::LeftButton)
 		{
-			qDebug() << "左键";
 			leftButtonPress();
 		}
 		else if (mouseEvent->button() == Qt::RightButton)
 		{
-			qDebug() << "右键";
 			rightButtonPress();
 		}
 		return true;  // 事件已处理

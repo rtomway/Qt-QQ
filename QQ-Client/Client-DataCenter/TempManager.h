@@ -53,6 +53,7 @@ signals:
 	void groupMemberExitGroup(const QString& group_id);
 	void rejectAddGroup(const QString& group_id);
 	void groupAddFailed(const QString& group_id);
+	void groupDisband(const QString& group_id);
 };
 
 #endif // !TEMPMANAGER_H_

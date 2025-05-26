@@ -54,6 +54,7 @@ GroupInviteWidget::GroupInviteWidget(const QString& group_id, QWidget* parent)
 
 GroupInviteWidget::~GroupInviteWidget()
 {
+	qDebug() << "GroupInviteWidget has destoryed" << m_group_id;
 }
 
 void GroupInviteWidget::loadData()

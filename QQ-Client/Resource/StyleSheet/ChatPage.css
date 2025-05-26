@@ -3,6 +3,9 @@
 QWidget {
     background-color: rgb(240,240,240);
 }
+QWidget#setPannel {
+    background-color: rgb(235,235,235);
+}
 /*按钮*/
 QPushButton {
     border: none;

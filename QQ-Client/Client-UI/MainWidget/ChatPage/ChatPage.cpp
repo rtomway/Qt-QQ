@@ -11,6 +11,9 @@
 #include <QMouseEvent>
 #include <QTimer>
 
+#include <QGraphicsOpacityEffect>
+#include <QParallelAnimationGroup>
+
 #include "ImageUtil.h"
 #include "FriendManager.h"
 #include "ChatRecordManager.h"
@@ -23,7 +26,7 @@
 ChatPage::ChatPage(QWidget* parent)
 	:QWidget(parent)
 	, ui(new Ui::ChatPage)
-	, m_setWidget(new SetPannelWidget(this))
+	, m_setWidget(new QWidget(this))
 	, m_showAnimation(new QPropertyAnimation(m_setWidget, "geometry"))
 	, m_hideAnimation(new QPropertyAnimation(m_setWidget, "geometry"))
 {
@@ -44,6 +47,7 @@ ChatPage::ChatPage(QWidget* parent)
 		qDebug() << file.fileName() << "打开失败";
 	}
 	qApp->installEventFilter(this);
+	m_setWidget->setObjectName("setPannel");
 	m_setWidget->setFixedWidth(250);
 	m_setWidget->setFocusPolicy(Qt::StrongFocus);
 	// 移除默认标志并添加无边框标志
@@ -254,6 +258,8 @@ void ChatPage::hideSetWidget()
 		int visibleWidth = windowRight - rect.x();  // 计算可见宽度
 		QRegion region(0, 0, visibleWidth, height(), QRegion::Rectangle);
 		m_setWidget->setMask(region);
+
+		
 		});
 
 	// 动画结束时完全隐藏

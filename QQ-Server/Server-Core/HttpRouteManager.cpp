@@ -26,6 +26,7 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/updateUserAvatar");
 	registerHttpRoute("/deleteFriend");
 	registerHttpRoute("/exitGroup");
+	registerHttpRoute("/disbandGroup");
 	registerHttpRoute("/queryUser");
 }
 

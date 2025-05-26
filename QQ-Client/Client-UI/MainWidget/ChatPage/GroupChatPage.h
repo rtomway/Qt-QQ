@@ -12,6 +12,7 @@
 
 #include "ChatRecordMessage.h"
 #include "MessageBubble.h"
+#include "GroupSetPannelWidget.h"
 
 
 class GroupChatPage :public ChatPage
@@ -25,7 +26,6 @@ private:
 public:
 	//重写
 	void setChatWidget(const QString& id);
-	void initSetWidget()override;
 	void refreshChatWidget()override;
 	bool isCurrentChat(const QString& id) const;
 	void createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id = QString());
@@ -42,6 +42,7 @@ private:
 	QStringList m_imageMessagePath{};
 	QString m_textMessage{};
 	bool m_isImageInTextEdit{ false };
+	GroupSetPannelWidget* m_groupPannel{};
 };
 
 #endif // !GROUPCHATPAGE_H_

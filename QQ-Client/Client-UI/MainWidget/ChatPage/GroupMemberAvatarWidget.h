@@ -30,9 +30,8 @@ private:
 	QString m_groupMember_id{};
 	QString m_group_id{};
 	MemberWidgetType m_type{};
-	//左键独立窗口
-	std::unique_ptr<UserProfilePage> m_userProfileWidget{};
-	GroupMemberOperatorWidget* m_groupInviteWidget{};
+signals:
+	void groupInvite(const QString& group_id);
 };
 
 #endif // !GROUPMEMBERAVATARWIDGET_H_

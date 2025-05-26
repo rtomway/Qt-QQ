@@ -12,7 +12,6 @@
 #include "Group.h"
 #include "MessageBubble.h"
 #include "MessageRecord.h"
-#include "SetPannelWidget.h"
 
 namespace Ui { class ChatPage; }
 
@@ -38,7 +37,6 @@ protected:
 protected:
 	void loadChatMessage(const ChatRecordMessage& chatMessage);
 protected:
-	virtual void initSetWidget() = 0;
 	void showSetWidget();
 	void hideSetWidget();
 protected:
@@ -47,7 +45,7 @@ protected:
 protected:
 	QSharedPointer<Friend>m_loginUser{};
 	QString m_title{};
-	SetPannelWidget* m_setWidget{};
+	QWidget* m_setWidget{};
 	QPropertyAnimation* m_showAnimation{};
 	QPropertyAnimation* m_hideAnimation{};
 	bool m_currentChat{ false };

@@ -9,10 +9,10 @@ class SetPannelWidget :public QWidget
 public:
 	SetPannelWidget(QWidget* parent = nullptr);
 	void init();
-	void setId(const QString& id);
 	void addItemWidget(QWidget* widget,int height=0);
 	void addSpaceItem(int height=10);
 	void clearListWidget();
+	QListWidgetItem* getItemByWidget(QWidget* widget) const;
 private:
 	QListWidget* m_listWidget{};
 	QString m_pannelId;

@@ -105,6 +105,12 @@ void NoticeWidget::init()
 			addNoticeItem(user_id, ChatType::User, true);
 			emit friendNotice();
 		});
+	//群组解散
+	connect(TempManager::instance(), &TempManager::groupDisband, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group, true);
+			emit groupNotice();
+		});
 }
 //init堆栈窗口
 void NoticeWidget::initStackedWidget()

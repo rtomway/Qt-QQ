@@ -19,6 +19,7 @@ public:
 	void handle_groupMemberExitGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_rejectAddGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_groupAddFailed(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_disbandGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 };
 
 #endif // !CLIENT_GROUPHANDLE_H_
