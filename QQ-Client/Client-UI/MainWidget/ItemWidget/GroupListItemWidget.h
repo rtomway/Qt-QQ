@@ -14,6 +14,7 @@ public:
 	void showGroupId();
 private:
 	void init();
+	void refershItemWidget();
 private:
 	QSharedPointer<Group>m_group = nullptr;
 	QString m_groupId{};

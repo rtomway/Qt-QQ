@@ -25,6 +25,7 @@ QPixmap ImageUtils::roundedPixmap(const QPixmap& pixmap, QSize size, int radius)
 	painter.drawPixmap(0, 0, scaled);
 	return dest;
 }
+
 //圆形图片
 QPixmap ImageUtils::roundedPixmap(const QPixmap& pixmap, QSize size)
 {
@@ -36,6 +37,7 @@ void ImageUtils::setLoginUser(const QString& user_id)
 {
 	m_currentUser = user_id;
 }
+
 //用户头像保存目录
 QString ImageUtils::getUserAvatarFolderPath()
 {
@@ -50,6 +52,7 @@ QString ImageUtils::getUserAvatarFolderPath()
 	}
 	return avatarFolder;
 }
+
 //群聊头像保存目录
 QString ImageUtils::getGroupAvatarFolderPath()
 {
@@ -64,6 +67,7 @@ QString ImageUtils::getGroupAvatarFolderPath()
 	}
 	return avatarFolder;
 }
+
 //保存图片
 void ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& id, ChatType type, std::function<void(bool)>callBack)
 {
@@ -107,6 +111,7 @@ bool ImageUtils::saveAvatarToLocalTask(const QString& avatarPath, const QString&
 	// 保存头像
 	return avatar.save(avatarFileName);
 }
+
 //保存图片
 void ImageUtils::saveAvatarToLocal(const QImage& image, const QString& id, ChatType type, std::function<void(bool)>callBack)
 {
@@ -151,6 +156,7 @@ bool ImageUtils::saveAvatarToLocalTask(const QImage& image, const QString& id, C
 	// 保存头像
 	return image.save(avatarFileName);
 }
+
 //保存图片
 void ImageUtils::saveAvatarToLocal(const QByteArray& data, const QString& id, ChatType type, std::function<void(bool)> callBack)
 {
@@ -199,6 +205,7 @@ bool ImageUtils::saveAvatarToLocalTask(const QByteArray & data, const QString & 
 
 	return true;
 }
+
 //加载图片
 void ImageUtils::loadAvatarFromFile(const QString& avatarPath, std::function<void(QImage)>callBack)
 {

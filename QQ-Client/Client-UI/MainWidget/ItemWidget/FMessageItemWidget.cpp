@@ -7,6 +7,7 @@
 #include "AvatarManager.h"
 #include "FriendManager.h"
 
+
 FMessageItemWidget::FMessageItemWidget(QWidget* parent)
 	:ItemWidget(parent)
 	, m_timeLab(new QLabel(this))
@@ -14,10 +15,12 @@ FMessageItemWidget::FMessageItemWidget(QWidget* parent)
 {
 	init();
 }
+
 FMessageItemWidget::~FMessageItemWidget()
 {
 
 }
+
 void FMessageItemWidget::init()
 {
 	ui->rightWidget->setLayout(new QVBoxLayout(ui->rightWidget));
@@ -35,6 +38,7 @@ void FMessageItemWidget::init()
 	m_countLab->setVisible(false);
 	ui->preMessageLab->setVisible(false);
 }
+
 //设置item窗口
 void FMessageItemWidget::setItemWidget(const QString& user_id)
 {
@@ -46,7 +50,12 @@ void FMessageItemWidget::setItemWidget(const QString& user_id)
 	}
 	//json信息
 	m_friendJson = m_friend->getFriend();
-	//页面显示
+	refershItemWidget();
+}
+
+//页面显示
+void FMessageItemWidget::refershItemWidget()
+{
 	AvatarManager::instance()->getAvatar(m_friendId, ChatType::User, [=](const QPixmap& pixmap)
 		{
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
@@ -61,12 +70,14 @@ void FMessageItemWidget::setItemWidget(const QString& user_id)
 		m_timeLab->setText(m_lastTime);
 	}
 }
+
 //清空未读消息
 void FMessageItemWidget::clearUnRead()
 {
 	m_countLab->setVisible(false);
 	m_unReadMesssage.clear();
 }
+
 //更新未读消息
 void FMessageItemWidget::updateUnReadMessage(const QString& message, const QString& time)
 {

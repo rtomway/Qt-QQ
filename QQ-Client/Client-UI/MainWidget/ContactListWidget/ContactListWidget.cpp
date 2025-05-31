@@ -136,6 +136,7 @@ void ContactListWidget::init()
 			addFriendTopItem(grouping);
 		});
 }
+
 //外部信号
 void ContactListWidget::externalSignals()
 {
@@ -300,6 +301,7 @@ void ContactListWidget::externalSignals()
 			addGroupItem(getGroupTopItem("我加入的群聊"), group_id);
 		});
 }
+
 //获取分组
 QStringList ContactListWidget::getfGrouping()
 {
@@ -309,6 +311,7 @@ QStringList ContactListWidget::getgGrouping()
 {
 	return m_gNamelist;
 }
+
 //添加分组item
 TopItemWidget* ContactListWidget::addFriendTopItem(QString friendName)
 {
@@ -322,6 +325,7 @@ TopItemWidget* ContactListWidget::addFriendTopItem(QString friendName)
 	m_friendList->setItemWidget(friendListItem, 0, topItemWidget);
 	return topItemWidget;
 }
+
 //添加好友item
 void ContactListWidget::addFriendItem(QTreeWidgetItem* firendTopItem, const QString& user_id)
 {
@@ -351,6 +355,7 @@ void ContactListWidget::addFriendItem(QTreeWidgetItem* firendTopItem, const QStr
 	auto friendItemWidget = qobject_cast<FriendListItemWidget*>(itemWidget);
 	friendItemWidget->setGrouping(topItemWidget->getName());
 }
+
 //获取分组item
 QTreeWidgetItem* ContactListWidget::getFriendTopItem(QString friendName)
 {
@@ -371,6 +376,7 @@ QTreeWidgetItem* ContactListWidget::getFriendTopItem(QString friendName)
 	}
 	return nullptr;
 }
+
 //获取子item
 QTreeWidgetItem* ContactListWidget::findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId) {
 	if (!group)
@@ -383,6 +389,7 @@ QTreeWidgetItem* ContactListWidget::findItemByIdInGroup(QTreeWidgetItem* group, 
 	}
 	return nullptr;  // 没找到
 }
+
 //添加分组item
 TopItemWidget* ContactListWidget::addGroupTopItem(QString groupName)
 {
@@ -396,6 +403,7 @@ TopItemWidget* ContactListWidget::addGroupTopItem(QString groupName)
 	m_groupList->setItemWidget(groupListItem, 0, topItemWidget);
 	return topItemWidget;
 }
+
 //添加群组item
 void ContactListWidget::addGroupItem(QTreeWidgetItem* groupTopItem, const QString& group_id)
 {
@@ -420,6 +428,7 @@ void ContactListWidget::addGroupItem(QTreeWidgetItem* groupTopItem, const QStrin
 	groupItemWidget->setGrouping(topItemWidget->getName());
 
 }
+
 //获取分组item
 QTreeWidgetItem* ContactListWidget::getGroupTopItem(QString groupName)
 {
@@ -440,6 +449,7 @@ QTreeWidgetItem* ContactListWidget::getGroupTopItem(QString groupName)
 	}
 	return nullptr;
 }
+
 //通知数量更新
 void ContactListWidget::updateFriendNoticeCount()
 {
@@ -453,6 +463,7 @@ void ContactListWidget::updateGroupNoticeCount()
 	ui->groupNoticeCountLab->setVisible(true);
 	ui->groupNoticeCountLab->setText(QString::number(m_gNoticeUnreadCount));
 }
+
 //退出清除前一个账户信息
 void ContactListWidget::clearContactList()
 {
@@ -463,6 +474,7 @@ void ContactListWidget::clearContactList()
 	m_fNamelist.clear();
 	m_gNamelist.clear();
 }
+
 //事件重写
 bool ContactListWidget::eventFilter(QObject* obj, QEvent* event)
 {

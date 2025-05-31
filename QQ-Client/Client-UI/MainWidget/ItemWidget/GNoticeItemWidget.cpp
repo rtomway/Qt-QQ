@@ -82,6 +82,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 			}
 		});
 }
+
 void GNoticeItemWidget::init()
 {
 	auto nameLayout = ui->nameWidget->layout();
@@ -95,6 +96,7 @@ void GNoticeItemWidget::init()
 	m_cancelBtn->setFixedWidth(90);
 	ui->preMessageLab->setVisible(false);
 }
+
 //设置item窗口
 void GNoticeItemWidget::setItemWidget(const QString& group_id)
 {
@@ -119,13 +121,18 @@ void GNoticeItemWidget::setItemWidget(const QString& group_id)
 		ui->preMessageLab->setText("留言:");
 		ui->afterMessageLab->setText(m_json["message"].toString());
 	}
+	refershItemWidget();
+}
+
+void GNoticeItemWidget::refershItemWidget()
+{
 	auto headPix = ImageUtils::roundedPixmap(m_headPix, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 	ui->nameLab->setText(m_json["username"].toString());
 	m_noticeMessageLab->setText(m_json["noticeMessage"].toString());
 	m_timeLab->setText(m_json["time"].toString());
-
 }
+
 //设置通知类型
 void GNoticeItemWidget::setMode(bool isReply)
 {

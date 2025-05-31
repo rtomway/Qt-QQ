@@ -26,6 +26,7 @@ bool GroupDBUtils::insertGroup(const Group& groupParams,DataBaseQuery& query, st
 	}
 	return true;
 }
+
 //插入群成员
 bool GroupDBUtils::insertGroupMember(const GroupMember& groupMemberParams, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -48,6 +49,7 @@ bool GroupDBUtils::insertGroupMember(const GroupMember& groupMemberParams, DataB
 	}
 	return true;
 }
+
 //群人数加1
 bool GroupDBUtils::groupMemberCountAdd(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -67,6 +69,7 @@ bool GroupDBUtils::groupMemberCountAdd(const QString& group_id, DataBaseQuery& q
 	}
 	return true;
 }
+
 //群人数减1
 bool GroupDBUtils::groupMemberCountSub(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -86,6 +89,7 @@ bool GroupDBUtils::groupMemberCountSub(const QString& group_id, DataBaseQuery& q
 	}
 	return true;
 }
+
 //群组查询
 Group GroupDBUtils::queryGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -114,6 +118,7 @@ Group GroupDBUtils::queryGroup(const QString& group_id, DataBaseQuery& query, st
 	queryGroup.group_avatarPath = groupOwnerObj["group_avatarPath"].toString();
 	return queryGroup;
 }
+
 //查询所有群成员ID
 QStringList GroupDBUtils::queryGroupMemberIdList(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -137,6 +142,7 @@ QStringList GroupDBUtils::queryGroupMemberIdList(const QString& group_id, DataBa
 	}
 	return groupMember_idList;
 }
+
 //查询单个群成员信息
 GroupMember GroupDBUtils::queryGroupMember(const QString& group_id, const QString& member_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -163,6 +169,7 @@ GroupMember GroupDBUtils::queryGroupMember(const QString& group_id, const QStrin
 	groupMember.group_role = groupMemberObj["group_role"].toString();
 	return groupMember;
 }
+
 //查询群组id
 QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -186,6 +193,7 @@ QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery
 	}
 	return group_idList;
 }
+
 //删除群成员
 bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -205,6 +213,7 @@ bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQue
 	}
 	return true;
 }
+
 //删除群组
 bool GroupDBUtils::deleteGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {

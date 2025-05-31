@@ -16,9 +16,6 @@ class GroupManager :public QObject
 public:
 	// 获取单例实例的静态方法
 	static GroupManager* instance();
-	// 禁止拷贝构造函数和赋值操作符
-	GroupManager(const GroupManager&) = delete;
-	GroupManager& operator=(const GroupManager&) = delete;
 	//群组操作
 	void addGroup(const QSharedPointer<Group>& group);
 	void removeGroup(const QString& groupId);
@@ -27,6 +24,10 @@ public:
 	void clearGroupManager();
 private:
 	explicit GroupManager();
+	// 禁止拷贝构造函数和赋值操作符
+	GroupManager(const GroupManager&) = delete;
+	GroupManager& operator=(const GroupManager&) = delete;
+
 	void loadGroupInfoFromServer(const QString& group_id, const QString& requestType);
 	void loadGroupAvatarFromServer(const QStringList& group_idList, const QString& requestType);
 	void ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback)const;

@@ -1,8 +1,10 @@
 ﻿#ifndef MESSAGERECORD_H_
 #define MESSAGERECORD_H_
+
 #include <QString>
 #include <QDateTime>
 #include <QPixmap>
+
 #include "GlobalTypes.h"
 
 enum class MessageType

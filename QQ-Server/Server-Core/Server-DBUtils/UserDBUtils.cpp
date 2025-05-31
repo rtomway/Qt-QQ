@@ -30,6 +30,7 @@ QJsonObject UserDBUtils::queryUserDetail(const QString& user_id, DataBaseQuery& 
 	queryUserObj.remove("password");
 	return queryUserObj;
 }
+
 //搜索相关用户
 QJsonObject UserDBUtils::searchUser(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {

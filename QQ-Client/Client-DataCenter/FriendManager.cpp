@@ -86,13 +86,14 @@ FriendManager::FriendManager()
 			emit deleteFriend(user_id);
 		});
 	//被好友删除
-	connect(EventBus::instance(), &EventBus::friendDeleted, this, [=](const QJsonObject& obj)
+	connect(EventBus::instance(), &EventBus::notice_friendDeleted, this, [=](const QJsonObject& obj)
 		{
 			auto user_id = obj["user_id"].toString();
 			emit deleteFriend(user_id);
 		});
 
 }
+
 //申请头像的加载(10个一批)
 void FriendManager::loadFriendAvatarFromServer(const QStringList& friend_idList)
 {
@@ -113,6 +114,7 @@ void FriendManager::loadFriendAvatarFromServer(const QStringList& friend_idList)
 		MessageSender::instance()->sendHttpRequest("loadFriendAvatars", data, "application/json");
 	}
 }
+
 //添加用户信息
 void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 {
@@ -125,36 +127,43 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 	if (!m_grouping.contains(user->getGrouping()) && !user->getGrouping().isEmpty())
 	{
 		m_grouping.insert(user_id, user->getGrouping());
-		qDebug() << m_grouping;
 	}
 }
+
 //搜索好友
 QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 {
 	auto it = m_friends.find(id);
-	if (it != m_friends.end()) {
+	if (it != m_friends.end()) 
+	{
 		return it.value(); // 返回找到的用户
 	}
-	else {
+	else 
+	{
 		return nullptr; // 如果未找到，返回空用户
 	}
 }
+
 //获取相关好友信息
 QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString& text) const
 {
 	QHash<QString, QSharedPointer<Friend>> result;
-	for (auto it = m_friends.begin(); it != m_friends.end(); ++it) {
-		if (it.key().contains(text, Qt::CaseInsensitive)) {
+	for (auto it = m_friends.begin(); it != m_friends.end(); ++it) 
+	{
+		if (it.key().contains(text, Qt::CaseInsensitive)) 
+		{
 			result.insert(it.key(), it.value());
 		}
 	}
 	return result;
 }
+
 //获取所有好友信息
 QList<QSharedPointer<Friend>> FriendManager::getAllFriends() const
 {
 	return m_friends.values();
 }
+
 //获取所有好友分组
 QStringList FriendManager::getAllFriendGroupings() const
 {
@@ -165,23 +174,30 @@ QStringList FriendManager::getAllFriendGroupings() const
 	}
 	return QStringList(uniqueGroupings.begin(), uniqueGroupings.end());
 }
+
 //获取所有好友Id
 QStringList FriendManager::getAllFriendIdList() const
 {
 	return m_friends.keys();
 }
+
 //判断是否是好友
 bool FriendManager::isFriend(const QString& user_id)
 {
-	if (m_friends.keys().contains(user_id)&& user_id != LoginUserManager::instance()->getLoginUserID())
+	if (m_friends.keys().contains(user_id) &&
+		user_id != LoginUserManager::instance()->getLoginUserID())
+	{
 		return true;
+	}
 	return false;
 }
+
 //删除好友
 void FriendManager::removeFriend(const QString& friend_id)
 {
 	m_friends.remove(friend_id);
 }
+
 //将好友中心清空(切换用户)
 void FriendManager::clearFriendManager()
 {

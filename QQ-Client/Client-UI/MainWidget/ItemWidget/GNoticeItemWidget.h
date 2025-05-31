@@ -20,6 +20,7 @@ public:
 	void setMode(bool isReply);
 private:
 	void init();
+	void refershItemWidget();
 private:
 	QJsonObject m_json{};
 	QPixmap m_headPix{};

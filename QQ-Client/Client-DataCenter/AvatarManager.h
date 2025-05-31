@@ -14,9 +14,6 @@ class AvatarManager :public QObject
 	Q_OBJECT
 public:
 	static AvatarManager* instance();
-	// 禁止拷贝构造函数和赋值操作符
-	AvatarManager(const AvatarManager&) = delete;
-	AvatarManager& operator=(const AvatarManager&) = delete;
 	//操作
 	bool hasLocalAvatar(const QString& id, ChatType type);
 	void getAvatar(const QString& user_id, ChatType type, std::function<void(const QPixmap&)>callback);
@@ -24,6 +21,10 @@ public:
 	void processPendingCallbacks(const QString& id, const QPixmap& avatar);
 private:
 	AvatarManager();
+	// 禁止拷贝构造函数和赋值操作符
+	AvatarManager(const AvatarManager&) = delete;
+	AvatarManager& operator=(const AvatarManager&) = delete;
+private:
 	// 使用 QCache 来缓存头像，避免重复加载
 	QCache<QString, QPixmap> m_userAvatarCache{};
 	QCache<QString, QPixmap> m_groupAvatarCache{};

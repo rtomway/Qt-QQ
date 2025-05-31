@@ -55,6 +55,7 @@ void LoginHandle::handle_loginValidation(const QJsonObject& paramsObj, const QBy
 	}
 
 }
+
 //登录
 void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -76,6 +77,7 @@ void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray
 	auto allData = PacketCreate::allBinaryPacket(loginUserData);
 	ConnectionManager::instance()->sendBinaryMessage(user_id, allData);
 }
+
 //加载好友列表
 void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -95,6 +97,7 @@ void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByt
 	QJsonDocument friendListDoc(replyObj);
 	responder.write(friendListDoc);
 }
+
 //加载群组列表
 void LoginHandle::handle_loadGroupList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -113,6 +116,7 @@ void LoginHandle::handle_loadGroupList(const QJsonObject& paramsObj, const QByte
 	QJsonDocument loadGroupListDoc(allDataObj);
 	responder.write(loadGroupListDoc);
 }
+
 //加载群成员
 void LoginHandle::handle_loadGroupMember(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -131,6 +135,7 @@ void LoginHandle::handle_loadGroupMember(const QJsonObject& paramsObj, const QBy
 	QJsonDocument groupMemberDoc(allDataObj);
 	responder.write(groupMemberDoc);
 }
+
 //加载群成员头像
 void LoginHandle::handle_loadGroupMemberAvatar(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -150,6 +155,7 @@ void LoginHandle::handle_loadGroupMemberAvatar(const QJsonObject& paramsObj, con
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+
 //加载群组头像
 void LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -169,6 +175,7 @@ void LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObj, const QB
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+
 //加载好友头像
 void LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {

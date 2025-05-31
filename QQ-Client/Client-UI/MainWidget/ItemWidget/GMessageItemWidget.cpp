@@ -12,6 +12,7 @@ GMessageItemWidget::GMessageItemWidget(QWidget* parent)
 {
 	init();
 }
+
 void GMessageItemWidget::init()
 {
 	ui->rightWidget->setLayout(new QHBoxLayout(ui->rightWidget));
@@ -29,6 +30,7 @@ void GMessageItemWidget::init()
 	m_countLab->setVisible(false);
 	ui->preMessageLab->setText(QString());
 }
+
 //设置item窗口
 void GMessageItemWidget::setItemWidget(const QString& group_id)
 {
@@ -38,15 +40,20 @@ void GMessageItemWidget::setItemWidget(const QString& group_id)
 	{
 		m_group = GroupManager::instance()->findGroup(group_id);
 	}
-	qDebug() << "GMessageItemWidget:" << m_groupId;
-	//页面显示
+	refershItemWidget();
+}
+
+//页面显示
+void GMessageItemWidget::refershItemWidget()
+{
+	
 	AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group, [=](const QPixmap& pixmap)
 		{
 			qDebug() << "----------群组消息项头像回调";
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 			ui->headLab->setPixmap(headPix);
 		});
-	qDebug() << "GMessageItemWidget:"<< m_group << m_group->getGroupName();
+	qDebug() << "GMessageItemWidget:" << m_group << m_group->getGroupName();
 	ui->nameLab->setText(m_group->getGroupName());
 	//最新消息
 	if (!m_unReadMesssage.isEmpty())
@@ -57,12 +64,14 @@ void GMessageItemWidget::setItemWidget(const QString& group_id)
 	m_countLab->setText(QString::number(m_unReadMesssage.count()));
 	m_timeLab->setText(m_lastTime);
 }
+
 //清空未读消息
 void GMessageItemWidget::clearUnRead()
 {
 	m_countLab->setVisible(false);
 	m_unReadMesssage.clear();
 }
+
 //更新未读消息
 void GMessageItemWidget::updateUnReadMessage(const QString& user_id, const QString& message, const QString& time)
 {

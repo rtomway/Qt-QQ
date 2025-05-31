@@ -11,6 +11,7 @@
 
 QString FriendHandle::m_sendGrouping = QString();
 QString FriendHandle::m_receiveGrouping = QString();
+
 //好友添加
 void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -35,6 +36,7 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
 	qDebug() << "发送了申请信息";
 }
+
 //文字交流
 void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -49,6 +51,7 @@ void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, con
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
 	ConnectionManager::instance()->sendTextMessage(client_id, message);
 }
+
 //图片交流
 void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -63,6 +66,7 @@ void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, 
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
 	qDebug() << "图片发送";
 }
+
 //好友添加成功
 void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -120,6 +124,7 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 	ConnectionManager::instance()->sendBinaryMessage(send_id, receiveAllData);
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, sendAllData);
 }
+
 //好友添加失败
 void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -137,6 +142,7 @@ void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const Q
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
 }
+
 //好友分组更新
 void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -151,6 +157,7 @@ void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, con
 	}
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }
+
 //好友删除
 void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {

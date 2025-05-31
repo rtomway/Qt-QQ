@@ -39,10 +39,7 @@ LoginWidget::LoginWidget(QWidget* parent)
 	, m_moreBtn(new QPushButton("更多选项", this))
 	, m_attentionRBtn(new QRadioButton("已阅读并同意协议", this))
 {
-	this->setObjectName("login");
 	init();
-	this->setWindowFlag(Qt::FramelessWindowHint);
-	setFixedSize(320, 450);
 	QFile file(":/stylesheet/Resource/StyleSheet/LoginWidget.css");
 	if (file.open(QIODevice::ReadOnly))
 	{
@@ -52,13 +49,16 @@ LoginWidget::LoginWidget(QWidget* parent)
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
-	this->installEventFilter(this);
-	qDebug() << "loginWidget:" << size();
 }
 
 void LoginWidget::init()
 {
+	this->setObjectName("login");
+	this->setWindowFlag(Qt::FramelessWindowHint);
+	setFixedSize(320, 450);
+	this->installEventFilter(this);
 	initLayout();
+
 	//更多的菜单
 	auto moreMenu = new QMenu(this);
 	moreMenu->addAction("注册账号", this, [=]
@@ -71,24 +71,29 @@ void LoginWidget::init()
 			m_account->setText(obj["user_id"].toString());
 			m_password->setText(obj["password"].toString());
 		});
+
 	//密码更新
 	moreMenu->addAction("忘记密码", this, [=]
 		{
 
 		});
+
 	//窗口关闭
 	connect(m_exitBtn, &QPushButton::clicked, [=]
 		{
 			hide();
 		});
+
 	//点击别处使lineedit失去焦点
 	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
 	connect(this, &LoginWidget::editfinish, m_password, &LineEditwithButton::editfinished);
+
 	//个人信息配置
 	SConfigFile config("config.ini");
 	QFile configFile("config.ini");
 	m_account->setText(config.value("user_id").toString());
 	m_password->setText(config.value("password").toString());
+
 	//发送登录信号
 	connect(m_loginBtn, &QPushButton::clicked, [=]
 		{
@@ -110,6 +115,7 @@ void LoginWidget::init()
 			config.setValue("user_id", user_id);
 			config.setValue("password", password);
 		});
+
 	//登录成功
 	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, [=]
 		{
@@ -120,12 +126,14 @@ void LoginWidget::init()
 			config.setValue("user_id", user_id);
 			config.setValue("password", password);
 		});
+
 	//点击更多弹出菜单
 	connect(m_moreBtn, &QPushButton::clicked, [=]
 		{
 			moreMenu->popup(mapToGlobal(QPoint(m_moreBtn->geometry().x(), m_moreBtn->geometry().y() - 70)));
 		});
 }
+
 //布局
 void LoginWidget::initLayout()
 {
@@ -203,10 +211,10 @@ void LoginWidget::initLayout()
 	mlayout->addStretch();
 	mlayout->addLayout(lastLayout);
 }
-//可拖动重写
+
+//event--退出编辑
 bool LoginWidget::eventFilter(QObject* watched, QEvent* event)
 {
-	//可拖动
 	QMouseEvent* mev = dynamic_cast<QMouseEvent*>(event);
 	if (event->type() == QEvent::MouseButtonPress)
 	{

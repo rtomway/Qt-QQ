@@ -5,7 +5,8 @@
 #include <QListWidget>
 
 
-enum search_type{
+enum search_type
+{
 	User,
 	Grouop
 };

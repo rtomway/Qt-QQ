@@ -25,6 +25,7 @@ void ChatWidget::initStackedWidget()
 	m_stackedChatWidget->addWidget(m_friendChatPage);
 	m_stackedChatWidget->addWidget(m_groupChatPage);
 }
+
 //会话界面加载
 void ChatWidget::loadChatPage(ChatType type, const QString& id)
 {
@@ -44,6 +45,7 @@ void ChatWidget::loadChatPage(ChatType type, const QString& id)
 		break;
 	}
 }
+
 //判断当前加载界面id是否对应
 bool ChatWidget::isCurrentChat(ChatType type, const QString& id)
 {
@@ -62,6 +64,7 @@ bool ChatWidget::isCurrentChat(ChatType type, const QString& id)
 	}
 	return isCurrentChat;
 }
+
 //判断当前界面m_current
 bool ChatWidget::isStackedCurrentChat(ChatType type, const QString& id)
 {
@@ -85,6 +88,7 @@ bool ChatWidget::isStackedCurrentChat(ChatType type, const QString& id)
 	}
 	return isStackedCurrentChat;
 }
+
 //当前界面接收消息
 void ChatWidget::updateReceiveMessage(const ChatMessage& chatMessage)
 {
@@ -104,6 +108,7 @@ void ChatWidget::updateReceiveMessage(const ChatMessage& chatMessage)
 		break;
 	}
 }
+
 //清除会话界面
 void ChatWidget::clearChatWidget()
 {

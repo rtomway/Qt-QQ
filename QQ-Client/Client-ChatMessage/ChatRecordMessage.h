@@ -8,7 +8,8 @@
 #include "MessageRecord.h"
 #include "GlobalTypes.h"
 
-class ChatRecordMessage {
+class ChatRecordMessage 
+{
 public:
 	ChatRecordMessage(QString user_id, QString friend_id, ChatType type);
 	void addMessage(const std::shared_ptr<MessageRecord>& message);

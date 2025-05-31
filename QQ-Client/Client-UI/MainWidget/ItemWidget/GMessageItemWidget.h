@@ -18,6 +18,7 @@ public:
 	void updateUnReadMessage(const QString& user_id, const QString& message, const QString& time);
 private:
 	void init();
+	void refershItemWidget();
 private:
 	QSharedPointer<Group>m_group = nullptr;
 	QString m_groupId{};

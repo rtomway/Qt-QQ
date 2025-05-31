@@ -21,7 +21,6 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	, m_userList(new QListWidget(this))
 	, m_groupList(new QListWidget(this))
 {
-	resize(700, 500);
 	ui->setupUi(this);
 	init();
 	QFile file(":/stylesheet/Resource/StyleSheet/AddFriendWidget.css");
@@ -31,12 +30,15 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	}
 	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
 }
+
 AddFriendWidget::~AddFriendWidget()
 {
 	delete ui;
 }
+
 void AddFriendWidget::init()
 {
+	resize(700, 500);
 	ui->searchLine->setPlaceholderText("用户搜索");
 	ui->stackedWidget->addWidget(m_userList);
 	ui->stackedWidget->addWidget(m_groupList);
@@ -47,6 +49,7 @@ void AddFriendWidget::init()
 	ui->userBtn->setStyleSheet(
 		"QPushButton{background-color:rgb(240,240,240)}"
 	);
+
 	//用户
 	connect(ui->userBtn, &QPushButton::clicked, [=]
 		{
@@ -62,6 +65,7 @@ void AddFriendWidget::init()
 				"QPushButton:hover{background-color:rgb(240,240,240)}"
 			);
 		});
+
 	//群组
 	connect(ui->groupBtn, &QPushButton::clicked, [=]
 		{
@@ -77,6 +81,7 @@ void AddFriendWidget::init()
 				"QPushButton:hover{background-color:rgb(240,240,240)}"
 			);
 		});
+
 	//会话界面窗口关闭
 	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, [=]
 		{
@@ -86,9 +91,11 @@ void AddFriendWidget::init()
 		{
 			this->close();
 		});
+
 	//搜索图标
 	ui->searchBtn->setCheckable(false);
 	ui->searchBtn->setIcon(QIcon(":/icon/Resource/Icon/search.png"));
+
 	//搜索栏
 	connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
 		{
@@ -116,6 +123,7 @@ void AddFriendWidget::init()
 			auto data = doc.toJson(QJsonDocument::Compact);
 			MessageSender::instance()->sendHttpRequest("searchGroup", data, "application/json");
 		});
+
 	//搜索结果
 	connect(EventBus::instance(), &EventBus::searchUser, this, [=](const QJsonObject& paramsObject, const QPixmap& pixmap)
 		{
@@ -126,6 +134,7 @@ void AddFriendWidget::init()
 			addListWidgetItem(m_groupList, paramsObject, pixmap);
 		});
 }
+
 //查询结果返回添加到对应list上
 void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& obj, const QPixmap& pixmap)
 {
@@ -136,7 +145,7 @@ void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& ob
 	SearchItemWidget* itemWidget = nullptr;
 	if (list == m_userList)
 	{
-		itemWidget = new SearchItemWidget(ChatType::User,list);
+		itemWidget = new SearchItemWidget(ChatType::User, list);
 		itemWidget->setUser(obj);
 		itemWidget->setPixmap(pixmap);
 	}

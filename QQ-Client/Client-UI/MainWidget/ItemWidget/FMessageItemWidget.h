@@ -17,6 +17,7 @@ public:
 	void updateUnReadMessage(const QString& message, const QString& time);
 private:
 	void init();
+	void refershItemWidget();
 private:
 	QString m_friendId{};
 	QSharedPointer<Friend>m_friend = nullptr;

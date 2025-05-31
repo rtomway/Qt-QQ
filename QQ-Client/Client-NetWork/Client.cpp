@@ -35,7 +35,7 @@ Client::Client(QObject* parent)
 			emit binaryMessageToWorkerThread(data);
 		});
 	//用户身份验证成功，发起连接请求并且获取用户信息
-	connect(MessageSender::instance(), &MessageSender::connectToServer, this, [=](const QString&user_id)
+	connect(MessageSender::instance(), &MessageSender::connectToServer, this, [=](const QString& user_id)
 		{
 			connectToServer("ws://localhost:8888")
 				->Connected([=]
@@ -57,6 +57,7 @@ Client::~Client()
 		m_workerThread->wait();
 	}
 }
+
 //连接服务端
 Client* Client::connectToServer(const QString& url)
 {
@@ -88,6 +89,7 @@ Client* Client::DisconnectFromServer(std::function<void()> callback)
 	m_disconnectedCallback = callback;
 	return this;
 }
+
 //接受Web文本信息
 void Client::onTextMessageReceived(const QString& message)
 {
@@ -95,12 +97,14 @@ void Client::onTextMessageReceived(const QString& message)
 	QJsonDocument doc = QJsonDocument::fromJson(message.toUtf8());
 	emit textMessageToWorkerThread(doc);
 }
+
 //接受Web二进制数据
 void Client::onBinaryMessageReceived(const QByteArray& message)
 {
 	qDebug() << "------------------------接受Web二进制数据-----------------------";
 	emit binaryMessageToWorkerThread(message);
 }
+
 //回调
 void Client::onErrorOccurred(QAbstractSocket::SocketError error)
 {
@@ -130,11 +134,13 @@ void Client::disconnect()
 	}
 }
 
+//连接状态
 bool Client::isConnected()const
 {
 	return m_isConnected;
 }
 
+//客户端获取
 QWebSocket* Client::getClientSocket() const
 {
 	return m_client;

@@ -68,6 +68,7 @@ void GroupCreateWidget::loadData()
 void GroupCreateWidget::initUi()
 {
 }
+
 //过滤出不可选择对象
 bool GroupCreateWidget::shouldFilterUser(const QString& user_id)
 {

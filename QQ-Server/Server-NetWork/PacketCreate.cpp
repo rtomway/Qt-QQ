@@ -39,6 +39,7 @@ QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& pa
 
 	return packet;
 }
+
 //包长
 QByteArray PacketCreate::lenthOfbinaryPacket(qint32 packetSize)
 {
@@ -49,6 +50,7 @@ QByteArray PacketCreate::lenthOfbinaryPacket(qint32 packetSize)
 	sizeStream << packetSize;
 	return packetSizeBytes;
 }
+
 //添加包
 void PacketCreate::addPacket(QByteArray& addData, const QByteArray& packet)
 {
@@ -56,6 +58,7 @@ void PacketCreate::addPacket(QByteArray& addData, const QByteArray& packet)
 	addData.append(packetSizeBytes);  // 先加上包长度
 	addData.append(packet);       // 再加上包数据
 }
+
 //发送的总数据包
 QByteArray PacketCreate::allBinaryPacket(const QByteArray& packet)
 {
@@ -70,6 +73,7 @@ QByteArray PacketCreate::allBinaryPacket(const QByteArray& packet)
 	stream.writeRawData(packet.constData(), packet.size()); // 再写入用户数据
 	return allData;
 }
+
 //解析多个数据包
 QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 {

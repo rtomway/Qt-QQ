@@ -15,12 +15,14 @@ SMaskWidget::SMaskWidget(QWidget* parent)
 	setAttribute(Qt::WA_StyledBackground);
 
 }
+
 //单例
 SMaskWidget* SMaskWidget::instance()
 {
 	static SMaskWidget ins;
 	return &ins;
 }
+
 //主窗口设置
 void SMaskWidget::setMainWidget(QWidget* widget)
 {
@@ -38,11 +40,13 @@ void SMaskWidget::setMainWidget(QWidget* widget)
 	this->hide();
 	m_MainWidget->installEventFilter(this);
 }
+
 //获取主窗口大小
 QSize SMaskWidget::getMainWidgetSize()
 {
 	return m_MainWidget->size();
 }
+
 //子窗口添加
 void SMaskWidget::addDialog(QWidget* dialog)
 {
@@ -61,6 +65,7 @@ void SMaskWidget::addDialog(QWidget* dialog)
 	dialog->setParent(this);
 	dialog->installEventFilter(this);
 }
+
 //弹出窗口
 void SMaskWidget::popUp(QWidget* dialog)
 {
@@ -78,16 +83,19 @@ void SMaskWidget::popUp(QWidget* dialog)
 		dialog->show();
 	}
 }
+
 //弹出位置
 void SMaskWidget::setPopPostion(PopPosition position)
 {
 	m_pos = position;
 }
+
 //弹出位置
 void SMaskWidget::setPopGeometry(const QRect& rect)
 {
 	m_currentPopUp->setGeometry(rect);
 }
+
 //重写
 bool SMaskWidget::eventFilter(QObject* object, QEvent* ev)
 {
@@ -128,6 +136,7 @@ void SMaskWidget::mousePressEvent(QMouseEvent* event)
 {
 	event->accept();
 }
+
 //放缩重写
 void SMaskWidget::resizeEvent(QResizeEvent* ev)
 {

@@ -20,9 +20,6 @@ MainWindow::MainWindow(QWidget* parent)
 	this->setWindowFlag(Qt::FramelessWindowHint);
 	//显示需要刷新背景颜色 否则跟随父窗口背景色
 	m_loginWidget->setAutoFillBackground(true);
-	qDebug() << "mainWindow:" << this->size();
-
-
 }
 
 void MainWindow::init()
@@ -60,6 +57,7 @@ void MainWindow::init()
 			hide();
 		});
 }
+
 //登录窗口
 void MainWindow::showLoginWidget()
 {
@@ -90,6 +88,7 @@ void MainWindow::showLoginWidget()
 	m_loginWidget->setAutoFillBackground(true);
 	this->show();*/
 }
+
 //主窗口
 void MainWindow::showMainWidget()
 {
@@ -128,6 +127,7 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 {
 	QMainWindow::resizeEvent(event);
 }
+
 void MainWindow::mousePressEvent(QMouseEvent* event)
 {
 	this->setFocus();
@@ -140,17 +140,20 @@ void MainWindow::mousePressEvent(QMouseEvent* event)
 	}
 	m_bPressed = true;
 }
+
 void MainWindow::mouseReleaseEvent(QMouseEvent* event)
 {
 	QApplication::restoreOverrideCursor(); // 恢复鼠标指针形状
 	event->ignore();
 	m_bPressed = false;
 }
+
 void MainWindow::showEvent(QShowEvent* event)
 {
 	this->setAttribute(Qt::WA_Mapped);//解决不能及时刷新的bug
 	QMainWindow::showEvent(event);
 }
+
 void MainWindow::mouseMoveEvent(QMouseEvent* event)
 {
 	if (this->isMaximized()) {
@@ -242,6 +245,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent* event)
 	}
 	event->ignore();
 }
+
 void MainWindow::setCursorType(int flag)
 {
 	Qt::CursorShape cursor;
@@ -273,6 +277,7 @@ void MainWindow::setCursorType(int flag)
 	}
 	setCursor(cursor);
 }
+
 int MainWindow::countFlag(QPoint p, int row)
 {
 	if (p.y() < MARGIN)  // 上边缘
@@ -282,6 +287,7 @@ int MainWindow::countFlag(QPoint p, int row)
 	else
 		return 20 + row;
 }
+
 int MainWindow::countRow(QPoint p)
 {
 	if (p.x() < MARGIN)  // 左边缘
@@ -291,6 +297,7 @@ int MainWindow::countRow(QPoint p)
 	else  // 中间区域
 		return 2;
 }
+
 void MainWindow::enableMouseTracking(QWidget* w)
 {
 	w->setMouseTracking(true);
@@ -298,4 +305,5 @@ void MainWindow::enableMouseTracking(QWidget* w)
 	for (QWidget* child : children)
 		child->setMouseTracking(true);
 }
+
 

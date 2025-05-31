@@ -32,10 +32,12 @@ FriendProfilePage::FriendProfilePage(QWidget* parent)
 	}
 	this->setWindowFlag(Qt::FramelessWindowHint);
 }
+
 FriendProfilePage::~FriendProfilePage()
 {
 	delete ui;
 }
+
 void FriendProfilePage::init()
 {
 	this->setObjectName("FriendProfilePage");
@@ -127,6 +129,7 @@ void FriendProfilePage::init()
 			}
 		});
 }
+
 //更新好友分组
 void FriendProfilePage::updateFriendgrouping()
 {
@@ -137,6 +140,7 @@ void FriendProfilePage::updateFriendgrouping()
 		ui->groupcomBox->addItem(name);
 	}
 }
+
 //用户设置
 void FriendProfilePage::setFriendProfile(const QString& user_id)
 {
@@ -218,6 +222,7 @@ void FriendProfilePage::setFriendProfile(const QString& user_id)
 
 	m_isBlockedComboBox = false;
 }
+
 //清空
 void FriendProfilePage::clearWidget()
 {

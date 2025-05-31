@@ -7,6 +7,7 @@ ChatRecordManager* ChatRecordManager::instance()
 	static ChatRecordManager ins;
 	return &ins;
 }
+
 // 添加新的聊天记录
 void ChatRecordManager::addUserChat(const QString& userId, std::shared_ptr<ChatRecordMessage> chatMessage)
 {
@@ -15,6 +16,7 @@ void ChatRecordManager::addUserChat(const QString& userId, std::shared_ptr<ChatR
 		m_friendChats[userId] = chatMessage;
 	}
 }
+
 //添加群聊聊天记录
 void ChatRecordManager::addGroupChat(const QString& groupId, std::shared_ptr<ChatRecordMessage> chatMessage)
 {
@@ -23,6 +25,7 @@ void ChatRecordManager::addGroupChat(const QString& groupId, std::shared_ptr<Cha
 		m_groupChats[groupId] = chatMessage;
 	}
 }
+
 //为聊天记录添加消息
 void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 {
@@ -54,6 +57,8 @@ void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 	default:
 		break;
 	}
+
+	//找到相应聊天记录存储
 	QString getChatId;
 	auto& loginUserId = LoginUserManager::instance()->getLoginUserID();
 	if (chatMessage.chatType == ChatType::User && chatMessage.receiveId == loginUserId)
@@ -75,6 +80,7 @@ void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 	}
 
 }
+
 //获取聊天记录
 std::shared_ptr<ChatRecordMessage> ChatRecordManager::getChatRecord(const QString& id, ChatType type)
 {
@@ -91,16 +97,19 @@ std::shared_ptr<ChatRecordMessage> ChatRecordManager::getChatRecord(const QStrin
 	}
 	return std::shared_ptr<ChatRecordMessage>();
 }
+
 // 清除指定用户的聊天记录
 void ChatRecordManager::clearUserChat(const QString& userId)
 {
 	m_friendChats.remove(userId);
 }
+
 //清空指定群组聊天记录
 void ChatRecordManager::clearGroupChat(const QString& groupId)
 {
 	m_groupChats.remove(groupId);
 }
+
 // 清空所有聊天记录
 void ChatRecordManager::clearAllChats() 
 {

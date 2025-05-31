@@ -9,8 +9,6 @@
 class ChatRecordManager {
 public:
 	static ChatRecordManager* instance();
-	ChatRecordManager(const ChatRecordManager&) = delete;
-	ChatRecordManager& operator=(const ChatRecordManager&) = delete;
 	//聊天记录操作
 	void addMessageToChat(const ChatMessage& chatMessage);
 	std::shared_ptr<ChatRecordMessage> getChatRecord(const QString& userId, ChatType type);
@@ -24,6 +22,9 @@ public:
 	void clearAllChats();
 private:
 	ChatRecordManager() {};
+	ChatRecordManager(const ChatRecordManager&) = delete;
+	ChatRecordManager& operator=(const ChatRecordManager&) = delete;
+private:
 	QHash<QString, std::shared_ptr<ChatRecordMessage>> m_friendChats;
 	QHash<QString, std::shared_ptr<ChatRecordMessage>> m_groupChats;
 };

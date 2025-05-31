@@ -10,12 +10,14 @@ SSqlConnectionPool::SSqlConnectionPool()
 {
 
 }
+
 //单例
 SSqlConnectionPool* SSqlConnectionPool::instance()
 {
 	static SSqlConnectionPool ins;
 	return &ins;
 }
+
 //析构
 SSqlConnectionPool::~SSqlConnectionPool()
 {
@@ -30,6 +32,7 @@ SSqlConnectionPool::~SSqlConnectionPool()
 		QSqlDatabase::removeDatabase(con_name);
 	}
 }
+
 //获取连接
 QSqlDatabase SSqlConnectionPool::openConnection()
 {
@@ -76,6 +79,7 @@ QSqlDatabase SSqlConnectionPool::openConnection()
 	}
 	return db;
 }
+
 //关闭连接
 void SSqlConnectionPool::closeConnection(QSqlDatabase db)
 {
@@ -94,6 +98,7 @@ void SSqlConnectionPool::closeConnection(QSqlDatabase db)
 	qDebug() << "used:" << m_useConnections.count();
 	qDebug() << "no use:" << m_unuseConnections.count();
 }
+
 //创建新连接
 QSqlDatabase SSqlConnectionPool::CreateConnection(const QString& con_name)
 {
@@ -128,22 +133,26 @@ QSqlDatabase SSqlConnectionPool::CreateConnection(const QString& con_name)
 
 	return db;
 }
+
 //销毁连接
 void SSqlConnectionPool::releaseConnection(QSqlDatabase db)
 {
 	QString con_name = db.connectionName();
 	QSqlDatabase::removeDatabase(con_name);
 }
+
 //开启连接的封装
 SConnectionWrap::SConnectionWrap()
 {
 
 }
+
 SConnectionWrap::~SConnectionWrap()
 {
 	auto pool = SSqlConnectionPool::instance();
 	pool->closeConnection(m_db);
 }
+
 QSqlDatabase SConnectionWrap::openConnection()
 {
 	m_db = SSqlConnectionPool::instance()->openConnection();

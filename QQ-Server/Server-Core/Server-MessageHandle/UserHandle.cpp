@@ -53,6 +53,7 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArra
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+
 //查询user信息
 void UserHandle::handle_queryUser(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -71,6 +72,7 @@ void UserHandle::handle_queryUser(const QJsonObject& paramsObj, const QByteArray
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+
 //群组搜索
 void UserHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -120,6 +122,7 @@ void UserHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArr
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+
 //用户信息更新
 void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -152,6 +155,7 @@ void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObj, const QB
 		ConnectionManager::instance()->sendTextMessage(friend_id, message);
 	}
 }
+
 //用户头像更新 
 void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {

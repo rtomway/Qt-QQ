@@ -13,8 +13,6 @@ RegisterPage::RegisterPage(QWidget* parent)
 	, ui(new Ui::RegisterPage)
 {
 	ui->setupUi(this);
-	this->installEventFilter(this);
-	ui->passwordEdit->installEventFilter(this);
 	init();
 	QFile file(":/stylesheet/Resource/StyleSheet/RegisterPage.css");
 	if (file.open(QIODevice::ReadOnly))
@@ -34,21 +32,25 @@ RegisterPage::~RegisterPage()
 
 void RegisterPage::init()
 {
+	this->installEventFilter(this);
+	ui->passwordEdit->installEventFilter(this);
 	//窗口初始化
 	this->setFocus();
 	ui->titleLab->setObjectName("title");
 	ui->headerLab->setObjectName("header");
 	this->setObjectName("this");
+	ui->verifyEdit->setObjectName("verifyEdit");
+	ui->veriftBtn->setObjectName("verifyBtn");
+
 	ui->nickNameEdit->setPlaceholderText("输入昵称");
 	ui->passwordEdit->setPlaceholderText("输入密码");
 	ui->phoneEdit->setPlaceholderText("输入手机号码");
 	ui->verifyEdit->setPlaceholderText("输入短信验证码");
+
 	ui->nickNameEdit->setAlignment(Qt::AlignCenter);
 	ui->passwordEdit->setAlignment(Qt::AlignCenter);
 	ui->phoneEdit->setAlignment(Qt::AlignCenter);
 	ui->verifyEdit->setAlignment(Qt::AlignCenter);
-	ui->verifyEdit->setObjectName("verifyEdit");
-	ui->veriftBtn->setObjectName("verifyBtn");
 	ui->passwordLab->setVisible(false);
 	//注册
 	connect(ui->registerBtn, &QPushButton::clicked, this, [=]
@@ -73,6 +75,7 @@ void RegisterPage::init()
 		});
 	connect(EventBus::instance(), &EventBus::registerSuccess, this, &RegisterPage::hide);
 }
+
 //控件事件重写
 bool RegisterPage::eventFilter(QObject* watched, QEvent* event)
 {

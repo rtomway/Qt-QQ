@@ -24,10 +24,12 @@ FriendChatPage::FriendChatPage(QWidget* parent)
 	init();
 
 }
+
 FriendChatPage::~FriendChatPage()
 {
 	delete ui;
 }
+
 void FriendChatPage::init()
 {
 	//用户信息更新后(处于会话界面)
@@ -116,6 +118,7 @@ void FriendChatPage::init()
 			showSetWidget();
 		});
 }
+
 //设置会话界面信息
 void FriendChatPage::setChatWidget(const QString& id)
 {
@@ -151,12 +154,14 @@ void FriendChatPage::setChatWidget(const QString& id)
 	
 	refreshChatWidget();
 }
+
 //刷新会话界面
 void FriendChatPage::refreshChatWidget()
 {
 
 	ui->nameLab->setText(m_title);
 }
+
 //判断当前会话
 bool FriendChatPage::isCurrentChat(const QString& id) const
 {
@@ -165,6 +170,7 @@ bool FriendChatPage::isCurrentChat(const QString& id) const
 	else
 		return false;
 }
+
 //消息的发送
 void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPixmap& headPix)
 {
@@ -241,6 +247,7 @@ void FriendChatPage::sendTextMessageToServer(const QString& user_id, const QPixm
 	auto message = PacketCreate::textPacket("textCommunication", textMessageObj);
 	MessageSender::instance()->sendMessage(message);
 }
+
 //消息气泡
 void FriendChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
@@ -256,6 +263,7 @@ void FriendChatPage::createTextMessageBubble(const QPixmap& avatar, const QStrin
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
 }
+
 //系统消息或者时间分割条
 void FriendChatPage::insertTipMessage(const QString& text)
 {
@@ -264,6 +272,8 @@ void FriendChatPage::insertTipMessage(const QString& text)
 	tipmessageItem->setSizeHint(tipMessageItemWidget->sizeHint());  // 设置Item大小
 	ui->messageListWidget->setItemWidget(tipmessageItem, tipMessageItemWidget);
 }
+
+//清空界面
 void FriendChatPage::clearChatPage()
 {
 	m_friend = nullptr;

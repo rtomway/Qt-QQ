@@ -25,6 +25,7 @@ NoticeWidget::NoticeWidget(QWidget* parent)
 		this->setStyleSheet(file.readAll());
 	}
 }
+
 //设置当前通知界面
 void NoticeWidget::setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget)
 {
@@ -39,6 +40,7 @@ void NoticeWidget::setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidg
 		m_stackedWidget->setCurrentWidget(m_groupNoticeList);
 	}
 }
+
 //界面初始化
 void NoticeWidget::init()
 {
@@ -112,12 +114,14 @@ void NoticeWidget::init()
 			emit groupNotice();
 		});
 }
+
 //init堆栈窗口
 void NoticeWidget::initStackedWidget()
 {
 	m_stackedWidget->addWidget(m_friendNoticeList);
 	m_stackedWidget->addWidget(m_groupNoticeList);
 }
+
 //添加通知项
 void NoticeWidget::addNoticeItem(const QString& id, ChatType type, bool isReply)
 {
@@ -142,6 +146,7 @@ void NoticeWidget::addNoticeItem(const QString& id, ChatType type, bool isReply)
 	item->setSizeHint(QSize(listWidget->width(), 100));
 	listWidget->setItemWidget(item, itemWidget);
 }
+
 //清空
 void NoticeWidget::clearNoticeWidget()
 {

@@ -9,11 +9,13 @@ GroupListItemWidget::GroupListItemWidget(QWidget* parent)
 {
 	init();
 }
+
 void GroupListItemWidget::init()
 {
 	ui->messageWidget->setVisible(false);
 }
-//设置item窗口
+
+//设置item窗口数据
 void GroupListItemWidget::setItemWidget(const QString& group_id)
 {
 	//数据绑定
@@ -22,7 +24,13 @@ void GroupListItemWidget::setItemWidget(const QString& group_id)
 	{
 		m_group = GroupManager::instance()->findGroup(group_id);
 	}
-	qDebug() << "GroupListItemWidget信息：" << m_group->getGroupId();
+	refershItemWidget();
+
+}
+
+//刷新界面
+void GroupListItemWidget::refershItemWidget()
+{
 	//页面显示
 	AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group, [=](const QPixmap& pixmap)
 		{
@@ -31,14 +39,15 @@ void GroupListItemWidget::setItemWidget(const QString& group_id)
 		});
 
 	ui->nameLab->setText(m_group->getGroupName());
-
 }
+
 //设置分组
 void GroupListItemWidget::setGrouping(const QString& grouping)
 {
 	m_group->setGrouping(grouping);
 }
 
+//是否显示id
 void GroupListItemWidget::showGroupId()
 {
 	ui->messageWidget->setVisible(true);

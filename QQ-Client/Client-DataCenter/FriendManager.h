@@ -13,11 +13,12 @@ class FriendManager : public QObject
 public:
 	// 获取单例实例的静态方法
 	static FriendManager* instance();
+private:
+	FriendManager();
 	// 禁止拷贝构造函数和赋值操作符
 	FriendManager(const FriendManager&) = delete;
 	FriendManager& operator=(const FriendManager&) = delete;
-private:
-	FriendManager();
+
 	void loadFriendAvatarFromServer(const QStringList& friend_idList);
 public:
 	//好友处理

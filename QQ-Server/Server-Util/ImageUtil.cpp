@@ -17,6 +17,7 @@ QString ImageUtils::getUserAvatarFolderPath()
 	}
 	return avatarFolder;
 }
+
 //群聊头像保存目录
 QString ImageUtils::getGroupAvatarFolderPath()
 {
@@ -31,6 +32,7 @@ QString ImageUtils::getGroupAvatarFolderPath()
 	}
 	return avatarFolder;
 }
+
 //保存图片
 bool ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& user_id, ChatType type)
 {
@@ -57,6 +59,7 @@ bool ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& use
 	// 保存头像
 	return avatar.save(avatarFileName);
 }
+
 //保存图片
 bool ImageUtils::saveAvatarToLocal(const QImage& image, const QString& user_id, ChatType type)
 {
@@ -82,6 +85,7 @@ bool ImageUtils::saveAvatarToLocal(const QImage& image, const QString& user_id, 
 	// 保存头像
 	return image.save(avatarFileName);
 }
+
 //加载图片
 QByteArray ImageUtils::loadImage(const QString& id, ChatType type)
 {

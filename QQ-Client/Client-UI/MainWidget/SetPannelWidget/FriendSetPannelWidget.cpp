@@ -49,6 +49,7 @@ void FriendSetPannelWidget::init()
 	m_pannelContains->addItemWidget(deleteBtn, 30);
 }
 
+//加载好友面板
 void FriendSetPannelWidget::loadFriendPannel(const QString& friend_id)
 {
 	m_friend_id = friend_id;

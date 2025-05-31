@@ -254,6 +254,7 @@ void FriendProfileEditWidget::init()
 			this->hide();
 		});
 }
+
 //更新头像
 void FriendProfileEditWidget::updateAvatar()
 {
@@ -306,6 +307,7 @@ void FriendProfileEditWidget::updateAvatar()
 			});
 		});
 }
+
 //设置用户信息
 void FriendProfileEditWidget::setUser(const QJsonObject& obj)
 {
@@ -323,11 +325,14 @@ void FriendProfileEditWidget::setUser(const QJsonObject& obj)
 	m_birthdayEdit->setText(m_json["birthday"].toString());
 	m_signaltureEdit->setText(m_json["signature"].toString());
 }
+
 //获取编辑信息
 const QJsonObject& FriendProfileEditWidget::getUser() const
 {
 	return m_json;
 }
+
+//event-头像选择
 bool FriendProfileEditWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == m_headLab && event->type() == QEvent::MouseButtonPress)

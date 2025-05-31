@@ -23,8 +23,6 @@ public:
 private:
 	void init();
 	void loadGridMember();
-signals:
-	void heightChanged(int height);
 private:
 	QSharedPointer<Group>m_group{};
 	QList<GroupMemberAvatarWidget*>m_avatarList;
@@ -32,6 +30,9 @@ private:
 	QGridLayout* m_gridLayout{};
 	GroupMemberOperatorWidget* m_groupInviteWidget{};
 	int m_lastHeight = 0;
+signals:
+	void heightChanged(int height);
+	void queryMoreGroupMember();
 };
 
 #endif // !GROUPMEMBERGRIDWIDGET_H_

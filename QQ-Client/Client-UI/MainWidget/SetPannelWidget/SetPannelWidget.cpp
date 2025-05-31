@@ -1,5 +1,4 @@
 ﻿#include "SetPannelWidget.h"
-#include "SetPannelWidget.h"
 #include <QBoxLayout>
 
 SetPannelWidget::SetPannelWidget(QWidget* parent)

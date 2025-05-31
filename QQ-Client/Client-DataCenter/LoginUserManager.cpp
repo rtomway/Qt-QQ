@@ -37,23 +37,28 @@ void LoginUserManager::initLoginUser(const QJsonObject& loginUserObj)
 	emit loginUserLoadSuccess();
 }
 
+//获取登录用户Id
 const QString& LoginUserManager::getLoginUserID() const
 {
 	return m_loginUserId;
 }
 
+//获取登录用户姓名
 const QString& LoginUserManager::getLoginUserName() const
 {
 	return m_loginUserName;
 }
 
+//获取登录用户信息
 const QSharedPointer<Friend>& LoginUserManager::getLoginUser() const
 {
 	return m_loginUser;
 }
 
-
-void LoginUserManager::clearFriendManager()
+//清除信息
+void LoginUserManager::clearLoginUserManager()
 {
-
+	m_loginUser = nullptr;
+	m_loginUserId = QString();
+	m_loginUserName = QString();
 }

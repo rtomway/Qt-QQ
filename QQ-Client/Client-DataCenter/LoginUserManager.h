@@ -13,11 +13,11 @@ class LoginUserManager : public QObject
 public:
 	// 获取单例实例的静态方法
 	static LoginUserManager* instance();
+private:
+	LoginUserManager();
 	// 禁止拷贝构造函数和赋值操作符
 	LoginUserManager(const LoginUserManager&) = delete;
 	LoginUserManager& operator=(const LoginUserManager&) = delete;
-private:
-	LoginUserManager();
 public:
 	//当前登录用户
 	void initLoginUser(const QJsonObject& loginUserObj);
@@ -26,7 +26,7 @@ public:
 	const QString& getLoginUserName()const;
 	const QSharedPointer<Friend>& getLoginUser()const;
 	//清除
-	void clearFriendManager();
+	void clearLoginUserManager();
 private:
 	//当前登录用户
 	QString m_loginUserId{};

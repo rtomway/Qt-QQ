@@ -28,6 +28,7 @@ bool LoginDBUtils::validationPassWord(const QString& user_id, const QString& pas
 	}
 	return false;
 }
+
 //查询好友列表所有信息
 QJsonObject LoginDBUtils::queryFriendList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -50,6 +51,7 @@ QJsonObject LoginDBUtils::queryFriendList(const QString& user_id, DataBaseQuery&
 	friendListObj["friendList"] = friendListArray;
 	return friendListObj;
 }
+
 //查询群组列表所有信息
 QJsonObject LoginDBUtils::queryGroupList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -73,6 +75,7 @@ QJsonObject LoginDBUtils::queryGroupList(const QString& user_id, DataBaseQuery& 
 	groupListObj["groupList"] = groupListArray;
 	return groupListObj;
 }
+
 //查询指定群组的所有成员信息
 QJsonObject LoginDBUtils::queryGroupMemberList(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -94,6 +97,7 @@ QJsonObject LoginDBUtils::queryGroupMemberList(const QString& group_id, DataBase
 	groupMemberListObj["groupMemberArray"] = groupMemberListArray;
 	return groupMemberListObj;
 }
+
 //注册插入新用户
 bool LoginDBUtils::insertUser(const RegisterMessage& registerMessage, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {

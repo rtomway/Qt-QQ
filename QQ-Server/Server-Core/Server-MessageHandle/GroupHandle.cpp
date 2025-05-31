@@ -83,6 +83,7 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
 	}
 }
+
 //申请添加群组
 void GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -110,6 +111,7 @@ void GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const QByteAr
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
 }
+
 //群聊文本交流
 void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -132,6 +134,7 @@ void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject,
 		qDebug() << "接收者:" << member_id;
 	}
 }
+
 //群聊图片发送
 void GroupHandle::handle_groupPictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -153,6 +156,7 @@ void GroupHandle::handle_groupPictureCommunication(const QJsonObject& paramsObje
 		qDebug() << "接收者:" << member_id;
 	}
 }
+
 //单个成员加载
 void GroupHandle::handle_groupMemberLoad(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -176,6 +180,7 @@ void GroupHandle::handle_groupMemberLoad(const QJsonObject& paramsObj, const QBy
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }
+
 //群聊邀请成员成功
 void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -253,6 +258,7 @@ void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, con
 	//向新成员发送群组信息
 	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
 }
+
 //群组申请加入成功
 void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -322,6 +328,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	//向新成员发送群组信息
 	ConnectionManager::instance()->sendBinaryMessage(newGroupMember.user_id, groupAllData);
 }
+
 //群聊邀请成员失败
 void GroupHandle::handle_groupInviteFailed(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -339,6 +346,7 @@ void GroupHandle::handle_groupInviteFailed(const QJsonObject& paramsObject, cons
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(groupOwner_id, allData);
 }
+
 //群组申请加入失败
 void GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -357,6 +365,7 @@ void GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const Q
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
 }
+
 //群聊邀请
 void GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data)
 {
@@ -380,6 +389,7 @@ void GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByt
 		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
 	}
 }
+
 //退出群组
 void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -440,6 +450,7 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 	//返回客户端操作结果
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }
+
 //解散群组
 void GroupHandle::handle_disbandGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {

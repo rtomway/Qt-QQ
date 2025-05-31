@@ -25,6 +25,7 @@
 #include "MessageRecord.h"
 #include "LoginUserManager.h"
 #include "GroupCreateWidget.h"
+#include "UserProfileDispatcher.h"
 
 
 MainWidget::MainWidget(QWidget* parent)
@@ -70,10 +71,12 @@ MainWidget::MainWidget(QWidget* parent)
 	SMaskWidget::instance()->setMainWidget(this);
 	setMouseTracking(true);  // 主窗口自身
 }
+
 MainWidget::~MainWidget()
 {
 	delete ui;
 }
+
 //界面初始化
 void MainWidget::init()
 {
@@ -263,6 +266,7 @@ void MainWidget::init()
 			}
 		});
 }
+
 //界面布局
 void MainWidget::initLayout()
 {
@@ -343,6 +347,7 @@ void MainWidget::initLayout()
 			SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_groupInviteWidget->width(), m_groupInviteWidget->height()));
 		});
 }
+
 //子列表
 void MainWidget::initStackedListWidget()
 {
@@ -353,6 +358,7 @@ void MainWidget::initStackedListWidget()
 	ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
 	m_chatMessageListWidget->setObjectName("MessageList");
 }
+
 //子页面
 void MainWidget::initStackedPage()
 {
@@ -363,6 +369,7 @@ void MainWidget::initStackedPage()
 	ui->messageStackedWidget->addWidget(m_noticePage);
 	ui->messageStackedWidget->addWidget(m_emptyPage);
 }
+
 //更多（菜单）
 void MainWidget::initMoreMenu()
 {
@@ -415,6 +422,7 @@ void MainWidget::initMoreMenu()
 			m_moreMenu->popup(mapToGlobal(QPoint(ui->otherBtn->geometry().x() + 30, ui->otherBtn->geometry().y() + 400)));
 		});
 }
+
 //连接好友中心信号
 void MainWidget::connectFriendManagerSignals()
 {
@@ -464,6 +472,7 @@ void MainWidget::connectFriendManagerSignals()
 			m_friendProfilePage->clearWidget();
 		});
 }
+
 //连接群组中心信号
 void MainWidget::connectGroupManagerSignals()
 {
@@ -542,6 +551,7 @@ void MainWidget::connectGroupManagerSignals()
 			m_groupProfilePage->clearWidget();
 		});
 }
+
 //连接成员对象控件等信号
 void MainWidget::connectWindowControlSignals()
 {
@@ -602,7 +612,7 @@ void MainWidget::connectWindowControlSignals()
 					qWarning() << "Invalid QSharedPointer!";
 					continue;  // 跳过当前无效项
 				}
-				auto obj = it.value()->getFriend();
+				auto& obj = it.value()->getFriend();
 				AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User, [=](const QPixmap& pixmap)
 					{
 						auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
@@ -667,6 +677,7 @@ void MainWidget::connectWindowControlSignals()
 			emit m_chatMessageListWidget->itemClicked(messageItem);
 		});
 }
+
 //界面按钮居中
 void MainWidget::additemCenter(const QString& src)
 {
@@ -701,6 +712,7 @@ void MainWidget::additemCenter(const QString& src)
 
 	ui->listWidget->setItemWidget(item, itemWidget);
 }
+
 //创建消息通知项并设置标识id
 QListWidgetItem* MainWidget::addmessageListItem(const QString& id, ChatType type)
 {
@@ -730,12 +742,15 @@ QListWidgetItem* MainWidget::addmessageListItem(const QString& id, ChatType type
 	m_chatMessageListWidget->setItemWidget(item, itemWidget);
 	return item;
 }
+
+//itemKey
 QString MainWidget::itemKey(const QString& id, ChatType type)
 {
 	auto key_pre = static_cast<int>(type);
 	auto key = QString::number(key_pre) + id;
 	return key;
 }
+
 //通过用户id找到用户消息项item
 QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 {
@@ -749,28 +764,38 @@ QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 	}
 	return nullptr;
 }
+
+// 清空列表
 void MainWidget::clearChatMessageListWidget()
 {
-	m_chatMessageListWidget->clear();  // 清空列表
+	m_chatMessageListWidget->clear();  
 }
+
+//列表界面恢复
+void MainWidget::updateStackedListWidget()
+{
+	switch (m_btn_Itemgroup->checkedId())
+	{
+	case -2:
+		ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
+		break;
+	case -3:
+		ui->listStackedWidget->setCurrentWidget(m_contactListWidget);
+		break;
+	default:
+		break;
+	}
+}
+
 //事件重写
 bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 {
 	//弹出个人信息小窗口
 	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
 	{
-		m_friendProfileWidget = std::make_unique<FriendProfilePage>();
-		m_friendProfileWidget->setFriendProfile(m_loginUserId);
-		auto position = ui->headLab->mapToGlobal(QPoint(0, 0));
-		m_friendProfileWidget->setGeometry(position.x(), position.y(), 0, 0);
-		m_friendProfileWidget->show();
+		auto position = ui->headLab->mapToGlobal(QPoint(ui->headLab->width(),0));
+		UserProfileDispatcher::instance()->showUserProfile(m_loginUserId, position,PopUpPosition::Right);
 		return true;
-	}
-	else if (event->type() == QEvent::MouseButtonPress)
-	{
-		//隐藏个人信息小窗口
-		if (m_friendProfileWidget)
-			m_friendProfileWidget->hide();
 	}
 	//搜索栏
 	if (watched == ui->searchEdit)
@@ -779,32 +804,34 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 		{
 			ui->listStackedWidget->setCurrentWidget(m_friendSearchListWidget);
 		}
-		else if (event->type() == QEvent::FocusOut)
-		{
-			QWidget* newFocusWidget = QApplication::focusWidget(); // 获取新焦点的控件
-			if (!m_friendSearchListWidget->isAncestorOf(newFocusWidget)) { // 只有新焦点不在 m_searchList 里才切换
-				ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
-			}
-		}
-		else if (event->type() == QEvent::KeyPress)
+
+		if (event->type() == QEvent::KeyPress)
 		{
 			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 			if (keyEvent->key() == Qt::Key_Escape) {
 				ui->searchEdit->clearFocus();
-				ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
+				updateStackedListWidget();
 			}
 		}
-
+		if (event->type() == QEvent::FocusOut)
+		{
+			QWidget* newFocusWidget = QApplication::focusWidget(); // 获取新焦点的控件
+			if (!m_friendSearchListWidget->isAncestorOf(newFocusWidget))
+			{		// 只有新焦点不在 m_searchList 里才切换
+				updateStackedListWidget();
+			}
+		}
 	}
-	//好友搜索界面
-
 	// 监听 m_searchList 和它的子控件
 	QWidget* watchedWidget = qobject_cast<QWidget*>(watched);
-	if (watchedWidget && (watchedWidget == m_friendSearchListWidget || m_friendSearchListWidget->isAncestorOf(watchedWidget))) {
-		if (event->type() == QEvent::FocusOut) {
+	if (watchedWidget && (watchedWidget == m_friendSearchListWidget || m_friendSearchListWidget->isAncestorOf(watchedWidget))) 
+	{
+		if (event->type() == QEvent::FocusOut) 
+		{
 			QWidget* newFocusWidget = QApplication::focusWidget();
-			if (newFocusWidget && !m_friendSearchListWidget->isAncestorOf(newFocusWidget)) {
-				ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
+			if (newFocusWidget && !m_friendSearchListWidget->isAncestorOf(newFocusWidget))
+			{
+				updateStackedListWidget();
 			}
 		}
 	}

@@ -3,9 +3,13 @@
 
 #include <QWidget>
 #include <QPushButton>
+#include <QStackedWidget>
+
 #include "SetPannelWidget.h"
+#include "GroupMemberQueryWidget.h"
 #include "GroupListItemWidget.h"
 #include "GroupMemberGridWidget.h"
+
 
 class GroupSetPannelWidget :public QWidget
 {
@@ -17,11 +21,16 @@ public:
 	void loadGroupPannel(const QString& group_id);
 private:
 	void init();
+	void initPannel();
 	void refreshWidget();
 	void exitGroup();
 	void disbandGroup();
+protected:
+	bool eventFilter(QObject* watched, QEvent* event)override;
 private:
+	QStackedWidget* m_stackedWidget{};
 	SetPannelWidget* m_pannelContains{};
+	GroupMemberQueryWidget* m_groupMemberQueryWidget{};
 	QString m_group_id{};
 	bool m_isGroupOwner{ false };
 	GroupListItemWidget* m_groupListItemWidget{};

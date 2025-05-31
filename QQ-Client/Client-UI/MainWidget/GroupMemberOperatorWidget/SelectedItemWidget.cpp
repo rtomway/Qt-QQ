@@ -15,6 +15,7 @@ SelectedItemWidget::SelectedItemWidget(const QString& user_id, const QString& us
 {
 	init();
 }
+
 void SelectedItemWidget::init()
 {
 	//布局
@@ -34,21 +35,25 @@ void SelectedItemWidget::init()
 			m_headLab->setPixmap(headPix);
 		});
 }
+
 //获取用户id
 const QString& SelectedItemWidget::getUserId()const
 {
 	return m_userId;
 }
+
 //设置点击
 void SelectedItemWidget::setChecked(bool isCheck)
 {
 	m_selected->setChecked(isCheck);
 }
+
 //获取点击状态
 bool SelectedItemWidget::isChecked()
 {
 	return m_selected->isChecked();
 }
+
 //禁用点击
 void SelectedItemWidget::setEnabled(bool status)
 {

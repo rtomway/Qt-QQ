@@ -9,6 +9,7 @@ DataBaseQuery::DataBaseQuery(QObject* parent)
 {
 
 }
+
 //查询信息
 QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantList& bindValues, std::shared_ptr<QSqlQuery>queryPtr)
 {
@@ -59,6 +60,7 @@ QJsonObject DataBaseQuery::executeQuery(const QString& queryStr, const QVariantL
     }
     return allQueryObj;
 }
+
 //更新插入信息
 bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList& bindValues, std::shared_ptr<QSqlQuery>queryPtr)
 {
@@ -86,6 +88,7 @@ bool DataBaseQuery::executeNonQuery(const QString& queryStr, const QVariantList&
         return false;
     }
 }
+
 //事务
 bool DataBaseQuery::executeTransaction(const std::function<bool(std::shared_ptr<QSqlQuery>)>& transactionCallback)
 {

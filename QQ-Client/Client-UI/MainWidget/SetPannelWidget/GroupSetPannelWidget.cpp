@@ -1,6 +1,4 @@
 ﻿#include "GroupSetPannelWidget.h"
-#include "GroupSetPannelWidget.h"
-#include "GroupSetPannelWidget.h"
 
 #include <QMessageBox>
 #include <QJsonObject>
@@ -13,18 +11,11 @@
 
 GroupSetPannelWidget::GroupSetPannelWidget(QWidget* parent)
 	:QWidget(parent)
+	,m_stackedWidget(new QStackedWidget(this))
 	,m_pannelContains(new SetPannelWidget(this))
+	,m_groupMemberQueryWidget(new GroupMemberQueryWidget(this))
 {
-	this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	this->setFixedWidth(250);
-	this->setStyleSheet(R"(
-		QWidget{ border: none;background-color:red;}
-		)");
-	auto mainLayout = new QVBoxLayout(this);
-	mainLayout->addWidget(m_pannelContains);
-	mainLayout->setContentsMargins(0, 0, 0, 0);
-	mainLayout->setSpacing(0);
-	this->setLayout(mainLayout);
+	init();
 }
 
 GroupSetPannelWidget::~GroupSetPannelWidget()
@@ -32,6 +23,32 @@ GroupSetPannelWidget::~GroupSetPannelWidget()
 
 }
 
+void GroupSetPannelWidget::init()
+{
+	this->installEventFilter(this);
+	this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	this->setFixedWidth(250);
+	this->setStyleSheet(R"(
+		QWidget{ border: none;background-color:rgb(235,235,235);}
+		)");
+	auto mainLayout = new QVBoxLayout(this);
+	mainLayout->addWidget(m_stackedWidget);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+	mainLayout->setSpacing(0);
+	this->setLayout(mainLayout);
+
+	m_stackedWidget->addWidget(m_pannelContains);
+	m_stackedWidget->addWidget(m_groupMemberQueryWidget);
+	m_stackedWidget->setCurrentWidget(m_pannelContains);
+
+	//返回群面板
+	connect(m_groupMemberQueryWidget, &GroupMemberQueryWidget::backGroupPannel, this, [=]
+		{
+			m_stackedWidget->setCurrentWidget(m_pannelContains);
+		});
+}
+
+//加载群面板
 void GroupSetPannelWidget::loadGroupPannel(const QString& group_id)
 {
 	//绑定群组
@@ -43,13 +60,15 @@ void GroupSetPannelWidget::loadGroupPannel(const QString& group_id)
 	//界面加载一次
 	if (!m_groupListItemWidget)
 	{
-		init();
+		initPannel();
 	}
 	//界面数据刷新
 	refreshWidget();
+	m_groupMemberQueryWidget->loadGroupMemberList(group_id);
 }
 
-void GroupSetPannelWidget::init()
+//面板初始化
+void GroupSetPannelWidget::initPannel()
 {
 	m_pannelContains->clearListWidget();
 
@@ -70,6 +89,11 @@ void GroupSetPannelWidget::init()
 			{
 				item->setSizeHint(QSize(m_groupMemberGrid->width(), height));
 			}
+		});
+	//查看更多群成员
+	connect(m_groupMemberGrid, &GroupMemberGridWidget::queryMoreGroupMember, this, [=]
+		{
+			m_stackedWidget->setCurrentWidget(m_groupMemberQueryWidget);
 		});
 	
 	//退群
@@ -102,6 +126,7 @@ void GroupSetPannelWidget::init()
 	m_pannelContains->addItemWidget(m_exitGroupBtn, 30);
 }
 
+//数据刷新
 void GroupSetPannelWidget::refreshWidget()
 {
 	m_groupListItemWidget->setItemWidget(m_group_id);
@@ -109,6 +134,7 @@ void GroupSetPannelWidget::refreshWidget()
 	m_groupMemberGrid->setGroupMembersGrid(m_group_id);
 }
 
+//退出群组
 void GroupSetPannelWidget::exitGroup()
 {
 	auto& loginUserId = LoginUserManager::instance()->getLoginUserID();
@@ -122,6 +148,7 @@ void GroupSetPannelWidget::exitGroup()
 	MessageSender::instance()->sendHttpRequest("exitGroup", data, "application/json");
 }
 
+//解散群组
 void GroupSetPannelWidget::disbandGroup()
 {
 	//发送服务端
@@ -138,4 +165,14 @@ void GroupSetPannelWidget::disbandGroup()
 	MessageSender::instance()->sendHttpRequest("disbandGroup", data, "application/json");
 	//退出群组
 	EventBus::instance()->emit exitGroup(m_group_id, loginUserId);
+}
+
+//event
+bool GroupSetPannelWidget::eventFilter(QObject* watched, QEvent* event)
+{
+	if (event->type() == QEvent::Show)
+	{
+		m_stackedWidget->setCurrentWidget(m_pannelContains);
+	}
+	return false;
 }

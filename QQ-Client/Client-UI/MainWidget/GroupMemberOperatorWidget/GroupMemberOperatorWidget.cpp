@@ -38,10 +38,12 @@ GroupMemberOperatorWidget::GroupMemberOperatorWidget(QWidget* parent)
 		qDebug() << file.fileName() << "样式表打开失败";
 	}
 }
+
 GroupMemberOperatorWidget::~GroupMemberOperatorWidget()
 {
 
 }
+
 void GroupMemberOperatorWidget::init()
 {
 	ui->friendStackedList->addWidget(m_selectTree);
@@ -114,6 +116,7 @@ void GroupMemberOperatorWidget::init()
 			itemWidget->setChecked(!itemWidget->isChecked());
 		});
 }
+
 //选中好友添加至选中列表
 void GroupMemberOperatorWidget::addSelectedItem(QListWidget* listWidget, const QString& user_id, const QString& userName)
 {
@@ -155,6 +158,7 @@ void GroupMemberOperatorWidget::addSelectedItem(QListWidget* listWidget, const Q
 			}
 		});
 }
+
 //删除选中好友item
 void GroupMemberOperatorWidget::removeSelectedItem(const QString& user_id)
 {
@@ -176,6 +180,7 @@ void GroupMemberOperatorWidget::removeSelectedItem(const QString& user_id)
 	}
 
 }
+
 //通过用户id找到用户消息项item
 QListWidgetItem* GroupMemberOperatorWidget::findListItem(QListWidget* listWidget, const QString& user_id)
 {
@@ -190,6 +195,7 @@ QListWidgetItem* GroupMemberOperatorWidget::findListItem(QListWidget* listWidget
 	}
 	return nullptr;
 }
+
 //通过用户id找到用户消息项item
 QTreeWidgetItem* GroupMemberOperatorWidget::findTreeItem(const QString& user_id)
 {
@@ -218,6 +224,7 @@ QTreeWidgetItem* GroupMemberOperatorWidget::findTreeItem(const QString& user_id)
 
 	return nullptr; // 没找到
 }
+
 //加载好友列表
 void GroupMemberOperatorWidget::loadFriendsList()
 {
@@ -277,6 +284,7 @@ void GroupMemberOperatorWidget::loadFriendsList()
 		topItemWidget->setCount(topItem->childCount());
 	}
 }
+
 //加载群组列表
 void GroupMemberOperatorWidget::loadGroupMembers(const QString& group_id)
 {
@@ -319,6 +327,7 @@ void GroupMemberOperatorWidget::loadGroupMembers(const QString& group_id)
 		topItemWidget->setCount(groupMemberTopItem->childCount());
 	}
 }
+
 //清空好友列表
 void GroupMemberOperatorWidget::clearFriendTree()
 {
@@ -331,6 +340,7 @@ void GroupMemberOperatorWidget::clearFriendTree()
 	m_selectedList.clear();
 	ui->groupNameEdit->clear();
 }
+
 //清空搜索列表
 void GroupMemberOperatorWidget::clearSearchList()
 {

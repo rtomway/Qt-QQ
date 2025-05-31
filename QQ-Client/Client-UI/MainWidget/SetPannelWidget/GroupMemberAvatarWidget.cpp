@@ -69,7 +69,7 @@ void GroupMemberAvatarWidget::init()
 	m_avatarLab->setFixedHeight(40);
 	m_nameLab->setFixedHeight(15);
 	auto vLayout = new QVBoxLayout(this);
-	vLayout->setAlignment(Qt::AlignHCenter);  // 关键！水平居中
+	vLayout->setAlignment(Qt::AlignHCenter); 
 	vLayout->setContentsMargins(0, 0, 0, 0);
 	vLayout->setSpacing(0);
 	vLayout->addWidget(m_avatarLab);
@@ -84,7 +84,7 @@ void GroupMemberAvatarWidget::leftButtonPress()
 	case Avatar:
 	{
 		auto position = this->mapToGlobal(QPoint(0, 0));
-		UserProfileDispatcher::instance()->showUserProfile(m_groupMember_id, position);
+		UserProfileDispatcher::instance()->showUserProfile(m_groupMember_id, position,PopUpPosition::Left);
 	}
 	break;
 	case Invite:

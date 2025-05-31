@@ -38,6 +38,7 @@ AvatarManager::AvatarManager()
 				});
 		});
 }
+
 //检测本地是否有该id头像缓存
 bool AvatarManager::hasLocalAvatar(const QString& id, ChatType type)
 {
@@ -54,6 +55,7 @@ bool AvatarManager::hasLocalAvatar(const QString& id, ChatType type)
 	}
 	return QFile::exists(avatarPath);
 }
+
 // 获取头像，如果缓存中没有,加载并缓存
 void AvatarManager::getAvatar(const QString& id, ChatType type, std::function<void(const QPixmap&)>callback)
 {
@@ -95,6 +97,7 @@ void AvatarManager::getAvatar(const QString& id, ChatType type, std::function<vo
 	//加载头像
 	loadAvatar(id, type);
 }
+
 //头像加载
 void AvatarManager::loadAvatar(const QString& id, ChatType type)
 {
@@ -145,13 +148,15 @@ void AvatarManager::loadAvatar(const QString& id, ChatType type)
 		break;
 	}
 }
+
 // 处理所有等待的回调函数
 void AvatarManager::processPendingCallbacks(const QString& key, const QPixmap& avatar)
 {
 	if (m_pendingCallbacks.contains(key))
 	{
 		const QList<std::function<void(const QPixmap&)>>& callbacks = m_pendingCallbacks[key];
-		for (const std::function<void(const QPixmap&)>& cb : callbacks) {
+		for (const std::function<void(const QPixmap&)>& cb : callbacks) 
+		{
 			cb(avatar);
 		}
 		m_pendingCallbacks.remove(key);

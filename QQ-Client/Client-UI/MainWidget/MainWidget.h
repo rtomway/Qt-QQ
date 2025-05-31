@@ -45,6 +45,7 @@ private:
 	QString itemKey(const QString& id, ChatType type);
 	QListWidgetItem* findListItem(const QString& user_id);
 	void clearChatMessageListWidget();
+	void updateStackedListWidget();
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 private:

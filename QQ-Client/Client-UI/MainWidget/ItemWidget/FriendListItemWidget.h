@@ -12,6 +12,7 @@ public:
 	void setGrouping(const QString& grouping);
 private:
 	void init();
+	void refershItemWidget();
 private:
 	QSharedPointer<Friend>m_friend = nullptr;
 	QString m_friendId{};

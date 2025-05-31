@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QDebug>
 #include <QCoreApplication>
+
 #include "PacketCreate.h"
 #include "TokenManager.h"
 #include "LoginUserManager.h"
@@ -37,35 +38,24 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 		{
 			qDebug() << "------------------接收http回复-----------------";
 			// 错误处理
-			if (reply->error() != QNetworkReply::NoError) {
+			if (reply->error() != QNetworkReply::NoError)
+			{
 				qDebug() << "HTTP Error:" << reply->errorString();
 				// 你可以根据不同的错误码做更细致的处理
-				switch (reply->error())
-				{
-				case QNetworkReply::TimeoutError:
-					qDebug() << "The request timed out.";
-					break;
-				case QNetworkReply::HostNotFoundError:
-					qDebug() << "The host was not found.";
-					break;
-				case QNetworkReply::ConnectionRefusedError:
-					qDebug() << "The connection was refused.";
-					break;
-					// 其他错误处理
-				default:
-					qDebug() << "Other error:" << reply->errorString();
-				}
+				replyErrorHandle(reply->error());
 				reply->deleteLater();
 				return;
 			}
 			// 检查 HTTP 状态码
 			int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-			if (statusCode == 204) {
+			if (statusCode == 204)
+			{
 				// 无响应体，但请求成功
 				qDebug() << "请求成功，但没有返回任何内容（204 No Content）";
 				reply->deleteLater();
 				return;
 			}
+			//处理响应
 			QByteArray responseData = reply->readAll();
 			QByteArray contentType = reply->rawHeader("Content-Type");
 			qDebug() << "http响应头:" << contentType;
@@ -88,11 +78,32 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 				qDebug() << "接收http文本回复";
 				emit httpTextResponseReceived(responseData);
 			}
-			else {
+			else
+			{
 				qDebug() << "接收http数据回复";
 				emit httpDataResponseReceived(responseData);
 			}
 			reply->deleteLater();
 		});
+}
+
+//错误码处理
+void HttpWorker::replyErrorHandle(QNetworkReply::NetworkError error)
+{
+	switch (error)
+	{
+	case QNetworkReply::TimeoutError:
+		qDebug() << "The request timed out.";
+		break;
+	case QNetworkReply::HostNotFoundError:
+		qDebug() << "The host was not found.";
+		break;
+	case QNetworkReply::ConnectionRefusedError:
+		qDebug() << "The connection was refused.";
+		break;
+		// 其他错误处理
+	default:
+		qDebug() << "Other error:";
+	}
 }
 

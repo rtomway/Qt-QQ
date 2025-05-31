@@ -7,6 +7,7 @@
 #include "FriendManager.h"
 #include "LoginUserManager.h"
 
+
 UserProfilePage::UserProfilePage(QWidget* parent)
 	:AngleRoundedWidget(parent)
 	,ui(new Ui::UserProfilePage)
@@ -23,6 +24,7 @@ UserProfilePage::UserProfilePage(QWidget* parent)
 		qDebug() << file.fileName() << "打开失败";
 	}
 }
+
 UserProfilePage::~UserProfilePage()
 {
 	qDebug() << "UserProfilePage destoryed:"<<m_user_id;
@@ -56,6 +58,7 @@ void UserProfilePage::init()
 			}
 		});
 }
+
 //设置用户信息
 void UserProfilePage::setUserProfilePage(const QJsonObject& obj, UserRelation userRelation)
 {
@@ -64,6 +67,7 @@ void UserProfilePage::setUserProfilePage(const QJsonObject& obj, UserRelation us
 	m_userRelation = userRelation;
 	refreshProfilePage();
 }
+
 //更新用户信息
 void UserProfilePage::refreshProfilePage()
 {
@@ -80,6 +84,7 @@ void UserProfilePage::refreshProfilePage()
 	switch (m_userRelation)
 	{
 	case UserRelation::LoginUser:
+		ui->editdetailBtn->setVisible(true);
 		ui->editdetailBtn->setText("编辑资料");
 		break;
 	case UserRelation::Friend:
@@ -104,6 +109,7 @@ void UserProfilePage::refreshProfilePage()
 	ui->formLayout->update();
 	ui->formLayout->parentWidget()->updateGeometry();
 }
+
 //编辑资料
 void UserProfilePage::editUserProfile()
 {
@@ -116,11 +122,13 @@ void UserProfilePage::editUserProfile()
 	int y = (mainWidgetSize.height() - m_profileEditWidget->height()) / 2;
 	SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_profileEditWidget->width(), m_profileEditWidget->height()));
 }
+
 //好友添加
 void UserProfilePage::addFriendRequest()
 {
 
 }
+
 //清除动态更新的控件
 void UserProfilePage::clearDynamicWidgets()
 {

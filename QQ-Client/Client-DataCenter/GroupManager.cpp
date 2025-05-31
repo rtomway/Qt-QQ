@@ -165,7 +165,7 @@ GroupManager::GroupManager()
 			emit exitGroup(group_id, user_id);
 		});
 	//有群成员退出群聊
-	connect(EventBus::instance(), &EventBus::groupMemberExitGroup, this, [=](const QJsonObject& obj)
+	connect(EventBus::instance(), &EventBus::notice_groupMemberExitGroup, this, [=](const QJsonObject& obj)
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
@@ -180,11 +180,13 @@ GroupManager::GroupManager()
 			emit exitGroup(group_id,LoginUserManager::instance()->getLoginUserID());
 		});
 }
+
 GroupManager* GroupManager::instance()
 {
 	static GroupManager ins;
 	return &ins;
 }
+
 //申请群信息的加载
 void GroupManager::loadGroupInfoFromServer(const QString& id, const QString& requestType)
 {
@@ -194,6 +196,7 @@ void GroupManager::loadGroupInfoFromServer(const QString& id, const QString& req
 	QByteArray loadListData = loadListDoc.toJson(QJsonDocument::Compact);
 	MessageSender::instance()->sendHttpRequest(requestType, loadListData, "application/json");
 }
+
 //申请头像的加载(10个一批)
 void GroupManager::loadGroupAvatarFromServer(const QStringList& group_idList, const QString& requestType)
 {
@@ -217,6 +220,7 @@ void GroupManager::loadGroupAvatarFromServer(const QStringList& group_idList, co
 		MessageSender::instance()->sendHttpRequest(requestType, data, "application/json");
 	}
 }
+
 //确保群成员已加载
 void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback)const
 {
@@ -252,6 +256,7 @@ void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString&
 				});
 		});
 }
+
 //添加群组
 void GroupManager::addGroup(const QSharedPointer<Group>& group)
 {
@@ -265,21 +270,25 @@ void GroupManager::addGroup(const QSharedPointer<Group>& group)
 		ChatRecordManager::instance()->addGroupChat(group_id, std::make_shared<ChatRecordMessage>(loginUserId, group_id, ChatType::Group));
 	}
 }
+
 //移除群组
 void GroupManager::removeGroup(const QString& groupId)
 {
 	m_groups.remove(groupId);
 }
+
 //find指定群组
 QSharedPointer<Group> GroupManager::findGroup(const QString& groupId) const
 {
 	return m_groups.value(groupId, nullptr);
 }
+
 //获取群组列表
 const QHash<QString, QSharedPointer<Group>>& GroupManager::getGroups() const
 {
 	return m_groups;
 }
+
 //清除群组中心
 void GroupManager::clearGroupManager()
 {

@@ -9,10 +9,10 @@
 #include "GroupManager.h"
 
 
-SearchItemWidget::SearchItemWidget(ChatType type,QWidget* parent)
+SearchItemWidget::SearchItemWidget(ChatType type, QWidget* parent)
 	:QWidget(parent)
-	,ui(new Ui::SearchItemWidget)
-	,m_type(type)
+	, ui(new Ui::SearchItemWidget)
+	, m_type(type)
 {
 	ui->setupUi(this);
 	init();
@@ -25,7 +25,7 @@ SearchItemWidget::~SearchItemWidget()
 
 void SearchItemWidget::init()
 {
-	//添加好友
+	//添加
 	connect(ui->addBtn, &QPushButton::clicked, [=]
 		{
 			switch (m_type)
@@ -41,7 +41,7 @@ void SearchItemWidget::init()
 				addWidget->setUser(this->getUser(), m_searchPix);
 				addWidget->show();
 			}
-				break;
+			break;
 			case ChatType::Group:
 			{
 				if (m_isAdded)
@@ -53,12 +53,13 @@ void SearchItemWidget::init()
 				addWidget->setGroup(this->getGroup(), m_searchPix);
 				addWidget->show();
 			}
-				break;
+			break;
 			default:
 				break;
 			}
 		});
 }
+
 //设置用户信息
 void SearchItemWidget::setUser(const QJsonObject& obj)
 {
@@ -79,6 +80,7 @@ void SearchItemWidget::setUser(const QJsonObject& obj)
 		ui->addBtn->setText("添加");
 	}
 }
+
 //设置群组
 void SearchItemWidget::setGroup(const QJsonObject& obj)
 {
@@ -99,6 +101,8 @@ void SearchItemWidget::setGroup(const QJsonObject& obj)
 		ui->addBtn->setText("加入");
 	}
 }
+
+//获取群组信息
 QJsonObject SearchItemWidget::getGroup()
 {
 	QJsonObject obj;
@@ -107,6 +111,7 @@ QJsonObject SearchItemWidget::getGroup()
 	obj["isSend"] = true;
 	return obj;
 }
+
 //设置头像
 void SearchItemWidget::setPixmap(const QPixmap& pixmap)
 {
@@ -114,6 +119,7 @@ void SearchItemWidget::setPixmap(const QPixmap& pixmap)
 	auto headPix = ImageUtils::roundedPixmap(m_searchPix, QSize(40, 40));
 	ui->headLab->setPixmap(headPix);
 }
+
 //用户信息获取
 QJsonObject SearchItemWidget::getUser()
 {

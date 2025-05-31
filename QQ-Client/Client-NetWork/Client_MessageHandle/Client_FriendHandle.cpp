@@ -7,7 +7,9 @@
 void Client_FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+	QMetaObject::invokeMethod(QCoreApplication::instance(),
+		[paramsObject, data]() 
+		{
 		QPixmap pixmap;
 		if (data.isEmpty())
 		{
@@ -19,7 +21,7 @@ void Client_FriendHandle::handle_addFriend(const QJsonObject& paramsObject, cons
 			qDebug() << "client-头像加载失败";
 			return;
 		};
-		EventBus::instance()->emit addFriend(paramsObject, pixmap);
+		EventBus::instance()->emit notice_addFriend(paramsObject, pixmap);
 		});
 }
 
@@ -40,41 +42,45 @@ void Client_FriendHandle::handle_newFriend(const QJsonObject& paramsObject, cons
 void Client_FriendHandle::handle_friendDeleted(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+		[paramsObject, data]() 
+	{
 		QPixmap pixmap;
 		if (data.isEmpty())
 		{
 			qDebug() << "无数据";
 			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-			EventBus::instance()->emit friendDeleted(paramsObject, pixmap);
+			EventBus::instance()->emit notice_friendDeleted(paramsObject, pixmap);
 		}
 		if (!pixmap.loadFromData(data))
 		{
 			qDebug() << "client-头像加载失败";
 			return;
 		};
-		EventBus::instance()->emit friendDeleted(paramsObject, pixmap);
-		});
+		EventBus::instance()->emit notice_friendDeleted(paramsObject, pixmap);
+	});
 }
 
 void Client_FriendHandle::handle_rejectAddFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+	QMetaObject::invokeMethod(QCoreApplication::instance(),
+	[paramsObject, data]() 
+	{
 		QPixmap pixmap;
 		if (data.isEmpty())
 		{
 			qDebug() << "无数据";
 			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-			EventBus::instance()->emit rejectAddFriend(paramsObject, pixmap);
+			EventBus::instance()->emit notice_rejectAddFriend(paramsObject, pixmap);
 		}
 		if (!pixmap.loadFromData(data))
 		{
 			qDebug() << "client-头像加载失败";
 			return;
 		};
-		EventBus::instance()->emit rejectAddFriend(paramsObject, pixmap);
-		});
+		EventBus::instance()->emit notice_rejectAddFriend(paramsObject, pixmap);
+	});
 }
 
 void Client_FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
@@ -85,7 +91,9 @@ void Client_FriendHandle::handle_textCommunication(const QJsonObject& paramsObje
 void Client_FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+		[paramsObject, data]() 
+	{
 		QPixmap pixmap;
 		if (data.isEmpty())
 		{
@@ -97,5 +105,5 @@ void Client_FriendHandle::handle_pictureCommunication(const QJsonObject& paramsO
 			return;
 		};
 		EventBus::instance()->emit pictureCommunication(paramsObject, pixmap);
-		});
+	});
 }

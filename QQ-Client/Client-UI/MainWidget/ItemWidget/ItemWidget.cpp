@@ -13,10 +13,12 @@ ItemWidget::ItemWidget(QWidget* parent)
 	ui->setupUi(this);
 	init();
 }
+
 ItemWidget::~ItemWidget()
 {
 	delete ui;
 }
+
 void ItemWidget::init()
 {
 	ui->nameLab->setStyleSheet(QString("QLabel{font-size:14px}"));

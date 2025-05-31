@@ -17,6 +17,7 @@ SearchFriend::SearchFriend(QWidget* parent)
 		this->setStyleSheet(file.readAll());
 	}
 }
+
 void SearchFriend::init()
 {
 	this->setFocusPolicy(Qt::StrongFocus);
@@ -57,6 +58,7 @@ void SearchFriend::init()
 		});
 
 }
+
 //添加搜索项
 void SearchFriend::addSearchItem(const QJsonObject& obj, const QPixmap& pixmap)
 {
@@ -70,6 +72,7 @@ void SearchFriend::addSearchItem(const QJsonObject& obj, const QPixmap& pixmap)
 	//关联item和widget
 	m_searchList->setItemWidget(item, itemWidget);
 }
+
 //清空搜索列表
 void SearchFriend::clearFriendList()
 {

@@ -15,16 +15,8 @@ public:
 private:
 	QString m_userID{};
 	QString m_userName{};
-	int m_gender{};
-	int m_age{};
-	QString m_phoneNumber{};
-	QString m_email{};
-	QDate m_birthday{};
-	QString m_signature{};
 	QString m_grouping{};
-	bool m_status{};
 	QJsonObject m_json{};
-
 };
 
 #endif // !FRIEND_H_

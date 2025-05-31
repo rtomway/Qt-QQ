@@ -10,21 +10,25 @@ void Group::setGroup(const QJsonObject& groupObj)
 	m_groupMemberCount = groupObj["groupMemberCount"].toInt();
 	m_groupJson = groupObj;
 }
+
 //获取群组基本信息
 const QJsonObject& Group::getGroupProfile()
 {
 	return m_groupJson;
 }
+
 //获取群Id
 const QString& Group::getGroupId() const
 {
 	return m_groupId;
 }
+
 //获取群主id
 const QString& Group::getGroupOwerId() const
 {
 	return m_groupOwnerId;
 }
+
 //获取群组名
 const QString& Group::getGroupName() const
 {
@@ -44,6 +48,7 @@ void Group::batchLoadGroupMember(const QJsonArray& memberArray)
 		m_members.insert(member.member_id, member);
 	}
 }
+
 //加载单个群成员
 void Group::loadGroupMember(const QJsonObject& memberObj)
 {
@@ -53,6 +58,7 @@ void Group::loadGroupMember(const QJsonObject& memberObj)
 	member.member_role = memberRole(memberObj["group_role"].toString());
 	m_members.insert(member.member_id, member);
 }
+
 //获取群成员id列表
 QStringList Group::getGroupMembersIdList() const
 {
@@ -87,6 +93,7 @@ void Group::addMember(const QJsonObject& memberObj)
 	m_members.insert(member_id, member);
 	m_groupMemberCount++;
 }
+
 //移除成员
 void Group::removeMember(const QString& user_id)
 {
@@ -99,28 +106,34 @@ void Group::setGrouping(const QString& grouping)
 {
 	m_grouping = grouping;
 }
+
 //获取群组分组
 const QString& Group::getGrouping() const
 {
 	return m_grouping;
 }
+
 //获取指定成员
 Member Group::getMember(const QString& member_id) const
 {
-	auto it = m_members.find(member_id);  // 使用 find() 查找元素
-	if (it != m_members.end()) {
-		return it.value();  // 返回元素的引用
+	auto it = m_members.find(member_id);  
+	if (it != m_members.end()) 
+	{
+		return it.value(); 
 	}
-	else {
+	else
+	{
 		qDebug() << "不存在成员:" << member_id;
 		return Member();
 	}
 }
+
 //获取全部成员
 const QHash<QString, Member>& Group::getMembers() const
 {
 	return m_members;
 }
+
 //群人数
 const int& Group::count() const
 {

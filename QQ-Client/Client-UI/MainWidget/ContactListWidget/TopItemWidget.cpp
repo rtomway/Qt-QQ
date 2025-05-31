@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include <QMouseEvent>
 
+
 TopItemWidget::TopItemWidget(QWidget* parent)
 	:QWidget(parent)
 	, m_hLayout(new QHBoxLayout(this))
@@ -12,10 +13,12 @@ TopItemWidget::TopItemWidget(QWidget* parent)
 {
 	init();
 }
+
 TopItemWidget::~TopItemWidget()
 {
 	delete m_item;
 }
+
 void TopItemWidget::init()
 {
 	m_hLayout->addWidget(m_headLab);
@@ -23,21 +26,25 @@ void TopItemWidget::init()
 	m_hLayout->addStretch();
 	m_hLayout->addWidget(m_countLab);
 }
+
 //设置分组子项数量
 void TopItemWidget::setCount(const int& x)
 {
 	m_countLab->setText(QString::number(x));
 }
+
 //设置分组名
 void TopItemWidget::setName(const QString& name)
 {
 	m_nameLab->setText(name);
 }
+
 //获取分组名
 QString TopItemWidget::getName()const
 {
 	return m_nameLab->text();
 }
+
 //点击旋转
 void TopItemWidget::setAgale()
 {

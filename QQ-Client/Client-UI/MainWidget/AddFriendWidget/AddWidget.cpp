@@ -18,17 +18,15 @@ AddWidget::AddWidget(QWidget* parent)
 	, m_grouping(new LineEditwithButton)
 {
 	ui->setupUi(this);
-	this->setFixedSize(350, 500);
 	init();
 	this->setStyleSheet(R"(
-			QLineEdit{border:none;border-radius:5px;background-color:white;height:30px;}
+			QLineEdit{
+				border:none;border-radius:5px;
+				background-color:white;height:30px;
+			}
 			QPushButton{
-				border:none;
-				border-radius:5px;
-				background-color:#0096FF;
-				color:white;
-				height:30px;
-				width:50px;
+				border:none;border-radius:5px;background-color:#0096FF;
+				color:white;height:30px;width:50px;
 			}
 			QPushButton:hover{
 				font-size:14px;
@@ -43,6 +41,7 @@ AddWidget::~AddWidget()
 
 void AddWidget::init()
 {
+	this->setFixedSize(350, 500);
 	m_grouping->setParent(ui->groupWidget);
 	m_grouping->setFixedHeight(50);
 	m_grouping->setFixedWidth(this->width() - 10);
@@ -50,6 +49,7 @@ void AddWidget::init()
 	ui->nicknameEdit->setFixedWidth(this->width() - 20);
 	m_grouping->setComboBox();
 	m_grouping->setText("我的好友");
+
 	//获取分组列表
 	auto groupingList = ContactListWidget::getfGrouping();
 	for (const auto& name : groupingList)
@@ -57,7 +57,7 @@ void AddWidget::init()
 		m_grouping->addMenuItem(name);
 	}
 	ui->groupWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	//好友添加界面
+
 	//发送
 	connect(ui->sendBtn, &QPushButton::clicked, [=]
 		{
@@ -70,7 +70,7 @@ void AddWidget::init()
 				applicateGroupObj["to"] = m_addId;
 				qDebug() << "applicateGroupObj[to] :" << m_addId;
 				applicateGroupObj["message"] = ui->messageEdit->text();
-				applicateGroupObj["noticeMessage"] = "请求加入群组"+ m_addName;
+				applicateGroupObj["noticeMessage"] = "请求加入群组" + m_addName;
 
 				auto message = PacketCreate::textPacket("addGroup", applicateGroupObj);
 				MessageSender::instance()->sendMessage(message);
@@ -111,6 +111,7 @@ void AddWidget::init()
 		});
 
 }
+
 //用户信息
 void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 {
@@ -136,6 +137,7 @@ void AddWidget::setUser(const QJsonObject& obj, const QPixmap& pixmap)
 	}
 }
 
+//群组信息
 void AddWidget::setGroup(const QJsonObject& obj, const QPixmap& pixmap)
 {
 	m_type = ChatType::Group;

@@ -25,38 +25,39 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void loadLocalAvatarGroup(const QStringList& group_idList);
 	void loadLocalAvatarFriend(const QStringList& friend_idList);
 	void registerSuccess(const QJsonObject& obj);
-	//好友
+	//好友操作
 	void textCommunication(const QJsonObject& paramsObject);
 	void pictureCommunication(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void addFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void newFriend(const QJsonObject& paramsObject);
-	void rejectAddFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void deleteFriend(const QString& user_id);
-	void friendDeleted(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	//群组
-	void addGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	//群组操作
 	void createGroupSuccess(const QJsonObject& paramsObject);
-	void groupInvite(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void groupPictureCommunication(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void groupTextCommunication(const QJsonObject& paramsObject);
-	void groupInviteSuccess(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void rejectAddGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void groupAddFailed(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void newGroupMember(const QJsonObject& paramsObject);
 	void groupMemberload(const QJsonObject& paramsObject);
 	void newGroup(const QJsonObject& paramsObject);
 	void exitGroup(const QString& group_id, const QString& user_id);
 	void disbandGroup(const QString& group_id);
-	void notice_disbandGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void groupMemberExitGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void removeGroupMember(const QJsonObject& paramsObject);
-	//用户
+	//用户操作
 	void searchUser(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void searchGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void updateUserMessage(const QJsonObject& paramsObject);
 	void updateUserAvatar(const QString& user_id, const QPixmap& pixmap);
 	//头像
 	void saveAvatar(const QString& id, ChatType type, const QByteArray& avatarData);
+	//通知
+	void notice_addFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_rejectAddFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_friendDeleted(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_addGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_rejectAddGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_groupAddFailed(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_groupInvite(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_groupInviteSuccess(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_groupMemberExitGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_disbandGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
 };
 
 #endif // !EVENTBUS_H_

@@ -21,6 +21,7 @@ bool FriendDBUtils::insertFriend(const MyFriend& myFriend, DataBaseQuery& query,
 	}
 	return true;
 }
+
 //更新好友分组
 bool FriendDBUtils::updateFriendGrouping(const MyFriend& myFriend, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -41,6 +42,7 @@ bool FriendDBUtils::updateFriendGrouping(const MyFriend& myFriend, DataBaseQuery
 	}
 	return true;
 }
+
 //删除好友
 bool FriendDBUtils::deleteFriend(const MyFriend& myFriend, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
@@ -58,6 +60,7 @@ bool FriendDBUtils::deleteFriend(const MyFriend& myFriend, DataBaseQuery& query,
 	}
 	return true;
 }
+
 //查询好友id
 QStringList FriendDBUtils::queryFriendIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {

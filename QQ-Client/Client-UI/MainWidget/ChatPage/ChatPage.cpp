@@ -11,8 +11,6 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-#include <QGraphicsOpacityEffect>
-#include <QParallelAnimationGroup>
 
 #include "ImageUtil.h"
 #include "FriendManager.h"
@@ -57,10 +55,12 @@ ChatPage::ChatPage(QWidget* parent)
 	m_setWidget->setMask(region);  // 裁剪区域
 
 }
+
 ChatPage::~ChatPage()
 {
 	delete ui;
 }
+
 void ChatPage::init()
 {
 	//在自己信息中心加载完成后读取
@@ -91,6 +91,7 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 		auto type = messagePtr->getType();
 		auto time = messagePtr->getTime();
 		this->insertTipMessage(messagePtr->getTime());
+
 		//判断消息是谁发送
 		bool isSelf = ((messagePtr)->getSenderId() == LoginUserManager::instance()->getLoginUserID());
 		QString senderId = isSelf ? m_loginUser->getFriendId() : messagePtr->getSenderId();
@@ -103,7 +104,6 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 				case MessageType::Text:
 				{
 					auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get());
-					qDebug() << "---------------------------TextMessage----------------";
 					auto& message = textMessage->getTextMessage();
 					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleTextRight : MessageBubble::BubbleTextLeft;
 					createTextMessageBubble(headPix, message, bubbleType, messagePtr->getSenderId());
@@ -112,7 +112,6 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 				case MessageType::Image:
 				{
 					auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get());
-					qDebug() << "---------------------ImageMessage-------------------";
 					auto& message = imageMessage->getImageMessage();
 					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleImageRight : MessageBubble::BubbleImageLeft;
 					createImageMessageBubble(headPix, message, bubbleType, messagePtr->getSenderId());
@@ -121,7 +120,6 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 				case MessageType::System:
 				{
 					auto systemMessage = dynamic_cast<SystemMessage*>(messagePtr.get());
-					qDebug() << "--------------------------SystemMessage------------------";
 					auto& message = systemMessage->getSystemMessage();
 					insertTipMessage(message);
 					break;
@@ -132,6 +130,7 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 			});
 	}
 }
+
 //当前界面接受消息更新
 void ChatPage::updateReceiveMessage(const QString& send_id, const QVariant& messageData, MessageType type)
 {
@@ -171,13 +170,15 @@ void ChatPage::updateReceiveMessage(const QString& send_id, const QVariant& mess
 		break;
 	}
 }
+
 //清空
 void ChatPage::clearMessageWidget()
 {
 	ui->messageTextEdit->clear();
 	ui->messageListWidget->clear();
 }
-//事件
+
+//event--设置面板
 bool ChatPage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (event->type() == QEvent::MouseButtonPress) {
@@ -190,6 +191,8 @@ bool ChatPage::eventFilter(QObject* watched, QEvent* event)
 	}
 	return QWidget::eventFilter(watched, event);
 }
+
+//resizeEvent-面板geometry
 void ChatPage::resizeEvent(QResizeEvent* ev)
 {
 	// 获取窗口的全局坐标和右边缘
@@ -197,6 +200,7 @@ void ChatPage::resizeEvent(QResizeEvent* ev)
 	int windowRight = windowTopLeft.x() + this->width(); // 获取窗口的右边缘的全局坐标
 	m_setWidget->setGeometry(windowRight - m_setWidget->width(), ui->setWidget->height(), 250, this->height() - ui->setWidget->height());
 }
+
 //显示设置面板
 void ChatPage::showSetWidget()
 {
@@ -231,6 +235,7 @@ void ChatPage::showSetWidget()
 		m_showAnimation->start();
 		});
 }
+
 //隐藏设置面板
 void ChatPage::hideSetWidget()
 {
@@ -259,7 +264,7 @@ void ChatPage::hideSetWidget()
 		QRegion region(0, 0, visibleWidth, height(), QRegion::Rectangle);
 		m_setWidget->setMask(region);
 
-		
+
 		});
 
 	// 动画结束时完全隐藏

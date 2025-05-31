@@ -1,5 +1,4 @@
-// RoundedLabel.cpp
-#include <QPainter>
+﻿#include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
 #include "RoundLabel.h"

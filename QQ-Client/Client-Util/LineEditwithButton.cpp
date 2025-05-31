@@ -26,6 +26,7 @@ LineEditwithButton::LineEditwithButton(QWidget* parent)
 		 qDebug() << file.fileName() << "打开失败";
 	 }
 }
+
 void LineEditwithButton::init()
 {
 	 this->setFixedWidth(250);
@@ -77,16 +78,16 @@ void LineEditwithButton::init()
 	connect(m_clearBtn, &QPushButton::clicked, [=]
 		{
 			m_lineEdit->setText("");
+			m_clearBtn->show();
+			m_lineEdit->setFocus();
 		});
 	//菜单弹出按钮
 	connect(m_arrowBtn, &QPushButton::clicked, [=]
 		{
 			const QPoint globalPos = mapToGlobal(rect().bottomLeft());
 			const QSize size = rect().size();
-			qDebug() << "size:" << size;
 			// 设置菜单的位置
 			m_comboboxMenu->popup(globalPos+QPoint(0,-10));
-			qDebug() << mapToGlobal(rect().bottomLeft()) << m_comboboxMenu->geometry();
 		});
 	//菜单选择
 	connect(m_comboboxMenu, &QMenu::triggered, [=](QAction* action)
@@ -94,6 +95,7 @@ void LineEditwithButton::init()
 			m_lineEdit->setText(action->text());
 		});
 }
+
 //添加按钮
 void LineEditwithButton::addBtn(QPushButton* toolBtn)
 {
@@ -103,52 +105,62 @@ void LineEditwithButton::addBtn(QPushButton* toolBtn)
 	mlayout->addWidget(m_lastLab);
 	toolBtn->installEventFilter(this);
 }
+
 //编辑完成
 void LineEditwithButton::editfinished()
 {
 	//发送离开编辑框信号
 	QMetaObject::invokeMethod(m_lineEdit, "editingFinished");
 }
+
 void LineEditwithButton::setPlaceholderText(QString text)
 {
 	m_lineEdit->setPlaceholderText(text);
 }
+
 //文本设置
 void LineEditwithButton::setText(QString text)
 {
 	m_lineEdit->setText(text);
 	
 }
+
 //获取文本
 QString LineEditwithButton::getLineEditText()
 {
 	return m_lineEdit->text();
 }
+
 //文本隐藏
 void LineEditwithButton::setEchoMode()
 {
 	m_lineEdit->setEchoMode(QLineEdit::Password);
 }
+
 //前置lab
 void LineEditwithButton::setPreLab(QString text)
 {
 	m_preLab->setText(text);
 }
+
 //后置lab
 void LineEditwithButton::setLastLab(QString text)
 {
 	m_lastLab->setText(text);
 }
+
 //可否编辑
 void LineEditwithButton::setEditEnable(bool edit)
 {
 	m_lineEdit->setEnabled(edit);
 }
+
 //初始编辑位置
 void LineEditwithButton::setEditPosition(Qt::Alignment alignment)
 {
 	m_lineEdit->setAlignment(alignment);
 }
+
 //下拉菜单设置
 void LineEditwithButton::setComboBox()
 {
@@ -159,6 +171,7 @@ void LineEditwithButton::setComboBox()
 	m_isCombobox = true;
 	m_comboboxMenu->setFixedWidth(this->width());
 }
+
 //清除按钮
 void LineEditwithButton::setclearBtn()
 {
@@ -166,38 +179,44 @@ void LineEditwithButton::setclearBtn()
 	addBtn(m_clearBtn);
 	m_isclear = true;
 }
+
 //宽度
 void LineEditwithButton::setWidth(int width)
 {
 	this->setFixedWidth(width);
 }
+
 //菜单项
 void LineEditwithButton::addMenuItem(QString item)
 {
 	m_comboboxMenu->addAction(item);
 }
+
  //下拉菜单获取
 QMenu* LineEditwithButton::getMenu() const
 {
 	return m_comboboxMenu;
 }
+
 //控件事件重写
 bool LineEditwithButton::eventFilter(QObject* watched, QEvent* event)
 {
-	//auto ev = dynamic_cast<QMouseEvent*>(event);
 	//进入编辑状态
 	if (event->type() == QEvent::MouseButtonPress)
 	{
+		if (watched == m_clearBtn)
+		{
+			m_clearBtn->click();
+			return true;
+		}
 		emit clicked();
 		return true;
 	}
-	 /*if (event->type() == QEvent::FocusOut)
+	//退出编辑
+	if (event->type() == QEvent::FocusOut)
 	{
-		auto frame = dynamic_cast<QFrame*>(watched);
-		if (frame)
-		{
-			m_clearBtn->hide();
-		}
-	}*/
+		m_clearBtn->hide();
+	}
+	
 	return false;
 }

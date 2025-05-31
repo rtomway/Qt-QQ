@@ -30,6 +30,7 @@ GroupMemberGridWidget::~GroupMemberGridWidget()
 
 }
 
+//设置群成员面板数据
 void GroupMemberGridWidget::setGroupMembersGrid(const QString& group_id)
 {
 	m_group = GroupManager::instance()->findGroup(group_id);
@@ -53,6 +54,10 @@ void GroupMemberGridWidget::init()
 	auto titleLab = new QLabel("群聊成员", this);
 	auto queryMoreBtn = new QPushButton(this);
 	queryMoreBtn->setText("查看更多成员>");
+	connect(queryMoreBtn, &QPushButton::clicked, this, [=]
+		{
+			emit queryMoreGroupMember();
+		});
 	hLayout->addWidget(titleLab);
 	hLayout->addStretch();
 	hLayout->addWidget(queryMoreBtn);
@@ -62,6 +67,7 @@ void GroupMemberGridWidget::init()
 	
 }
 
+//成员加载
 void GroupMemberGridWidget::loadGridMember()
 {
 	if (!m_group)
@@ -113,7 +119,7 @@ void GroupMemberGridWidget::loadGridMember()
 	emit heightChanged( this->sizeHint().height());
 }
 
-
+//清空成员item
 void GroupMemberGridWidget::clearGroupMemberGrid()
 {
 	// 删除所有头像控件

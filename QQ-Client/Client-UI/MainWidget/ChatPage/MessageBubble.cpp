@@ -11,6 +11,7 @@ MessageBubble::MessageBubble(QWidget* parent)
 {
 
 }
+
 //文字构造
 MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
 	:QLabel(parent)
@@ -47,6 +48,7 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, Bu
 	setWordWrap(true);
 
 }
+
 //图片构造
 MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
 	:QLabel(parent)
@@ -62,6 +64,7 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, Mes
 		m_head_img = QPixmap(":/picture/Resource/Picture/qq.png");
 	}
 }
+
 void MessageBubble::init()
 {
 	setAlignment(Qt::AlignTop);
@@ -197,6 +200,7 @@ void MessageBubble::resizeEvent(QResizeEvent* ev)
 	}
 	update();
 }
+
 //气泡区域大小以及位置
 void MessageBubble::updateBubbleSize()
 {
@@ -252,6 +256,7 @@ void MessageBubble::updateBubbleSize()
 		height() - (m_textRect.bottom() + 1)
 	);
 }
+
 //文本大小
 void MessageBubble::updateTextRect()
 {

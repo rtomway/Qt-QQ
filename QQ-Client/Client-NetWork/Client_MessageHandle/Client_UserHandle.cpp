@@ -1,5 +1,4 @@
 ﻿#include "Client_UserHandle.h"
-#include "Client_UserHandle.h"
 #include <QPixmap>
 #include <EventBus.h>
 #include <QCoreApplication>

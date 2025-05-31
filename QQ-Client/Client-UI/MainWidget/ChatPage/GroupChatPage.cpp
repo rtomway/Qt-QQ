@@ -33,10 +33,12 @@ GroupChatPage::GroupChatPage(QWidget* parent)
 	pannelLayout->setContentsMargins(2, 2, 2, 2);
 	pannelLayout->addWidget(m_groupPannel);
 }
+
 GroupChatPage::~GroupChatPage()
 {
 	delete ui;
 }
+
 void GroupChatPage::init()
 {
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
@@ -109,6 +111,7 @@ void GroupChatPage::init()
 			showSetWidget();
 		});
 }
+
 //设置会话界面信息
 void GroupChatPage::setChatWidget(const QString& id)
 {
@@ -142,11 +145,13 @@ void GroupChatPage::setChatWidget(const QString& id)
 	m_groupPannel->loadGroupPannel(id);
 	refreshChatWidget();
 }
+
 //刷新会话界面
 void GroupChatPage::refreshChatWidget()
 {
 	ui->nameLab->setText(m_title);
 }
+
 //判断当前会话
 bool GroupChatPage::isCurrentChat(const QString& id) const
 {
@@ -155,6 +160,7 @@ bool GroupChatPage::isCurrentChat(const QString& id) const
 	else
 		return false;
 }
+
 //消息发送
 void GroupChatPage::sendImageMessageToServer(const QString& id, const QPixmap& headPix)
 {
@@ -230,6 +236,7 @@ void GroupChatPage::sendTextMessageToServer(const QString& user_id, const QPixma
 	auto message = PacketCreate::textPacket("groupTextCommunication", groupMessageObj);
 	MessageSender::instance()->sendMessage(message);
 }
+
 //消息气泡
 void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
@@ -256,6 +263,7 @@ void GroupChatPage::createTextMessageBubble(const QPixmap& avatar, const QString
 	ui->messageListWidget->scrollToBottom();
 }
 
+//插入系统消息
 void GroupChatPage::insertTipMessage(const QString& text)
 {
 	auto tipMessageItemWidget = new TipMessageItemWidget(text, ui->messageListWidget);
@@ -264,6 +272,7 @@ void GroupChatPage::insertTipMessage(const QString& text)
 	ui->messageListWidget->setItemWidget(tipmessageItem, tipMessageItemWidget);
 }
 
+//清空
 void GroupChatPage::clearChatPage()
 {
 	m_group = nullptr;

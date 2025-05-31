@@ -5,14 +5,17 @@ SConfigFile::SConfigFile(const QString& filename)
 {
 	
 }
+
 void SConfigFile::setValue(QAnyStringView key, const QVariant& value)
 {
 	m_settings.setValue(key, value);
 }
+
 QVariant SConfigFile::value(QAnyStringView key) const
 {
 	return value(key,QVariant());
 }
+
 QVariant SConfigFile::value(QAnyStringView key,const QVariant& def_value) const
 {
 #ifdef _DEBUG
@@ -25,6 +28,7 @@ QVariant SConfigFile::value(QAnyStringView key,const QVariant& def_value) const
 #endif  //_DEBUG	
 	return m_settings.value(key, def_value);
 }
+
 void SConfigFile::removeValue(QAnyStringView key)
 {
 	m_settings.remove(key);

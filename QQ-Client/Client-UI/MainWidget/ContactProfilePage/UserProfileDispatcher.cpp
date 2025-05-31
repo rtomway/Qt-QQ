@@ -13,8 +13,9 @@ UserProfileDispatcher* UserProfileDispatcher::instance()
     static UserProfileDispatcher instance;
     return &instance;
 }
+
 //显示用户信息弹窗
-void UserProfileDispatcher::showUserProfile(const QString& user_id, const QPoint& anchor)
+void UserProfileDispatcher::showUserProfile(const QString& user_id, const QPoint& anchor, PopUpPosition position)
 {
     //获取用户信息后弹出
 	this->getUserData(user_id, [=](const QJsonObject&userObj)
@@ -24,14 +25,13 @@ void UserProfileDispatcher::showUserProfile(const QString& user_id, const QPoint
 			//加载userProfilePage数据
 			m_userProfilePage.setUserProfilePage(userObj, userRelation);
 			//将userProfilePage弹出在合适的位置
-			auto popupPosition = calculatePopupPosition(anchor, m_userProfilePage.sizeHint());
-			m_userProfilePage.setGeometry(anchor.x() - m_userProfilePage.width(), anchor.y(),0, 0);
-			// 5. 显示弹窗
+			auto popupPosition = calculatePopupPosition(anchor, m_userProfilePage.size(),position);
+			m_userProfilePage.setGeometry(QRect(popupPosition.x(),popupPosition.y(), 0, 0));
+			//显示弹窗
 			m_userProfilePage.show();
-			/*m_userProfilePage.raise();
-			m_userProfilePage.activateWindow();*/
 		});
 }
+
 //获取用户信息
 void UserProfileDispatcher::getUserData(const QString& user_id, std::function<void(const QJsonObject& obj)>callback)
 {
@@ -56,38 +56,26 @@ void UserProfileDispatcher::getUserData(const QString& user_id, std::function<vo
 			callback(params);
 		});
 }
+
 //计算弹窗精确位置
-QPoint UserProfileDispatcher::calculatePopupPosition(const QPoint& anchor, const QSize& popupSize)
+QPoint UserProfileDispatcher::calculatePopupPosition(const QPoint& anchor, const QSize& popupSize, PopUpPosition position)
 {
-	// 默认位置：锚点左侧，垂直居中
-	QPoint position(anchor.x() - popupSize.width() - 10,  // 左侧留10px间距
-		anchor.y() - popupSize.height() / 2);  // 垂直居中
-
-	// 获取当前屏幕的可用几何区域（新方法）
-	QScreen* screen = QGuiApplication::screenAt(anchor);
-	if (!screen) {
-		screen = QGuiApplication::primaryScreen();
+	QPoint position_;
+	switch (position)
+	{
+	case PopUpPosition::Left:
+		position_=QPoint(anchor.x() - popupSize.width() - 10,  
+			anchor.y());  
+		break;
+	case PopUpPosition::Right:
+		position_ = QPoint(anchor.x(),  anchor.y()); 
+		break;
+	default:
+		break;
 	}
-	QRect screenRect = screen->availableGeometry();
-
-	// 确保弹窗不会超出屏幕左边界
-	position.setX(qMax(screenRect.left(), position.x()));
-
-	// 确保弹窗不会超出屏幕上边界
-	position.setY(qMax(screenRect.top(), position.y()));
-
-	// 确保弹窗不会超出屏幕右边界
-	if (position.x() + popupSize.width() > screenRect.right()) {
-		position.setX(screenRect.right() - popupSize.width());
-	}
-
-	// 确保弹窗不会超出屏幕下边界
-	if (position.y() + popupSize.height() > screenRect.bottom()) {
-		position.setY(screenRect.bottom() - popupSize.height());
-	}
-
-	return position;
+	return position_;
 }
+
 //获取用户关系
 UserRelation UserProfileDispatcher::getUserRelation(const QString& user_id)
 {

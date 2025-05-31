@@ -20,11 +20,11 @@ class TempManager :public QObject
 public:
 	// 获取单例实例的静态方法
 	static TempManager* instance();
+private:
+	TempManager();
 	// 禁止拷贝构造函数和赋值操作符
 	TempManager(const TempManager&) = delete;
 	TempManager& operator=(const TempManager&) = delete;
-private:
-	TempManager();
 public:
 	//请求
 	void addFriendRequest(const QString& id, const QJsonObject& requestInfo, const QPixmap& pixmap);
