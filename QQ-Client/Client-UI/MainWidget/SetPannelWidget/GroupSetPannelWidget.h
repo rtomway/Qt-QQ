@@ -36,6 +36,8 @@ private:
 	GroupListItemWidget* m_groupListItemWidget{};
 	GroupMemberGridWidget* m_groupMemberGrid{};
 	QPushButton* m_exitGroupBtn{};
+signals:
+	void inviteNewMember();
 
 };
 

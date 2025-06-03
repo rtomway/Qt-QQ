@@ -29,10 +29,12 @@ private:
 	QVBoxLayout* m_layout{};
 	QGridLayout* m_gridLayout{};
 	GroupMemberOperatorWidget* m_groupInviteWidget{};
+	GroupMemberOperatorWidget* m_groupRemoveWidget{};
 	int m_lastHeight = 0;
 signals:
 	void heightChanged(int height);
 	void queryMoreGroupMember();
+	void inviteNewMember();
 };
 
 #endif // !GROUPMEMBERGRIDWIDGET_H_

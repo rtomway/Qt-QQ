@@ -10,7 +10,7 @@
 
 UserProfilePage::UserProfilePage(QWidget* parent)
 	:AngleRoundedWidget(parent)
-	,ui(new Ui::UserProfilePage)
+	, ui(new Ui::UserProfilePage)
 {
 	ui->setupUi(this);
 	init();
@@ -27,7 +27,7 @@ UserProfilePage::UserProfilePage(QWidget* parent)
 
 UserProfilePage::~UserProfilePage()
 {
-	qDebug() << "UserProfilePage destoryed:"<<m_user_id;
+	qDebug() << "UserProfilePage destoryed:" << m_user_id;
 }
 
 void UserProfilePage::init()
@@ -86,12 +86,16 @@ void UserProfilePage::refreshProfilePage()
 	case UserRelation::LoginUser:
 		ui->editdetailBtn->setVisible(true);
 		ui->editdetailBtn->setText("编辑资料");
+		ui->sendmessageBtn->setVisible(true);
 		break;
 	case UserRelation::Friend:
 		ui->editdetailBtn->setVisible(false);
+		ui->sendmessageBtn->setVisible(true);
 		break;
 	case UserRelation::Stranger:
+		ui->editdetailBtn->setVisible(true);
 		ui->editdetailBtn->setText("加为好友");
+		ui->sendmessageBtn->setVisible(false);
 		break;
 	default:
 		break;
@@ -126,7 +130,13 @@ void UserProfilePage::editUserProfile()
 //好友添加
 void UserProfilePage::addFriendRequest()
 {
-
+	m_addWidget = std::make_unique<AddWidget>();
+	m_json["isSend"] = true;
+	AvatarManager::instance()->getAvatar(m_user_id, ChatType::User, [this](const QPixmap& pixmap)
+		{
+			m_addWidget->setUser(m_json, pixmap);
+			m_addWidget->show();
+		});
 }
 
 //清除动态更新的控件

@@ -20,9 +20,12 @@
 
 FriendChatPage::FriendChatPage(QWidget* parent)
 	:ChatPage(parent)
+	, m_friendPannel(new FriendSetPannelWidget(this))
 {
 	init();
-
+	auto pannelLayout = new QVBoxLayout(m_setWidget);
+	pannelLayout->setContentsMargins(2, 2, 2, 2);
+	pannelLayout->addWidget(m_friendPannel);
 }
 
 FriendChatPage::~FriendChatPage()
@@ -122,7 +125,6 @@ void FriendChatPage::init()
 //设置会话界面信息
 void FriendChatPage::setChatWidget(const QString& id)
 {
-	qDebug() << "FriendChatPage::setChatWidget(const QString& id)" << id;
 	//数据加载
 	if (!m_friend)
 	{
@@ -131,7 +133,6 @@ void FriendChatPage::setChatWidget(const QString& id)
 	}
 	else
 	{
-		qDebug() << "m_friend->getFriendId()" << m_friend->getFriendId();
 		if (m_friend->getFriendId() != id)
 		{
 			m_currentChat = false;
@@ -145,13 +146,11 @@ void FriendChatPage::setChatWidget(const QString& id)
 	m_title = m_friend->getFriendName();
 	//聊天记录加载
 	m_chat = ChatRecordManager::instance()->getChatRecord(id, ChatType::User);
-	qDebug() << "m_currentChat:" << m_currentChat;
 	if (!m_currentChat)
 	{
-		qDebug() << "-------------好友聊天记录的加载";
 		loadChatMessage(*m_chat);
 	}
-	
+	m_friendPannel->loadFriendPannel(m_friend->getFriendId());
 	refreshChatWidget();
 }
 

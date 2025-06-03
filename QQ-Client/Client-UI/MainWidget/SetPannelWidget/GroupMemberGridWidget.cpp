@@ -1,7 +1,10 @@
 ﻿#include "GroupMemberGridWidget.h"
 #include <QPushButton>
+
 #include "GroupManager.h"
 #include "GroupInviteWidget.h"
+#include "GroupDeleteMemberWidget.h"
+#include "LoginUserManager.h"
 
 
 GroupMemberGridWidget::GroupMemberGridWidget(QWidget* parent)
@@ -22,7 +25,7 @@ GroupMemberGridWidget::GroupMemberGridWidget(QWidget* parent)
 			QWidget QPushButton
 			{background-color:transparent;color:gray;}
 		)");
-	
+
 }
 
 GroupMemberGridWidget::~GroupMemberGridWidget()
@@ -37,9 +40,11 @@ void GroupMemberGridWidget::setGroupMembersGrid(const QString& group_id)
 	loadGridMember();
 	if (!m_groupInviteWidget)
 	{
-		m_groupInviteWidget = new GroupInviteWidget(group_id,this);
+		m_groupInviteWidget = new GroupInviteWidget(group_id, this);
+		m_groupRemoveWidget = new GroupDeleteMemberWidget(group_id, this);
 	}
 	m_groupInviteWidget->loadData();
+	m_groupRemoveWidget->loadData();
 }
 
 void GroupMemberGridWidget::init()
@@ -64,7 +69,7 @@ void GroupMemberGridWidget::init()
 	m_layout->addLayout(hLayout);
 	m_layout->addLayout(m_gridLayout);
 
-	
+
 }
 
 //成员加载
@@ -75,6 +80,11 @@ void GroupMemberGridWidget::loadGridMember()
 	clearGroupMemberGrid();
 	//群成员
 	const auto& members = m_group->getMembers();
+	int endColumn = 3;
+	if (m_group->getGroupOwerId() == LoginUserManager::instance()->getLoginUserID())
+	{
+		endColumn = 2;
+	}
 	// 每行4个成员
 	const int rowMemberCount = 4;
 	int row = 0, column = 0;
@@ -94,7 +104,7 @@ void GroupMemberGridWidget::loadGridMember()
 			column %= rowMemberCount;
 			row++;
 		}
-		if (row == 3 && column == 3)
+		if (row == 3 && column == endColumn)
 		{
 			column++;
 			break;
@@ -104,9 +114,10 @@ void GroupMemberGridWidget::loadGridMember()
 	auto inviteItem = new GroupMemberAvatarWidget(m_group->getGroupId(), QString(), "邀请", MemberWidgetType::Invite, this);
 	m_avatarList.append(inviteItem);
 	m_gridLayout->addWidget(inviteItem, row, column);
-
-	connect(inviteItem, &GroupMemberAvatarWidget::groupInvite, this, [=](const QString&group_id)
+	column++;
+	connect(inviteItem, &GroupMemberAvatarWidget::groupInvite, this, [=](const QString& group_id)
 		{
+			emit inviteNewMember();
 			m_groupInviteWidget->loadData();
 			//蒙层
 			SMaskWidget::instance()->popUp(m_groupInviteWidget);
@@ -116,7 +127,29 @@ void GroupMemberGridWidget::loadGridMember()
 			SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_groupInviteWidget->width(), m_groupInviteWidget->height()));
 		});
 
-	emit heightChanged( this->sizeHint().height());
+	//移除按钮
+	if (m_group->getGroupOwerId() == LoginUserManager::instance()->getLoginUserID())
+	{
+		auto removeItem = new GroupMemberAvatarWidget(m_group->getGroupId(), QString(), "移除", MemberWidgetType::Remove, this);
+		m_avatarList.append(removeItem);
+		m_gridLayout->addWidget(removeItem, row, column);
+
+		connect(removeItem, &GroupMemberAvatarWidget::groupRemoveItem, this, [=](const QString& group_id)
+			{
+				emit inviteNewMember();
+				m_groupRemoveWidget->loadData();
+				//蒙层
+				SMaskWidget::instance()->popUp(m_groupRemoveWidget);
+				auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
+				int x = (mainWidgetSize.width() - m_groupRemoveWidget->width()) / 2;
+				int y = (mainWidgetSize.height() - m_groupRemoveWidget->height()) / 2;
+				SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_groupRemoveWidget->width(), m_groupRemoveWidget->height()));
+			});
+	}
+
+
+
+	emit heightChanged(this->sizeHint().height());
 }
 
 //清空成员item

@@ -49,6 +49,12 @@ GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const 
 		m_avatarLab->setPixmap(ImageUtils::roundedPixmap(pixmap, QSize(30, 30)));
 	}
 	break;
+	case Remove:
+	{
+		auto pixmap = QPixmap(":/icon/Resource/Icon/removeItem.png");
+		m_avatarLab->setPixmap(ImageUtils::roundedPixmap(pixmap, QSize(30, 30)));
+	}
+	break;
 	default:
 		break;
 	}
@@ -69,7 +75,7 @@ void GroupMemberAvatarWidget::init()
 	m_avatarLab->setFixedHeight(40);
 	m_nameLab->setFixedHeight(15);
 	auto vLayout = new QVBoxLayout(this);
-	vLayout->setAlignment(Qt::AlignHCenter); 
+	vLayout->setAlignment(Qt::AlignHCenter);
 	vLayout->setContentsMargins(0, 0, 0, 0);
 	vLayout->setSpacing(0);
 	vLayout->addWidget(m_avatarLab);
@@ -84,12 +90,17 @@ void GroupMemberAvatarWidget::leftButtonPress()
 	case Avatar:
 	{
 		auto position = this->mapToGlobal(QPoint(0, 0));
-		UserProfileDispatcher::instance()->showUserProfile(m_groupMember_id, position,PopUpPosition::Left);
+		UserProfileDispatcher::instance()->showUserProfile(m_groupMember_id, position, PopUpPosition::Left);
 	}
 	break;
 	case Invite:
 	{
 		emit groupInvite(m_group_id);
+	}
+	break;
+	case Remove:
+	{
+		emit groupRemoveItem(m_group_id);
 	}
 	break;
 	default:

@@ -6,6 +6,7 @@
 #include <memory>
 #include "SMaskWidget.h"
 #include "FriendProfileEditWidget.h"
+#include "AddWidget.h"
 #include "AngleRoundedWidget.h"
 
 namespace Ui { class UserProfilePage; }
@@ -36,6 +37,7 @@ private:
 	QString m_user_id{};
 	UserRelation m_userRelation;
 	std::unique_ptr<FriendProfileEditWidget>m_profileEditWidget{};
+	std::unique_ptr<AddWidget>m_addWidget{};
 	QMap<QString, QLabel*> m_dynamicLabels;
 };
 

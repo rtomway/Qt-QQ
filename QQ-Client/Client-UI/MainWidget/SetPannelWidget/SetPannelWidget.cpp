@@ -1,9 +1,11 @@
 ﻿#include "SetPannelWidget.h"
+#include "SetPannelWidget.h"
+#include "SetPannelWidget.h"
 #include <QBoxLayout>
 
 SetPannelWidget::SetPannelWidget(QWidget* parent)
 	:QWidget(parent)
-	,m_listWidget(new QListWidget(this))
+	, m_listWidget(new QListWidget(this))
 {
 	init();
 }
@@ -23,6 +25,7 @@ void SetPannelWidget::init()
 	m_Layout->setContentsMargins(10, 10, 10, 10);
 }
 
+//添加itemwidget
 void SetPannelWidget::addItemWidget(QWidget* itemWidget, int height)
 {
 	auto listItem = new QListWidgetItem(m_listWidget);
@@ -31,17 +34,28 @@ void SetPannelWidget::addItemWidget(QWidget* itemWidget, int height)
 	addSpaceItem();
 }
 
+//添加空白item
 void SetPannelWidget::addSpaceItem(int height)
 {
 	auto listItem = new QListWidgetItem(m_listWidget);
 	listItem->setSizeHint(QSize(m_listWidget->width(), height));
 }
 
+//设置itemwidget显示状态
+void SetPannelWidget::setItemWidgetHidden(QWidget* widget, bool isHidden)
+{
+	auto item = getItemByWidget(widget);
+	item->setHidden(isHidden);
+}
+
+
+//清空列表
 void SetPannelWidget::clearListWidget()
 {
 	m_listWidget->clear();
 }
 
+//获取item
 QListWidgetItem* SetPannelWidget::getItemByWidget(QWidget* widget) const
 {
 	if (!m_listWidget || !widget)

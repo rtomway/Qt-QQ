@@ -11,6 +11,7 @@
 #include "Friend.h"
 #include "ChatRecordMessage.h"
 #include "MessageBubble.h"
+#include "FriendSetPannelWidget.h"
 
 class FriendChatPage :public ChatPage
 {
@@ -39,6 +40,7 @@ private:
 	QStringList m_imageMessagePath{};
 	QString m_textMessage{};
 	bool m_isImageInTextEdit{ false };
+	FriendSetPannelWidget* m_friendPannel{};
 };
 
 #endif // !FRIENDCHATPAGE_H_

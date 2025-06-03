@@ -9,7 +9,8 @@
 enum MemberWidgetType
 {
 	Avatar,
-	Invite
+	Invite,
+	Remove
 };
 
 class GroupMemberAvatarWidget :public QWidget
@@ -32,6 +33,7 @@ private:
 	MemberWidgetType m_type{};
 signals:
 	void groupInvite(const QString& group_id);
+	void groupRemoveItem(const QString& group_id);
 };
 
 #endif // !GROUPMEMBERAVATARWIDGET_H_

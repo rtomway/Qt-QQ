@@ -17,6 +17,7 @@ public:
 private:
 	void init();
 	void addListItemWidget(const QString&groupMember_id);
+	void clearMemberListItem();
 private:
 	QPushButton* m_backBtn{};
 	QLineEdit* m_searchLine{};

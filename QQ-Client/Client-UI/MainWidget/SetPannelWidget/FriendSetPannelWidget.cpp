@@ -11,7 +11,7 @@
 
 FriendSetPannelWidget::FriendSetPannelWidget(QWidget* parent)
 	:QWidget(parent)
-	,m_pannelContains(new SetPannelWidget(this))
+	, m_pannelContains(new SetPannelWidget(this))
 {
 	init();
 }
@@ -23,36 +23,52 @@ FriendSetPannelWidget::~FriendSetPannelWidget()
 
 void FriendSetPannelWidget::init()
 {
-	auto deleteBtn = new QPushButton(m_pannelContains);
-	deleteBtn->setText("删除好友");
-	deleteBtn->setStyleSheet(R"(
+	m_deleteBtn = new QPushButton(m_pannelContains);
+	m_deleteBtn->setText("删除好友");
+	m_deleteBtn->setStyleSheet(R"(
 	QPushButton{background-color:white;border:1px solid white;height:25px;border-radius:5px;color:red}
 	QPushButton:hover{background-color:rgb(240,240,240);}
 	)");
-	connect(deleteBtn, &QPushButton::clicked, this, [=]
-		{
-			auto deleteResult = QMessageBox::question(nullptr, "删除好友", "请确认是否删除");
-			if (deleteResult == QMessageBox::No)
-				return;
-			m_pannelContains->hide();
-			//数据更新
-			EventBus::instance()->emit deleteFriend(m_friend_id);
-			QJsonObject deleteObj;
-			deleteObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-			deleteObj["username"] = LoginUserManager::instance()->getLoginUserName();
-			deleteObj["friend_id"] = m_friend_id;
-			QJsonDocument doc(deleteObj);
-			QByteArray data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("deleteFriend", data, "application/json");
-		});
+	connect(m_deleteBtn, &QPushButton::clicked, this, &FriendSetPannelWidget::deleteFriend);
 	//控件填入面板
-	m_pannelContains->addItemWidget(deleteBtn, 30);
+	m_pannelContains->addItemWidget(m_deleteBtn, 30);
+}
+
+//删除好友
+void FriendSetPannelWidget::deleteFriend()
+{
+	auto deleteResult = QMessageBox::question(nullptr, "删除好友", "请确认是否删除");
+	if (deleteResult == QMessageBox::No)
+		return;
+	m_pannelContains->hide();
+	//数据更新
+	EventBus::instance()->emit deleteFriend(m_friend_id);
+	QJsonObject deleteObj;
+	deleteObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+	deleteObj["username"] = LoginUserManager::instance()->getLoginUserName();
+	deleteObj["friend_id"] = m_friend_id;
+	QJsonDocument doc(deleteObj);
+	QByteArray data = doc.toJson(QJsonDocument::Compact);
+	MessageSender::instance()->sendHttpRequest("deleteFriend", data, "application/json");
 }
 
 //加载好友面板
 void FriendSetPannelWidget::loadFriendPannel(const QString& friend_id)
 {
+	qDebug() << "FriendSetPannelWidget";
 	m_friend_id = friend_id;
+	qDebug() << m_friend_id << LoginUserManager::instance()->getLoginUserID();
+	if (m_friend_id == LoginUserManager::instance()->getLoginUserID())
+	{
+		m_pannelContains->setItemWidgetHidden(m_deleteBtn, true);
+	}
+	else
+	{
+		m_pannelContains->setItemWidgetHidden(m_deleteBtn, false);
+	}
+	qDebug() << "Button visible:" << m_deleteBtn->isVisible();
+	qDebug() << "Button geometry:" << m_deleteBtn->geometry();
+	qDebug() << "Button sizeHint:" << m_deleteBtn->sizeHint();
 }
 
 

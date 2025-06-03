@@ -49,10 +49,11 @@ ChatPage::ChatPage(QWidget* parent)
 	m_setWidget->setFixedWidth(250);
 	m_setWidget->setFocusPolicy(Qt::StrongFocus);
 	// 移除默认标志并添加无边框标志
-	m_setWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);  // 只设置无边框和工具窗口标志
+	m_setWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);  
 	// 设置初始的裁剪区域，确保初始时不可见
 	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
 	m_setWidget->setMask(region);  // 裁剪区域
+	m_setWidget->hide();
 
 }
 

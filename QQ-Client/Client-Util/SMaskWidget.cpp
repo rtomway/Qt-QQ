@@ -71,6 +71,7 @@ void SMaskWidget::popUp(QWidget* dialog)
 {
 	this->raise();  // 强制置顶
 	dialog->raise(); // 弹出窗口也要置顶
+	setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint); // 添加置顶标志
 
 	addDialog(dialog);
 	if (dialog && m_dialogs.contains(dialog))

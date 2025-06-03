@@ -6,6 +6,7 @@
 #include "TopItemWidget.h"
 
 GroupListItemWidget::GroupListItemWidget(QWidget* parent)
+	:ItemWidget(parent)
 {
 	init();
 }

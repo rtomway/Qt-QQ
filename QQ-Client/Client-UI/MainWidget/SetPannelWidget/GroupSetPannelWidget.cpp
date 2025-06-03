@@ -90,6 +90,11 @@ void GroupSetPannelWidget::initPannel()
 				item->setSizeHint(QSize(m_groupMemberGrid->width(), height));
 			}
 		});
+	//邀请
+	connect(m_groupMemberGrid, &GroupMemberGridWidget::inviteNewMember, this, [=]()
+		{
+			emit inviteNewMember();
+		});
 	//查看更多群成员
 	connect(m_groupMemberGrid, &GroupMemberGridWidget::queryMoreGroupMember, this, [=]
 		{

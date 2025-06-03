@@ -23,7 +23,6 @@
 #include "PacketCreate.h"
 
 
-
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
 	,m_groupPannel(new GroupSetPannelWidget(m_setWidget))
@@ -101,8 +100,6 @@ void GroupChatPage::init()
 	//设置面板
 	connect(ui->moreBtn, &QPushButton::clicked, this, [=]
 		{
-			qDebug() << "设置面板";
-			qDebug() << m_setWidget->isHidden();
 			if (!m_setWidget->isHidden())
 			{
 				hideSetWidget();
@@ -110,6 +107,10 @@ void GroupChatPage::init()
 			}
 			showSetWidget();
 		});
+	//邀请新成员
+	connect(m_groupPannel, &GroupSetPannelWidget::inviteNewMember, this, &GroupChatPage::hideSetWidget);
+	//移除群成员
+
 }
 
 //设置会话界面信息

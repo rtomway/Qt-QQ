@@ -1,7 +1,11 @@
 ﻿#include "GroupMemberQueryWidget.h"
+#include "GroupMemberQueryWidget.h"
+#include <QBoxLayout>
+
 #include "GroupManager.h"
 #include "Group.h"
-#include <QBoxLayout>
+#include "GroupMemberItemWidget.h"
+
 
 GroupMemberQueryWidget::GroupMemberQueryWidget(QWidget* parent)
 	:QWidget(parent)
@@ -23,6 +27,12 @@ GroupMemberQueryWidget::GroupMemberQueryWidget(QWidget* parent)
 		QListWidget{
 			
 		}
+		QListWidget::item:hover{
+			background-color: rgb(220,220,220);
+		}
+		QListWidget QWidget{
+			background-color: transparent;
+		}
 		)");
 }
 
@@ -34,7 +44,14 @@ GroupMemberQueryWidget::~GroupMemberQueryWidget()
 //加载群成员列表
 void GroupMemberQueryWidget::loadGroupMemberList(const QString& group_id)
 {
+	clearMemberListItem();
 	m_group_id = group_id;
+	auto group= GroupManager::instance()->findGroup(m_group_id);
+	auto groupmember_idList = group->getGroupMembersIdList();
+	for (auto& groupMember_id : groupmember_idList)
+	{
+		addListItemWidget(groupMember_id);
+	}
 }
 
 void GroupMemberQueryWidget::init()
@@ -59,5 +76,17 @@ void GroupMemberQueryWidget::init()
 //添加群成员项
 void GroupMemberQueryWidget::addListItemWidget(const QString& groupMember_id)
 {
-
+	auto item = new QListWidgetItem(m_memberList);
+	item->setSizeHint(QSize(m_memberList->width(), 60));
+	auto itemWidget = new GroupMemberItemWidget(m_group_id, m_memberList);
+	itemWidget->setItemWidget(groupMember_id);
+	m_memberList->setItemWidget(item, itemWidget);
 }
+
+//清空群成员项
+void GroupMemberQueryWidget::clearMemberListItem()
+{
+	m_memberList->clear();
+}
+
+

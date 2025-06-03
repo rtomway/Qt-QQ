@@ -9,7 +9,7 @@ QPushButton {
 }
 
 QPushButton#userBtn:hover{
-    background-color: rgb(240,240,240);
+    background-color:    rgb(240,240,240);
 }
 QPushButton#groupBtn:hover {
     background-color: rgb(240,240,240);
