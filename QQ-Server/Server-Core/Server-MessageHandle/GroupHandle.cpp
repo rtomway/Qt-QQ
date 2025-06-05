@@ -302,7 +302,6 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	newMemberMap["user_id"] = newGroupMember.user_id;
 	newMemberMap["username"] = newGroupMember.username;
 	newMemberMap["group_id"] = newGroupMember.group_id;
-	qDebug() << "新成员信息:" << newMemberMap;
 	auto newMemberImageData = ImageUtils::loadImage(user_id, ChatType::User);
 	auto newMemberPacket = PacketCreate::binaryPacket("newGroupMember", newMemberMap, newMemberImageData);
 	QByteArray newMemberData;
@@ -390,6 +389,54 @@ void GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByt
 	}
 }
 
+//移除群成员
+void GroupHandle::handle_groupMemberRemove(const QJsonObject& paramsObj, const QByteArray& data)
+{
+	auto user_id = paramsObj["user_id"].toString();
+	auto username = paramsObj["username"].toString();
+	auto group_id = paramsObj["group_id"].toString();
+	auto group_name = paramsObj["group_name"].toString();
+	auto removeListArray= paramsObj["removeMembers"].toArray();
+	QStringList member_idList;
+	for (auto memberValue : removeListArray)
+	{
+		auto member_id = memberValue.toString();
+		member_idList.append(member_id);
+	}
+	DataBaseQuery query;
+	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
+		{
+			if (!GroupDBUtils::batch_deleteGroupMember(group_id, member_idList, query, queryPtr))
+			{
+				return false;
+			}
+			for (auto i = 0; i < member_idList.size(); i++)
+			{
+				if (!GroupDBUtils::groupMemberCountSub(group_id, query, queryPtr))
+				{
+					return false;
+				}
+			}
+		});
+	if (!result)
+	{
+		return;
+	}
+	//通知被移除群成员
+	auto removeNoticeObj = paramsObj.toVariantMap();
+	removeNoticeObj["noticeMessage"] = "将你移除群组" + group_name;
+	auto imageData = ImageUtils::loadImage(user_id, ChatType::User);
+	auto packet = PacketCreate::binaryPacket("beRemovedGroup", removeNoticeObj, imageData);
+	QByteArray disbandNoticeData;
+	PacketCreate::addPacket(disbandNoticeData, packet);
+	auto allData = PacketCreate::allBinaryPacket(disbandNoticeData);
+
+	for (auto& groupMember_id : member_idList)
+	{
+		ConnectionManager::instance()->sendBinaryMessage(groupMember_id, allData);
+	}
+}
+
 //退出群组
 void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
@@ -444,7 +491,7 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 	auto message = QString(doc.toJson(QJsonDocument::Compact));
 	for (auto& member_id : groupMember_idList)
 	{
-		if (member_id != groupMember.user_id)
+		//if (member_id != groupMember.user_id)
 			ConnectionManager::instance()->sendTextMessage(member_id, message);
 	}
 	//返回客户端操作结果

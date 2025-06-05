@@ -36,6 +36,7 @@ public:
 	static GroupMember queryGroupMember(const QString& group_id, const QString&member_id,DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static QStringList queryGroupIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static bool deleteGroupMember(const GroupMember& groupMember, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static bool batch_deleteGroupMember(const QString& group_id,const QStringList&id_list, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static bool deleteGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 };
 

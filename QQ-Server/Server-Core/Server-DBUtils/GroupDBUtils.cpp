@@ -197,7 +197,7 @@ QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery
 //删除群成员
 bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------插入群成员---------------------------------------";
+	qDebug() << "------------------------------------删除群成员---------------------------------------";
 	QString queryStr = QString(
 		"delete from groupMembers\
 		where group_id=? and user_id=?"
@@ -205,6 +205,40 @@ bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQue
 	QVariantList bindValues;
 	bindValues.append(groupMember.group_id);
 	bindValues.append(groupMember.user_id);
+	auto deleteResult = query.executeNonQuery(queryStr, bindValues, queryPtr);
+	if (!deleteResult)
+	{
+		qDebug() << "deleteGroupMember failed";
+		return false;
+	}
+	return true;
+}
+
+//批量删除群成员
+bool GroupDBUtils::batch_deleteGroupMember(const QString& group_id, const QStringList& id_list, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+{
+
+	qDebug() << "------------------------------------删除群成员---------------------------------------";
+	if (id_list.isEmpty())
+		return true;
+
+	QString placeholders;
+	for (int i = 0; i < id_list.size(); ++i) {
+		placeholders += "?,";
+	}
+	placeholders.chop(1); 
+
+	QString queryStr = QString(
+		"delete from groupMembers\
+		where group_id=? and user_id in (%1)"
+	).arg(placeholders);
+
+	QVariantList bindValues;
+	bindValues.append(group_id);
+	for (auto& id : id_list)
+	{
+		bindValues.append(id);
+	}
 	auto deleteResult = query.executeNonQuery(queryStr, bindValues, queryPtr);
 	if (!deleteResult)
 	{

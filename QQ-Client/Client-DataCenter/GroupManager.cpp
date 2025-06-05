@@ -164,20 +164,27 @@ GroupManager::GroupManager()
 		{
 			emit exitGroup(group_id, user_id);
 		});
+	//被移除
+	connect(EventBus::instance(), &EventBus::removeGroup, this, [=](const QJsonObject& obj)
+		{
+			auto group_id = obj["group_id"].toString();
+			auto user_id = obj["user_id"].toString();
+			emit exitGroup(group_id, user_id);
+		});
 	//有群成员退出群聊
-	connect(EventBus::instance(), &EventBus::notice_groupMemberExitGroup, this, [=](const QJsonObject& obj)
+	connect(EventBus::instance(), &EventBus::removeGroupMember, this, [=](const QJsonObject& obj)
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
 			auto user_name = obj["user_name"].toString();
 			auto group = findGroup(group_id);
 			group->removeMember(user_id);
-			
+
 		});
 	//群聊解散
 	connect(EventBus::instance(), &EventBus::disbandGroup, this, [=](const QString& group_id)
 		{
-			emit exitGroup(group_id,LoginUserManager::instance()->getLoginUserID());
+			emit exitGroup(group_id, LoginUserManager::instance()->getLoginUserID());
 		});
 }
 

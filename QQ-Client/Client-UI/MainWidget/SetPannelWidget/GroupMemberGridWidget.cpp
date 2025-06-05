@@ -5,6 +5,7 @@
 #include "GroupInviteWidget.h"
 #include "GroupDeleteMemberWidget.h"
 #include "LoginUserManager.h"
+#include "EventBus.h"
 
 
 GroupMemberGridWidget::GroupMemberGridWidget(QWidget* parent)
@@ -33,20 +34,6 @@ GroupMemberGridWidget::~GroupMemberGridWidget()
 
 }
 
-//设置群成员面板数据
-void GroupMemberGridWidget::setGroupMembersGrid(const QString& group_id)
-{
-	m_group = GroupManager::instance()->findGroup(group_id);
-	loadGridMember();
-	if (!m_groupInviteWidget)
-	{
-		m_groupInviteWidget = new GroupInviteWidget(group_id, this);
-		m_groupRemoveWidget = new GroupDeleteMemberWidget(group_id, this);
-	}
-	m_groupInviteWidget->loadData();
-	m_groupRemoveWidget->loadData();
-}
-
 void GroupMemberGridWidget::init()
 {
 	//总布局
@@ -70,6 +57,20 @@ void GroupMemberGridWidget::init()
 	m_layout->addLayout(m_gridLayout);
 
 
+}
+
+//设置群成员面板数据
+void GroupMemberGridWidget::setGroupMembersGrid(const QString& group_id)
+{
+	m_group = GroupManager::instance()->findGroup(group_id);
+	loadGridMember();
+	if (!m_groupInviteWidget)
+	{
+		m_groupInviteWidget = new GroupInviteWidget(group_id, this);
+		m_groupRemoveWidget = new GroupDeleteMemberWidget(group_id, this);
+	}
+	m_groupInviteWidget->loadData(group_id);
+	m_groupRemoveWidget->loadData(group_id);
 }
 
 //成员加载
@@ -96,6 +97,7 @@ void GroupMemberGridWidget::loadGridMember()
 	{
 		auto memberAvatarItem = new GroupMemberAvatarWidget(m_group->getGroupId(), member.member_id, member.member_name, MemberWidgetType::Avatar, this);
 		m_avatarList.append(memberAvatarItem);
+
 		//将群成员头像添加到布局中
 		m_gridLayout->addWidget(memberAvatarItem, row, column);
 		column++;
@@ -110,15 +112,17 @@ void GroupMemberGridWidget::loadGridMember()
 			break;
 		}
 	}
+
 	//网格末尾添加邀请按钮
 	auto inviteItem = new GroupMemberAvatarWidget(m_group->getGroupId(), QString(), "邀请", MemberWidgetType::Invite, this);
 	m_avatarList.append(inviteItem);
 	m_gridLayout->addWidget(inviteItem, row, column);
 	column++;
+	//邀请
 	connect(inviteItem, &GroupMemberAvatarWidget::groupInvite, this, [=](const QString& group_id)
 		{
-			emit inviteNewMember();
-			m_groupInviteWidget->loadData();
+			EventBus::instance()->emit hideGroupSetPannel();
+			m_groupInviteWidget->loadData(group_id);
 			//蒙层
 			SMaskWidget::instance()->popUp(m_groupInviteWidget);
 			auto mainWidgetSize = SMaskWidget::instance()->getMainWidgetSize();
@@ -136,7 +140,7 @@ void GroupMemberGridWidget::loadGridMember()
 
 		connect(removeItem, &GroupMemberAvatarWidget::groupRemoveItem, this, [=](const QString& group_id)
 			{
-				emit inviteNewMember();
+				EventBus::instance()->emit hideGroupSetPannel();
 				m_groupRemoveWidget->loadData();
 				//蒙层
 				SMaskWidget::instance()->popUp(m_groupRemoveWidget);
@@ -146,8 +150,6 @@ void GroupMemberGridWidget::loadGridMember()
 				SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_groupRemoveWidget->width(), m_groupRemoveWidget->height()));
 			});
 	}
-
-
 
 	emit heightChanged(this->sizeHint().height());
 }

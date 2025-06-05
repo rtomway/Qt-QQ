@@ -27,7 +27,7 @@ NoticeWidget::NoticeWidget(QWidget* parent)
 }
 
 //设置当前通知界面
-void NoticeWidget::setCurrentWidget(NoticeWidget::NoticeCurrentWidget noticeWidget)
+void NoticeWidget::setCurrentWidget(NoticeCurrentWidget noticeWidget)
 {
 	if (noticeWidget == NoticeCurrentWidget::FriendNoticeWidget)
 	{
@@ -53,65 +53,29 @@ void NoticeWidget::init()
 	mlayout->addWidget(m_noticeTitle);
 	mlayout->addWidget(m_stackedWidget);
 
-	//好友申请
-	connect(TempManager::instance(), &TempManager::friendAddRequest, this, [=](const QString& user_id)
+	//群组请求通知
+	connect(TempManager::instance(), &TempManager::notice_groupRequest, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group, false);
+			emit groupNotice();
+		});
+	//群组回复通知
+	connect(TempManager::instance(), &TempManager::notice_groupReply, this, [=](const QString& group_id)
+		{
+			addNoticeItem(group_id, ChatType::Group, true);
+			emit groupNotice();
+		});
+	//好友请求通知
+	connect(TempManager::instance(), &TempManager::notice_friendRequest, this, [=](const QString& user_id)
 		{
 			addNoticeItem(user_id, ChatType::User, false);
 			emit friendNotice();
 		});
-	//拒绝好友申请
-	connect(TempManager::instance(), &TempManager::friendAddReply, this, [=](const QString& user_id)
+	//好友回复通知
+	connect(TempManager::instance(), &TempManager::notice_friendReply, this, [=](const QString& user_id)
 		{
 			addNoticeItem(user_id, ChatType::User, true);
 			emit friendNotice();
-		});
-	//群聊邀请失败
-	connect(TempManager::instance(), &TempManager::rejectAddGroup, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group, true);
-			emit groupNotice();
-		});
-	//群聊申请失败
-	connect(TempManager::instance(), &TempManager::groupAddFailed, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group, true);
-			emit groupNotice();
-		});
-	//群聊邀请
-	connect(TempManager::instance(), &TempManager::GroupInvite, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group, false);
-			this->emit groupNotice();
-		});
-	//群聊邀请成功
-	connect(TempManager::instance(), &TempManager::GroupInviteSuccess, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group, true);
-			this->emit groupNotice();
-		});
-	//申请加入群聊
-	connect(TempManager::instance(), &TempManager::groupAddRequest, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group, false);
-			emit groupNotice();
-		});
-	//群成员退出群聊
-	connect(TempManager::instance(), &TempManager::groupMemberExitGroup, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group,true);
-			emit groupNotice();
-		});
-	//被好友移除
-	connect(TempManager::instance(), &TempManager::friendDeleted, this, [=](const QString& user_id)
-		{
-			addNoticeItem(user_id, ChatType::User, true);
-			emit friendNotice();
-		});
-	//群组解散
-	connect(TempManager::instance(), &TempManager::groupDisband, this, [=](const QString& group_id)
-		{
-			addNoticeItem(group_id, ChatType::Group, true);
-			emit groupNotice();
 		});
 }
 

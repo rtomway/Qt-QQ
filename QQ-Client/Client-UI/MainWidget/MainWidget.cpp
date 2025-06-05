@@ -548,7 +548,8 @@ void MainWidget::connectGroupManagerSignals()
 			auto item = findListItem(key);
 			m_chatMessageListWidget->takeItem(m_chatMessageListWidget->row(item));
 			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
-			m_groupProfilePage->clearWidget();
+			m_chatWidget->clearChatWidget();
+			//m_groupProfilePage->clearWidget();
 		});
 }
 
@@ -676,6 +677,11 @@ void MainWidget::connectWindowControlSignals()
 			m_chatMessageListWidget->setCurrentItem(messageItem);
 			emit m_chatMessageListWidget->itemClicked(messageItem);
 		});
+	//刷新会话界面
+	connect(EventBus::instance(), &EventBus::updateChatWidget, this, [=](ChatType type, const QString& group_id)
+		{
+			m_chatWidget->loadChatPage(type, group_id);
+		});
 }
 
 //界面按钮居中
@@ -768,7 +774,7 @@ QListWidgetItem* MainWidget::findListItem(const QString& user_id)
 // 清空列表
 void MainWidget::clearChatMessageListWidget()
 {
-	m_chatMessageListWidget->clear();  
+	m_chatMessageListWidget->clear();
 }
 
 //列表界面恢复
@@ -793,8 +799,8 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 	//弹出个人信息小窗口
 	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
 	{
-		auto position = ui->headLab->mapToGlobal(QPoint(ui->headLab->width(),0));
-		UserProfileDispatcher::instance()->showUserProfile(m_loginUserId, position,PopUpPosition::Right);
+		auto position = ui->headLab->mapToGlobal(QPoint(ui->headLab->width(), 0));
+		UserProfileDispatcher::instance()->showUserProfile(m_loginUserId, position, PopUpPosition::Right);
 		return true;
 	}
 	//搜索栏
@@ -824,9 +830,9 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 	}
 	// 监听 m_searchList 和它的子控件
 	QWidget* watchedWidget = qobject_cast<QWidget*>(watched);
-	if (watchedWidget && (watchedWidget == m_friendSearchListWidget || m_friendSearchListWidget->isAncestorOf(watchedWidget))) 
+	if (watchedWidget && (watchedWidget == m_friendSearchListWidget || m_friendSearchListWidget->isAncestorOf(watchedWidget)))
 	{
-		if (event->type() == QEvent::FocusOut) 
+		if (event->type() == QEvent::FocusOut)
 		{
 			QWidget* newFocusWidget = QApplication::focusWidget();
 			if (newFocusWidget && !m_friendSearchListWidget->isAncestorOf(newFocusWidget))

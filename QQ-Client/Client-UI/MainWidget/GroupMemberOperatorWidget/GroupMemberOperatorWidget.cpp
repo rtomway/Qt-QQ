@@ -288,6 +288,7 @@ void GroupMemberOperatorWidget::loadFriendsList()
 //加载群组列表
 void GroupMemberOperatorWidget::loadGroupMembers(const QString& group_id)
 {
+	clearFriendTree();
 	auto currentGroup = GroupManager::instance()->findGroup(group_id);
 	if (!currentGroup) {
 		qDebug() << "群组未找到：" << group_id;
@@ -317,11 +318,25 @@ void GroupMemberOperatorWidget::loadGroupMembers(const QString& group_id)
 		groupMemberItem->setSizeHint(0, QSize(m_selectTree->width(), 60));
 		//自定义Item
 		SelectedItemWidget* itemWidget = new SelectedItemWidget(member_id, member.member_name, this);
-		m_selectTree->setItemWidget(groupMemberItem, 0, itemWidget);
 		if (shouldFilterUser(member_id))
 		{
 			itemWidget->setEnabled(false);
 		}
+		//关联
+		m_selectTree->setItemWidget(groupMemberItem, 0, itemWidget);
+		connect(itemWidget, &SelectedItemWidget::checked, this, [=](bool isChecked)
+			{
+				if (isChecked)
+				{
+					addSelectedItem(ui->selectedFriendList, member_id, member.member_name);
+					//选中成员列表
+					m_selectedList.append(member_id);
+				}
+				else
+				{
+					removeSelectedItem(member_id);
+				}
+			});
 		//通过itemwidget找到自定义的小部件
 		auto topItemWidget = qobject_cast<TopItemWidget*>(m_selectTree->itemWidget(groupMemberTopItem, 0));
 		topItemWidget->setCount(groupMemberTopItem->childCount());

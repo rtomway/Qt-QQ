@@ -38,6 +38,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void groupMemberload(const QJsonObject& paramsObject);
 	void newGroup(const QJsonObject& paramsObject);
 	void exitGroup(const QString& group_id, const QString& user_id);
+	void removeGroup(const QJsonObject& paramsObject);
 	void disbandGroup(const QString& group_id);
 	void removeGroupMember(const QJsonObject& paramsObject);
 	//用户操作
@@ -48,16 +49,14 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	//头像
 	void saveAvatar(const QString& id, ChatType type, const QByteArray& avatarData);
 	//通知
-	void notice_addFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_rejectAddFriend(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_friendDeleted(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_addGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_rejectAddGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_groupAddFailed(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_groupInvite(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_groupInviteSuccess(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_groupMemberExitGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
-	void notice_disbandGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_groupReply(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_groupRequest(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_friendReply(const QJsonObject& paramsObject, const QPixmap& pixmap);
+	void notice_friendRequest(const QJsonObject& paramsObject, const QPixmap& pixmap);
+
+	//内部
+	void updateChatWidget(ChatType type,const QString&group_id);
+	void hideGroupSetPannel();
 };
 
 #endif // !EVENTBUS_H_

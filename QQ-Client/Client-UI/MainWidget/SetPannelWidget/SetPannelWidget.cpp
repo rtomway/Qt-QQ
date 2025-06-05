@@ -1,6 +1,4 @@
 ﻿#include "SetPannelWidget.h"
-#include "SetPannelWidget.h"
-#include "SetPannelWidget.h"
 #include <QBoxLayout>
 
 SetPannelWidget::SetPannelWidget(QWidget* parent)
@@ -16,7 +14,7 @@ void SetPannelWidget::init()
 		QWidget{ border: none;background-color:red;}
 		QListWidget{ border: none;background-color:transparent; outline: none;}
 		QListWidget::item {
-        background: transparent;  /* 确保 item 透明 */
+        background: transparent; 
         border: none;
     }
 		)");
@@ -47,7 +45,6 @@ void SetPannelWidget::setItemWidgetHidden(QWidget* widget, bool isHidden)
 	auto item = getItemByWidget(widget);
 	item->setHidden(isHidden);
 }
-
 
 //清空列表
 void SetPannelWidget::clearListWidget()

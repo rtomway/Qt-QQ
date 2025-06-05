@@ -18,6 +18,7 @@ public:
 	static void handle_groupInviteFailed(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	static void handle_groupAddFailed(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 	static void handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
+	static void handle_groupMemberRemove(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());
 
 	static void handle_groupMemberLoad(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);

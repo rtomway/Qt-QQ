@@ -5,11 +5,13 @@
 #include <QJsonObject>
 #include <QPixmap>
 
-struct TempRequestInfo {
+struct TempRequestInfo 
+{
 	QJsonObject requestData;  // 请求相关的JSON数据
 	QPixmap avatar;          // 对应用户或群组的头像
 };
-struct TempReplyInfo {
+struct TempReplyInfo 
+{
 	QJsonObject replyData;
 	QPixmap avatar;
 };
@@ -44,16 +46,10 @@ private:
 	QMap<QString, TempReplyInfo> m_tempFriendReplys{};
 	QMap<QString, TempReplyInfo> m_tempGroupReplys{};
 signals:
-	void friendAddRequest(const QString& user_id);
-	void friendAddReply(const QString& user_id);
-	void friendDeleted(const QString& user_id);
-	void GroupInvite(const QString& group_id);
-	void GroupInviteSuccess(const QString& group_id);
-	void groupAddRequest(const QString& group_id);
-	void groupMemberExitGroup(const QString& group_id);
-	void rejectAddGroup(const QString& group_id);
-	void groupAddFailed(const QString& group_id);
-	void groupDisband(const QString& group_id);
+	void notice_groupRequest(const QString& group_id);
+	void notice_groupReply(const QString& group_id);
+	void notice_friendRequest(const QString& user_id);
+	void notice_friendReply(const QString& user_id);
 };
 
 #endif // !TEMPMANAGER_H_

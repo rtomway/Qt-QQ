@@ -34,7 +34,6 @@ private:
 signals:
 	void heightChanged(int height);
 	void queryMoreGroupMember();
-	void inviteNewMember();
 };
 
 #endif // !GROUPMEMBERGRIDWIDGET_H_

@@ -7,12 +7,11 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include <QJsonDocument>
-
 #include <QMessageBox>
+
 #include "GroupListItemWidget.h"
 #include "GroupMemberGridWidget.h"
 #include "EventBus.h"
-
 #include "GroupManager.h"
 #include "ChatRecordManager.h"
 #include "MessageSender.h"
@@ -25,7 +24,7 @@
 
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
-	,m_groupPannel(new GroupSetPannelWidget(m_setWidget))
+	, m_groupPannel(new GroupSetPannelWidget(m_setWidget))
 {
 	init();
 	auto pannelLayout = new QVBoxLayout(m_setWidget);
@@ -40,6 +39,7 @@ GroupChatPage::~GroupChatPage()
 
 void GroupChatPage::init()
 {
+	//发送
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
 			AvatarManager::instance()->getAvatar(m_loginUser->getFriendId(), ChatType::User, [=](const QPixmap& pixmap)
@@ -107,10 +107,8 @@ void GroupChatPage::init()
 			}
 			showSetWidget();
 		});
-	//邀请新成员
-	connect(m_groupPannel, &GroupSetPannelWidget::inviteNewMember, this, &GroupChatPage::hideSetWidget);
-	//移除群成员
-
+	//隐藏群面板
+	connect(EventBus::instance(), &EventBus::hideGroupSetPannel, this, &GroupChatPage::hideSetWidget);
 }
 
 //设置会话界面信息
@@ -145,6 +143,7 @@ void GroupChatPage::setChatWidget(const QString& id)
 	m_title = QString("%1(%2)").arg(m_group->getGroupName()).arg(m_group->count());
 	m_groupPannel->loadGroupPannel(id);
 	refreshChatWidget();
+	qDebug() << "-----------------" << m_setWidget->children() << "****" << m_setWidget->layout()->children();
 }
 
 //刷新会话界面

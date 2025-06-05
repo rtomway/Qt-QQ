@@ -60,7 +60,7 @@ GroupCreateWidget::~GroupCreateWidget()
 	initUi();
 }
 
-void GroupCreateWidget::loadData()
+void GroupCreateWidget::loadData(const QString& id)
 {
 	loadFriendsList();
 }

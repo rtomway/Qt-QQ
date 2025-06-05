@@ -9,7 +9,7 @@ class GroupCreateWidget :public GroupMemberOperatorWidget
 public:
 	GroupCreateWidget(QWidget* parent = nullptr);
 	~GroupCreateWidget();
-	void loadData()override;
+	void loadData(const QString& id = QString())override;
 	void initUi()override;
 	bool shouldFilterUser(const QString& user_id)override;
 };

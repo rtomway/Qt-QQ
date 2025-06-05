@@ -8,21 +8,21 @@ void Client_GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const 
 {
 	// 将操作抛到主线程执行
 	QMetaObject::invokeMethod(QCoreApplication::instance(),
-	[paramsObject, data]()
-	{
-		QPixmap pixmap;
-		if (data.isEmpty())
+		[paramsObject, data]()
 		{
-			qDebug() << "无数据";
-			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-		}
-		else if (!pixmap.loadFromData(data))
-		{
-			qDebug() << "client-头像加载失败";
-			return;
-		};
-		EventBus::instance()->emit notice_addGroup(paramsObject, pixmap);
-	});
+			QPixmap pixmap;
+			if (data.isEmpty())
+			{
+				qDebug() << "无数据";
+				pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
+			}
+			else if (!pixmap.loadFromData(data))
+			{
+				qDebug() << "client-头像加载失败";
+				return;
+			};
+			EventBus::instance()->emit notice_groupRequest(paramsObject, pixmap);
+		});
 }
 
 void Client_GroupHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
@@ -39,17 +39,17 @@ void Client_GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, con
 {
 	// 将操作抛到主线程执行
 	QMetaObject::invokeMethod(QCoreApplication::instance(),
-	[paramsObject, data]() 
-	{
-		auto user_id = paramsObject["user_id"].toString();
-		QPixmap avatar;
-		if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+		[paramsObject, data]()
 		{
-			qWarning() << "Failed to load avatar for user:" << user_id;
-			return;
-		}
-		EventBus::instance()->emit notice_groupInvite(paramsObject, avatar);
-	});
+			auto user_id = paramsObject["user_id"].toString();
+			QPixmap avatar;
+			if (!avatar.loadFromData(data))  // 从二进制数据加载图片
+			{
+				qWarning() << "Failed to load avatar for user:" << user_id;
+				return;
+			}
+			EventBus::instance()->emit notice_groupRequest(paramsObject, avatar);
+		});
 }
 
 void Client_GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject, const QByteArray& data)
@@ -61,20 +61,20 @@ void Client_GroupHandle::handle_groupPictureCommunication(const QJsonObject& par
 {
 	// 将操作抛到主线程执行
 	QMetaObject::invokeMethod(QCoreApplication::instance(),
-	[paramsObject, data]() 
-	{
-		QPixmap pixmap;
-		if (data.isEmpty())
+		[paramsObject, data]()
 		{
-			qDebug() << "无数据";
-		}
-		else if (!pixmap.loadFromData(data))
-		{
-			qDebug() << "client-头像加载失败";
-			return;
-		};
-		EventBus::instance()->emit groupPictureCommunication(paramsObject, pixmap);
-	});
+			QPixmap pixmap;
+			if (data.isEmpty())
+			{
+				qDebug() << "无数据";
+			}
+			else if (!pixmap.loadFromData(data))
+			{
+				qDebug() << "client-头像加载失败";
+				return;
+			};
+			EventBus::instance()->emit groupPictureCommunication(paramsObject, pixmap);
+		});
 }
 
 void Client_GroupHandle::handle_newGroupMember(const QJsonObject& paramsObject, const QByteArray& data)
@@ -87,12 +87,12 @@ void Client_GroupHandle::handle_newGroupMember(const QJsonObject& paramsObject, 
 void Client_GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	QPixmap avatar;
-	if (!avatar.loadFromData(data))  
+	if (!avatar.loadFromData(data))
 	{
 		qWarning() << "Failed to groupMemberLoad avatar for user:";
 		return;
 	}
-	EventBus::instance()->emit notice_groupInviteSuccess(paramsObject, avatar);
+	EventBus::instance()->emit notice_groupReply(paramsObject, avatar);
 }
 
 void Client_GroupHandle::handle_groupMemberLoad(const QJsonObject& paramsObject, const QByteArray& data)
@@ -123,20 +123,20 @@ void Client_GroupHandle::handle_groupMemberExitGroup(const QJsonObject& paramsOb
 {
 	// 将操作抛到主线程执行
 	QMetaObject::invokeMethod(QCoreApplication::instance(),
-	[paramsObject, data]()
-	{
-		QPixmap pixmap;
-		if (data.isEmpty())
+		[paramsObject, data]()
 		{
-			qDebug() << "无数据";
-		}
-		else if (!pixmap.loadFromData(data))
-		{
-			qDebug() << "client-头像加载失败";
-			return;
-		};
-		EventBus::instance()->emit notice_groupMemberExitGroup(paramsObject, pixmap);
-	});
+			QPixmap pixmap;
+			if (data.isEmpty())
+			{
+				qDebug() << "无数据";
+			}
+			else if (!pixmap.loadFromData(data))
+			{
+				qDebug() << "client-头像加载失败";
+				return;
+			};
+			EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
+		});
 }
 
 void Client_GroupHandle::handle_rejectAddGroup(const QJsonObject& paramsObject, const QByteArray& data)
@@ -148,55 +148,60 @@ void Client_GroupHandle::handle_rejectAddGroup(const QJsonObject& paramsObject, 
 		{
 			qDebug() << "无数据";
 			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-			EventBus::instance()->emit notice_rejectAddGroup(paramsObject, pixmap);
 		}
 		if (!pixmap.loadFromData(data))
 		{
 			qDebug() << "client-头像加载失败";
 			return;
 		};
-		EventBus::instance()->emit notice_rejectAddGroup(paramsObject, pixmap);
+		EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
 		});
 }
 
 void Client_GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() 
+	{
 		QPixmap pixmap;
-		if (data.isEmpty())
+		if (data.isEmpty()|| !pixmap.loadFromData(data))
 		{
 			qDebug() << "无数据";
 			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-			EventBus::instance()->emit notice_groupAddFailed(paramsObject, pixmap);
 		}
-		if (!pixmap.loadFromData(data))
-		{
-			qDebug() << "client-头像加载失败";
-			return;
-		};
-		EventBus::instance()->emit notice_groupAddFailed(paramsObject, pixmap);
-		});
+		EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
+	});
 }
 
 void Client_GroupHandle::handle_disbandGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto group_id = paramsObject["group_id"].toString();
 	EventBus::instance()->emit disbandGroup(group_id);
+	// 将操作抛到主线程执行
 	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
 		{
 			QPixmap pixmap;
-			if (data.isEmpty())
+			if (data.isEmpty() || !pixmap.loadFromData(data))
 			{
 				qDebug() << "无数据";
 				pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-				EventBus::instance()->emit notice_disbandGroup(paramsObject, pixmap);
 			}
-			if (!pixmap.loadFromData(data))
+			EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
+		});
+}
+
+void Client_GroupHandle::handle_beRemovedGroup(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	EventBus::instance()->emit removeGroup(paramsObject);
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
+		{
+			QPixmap pixmap;
+			if (data.isEmpty() || !pixmap.loadFromData(data))
 			{
-				qDebug() << "client-头像加载失败";
-				return;
-			};
-			EventBus::instance()->emit notice_disbandGroup(paramsObject, pixmap);
+				qDebug() << "无数据";
+				pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
+			}
+			EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
 		});
 }

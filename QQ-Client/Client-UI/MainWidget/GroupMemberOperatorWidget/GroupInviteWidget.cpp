@@ -57,9 +57,11 @@ GroupInviteWidget::~GroupInviteWidget()
 	qDebug() << "GroupInviteWidget has destoryed" << m_group_id;
 }
 
-void GroupInviteWidget::loadData()
+void GroupInviteWidget::loadData(const QString& id)
 {
-	m_groupMemberIdList = GroupManager::instance()->findGroup(m_group_id)->getGroupMembersIdList();
+	qDebug() << m_group_id;
+	m_group_id = id;
+	m_groupMemberIdList = GroupManager::instance()->findGroup(id)->getGroupMembersIdList();
 	loadFriendsList();
 }
 

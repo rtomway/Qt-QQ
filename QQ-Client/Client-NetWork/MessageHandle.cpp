@@ -67,7 +67,9 @@ void MessageHandle::initRequestHash()
 	registerHandle("removeGroupMember", m_groupHandle, &Client_GroupHandle::handle_removeMember);
 	registerHandle("groupMemberExitGroup", m_groupHandle, &Client_GroupHandle::handle_groupMemberExitGroup);
 	registerHandle("disbandGroup", m_groupHandle, &Client_GroupHandle::handle_disbandGroup);
+	registerHandle("beRemovedGroup", m_groupHandle, &Client_GroupHandle::handle_beRemovedGroup);
 }
+
 
 //消息处理接口
 void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)

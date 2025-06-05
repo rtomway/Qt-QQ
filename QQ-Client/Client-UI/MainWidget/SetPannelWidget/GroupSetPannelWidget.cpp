@@ -1,9 +1,9 @@
 ﻿#include "GroupSetPannelWidget.h"
-
 #include <QMessageBox>
 #include <QJsonObject>
 #include <QJsonDocuMent>
 #include <QJsonArray>
+
 #include "EventBus.h"
 #include "MessageSender.h"
 #include "LoginUserManager.h"
@@ -11,16 +11,16 @@
 
 GroupSetPannelWidget::GroupSetPannelWidget(QWidget* parent)
 	:QWidget(parent)
-	,m_stackedWidget(new QStackedWidget(this))
-	,m_pannelContains(new SetPannelWidget(this))
-	,m_groupMemberQueryWidget(new GroupMemberQueryWidget(this))
+	, m_stackedWidget(new QStackedWidget(this))
+	, m_pannelContains(new SetPannelWidget(this))
+	, m_groupMemberQueryWidget(new GroupMemberQueryWidget(this))
 {
 	init();
 }
 
 GroupSetPannelWidget::~GroupSetPannelWidget()
 {
-
+	qDebug() << "GroupSetPannelWidget::~GroupSetPannelWidget()";
 }
 
 void GroupSetPannelWidget::init()
@@ -62,6 +62,7 @@ void GroupSetPannelWidget::loadGroupPannel(const QString& group_id)
 	{
 		initPannel();
 	}
+	qDebug() << "loadGroupPannel";
 	//界面数据刷新
 	refreshWidget();
 	m_groupMemberQueryWidget->loadGroupMemberList(group_id);
@@ -90,17 +91,12 @@ void GroupSetPannelWidget::initPannel()
 				item->setSizeHint(QSize(m_groupMemberGrid->width(), height));
 			}
 		});
-	//邀请
-	connect(m_groupMemberGrid, &GroupMemberGridWidget::inviteNewMember, this, [=]()
-		{
-			emit inviteNewMember();
-		});
 	//查看更多群成员
 	connect(m_groupMemberGrid, &GroupMemberGridWidget::queryMoreGroupMember, this, [=]
 		{
 			m_stackedWidget->setCurrentWidget(m_groupMemberQueryWidget);
 		});
-	
+
 	//退群
 	m_exitGroupBtn = new QPushButton(m_pannelContains);
 	QString exitText;
@@ -118,7 +114,7 @@ void GroupSetPannelWidget::initPannel()
 			auto deleteResult = QMessageBox::question(nullptr, exitText, "请确认");
 			if (deleteResult == QMessageBox::No)
 				return;
-			m_pannelContains->hide();
+			EventBus::instance()->emit hideGroupSetPannel();
 			//通知控件和服务端
 			if (m_isGroupOwner)
 				disbandGroup();
@@ -134,6 +130,7 @@ void GroupSetPannelWidget::initPannel()
 //数据刷新
 void GroupSetPannelWidget::refreshWidget()
 {
+	qDebug() << "refreshWidget";
 	m_groupListItemWidget->setItemWidget(m_group_id);
 	m_groupListItemWidget->showGroupId();
 	m_groupMemberGrid->setGroupMembersGrid(m_group_id);
