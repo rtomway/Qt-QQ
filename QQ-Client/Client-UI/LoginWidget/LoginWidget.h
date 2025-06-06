@@ -2,7 +2,6 @@
 #define LOGINWIDGET_H_
 
 #include <QWidget>
-#include "LineEditwithButton.h"
 #include <QRadioButton>
 #include <QPushButton>
 #include <QPoint>
@@ -10,6 +9,7 @@
 
 #include "AngleRoundedWidget.h"
 #include "RegisterPage.h"
+#include "LineEditwithButton.h"
 
 class LoginWidget :public AngleRoundedWidget
 {

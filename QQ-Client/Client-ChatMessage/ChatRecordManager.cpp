@@ -69,6 +69,7 @@ void ChatRecordManager::addMessageToChat(const ChatMessage& chatMessage)
 	{
 		getChatId = chatMessage.receiveId;
 	}
+
 	auto chatRecord = getChatRecord(getChatId, chatMessage.chatType);
 	if (chatRecord)
 	{

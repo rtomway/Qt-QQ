@@ -29,10 +29,6 @@ ChatPage::ChatPage(QWidget* parent)
 	, m_hideAnimation(new QPropertyAnimation(m_setWidget, "geometry"))
 {
 	ui->setupUi(this);
-	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
-		{
-			m_loginUser = LoginUserManager::instance()->getLoginUser();
-		});
 	init();
 	this->setObjectName("MessagePage");
 	QFile file(":/stylesheet/Resource/StyleSheet/ChatPage.css");
@@ -44,17 +40,6 @@ ChatPage::ChatPage(QWidget* parent)
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
-	qApp->installEventFilter(this);
-	m_setWidget->setObjectName("setPannel");
-	m_setWidget->setFixedWidth(250);
-	m_setWidget->setFocusPolicy(Qt::StrongFocus);
-	// 移除默认标志并添加无边框标志
-	m_setWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);  
-	// 设置初始的裁剪区域，确保初始时不可见
-	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
-	m_setWidget->setMask(region);  // 裁剪区域
-	m_setWidget->hide();
-
 }
 
 ChatPage::~ChatPage()
@@ -64,11 +49,17 @@ ChatPage::~ChatPage()
 
 void ChatPage::init()
 {
-	//在自己信息中心加载完成后读取
-	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
-		{
-			m_loginUser = LoginUserManager::instance()->getLoginUser();
-		});
+	qApp->installEventFilter(this);
+	m_setWidget->setObjectName("setPannel");
+	m_setWidget->setFixedWidth(250);
+	m_setWidget->setFocusPolicy(Qt::StrongFocus);
+	// 移除默认标志并添加无边框标志
+	m_setWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
+	// 设置初始的裁剪区域，确保初始时不可见
+	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
+	m_setWidget->setMask(region);  // 裁剪区域
+	m_setWidget->hide();
+
 	//设置输入字体大小
 	QFont font = ui->messageTextEdit->font();
 	font.setPointSize(13);
@@ -80,6 +71,12 @@ void ChatPage::init()
 	//调整滚动速度
 	ui->messageListWidget->verticalScrollBar()->setSingleStep(10);
 	ui->messageTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	//在自己信息中心加载完成后读取
+	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
+		{
+			m_loginUser = LoginUserManager::instance()->getLoginUser();
+		});
 }
 
 //聊天记录加载
@@ -182,11 +179,13 @@ void ChatPage::clearMessageWidget()
 //event--设置面板
 bool ChatPage::eventFilter(QObject* watched, QEvent* event)
 {
-	if (event->type() == QEvent::MouseButtonPress) {
+	if (event->type() == QEvent::MouseButtonPress) 
+	{
 		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 		QPoint globalPos = mouseEvent->globalPosition().toPoint();
 		// 检查点击位置是否在 m_setWidget 内
-		if (!m_setWidget->geometry().contains(globalPos)) {
+		if (!m_setWidget->geometry().contains(globalPos)) 
+		{
 			hideSetWidget();
 		}
 	}

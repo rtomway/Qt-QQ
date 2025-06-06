@@ -396,26 +396,32 @@ void GroupHandle::handle_groupMemberRemove(const QJsonObject& paramsObj, const Q
 	auto username = paramsObj["username"].toString();
 	auto group_id = paramsObj["group_id"].toString();
 	auto group_name = paramsObj["group_name"].toString();
-	auto removeListArray= paramsObj["removeMembers"].toArray();
+	auto removeListArray = paramsObj["removeMembers"].toArray();
+	QStringList removedMember_idList;
 	QStringList member_idList;
 	for (auto memberValue : removeListArray)
 	{
 		auto member_id = memberValue.toString();
-		member_idList.append(member_id);
+		removedMember_idList.append(member_id);
 	}
 	DataBaseQuery query;
 	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
 		{
-			if (!GroupDBUtils::batch_deleteGroupMember(group_id, member_idList, query, queryPtr))
+			if (!GroupDBUtils::batch_deleteGroupMember(group_id, removedMember_idList, query, queryPtr))
 			{
 				return false;
 			}
-			for (auto i = 0; i < member_idList.size(); i++)
+			for (auto i = 0; i < removedMember_idList.size(); i++)
 			{
 				if (!GroupDBUtils::groupMemberCountSub(group_id, query, queryPtr))
 				{
 					return false;
 				}
+			}
+			member_idList = GroupDBUtils::queryGroupMemberIdList(group_id, query, queryPtr);
+			if (member_idList.isEmpty())
+			{
+				return false;
 			}
 		});
 	if (!result)
@@ -431,9 +437,30 @@ void GroupHandle::handle_groupMemberRemove(const QJsonObject& paramsObj, const Q
 	PacketCreate::addPacket(disbandNoticeData, packet);
 	auto allData = PacketCreate::allBinaryPacket(disbandNoticeData);
 
-	for (auto& groupMember_id : member_idList)
+	for (auto& groupMember_id : removedMember_idList)
 	{
 		ConnectionManager::instance()->sendBinaryMessage(groupMember_id, allData);
+	}
+	member_idList.removeOne(user_id);
+	//通知其余成员
+	QJsonObject deleteMembersObj;
+	deleteMembersObj["group_id"] = group_id;
+	QJsonArray deleteMemberArray;
+	for (auto& removeMemberId : removedMember_idList)
+	{
+		deleteMemberArray.append(removeMemberId);
+	}
+	deleteMembersObj["deleteMemberList"] = deleteMemberArray;
+
+	QJsonObject exitGroupObj;
+	exitGroupObj["type"] = "batch_groupMemberDeleted";
+	exitGroupObj["params"] = deleteMembersObj;
+	QJsonDocument doc(exitGroupObj);
+	auto message = QString(doc.toJson(QJsonDocument::Compact));
+	for (auto& member_id : member_idList)
+	{
+		if (!removedMember_idList.contains(member_id))
+			ConnectionManager::instance()->sendTextMessage(member_id, message);
 	}
 }
 
@@ -485,14 +512,13 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
 	//通知群组其他成员
 	QJsonObject exitGroupObj;
-	exitGroupObj["type"] = "removeGroupMember";
+	exitGroupObj["type"] = "groupMemberDeleted";
 	exitGroupObj["params"] = paramsObj;
-	QJsonDocument doc(paramsObj);
+	QJsonDocument doc(exitGroupObj);
 	auto message = QString(doc.toJson(QJsonDocument::Compact));
 	for (auto& member_id : groupMember_idList)
 	{
-		//if (member_id != groupMember.user_id)
-			ConnectionManager::instance()->sendTextMessage(member_id, message);
+		ConnectionManager::instance()->sendTextMessage(member_id, message);
 	}
 	//返回客户端操作结果
 	responder.write(QHttpServerResponder::StatusCode::NoContent);

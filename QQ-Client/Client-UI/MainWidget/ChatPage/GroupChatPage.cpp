@@ -27,9 +27,6 @@ GroupChatPage::GroupChatPage(QWidget* parent)
 	, m_groupPannel(new GroupSetPannelWidget(m_setWidget))
 {
 	init();
-	auto pannelLayout = new QVBoxLayout(m_setWidget);
-	pannelLayout->setContentsMargins(2, 2, 2, 2);
-	pannelLayout->addWidget(m_groupPannel);
 }
 
 GroupChatPage::~GroupChatPage()
@@ -39,6 +36,10 @@ GroupChatPage::~GroupChatPage()
 
 void GroupChatPage::init()
 {
+	auto pannelLayout = new QVBoxLayout(m_setWidget);
+	pannelLayout->setContentsMargins(2, 2, 2, 2);
+	pannelLayout->addWidget(m_groupPannel);
+
 	//发送
 	connect(ui->sendBtn, &QPushButton::clicked, this, [=]
 		{
@@ -109,47 +110,45 @@ void GroupChatPage::init()
 		});
 	//隐藏群面板
 	connect(EventBus::instance(), &EventBus::hideGroupSetPannel, this, &GroupChatPage::hideSetWidget);
+	//群成员移除
+	connect(GroupManager::instance(), &GroupManager::updateGroupProfile, this, [=](const QString& group_id)
+		{
+			if (m_group && group_id == m_group->getGroupId())
+			{
+				setChatWidget(group_id);
+			}
+		});
 }
 
 //设置会话界面信息
 void GroupChatPage::setChatWidget(const QString& id)
 {
-	qDebug() << "------------------------------群组聊天界面--------------------------";
-	if (!m_group)
+	if (!m_group || m_group->getGroupId() != id)
 	{
 		m_currentChat = false;
 		m_group = GroupManager::instance()->findGroup(id);
 	}
 	else
 	{
-		if (m_group->getGroupId() != id)
-		{
-			m_currentChat = false;
-			m_group = GroupManager::instance()->findGroup(id);
-		}
-		else
-		{
-			m_currentChat = true;
-		}
+		m_currentChat = true;
 	}
-	qDebug() << "mygoup:" << m_group->getGroupId() << m_group->getGroupName();
+
 	m_chat = ChatRecordManager::instance()->getChatRecord(id, ChatType::Group);
 	if (!m_currentChat)
 	{
-		qDebug() << "-------------群组聊天记录的加载-群组id:" << m_group->getGroupId();
 		loadChatMessage(*m_chat);
 	}
+
 	//界面信息
 	m_title = QString("%1(%2)").arg(m_group->getGroupName()).arg(m_group->count());
-	m_groupPannel->loadGroupPannel(id);
 	refreshChatWidget();
-	qDebug() << "-----------------" << m_setWidget->children() << "****" << m_setWidget->layout()->children();
 }
 
 //刷新会话界面
 void GroupChatPage::refreshChatWidget()
 {
 	ui->nameLab->setText(m_title);
+	m_groupPannel->loadGroupPannel(m_group->getGroupId());
 }
 
 //判断当前会话
@@ -243,9 +242,6 @@ void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixma
 	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
-	qDebug() << "*************************************接收群组图片消息:" << memberName;
-	if (pixmap.isNull())
-		qDebug() << "哈哈哈哈哈哈";
 	MessageBubble* bubble = new MessageBubble(avatar, pixmap, bubbleType, memberName, memberRole);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
@@ -256,7 +252,6 @@ void GroupChatPage::createTextMessageBubble(const QPixmap& avatar, const QString
 	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
-	qDebug() << "member:" << memberName << memberRole;
 	MessageBubble* bubble = new MessageBubble(avatar, message, bubbleType, memberName, memberRole);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
@@ -268,7 +263,7 @@ void GroupChatPage::insertTipMessage(const QString& text)
 {
 	auto tipMessageItemWidget = new TipMessageItemWidget(text, ui->messageListWidget);
 	auto tipmessageItem = new QListWidgetItem(ui->messageListWidget);
-	tipmessageItem->setSizeHint(tipMessageItemWidget->sizeHint());  // 设置Item大小
+	tipmessageItem->setSizeHint(tipMessageItemWidget->sizeHint());
 	ui->messageListWidget->setItemWidget(tipmessageItem, tipMessageItemWidget);
 }
 

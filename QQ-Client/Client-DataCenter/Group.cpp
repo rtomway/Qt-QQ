@@ -41,11 +41,7 @@ void Group::batchLoadGroupMember(const QJsonArray& memberArray)
 	for (auto memberValue : memberArray)
 	{
 		auto memberObj = memberValue.toObject();
-		Member member;
-		member.member_id = memberObj["user_id"].toString();
-		member.member_name = memberObj["username"].toString();
-		member.member_role = memberRole(memberObj["group_role"].toString());
-		m_members.insert(member.member_id, member);
+		loadGroupMember(memberObj);
 	}
 }
 
@@ -73,32 +69,23 @@ QStringList Group::getGroupMembersIdList() const
 //群聊添加新成员
 void Group::addMember(const QJsonObject& memberObj)
 {
-	QString member_id = memberObj["user_id"].toString();
 	Member member;
-	member.member_id = member_id;
+	member.member_id = memberObj["user_id"].toString();
 	member.member_name = memberObj["username"].toString();
-	if (!memberObj.contains("group_role"))
-	{
-		qDebug() << "group_role为空";
-	}
 	auto role = memberObj["group_role"].toString();
-	if (role == "ower")
-	{
-		member.member_role = "群主";
-	}
-	else if (role == "member")
-	{
-		member.member_role = "群成员";
-	}
-	m_members.insert(member_id, member);
+	member.member_role = memberRole(role);
+
+	m_members.insert(member.member_id, member);
 	m_groupMemberCount++;
+	m_groupJson["groupMemberCount"] = m_groupMemberCount;
 }
 
 //移除成员
 void Group::removeMember(const QString& user_id)
 {
-	m_groupMemberCount--;
 	m_members.remove(user_id);
+	m_groupMemberCount--;
+	m_groupJson["groupMemberCount"] = m_groupMemberCount;
 }
 
 //设置群组分组
@@ -116,14 +103,13 @@ const QString& Group::getGrouping() const
 //获取指定成员
 Member Group::getMember(const QString& member_id) const
 {
-	auto it = m_members.find(member_id);  
-	if (it != m_members.end()) 
+	auto it = m_members.find(member_id);
+	if (it != m_members.end())
 	{
-		return it.value(); 
+		return it.value();
 	}
 	else
 	{
-		qDebug() << "不存在成员:" << member_id;
 		return Member();
 	}
 }

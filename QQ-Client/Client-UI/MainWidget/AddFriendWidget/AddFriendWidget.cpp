@@ -83,14 +83,8 @@ void AddFriendWidget::init()
 		});
 
 	//会话界面窗口关闭
-	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, [=]
-		{
-			this->close();
-		});
-	connect(GroupManager::instance(), &GroupManager::chatWithGroup, this, [=]
-		{
-			this->close();
-		});
+	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, &AddFriendWidget::hide);
+	connect(GroupManager::instance(), &GroupManager::chatWithGroup, this, &AddFriendWidget::hide);
 
 	//搜索图标
 	ui->searchBtn->setCheckable(false);

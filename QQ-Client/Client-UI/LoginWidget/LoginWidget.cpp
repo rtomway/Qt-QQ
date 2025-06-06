@@ -2,20 +2,9 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QFile>
-#include <QGraphicsDropShadowEffect>
-#include <QPalette>
-#include <QSpacerItem>
-#include <QMenu>
-#include <QPainter>
-#include <QPixmap>
-#include <QBitmap>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <memory>
-#include <QPointer>
-#include <QSharedPointer>
 #include <QMessageBox>
+#include <QJsonDocument>
+
 
 #include "ImageUtil.h"
 #include "RoundLabel.h"
@@ -29,7 +18,7 @@
 
 
 LoginWidget::LoginWidget(QWidget* parent)
-	:AngleRoundedWidget(parent)
+	: AngleRoundedWidget(parent)
 	, m_account(new LineEditwithButton(this))
 	, m_password(new LineEditwithButton(this))
 	, m_loginBtn(new QPushButton("登录", this))

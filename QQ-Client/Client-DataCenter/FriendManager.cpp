@@ -1,7 +1,6 @@
 ﻿#include "FriendManager.h"
 #include <QBuffer>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QJsonArray>
 #include <QVariantMap>
 #include <QStandardPaths>
@@ -14,7 +13,8 @@
 #include "AvatarManager.h"
 #include "LoginUserManager.h"
 
-//单例
+constexpr int BATCHSIZE_LOADAVATAR = 10;
+
 FriendManager* FriendManager::instance() 
 {
 	static FriendManager instance;
@@ -35,7 +35,6 @@ FriendManager::FriendManager()
 	//初始化好友中心
 	connect(EventBus::instance(), &EventBus::initFriendManager, this, [=](const QJsonObject& paramsObject)
 		{
-			qDebug() << "-------------------initFriendManager-----------";
 			QJsonArray friendArray = paramsObject["friendList"].toArray();
 			QStringList localFriend_IdList;
 			QStringList needLoadFriend_IdList;
@@ -46,6 +45,7 @@ FriendManager::FriendManager()
 				auto friendUser = QSharedPointer<Friend>::create();
 				friendUser->setFriend(friendObject);
 				FriendManager::instance()->addFriend(friendUser);
+
 				//头像是否申请的分组
 				auto& friend_id = friendUser->getFriendId();
 				if (AvatarManager::instance()->hasLocalAvatar(friend_id, ChatType::User))
@@ -57,6 +57,8 @@ FriendManager::FriendManager()
 					needLoadFriend_IdList.append(friend_id);
 				}
 			}
+
+			//头像加载及请求
 			emit loadLocalAvatarFriend(localFriend_IdList);
 			if (!needLoadFriend_IdList.isEmpty())
 			{
@@ -91,16 +93,16 @@ FriendManager::FriendManager()
 //申请头像的加载(10个一批)
 void FriendManager::loadFriendAvatarFromServer(const QStringList& friend_idList)
 {
-	const int batchSize = 10;
 	int totalSize = friend_idList.size();
-	for (int i = 0; i < totalSize; i += batchSize)
+	for (int i = 0; i < totalSize; i += BATCHSIZE_LOADAVATAR)
 	{
 		QJsonArray loadFriendAvatarIdArray;
-		QStringList currentBatch = friend_idList.mid(i, batchSize);
+		QStringList currentBatch = friend_idList.mid(i, BATCHSIZE_LOADAVATAR);
 		for (const auto& friendId : currentBatch)
 		{
 			loadFriendAvatarIdArray.append(friendId);
 		}
+
 		QJsonObject loadFriendAvatarIdObj;
 		loadFriendAvatarIdObj["friend_ids"] = loadFriendAvatarIdArray;
 		QJsonDocument loadFriendAvatarIdDoc(loadFriendAvatarIdObj);
@@ -109,7 +111,7 @@ void FriendManager::loadFriendAvatarFromServer(const QStringList& friend_idList)
 	}
 }
 
-//添加用户信息
+//添加好友
 void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 {
 	QString user_id = user->getFriendId();
@@ -118,6 +120,7 @@ void FriendManager::addFriend(const QSharedPointer<Friend>& user)
 		m_friends.insert(user_id, user);
 		ChatRecordManager::instance()->addUserChat(user_id, std::make_shared<ChatRecordMessage>(LoginUserManager::instance()->getLoginUserID(), user_id, ChatType::User));
 	}
+
 	if (!m_grouping.contains(user->getGrouping()) && !user->getGrouping().isEmpty())
 	{
 		m_grouping.insert(user_id, user->getGrouping());
@@ -138,7 +141,7 @@ QSharedPointer<Friend> FriendManager::findFriend(const QString& id) const
 	}
 }
 
-//获取相关好友信息
+//获取相关好友
 QHash<QString, QSharedPointer<Friend>> FriendManager::findFriends(const QString& text) const
 {
 	QHash<QString, QSharedPointer<Friend>> result;

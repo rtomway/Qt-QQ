@@ -21,29 +21,42 @@ GroupProfilePage::GroupProfilePage(QWidget* parent)
 	{
 		qDebug() << file.fileName() << "打开失败";
 	}
-	this->setWindowFlag(Qt::FramelessWindowHint);
+
 }
 
 void GroupProfilePage::init()
 {
+	this->setWindowFlag(Qt::FramelessWindowHint);
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
 		{
 			GroupManager::instance()->emit chatWithGroup(m_groupId);
 		});
+	//群信息更新
+	connect(GroupManager::instance(), &GroupManager::updateGroupProfile, this, [=](const QString& group_id)
+		{
+			if (m_group && m_groupId == group_id)
+				setGroupProfile(m_groupId);
+		});
 }
 
+//群信息设置
 void GroupProfilePage::setGroupProfile(const QString& group_id)
 {
-	//m_oneself为空或id不等,存入新的Friend
 	if (!m_group || m_group->getGroupId() != group_id)
 	{
 		m_group = GroupManager::instance()->findGroup(group_id);
 	}
-	//获取friend信息
+	//获取group信息
 	m_groupId = group_id;
 	m_groupJson = m_group->getGroupProfile();
 
+	refresh();
+}
+
+//界面更新
+void GroupProfilePage::refresh()
+{
 	AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group, [=](const QPixmap& pixmap)
 		{
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100));

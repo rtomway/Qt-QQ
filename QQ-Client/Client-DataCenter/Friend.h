@@ -2,7 +2,8 @@
 #define FRIEND_H_
 
 #include <QJsonObject>
-#include <QPixmap>
+
+
 class Friend
 {
 public:

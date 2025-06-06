@@ -24,7 +24,6 @@ QString MessageRecord::getSenderId()
 //获取消息时间
 QString MessageRecord::getTime() const
 {
-	qDebug() << "MessageRecord::getTime:" << m_time.toString("MM-dd hh:mm");
 	return m_time.toString("MM-dd hh:mm");
 }
 

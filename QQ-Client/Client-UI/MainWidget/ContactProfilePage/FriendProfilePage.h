@@ -21,6 +21,7 @@ private:
 	void init();
 public:
 	void setFriendProfile(const QString& user_id);
+	void refresh();
 	void clearWidget();
 private:
 	Ui::FriendProfilePage* ui{};

@@ -16,6 +16,7 @@ public:
 	void sendRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callback = nullptr);
 private:
 	void replyErrorHandle(QNetworkReply::NetworkError error);
+	void replyDataHandle(QNetworkReply* reply, HttpCallback callBack);
 signals:
 	void httpTextResponseReceived(const QByteArray& data);
 	void httpDataResponseReceived(const QByteArray& data);

@@ -44,6 +44,7 @@ void NoticeWidget::setCurrentWidget(NoticeCurrentWidget noticeWidget)
 //界面初始化
 void NoticeWidget::init()
 {
+	this->setObjectName("NoticeWidget");
 	m_noticeTitle->setObjectName("titleLabel");
 	m_friendNoticeList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_friendNoticeList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

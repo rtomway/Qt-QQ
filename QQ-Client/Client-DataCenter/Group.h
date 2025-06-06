@@ -1,9 +1,7 @@
 ﻿#ifndef GROUP_H_
 #define GROUP_H_
 
-#include <QString>
 #include <QHash>
-#include <QPixmap>
 #include <QJsonObject>
 
 struct Member
@@ -36,6 +34,7 @@ public:
 	void setGrouping(const QString& grouping);
 private:
 	QString memberRole(const QString& role);
+
 private:
 	QString m_groupId{};
 	QString m_groupName{};

@@ -30,7 +30,6 @@ void Client_LoginHandle::handle_loginValidationSuccess(const QJsonObject& params
 void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	QJsonObject loginUser = paramsObject;
-	qDebug() << "handle_loginSuccess" << loginUser;
 	EventBus::instance()->emit initLoginUser(loginUser);
 	auto user_id = loginUser["user_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
@@ -43,14 +42,12 @@ void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, co
 //加载好友列表数据
 void Client_LoginHandle::handle_loadFriendList(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------handle_loadFriendList--------------------" << paramsObject;
 	EventBus::instance()->emit initFriendManager(paramsObject);
 }
 
 //加载好友头像
 void Client_LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------handle_loadFriendAvatars--------------------";
 	auto friend_id = paramsObject["friend_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, friend_id, ChatType::User, [=](bool result)
 		{
@@ -64,7 +61,6 @@ void Client_LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObjec
 //加载群组列表数据
 void Client_LoginHandle::handle_loadGroupList(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------handle_loadGroupList--------------------";
 	EventBus::instance()->emit initGroupManager(paramsObject);
 }
 
@@ -77,7 +73,6 @@ void Client_LoginHandle::handle_loadGroupMember(const QJsonObject& paramsObject,
 //加载群成员头像
 void Client_LoginHandle::handle_loadGroupMemberAvatar(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------handle_loadGroupAvatars--------------------";
 	auto user_id = paramsObject["user_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
 		{
@@ -89,7 +84,6 @@ void Client_LoginHandle::handle_loadGroupMemberAvatar(const QJsonObject& paramsO
 //加载群组头像
 void Client_LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------handle_loadGroupAvatars--------------------";
 	auto group_id = paramsObject["group_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=](bool result)
 		{

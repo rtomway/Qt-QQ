@@ -64,12 +64,12 @@ void MessageHandle::initRequestHash()
 	registerHandle("newGroupMember", m_groupHandle, &Client_GroupHandle::handle_newGroupMember);
 	registerHandle("newGroup", m_groupHandle, &Client_GroupHandle::handle_newGroup);
 	registerHandle("groupInvite", m_groupHandle, &Client_GroupHandle::handle_groupInvite);
-	registerHandle("removeGroupMember", m_groupHandle, &Client_GroupHandle::handle_removeMember);
+	registerHandle("groupMemberDeleted", m_groupHandle, &Client_GroupHandle::handle_groupMemberDeleted);
 	registerHandle("groupMemberExitGroup", m_groupHandle, &Client_GroupHandle::handle_groupMemberExitGroup);
 	registerHandle("disbandGroup", m_groupHandle, &Client_GroupHandle::handle_disbandGroup);
 	registerHandle("beRemovedGroup", m_groupHandle, &Client_GroupHandle::handle_beRemovedGroup);
+	registerHandle("batch_groupMemberDeleted", m_groupHandle, &Client_GroupHandle::handle_batch_groupMemberDeleted);
 }
-
 
 //消息处理接口
 void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
@@ -85,7 +85,7 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 		QByteArray data;
 		if (requestHash.contains(type))
 		{
-			auto handle = requestHash[type];
+			auto& handle = requestHash[type];
 			handle(paramsObject, data);
 		}
 	}
@@ -98,11 +98,13 @@ void MessageHandle::handle_binaryMessage(const QByteArray& message)
 	for (auto& parsePacket : parsePacketList)
 	{
 		// 根据类型给处理函数处理
-		if (requestHash.contains(parsePacket.type)) {
+		if (requestHash.contains(parsePacket.type))
+		{
 			auto& handle = requestHash[parsePacket.type];
 			handle(parsePacket.params, parsePacket.data);  // 调用对应的处理函数
 		}
-		else {
+		else
+		{
 			qDebug() << "未知的类型:" << parsePacket.type;
 		}
 	}

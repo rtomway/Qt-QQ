@@ -23,9 +23,6 @@ FriendChatPage::FriendChatPage(QWidget* parent)
 	, m_friendPannel(new FriendSetPannelWidget(this))
 {
 	init();
-	auto pannelLayout = new QVBoxLayout(m_setWidget);
-	pannelLayout->setContentsMargins(2, 2, 2, 2);
-	pannelLayout->addWidget(m_friendPannel);
 }
 
 FriendChatPage::~FriendChatPage()
@@ -35,6 +32,11 @@ FriendChatPage::~FriendChatPage()
 
 void FriendChatPage::init()
 {
+	//好友面板
+	auto pannelLayout = new QVBoxLayout(m_setWidget);
+	pannelLayout->setContentsMargins(2, 2, 2, 2);
+	pannelLayout->addWidget(m_friendPannel);
+
 	//用户信息更新后(处于会话界面)
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
@@ -126,23 +128,16 @@ void FriendChatPage::init()
 void FriendChatPage::setChatWidget(const QString& id)
 {
 	//数据加载
-	if (!m_friend)
+	if (!m_friend|| m_friend->getFriendId() != id)
 	{
 		m_currentChat = false;
 		m_friend = FriendManager::instance()->findFriend(id);
 	}
 	else
 	{
-		if (m_friend->getFriendId() != id)
-		{
-			m_currentChat = false;
-			m_friend = FriendManager::instance()->findFriend(id);
-		}
-		else
-		{
-			m_currentChat = true;
-		}
+		m_currentChat = true;
 	}
+
 	m_title = m_friend->getFriendName();
 	//聊天记录加载
 	m_chat = ChatRecordManager::instance()->getChatRecord(id, ChatType::User);
@@ -150,15 +145,14 @@ void FriendChatPage::setChatWidget(const QString& id)
 	{
 		loadChatMessage(*m_chat);
 	}
-	m_friendPannel->loadFriendPannel(m_friend->getFriendId());
 	refreshChatWidget();
 }
 
 //刷新会话界面
 void FriendChatPage::refreshChatWidget()
 {
-
 	ui->nameLab->setText(m_title);
+	m_friendPannel->loadFriendPannel(m_friend->getFriendId());
 }
 
 //判断当前会话
@@ -195,7 +189,8 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		QBuffer buffer(&byteArray);
 		buffer.open(QIODevice::WriteOnly);
 		// 将 QPixmap 转换为 PNG 并存入 QByteArray
-		if (!pixmap.save(&buffer, "PNG")) {
+		if (!pixmap.save(&buffer, "PNG")) 
+		{
 			qDebug() << "Failed to convert avatar to PNG format.";
 			return;
 		}
@@ -268,7 +263,7 @@ void FriendChatPage::insertTipMessage(const QString& text)
 {
 	auto tipMessageItemWidget = new TipMessageItemWidget(text, ui->messageListWidget);
 	auto tipmessageItem = new QListWidgetItem(ui->messageListWidget);
-	tipmessageItem->setSizeHint(tipMessageItemWidget->sizeHint());  // 设置Item大小
+	tipmessageItem->setSizeHint(tipMessageItemWidget->sizeHint());
 	ui->messageListWidget->setItemWidget(tipmessageItem, tipMessageItemWidget);
 }
 

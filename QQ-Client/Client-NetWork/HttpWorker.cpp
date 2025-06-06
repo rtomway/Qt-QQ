@@ -1,7 +1,6 @@
 ﻿#include "HttpWorker.h"
 #include <QNetworkRequest>
 #include <QUrl>
-#include <QDebug>
 #include <QCoreApplication>
 
 #include "PacketCreate.h"
@@ -22,7 +21,7 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, Content_type);
 
-	// 添加 Authorization token 头（如果有）
+	// 添加 Authorization token 头
 	QString token = TokenManager::getToken();
 	if (!token.isEmpty()) {
 		QString authHeader = "Bearer " + token;
@@ -31,9 +30,10 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 	auto& user_id = LoginUserManager::instance()->getLoginUserID();
 	request.setRawHeader("user_id", user_id.toUtf8());
 
-	QNetworkReply* reply = m_networkManager->post(request, data);
 	qDebug() << "------------------发送http请求-----------------";
 	qDebug() << url;
+	QNetworkReply* reply = m_networkManager->post(request, data);
+	
 	connect(reply, &QNetworkReply::finished, [this, reply, callBack]()
 		{
 			qDebug() << "------------------接收http回复-----------------";
@@ -46,6 +46,7 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 				reply->deleteLater();
 				return;
 			}
+
 			// 检查 HTTP 状态码
 			int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 			if (statusCode == 204)
@@ -55,34 +56,10 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 				reply->deleteLater();
 				return;
 			}
+
 			//处理响应
-			QByteArray responseData = reply->readAll();
-			QByteArray contentType = reply->rawHeader("Content-Type");
-			qDebug() << "http响应头:" << contentType;
-			//调用回调
-			if (callBack)
-			{
-				//解析返回数据包
-				auto parsePacketList = PacketCreate::parseDataPackets(responseData);
-				//回调,主线程进行，GuI操作
-				QMetaObject::invokeMethod(QCoreApplication::instance(), [callBack, parsePacketList]()
-					{
-						callBack(parsePacketList.first().params, parsePacketList.first().data);
-					});
-				reply->deleteLater();
-				return;
-			}
-			//信号传出处理
-			if (contentType.contains("application/json"))
-			{
-				qDebug() << "接收http文本回复";
-				emit httpTextResponseReceived(responseData);
-			}
-			else
-			{
-				qDebug() << "接收http数据回复";
-				emit httpDataResponseReceived(responseData);
-			}
+			replyDataHandle(reply, callBack);
+
 			reply->deleteLater();
 		});
 }
@@ -104,6 +81,40 @@ void HttpWorker::replyErrorHandle(QNetworkReply::NetworkError error)
 		// 其他错误处理
 	default:
 		qDebug() << "Other error:";
+	}
+}
+
+//响应数据处理
+void HttpWorker::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
+{
+	//处理响应
+	QByteArray responseData = reply->readAll();
+	QByteArray contentType = reply->rawHeader("Content-Type");
+	qDebug() << "http响应头:" << contentType;
+
+	//调用回调
+	if (callBack)
+	{
+		//解析返回数据包
+		auto parsePacketList = PacketCreate::parseDataPackets(responseData);
+		//回调,主线程进行，GuI操作
+		QMetaObject::invokeMethod(QCoreApplication::instance(), [callBack, parsePacketList]()
+			{
+				callBack(parsePacketList.first().params, parsePacketList.first().data);
+			});
+		return;
+	}
+
+	//信号传出处理
+	if (contentType.contains("application/json"))
+	{
+		qDebug() << "接收http文本回复";
+		emit httpTextResponseReceived(responseData);
+	}
+	else
+	{
+		qDebug() << "接收http数据回复";
+		emit httpDataResponseReceived(responseData);
 	}
 }
 

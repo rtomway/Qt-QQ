@@ -16,6 +16,7 @@ public:
 	void init();
 public:
 	void setGroupProfile(const QString& group_id);
+	void refresh();
 	void clearWidget();
 private:
 	Ui::GroupProfilePage* ui{};

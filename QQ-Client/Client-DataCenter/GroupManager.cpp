@@ -1,6 +1,5 @@
 ﻿#include "GroupManager.h"
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QJsonArray>
 
 #include "EventBus.h"
@@ -12,6 +11,7 @@
 #include "ChatRecordMessage.h"
 
 constexpr int MIN_GROUPMEMBER_COUNT_FOR_LOADING = 50;  // 低于此人数时加载群信息
+constexpr int BATCHSIZE_LOADAVATAR = 10;       //一次申请加载的数量
 
 GroupManager::GroupManager()
 {
@@ -24,7 +24,6 @@ GroupManager::GroupManager()
 	//加载群组基本信息并请求部分群组群成员信息
 	connect(EventBus::instance(), &EventBus::initGroupManager, this, [=](const QJsonObject& paramsObject)
 		{
-			qDebug() << "-------------------initGroupManager-----------";
 			auto groupListArray = paramsObject["groupList"].toArray();
 			QStringList localGroup_IdList;
 			QStringList needLoadGroup_IdList;
@@ -35,6 +34,7 @@ GroupManager::GroupManager()
 				auto myGroup = QSharedPointer<Group>::create();
 				myGroup->setGroup(groupObj);
 				this->addGroup(myGroup);
+
 				//加载客户端自身在群组中的角色
 				QJsonObject loginUserObj;
 				auto& loginUser = LoginUserManager::instance()->getLoginUser();
@@ -42,24 +42,25 @@ GroupManager::GroupManager()
 				loginUserObj["username"] = loginUser->getFriendName();
 				loginUserObj["group_role"] = groupObj["group_role"];
 				myGroup->loadGroupMember(loginUserObj);
+
 				//头像是否申请的分组
 				auto& group_id = myGroup->getGroupId();
 				if (!AvatarManager::instance()->hasLocalAvatar(group_id, ChatType::Group))
 				{
-					qDebug() << "--------------需要向服务器请求加载的群组头像ID:" << group_id;
 					needLoadGroup_IdList.append(group_id);
 				}
 				else
 				{
 					localGroup_IdList.append(group_id);
 				}
+
 				//向服务器申请群成员信息加载
 				if (myGroup->count() <= MIN_GROUPMEMBER_COUNT_FOR_LOADING)
 				{
 					loadGroupInfoFromServer(group_id, "loadGroupMember");
 				}
-				//向服务器分批加载群成员头像
 			}
+
 			//加载已有头像群组列表
 			emit loadLocalAvatarGroup(localGroup_IdList);
 			//分批向服务器发送头像请求
@@ -75,6 +76,7 @@ GroupManager::GroupManager()
 			auto group = this->findGroup(group_id);
 			auto groupMemberArray = obj["groupMemberArray"].toArray();
 			group->batchLoadGroupMember(groupMemberArray);
+
 			auto groupMemberIdList = group->getGroupMembersIdList();
 			QStringList loadAvatarFromServer_idList;
 			for (auto& member_id : groupMemberIdList)
@@ -98,11 +100,14 @@ GroupManager::GroupManager()
 			auto myGroup = QSharedPointer<Group>::create();
 			myGroup->setGroup(obj);
 			GroupManager::instance()->addGroup(myGroup);
+
+			//群主
 			QJsonObject groupMemberObj;
 			groupMemberObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 			groupMemberObj["username"] = LoginUserManager::instance()->getLoginUserName();
 			groupMemberObj["group_role"] = "owner";
 			myGroup->loadGroupMember(groupMemberObj);
+
 			emit createGroupSuccess(group_id);
 		});
 	//新成员添加
@@ -110,19 +115,20 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
-			auto user_name = obj["user_name"].toString();
-			auto group = findGroup(group_id);
+			auto group = this->findGroup(group_id);
 			group->addMember(obj);
+
 			emit newGroupMember(group_id, user_id);
+			emit updateGroupProfile(group_id);
 		});
 	//加载群组
 	connect(EventBus::instance(), &EventBus::newGroup, this, [=](const QJsonObject& obj)
 		{
 			auto group_id = obj["group_id"].toString();
-			auto group_name = obj["group_name"].toString();
 			auto myGroup = QSharedPointer<Group>::create();
 			myGroup->setGroup(obj);
 			GroupManager::instance()->addGroup(myGroup);
+
 			//加载客户端自身在群组中的角色
 			QJsonObject loginUserObj;
 			auto& loginUser = LoginUserManager::instance()->getLoginUser();
@@ -130,6 +136,7 @@ GroupManager::GroupManager()
 			loginUserObj["username"] = loginUser->getFriendName();
 			loginUserObj["group_role"] = "member";
 			myGroup->loadGroupMember(loginUserObj);
+
 			//通知内部各个控件
 			emit newGroup(group_id);
 		});
@@ -138,9 +145,8 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
-			auto message = obj["message"].toString();
-			auto group = GroupManager::instance()->findGroup(group_id);
-			auto member = group->getMember(user_id);
+
+			//确保成员信息存在
 			this->ensureGroupMemberLoad(group_id, user_id, [=]()
 				{
 					emit groupTextCommunication(obj);
@@ -151,9 +157,7 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
-			auto message = obj["message"].toString();
-			auto group = GroupManager::instance()->findGroup(group_id);
-			auto member = group->getMember(user_id);
+
 			this->ensureGroupMemberLoad(group_id, user_id, [=]()
 				{
 					emit groupPictureCommunication(obj, pixmap);
@@ -169,22 +173,37 @@ GroupManager::GroupManager()
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
+
 			emit exitGroup(group_id, user_id);
 		});
 	//有群成员退出群聊
-	connect(EventBus::instance(), &EventBus::removeGroupMember, this, [=](const QJsonObject& obj)
+	connect(EventBus::instance(), &EventBus::groupMemberDeleted, this, [=](const QJsonObject& obj)
 		{
 			auto group_id = obj["group_id"].toString();
 			auto user_id = obj["user_id"].toString();
-			auto user_name = obj["user_name"].toString();
 			auto group = findGroup(group_id);
 			group->removeMember(user_id);
 
+			emit updateGroupProfile(group_id);
 		});
 	//群聊解散
 	connect(EventBus::instance(), &EventBus::disbandGroup, this, [=](const QString& group_id)
 		{
 			emit exitGroup(group_id, LoginUserManager::instance()->getLoginUserID());
+		});
+	//有群成员被移除群聊
+	connect(EventBus::instance(), &EventBus::batch_groupMemberDeleted, this, [=](const QJsonObject& obj)
+		{
+			auto group_id = obj["group_id"].toString();
+			auto group = findGroup(group_id);
+			auto deleteMemberArray = obj["deleteMemberList"].toArray();
+			for (auto deleteMember_idValue : deleteMemberArray)
+			{
+				auto deleteMember_id = deleteMember_idValue.toString();
+				group->removeMember(deleteMember_id);
+			}
+
+			emit updateGroupProfile(group_id);
 		});
 }
 
@@ -194,7 +213,7 @@ GroupManager* GroupManager::instance()
 	return &ins;
 }
 
-//申请群信息的加载
+//申请群成员信息的加载
 void GroupManager::loadGroupInfoFromServer(const QString& id, const QString& requestType)
 {
 	QJsonObject loadListObj;
@@ -207,19 +226,19 @@ void GroupManager::loadGroupInfoFromServer(const QString& id, const QString& req
 //申请头像的加载(10个一批)
 void GroupManager::loadGroupAvatarFromServer(const QStringList& group_idList, const QString& requestType)
 {
-	const int batchSize = 10;
 	int totalSize = group_idList.size();
 	// 按批次处理 group_idList
-	for (int i = 0; i < totalSize; i += batchSize)
+	for (int i = 0; i < totalSize; i += BATCHSIZE_LOADAVATAR)
 	{
 		QJsonArray loadGroupAvatarIdArray;
 		// 获取当前批次的 10 个 group_id
-		QStringList currentBatch = group_idList.mid(i, batchSize);
+		QStringList currentBatch = group_idList.mid(i, BATCHSIZE_LOADAVATAR);
 		// 处理当前批次的 group_id
 		for (const auto& groupId : currentBatch)
 		{
 			loadGroupAvatarIdArray.append(groupId);
 		}
+
 		QJsonObject loadGroupAvatarIdObj;
 		loadGroupAvatarIdObj["applicateAvatar_idList"] = loadGroupAvatarIdArray;
 		QJsonDocument loadGroupAvatarIdDoc(loadGroupAvatarIdObj);
@@ -237,11 +256,13 @@ void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString&
 		qWarning() << "群组不存在:" << group_id;
 		return;
 	}
+
 	auto member = group->getMember(user_id);
 	if (!member.member_id.isEmpty()) {
 		callback();
 		return;
 	}
+
 	// 构建请求体
 	QJsonObject memberObj;
 	memberObj["member_id"] = user_id;
@@ -252,7 +273,6 @@ void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString&
 	MessageSender::instance()->sendHttpRequest("groupMemberLoad", data, "application/json",
 		[=](const QJsonObject& params, const QByteArray& avatarData)
 		{
-			qDebug() << "紧急加载的群成员:" << params;
 			group->loadGroupMember(params);
 			ImageUtils::saveAvatarToLocal(avatarData, user_id, ChatType::User, [=](bool result)
 				{
@@ -269,6 +289,7 @@ void GroupManager::addGroup(const QSharedPointer<Group>& group)
 {
 	if (!group || group->getGroupId().isEmpty())
 		return;
+
 	auto& group_id = group->getGroupId();
 	if (!m_groups.contains(group_id))
 	{

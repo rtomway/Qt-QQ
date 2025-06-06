@@ -1,7 +1,4 @@
 ﻿#include "Friend.h"
-#include <QStandardPaths>
-
-#include "ImageUtil.h"
 
 //获取ID
 const QString& Friend::getFriendId()const

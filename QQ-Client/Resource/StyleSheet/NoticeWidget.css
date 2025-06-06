@@ -1,4 +1,8 @@
-﻿QListWidget {
+﻿QWidget#NoticeWidget {
+    background-color: rgb(240,240,240);
+}
+
+QListWidget {
     outline: 0px;
     border: none;
     background-color: transparent;

@@ -82,7 +82,6 @@ void FriendProfilePage::init()
 	//更新用户信息
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, this, [=](const QString& user_id)
 		{
-			qDebug() << "------------user_id:" << user_id;
 			this->setFriendProfile(user_id);
 		});
 	//更新用户头像
@@ -152,6 +151,14 @@ void FriendProfilePage::setFriendProfile(const QString& user_id)
 	//获取friend信息
 	m_friendId = user_id;
 	m_json = m_friend->getFriend();
+	refresh();
+
+	m_isBlockedComboBox = false;
+}
+
+//界面更新
+void FriendProfilePage::refresh()
+{
 	//未设置信息隐藏
 	if (LoginUserManager::instance()->getLoginUserID() != m_friendId)
 	{
@@ -220,7 +227,6 @@ void FriendProfilePage::setFriendProfile(const QString& user_id)
 		});
 	ui->signaltureLab->setText(m_json["signature"].toString());
 
-	m_isBlockedComboBox = false;
 }
 
 //清空

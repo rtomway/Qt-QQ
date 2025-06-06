@@ -14,7 +14,7 @@ ChatWidget::ChatWidget(QWidget* parent)
 void ChatWidget::init()
 {
 	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);  // 确保不会有额外的边距
+	layout->setContentsMargins(0, 0, 0, 0); 
 	layout->setSpacing(0);
 	layout->addWidget(m_stackedChatWidget);
 	setLayout(layout);

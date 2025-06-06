@@ -15,7 +15,6 @@ class MessageSender :public QObject
 {
 	Q_OBJECT
 public:
-	// 获取单例实例的静态方法
 	static MessageSender* instance();
 public:
 	void setClient(Client* client);
@@ -28,7 +27,6 @@ public:
 	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack = nullptr);
 private:
 	MessageSender();
-	// 禁止拷贝构造函数和赋值操作符
 	MessageSender(const MessageSender&) = delete;
 	MessageSender& operator=(const MessageSender&) = delete;
 private:

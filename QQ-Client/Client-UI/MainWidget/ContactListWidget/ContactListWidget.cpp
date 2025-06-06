@@ -3,8 +3,6 @@
 #include <QFile>
 #include <QLabel>
 #include <QBoxLayout>
-#include <QMutex>
-#include <QMutexLocker>
 #include <QJsonObject>
 #include <QSharedPointer>
 
@@ -42,8 +40,6 @@ ContactListWidget::ContactListWidget(QWidget* parent)
 	else {
 		qDebug() << file.fileName() << "样式表打开失败";
 	}
-	ui->fInformWidget->installEventFilter(this);
-	ui->gInformWidget->installEventFilter(this);
 }
 
 ContactListWidget::~ContactListWidget()
@@ -53,6 +49,8 @@ ContactListWidget::~ContactListWidget()
 
 void ContactListWidget::init()
 {
+	ui->fInformWidget->installEventFilter(this);
+	ui->gInformWidget->installEventFilter(this);
 	//隐藏tree根
 	m_friendList->setHeaderHidden(true);
 	m_groupList->setHeaderHidden(true);
@@ -220,11 +218,17 @@ void ContactListWidget::externalSignals()
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto groupingItem = getFriendTopItem(user->getGrouping());
+			qDebug() << "--------------getGrouping------------" << user->getGrouping();
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				itemWidget->setItemWidget(user_id);
+				qDebug() << "--------------user_id存在------------"<<user_id;
+			}
+			else
+			{
+				qDebug() << "--------------user_id不存在------------"<< user_id;
 			}
 		});
 	//头像更新
@@ -244,10 +248,8 @@ void ContactListWidget::externalSignals()
 		{
 			//从旧分组中移除 
 			auto oldTopItem = getFriendTopItem(oldGrouping);
-			qDebug() << "oldTopItem" << oldGrouping;
 			if (oldTopItem)
 			{
-				qDebug() << "存在";
 				auto item = findItemByIdInGroup(oldTopItem, user_id);
 				oldTopItem->removeChild(item);
 				auto oldTopItemWidget = qobject_cast<TopItemWidget*>(m_friendList->itemWidget(oldTopItem, 0));
@@ -279,9 +281,6 @@ void ContactListWidget::externalSignals()
 	connect(GroupManager::instance(), &GroupManager::exitGroup, this, [=](const QString& group_id, const QString& user_id)
 		{
 			auto list = GroupManager::instance()->getGroups().keys();
-			for (auto& id : list)
-				qDebug() << "---------群组:" << id;
-			qDebug() << "---id--:" << group_id;
 			auto exitGroup = GroupManager::instance()->findGroup(group_id);
 			auto& grouping = exitGroup->getGrouping();
 			auto topItem = getGroupTopItem(grouping);
@@ -478,26 +477,25 @@ void ContactListWidget::clearContactList()
 //事件重写
 bool ContactListWidget::eventFilter(QObject* obj, QEvent* event)
 {
-	// 监听子窗口的鼠标点击事件
-	if (obj == ui->fInformWidget && event->type() == QEvent::MouseButtonPress) {
-		qDebug() << "子窗口被点击!";
+	if (obj == ui->fInformWidget && event->type() == QEvent::MouseButtonPress) 
+	{
 		//点击好友申请通知 清空未读
 		emit friendNotice();
 		m_fNoticeUnreadCount = 0;
 		ui->friendNoticeCountLab->clear();
 		ui->friendNoticeCountLab->setVisible(false);
-		return true; // 事件已处理，不再继续传递
+		return true; 
 	}
+
 	if (obj == ui->gInformWidget && event->type() == QEvent::MouseButtonPress)
 	{
-		qDebug() << "子窗口被点击!";
 		//点击群聊申请通知 清空未读
 		emit groupNotice();
 		m_gNoticeUnreadCount = 0;
 		ui->groupNoticeCountLab->clear();
 		ui->groupNoticeCountLab->setVisible(false);
-		return true; // 事件已处理，不再继续传递
+		return true; 
 	}
-	return false; // 传递给基类处理其他事件
+	return false;
 }
 

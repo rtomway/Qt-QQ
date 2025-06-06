@@ -43,7 +43,8 @@ AvatarManager::AvatarManager()
 bool AvatarManager::hasLocalAvatar(const QString& id, ChatType type)
 {
 	QString avatarPath;
-	switch (type) {
+	switch (type) 
+	{
 	case ChatType::User:
 		avatarPath = ImageUtils::getUserAvatarFolderPath() + "/" + id + ".png";
 		break;

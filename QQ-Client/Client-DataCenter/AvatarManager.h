@@ -21,7 +21,6 @@ public:
 	void processPendingCallbacks(const QString& id, const QPixmap& avatar);
 private:
 	AvatarManager();
-	// 禁止拷贝构造函数和赋值操作符
 	AvatarManager(const AvatarManager&) = delete;
 	AvatarManager& operator=(const AvatarManager&) = delete;
 private:

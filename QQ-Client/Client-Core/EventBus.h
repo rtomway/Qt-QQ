@@ -9,9 +9,7 @@ class EventBus :public QObject
 {
 	Q_OBJECT
 public:
-	// 获取单例实例的静态方法
 	static EventBus* instance();
-	// 禁止拷贝构造函数和赋值操作符
 	EventBus(const EventBus&) = delete;
 	EventBus& operator=(const EventBus&) = delete;
 private:
@@ -40,7 +38,8 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void exitGroup(const QString& group_id, const QString& user_id);
 	void removeGroup(const QJsonObject& paramsObject);
 	void disbandGroup(const QString& group_id);
-	void removeGroupMember(const QJsonObject& paramsObject);
+	void groupMemberDeleted(const QJsonObject& paramsObject);
+	void batch_groupMemberDeleted(const QJsonObject& paramsObject);
 	//用户操作
 	void searchUser(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void searchGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);
@@ -55,7 +54,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void notice_friendRequest(const QJsonObject& paramsObject, const QPixmap& pixmap);
 
 	//内部
-	void updateChatWidget(ChatType type,const QString&group_id);
+	void updateChatWidget(ChatType type, const QString& group_id);
 	void hideGroupSetPannel();
 };
 

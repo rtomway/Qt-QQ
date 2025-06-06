@@ -13,6 +13,7 @@
 class GroupInviteWidget;
 
 namespace Ui { class ContactListWidget; }
+
 class ContactListWidget :public QWidget
 {
 	Q_OBJECT

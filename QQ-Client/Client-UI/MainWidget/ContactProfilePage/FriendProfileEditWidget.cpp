@@ -225,8 +225,6 @@ void FriendProfileEditWidget::init()
 		});
 	connect(okBtn, &QPushButton::clicked, [=]
 		{
-			//信息更新
-			qDebug() << "m_avatarIsChange" << m_avatarIsChange;
 			//头像更新
 			if (m_avatarIsChange)
 			{
@@ -246,7 +244,7 @@ void FriendProfileEditWidget::init()
 			//向服务端发送更新信息
 			QJsonObject friendObj = user->getFriend();
 			//客户端独立信息删除
-			friendObj.remove("grouping");
+			friendObj.remove("Fgrouping");
 			friendObj.remove("avatar_path");
 			QJsonDocument doc(friendObj);
 			QByteArray data = doc.toJson(QJsonDocument::Compact);

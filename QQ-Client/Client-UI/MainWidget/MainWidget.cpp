@@ -429,14 +429,11 @@ void MainWidget::connectFriendManagerSignals()
 	//好友信息更新,消息项相关信息更新
 	connect(FriendManager::instance(), &FriendManager::UpdateFriendMessage, [=](const QString& user_id)
 		{
-			qDebug() << "消息项相关信息更新" << user_id;
 			auto key = itemKey(user_id, ChatType::User);
 			auto messageItem = findListItem(key);
 			if (messageItem)
 			{
-				qDebug() << "消息项相关信息更新";
-				auto user = FriendManager::instance()->findFriend(user_id);
-				auto itemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(messageItem));
+				auto itemWidget = qobject_cast<ItemWidget*>(m_chatMessageListWidget->itemWidget(messageItem));
 				itemWidget->setItemWidget(user_id);
 			}
 		});
@@ -561,11 +558,13 @@ void MainWidget::connectWindowControlSignals()
 		{
 			ui->messageStackedWidget->setCurrentWidget(m_noticePage);
 			m_noticePage->setCurrentWidget(NoticeWidget::FriendNoticeWidget);
+			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
 		});
 	connect(m_contactListWidget, &ContactListWidget::groupNotice, this, [=]
 		{
 			ui->messageStackedWidget->setCurrentWidget(m_noticePage);
 			m_noticePage->setCurrentWidget(NoticeWidget::GroupNoticeWidget);
+			ui->rightWidget->setStyleSheet("background-color:rgb(240,240,240)");
 		});
 	//新增通知
 	connect(m_noticePage, &NoticeWidget::friendNotice, this, [=]

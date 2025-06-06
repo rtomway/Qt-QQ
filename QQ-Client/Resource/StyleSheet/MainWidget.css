@@ -11,7 +11,7 @@ QWidget#contactWidget{
     background-color: white;
 }
 QWidget#rightWidget {
-    background-color: rgb(240,240,240);
+    background-color: transparent;
 }
 QListWidget#listWidget {
     border: none;
