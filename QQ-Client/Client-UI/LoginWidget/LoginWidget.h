@@ -11,6 +11,8 @@
 #include "RegisterPage.h"
 #include "LineEditwithButton.h"
 
+
+
 class LoginWidget :public AngleRoundedWidget
 {
 	Q_OBJECT 

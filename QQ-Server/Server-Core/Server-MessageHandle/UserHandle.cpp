@@ -49,7 +49,6 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArra
 	}
 	//最总发送
 	auto allData = PacketCreate::allBinaryPacket(userData);
-	qDebug() << "发送";
 	QByteArray mimeType = "application/octet-stream";
 	responder.write(allData, mimeType);
 }

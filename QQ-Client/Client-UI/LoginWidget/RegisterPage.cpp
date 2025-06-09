@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "EventBus.h"
 
 RegisterPage::RegisterPage(QWidget* parent)
@@ -71,7 +71,7 @@ void RegisterPage::init()
 			registerObj["password"] = ui->passwordEdit->text();
 			QJsonDocument doc(registerObj);
 			auto data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("register", data, "application/json");
+			NetWorkServiceLocator::instance()->sendHttpRequest("register", data, "application/json");
 		});
 	connect(EventBus::instance(), &EventBus::registerSuccess, this, &RegisterPage::hide);
 }

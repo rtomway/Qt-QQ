@@ -21,7 +21,7 @@
 #include "GroupManager.h"
 #include "FMessageItemWidget.h"
 #include "GMessageItemWidget.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "MessageRecord.h"
 #include "LoginUserManager.h"
 #include "GroupCreateWidget.h"
@@ -404,9 +404,8 @@ void MainWidget::initMoreMenu()
 				m_addFriendWidget.reset();
 			}
 
-
 			emit quitSuccess();
-			MessageSender::instance()->disConnect();
+			NetWorkServiceLocator::instance()->disConnect();
 		});
 	m_moreMenu->addAction(QIcon(":/icon/Resource/Icon/about.png"), "关于", [=]
 		{
@@ -444,7 +443,6 @@ void MainWidget::connectFriendManagerSignals()
 			auto messageItem = findListItem(key);
 			if (messageItem)
 			{
-				qDebug() << "头像信息更新";
 				auto user = FriendManager::instance()->findFriend(user_id);
 				auto itemWidget = qobject_cast<FMessageItemWidget*>(m_chatMessageListWidget->itemWidget(messageItem));
 				itemWidget->setItemWidget(user_id);
@@ -628,7 +626,6 @@ void MainWidget::connectWindowControlSignals()
 			//已经处于当前用户会话界面并且是显示状态
 			if (m_chatWidget == ui->messageStackedWidget->currentWidget() && m_chatWidget->isStackedCurrentChat(type, id))
 				return;
-			qDebug() << "进入会话界面（加载用户信息）";
 			//清除消息项未读
 			if (type == ChatType::User)
 			{

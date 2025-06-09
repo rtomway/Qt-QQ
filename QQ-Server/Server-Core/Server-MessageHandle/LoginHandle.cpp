@@ -85,7 +85,6 @@ void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByt
 	auto user_id = paramsObj["user_id"].toString();
 	//数据库查询
 	DataBaseQuery query;
-	qDebug() << "handle_loadFriendList" << user_id;
 	auto friendListObj = LoginDBUtils::queryFriendList(user_id, query);
 	if (friendListObj.contains("error"))
 	{

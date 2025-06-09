@@ -12,7 +12,10 @@ add_library(Client-DataCenter STATIC
     FriendManager.cpp
     AvatarManager.h
     AvatarManager.cpp
- "TempManager.h" "TempManager.cpp" "LoginUserManager.h" "LoginUserManager.cpp")
+ "TempManager.h" "TempManager.cpp" 
+ "LoginUserManager.h" "LoginUserManager.cpp"
+ "TokenManager.h" "TokenManager.cpp"
+)
 
 
 # 设置包含目录（确保主程序能访问头文件）

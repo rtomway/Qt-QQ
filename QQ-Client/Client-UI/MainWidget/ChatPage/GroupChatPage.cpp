@@ -14,7 +14,7 @@
 #include "EventBus.h"
 #include "GroupManager.h"
 #include "ChatRecordManager.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "AvatarManager.h"
 #include "GlobalTypes.h"
 #include "ImageUtil.h"
@@ -202,7 +202,7 @@ void GroupChatPage::sendImageMessageToServer(const QString& id, const QPixmap& h
 		PacketCreate::addPacket(userData, packet);
 		auto allData = PacketCreate::allBinaryPacket(userData);
 
-		MessageSender::instance()->sendBinaryData(allData);
+		NetWorkServiceLocator::instance()->sendWebBinaryData(allData);
 	}
 	ui->messageTextEdit->clear();
 }
@@ -233,7 +233,7 @@ void GroupChatPage::sendTextMessageToServer(const QString& user_id, const QPixma
 	groupMessageObj["group_id"] = m_group->getGroupId();
 	groupMessageObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 	auto message = PacketCreate::textPacket("groupTextCommunication", groupMessageObj);
-	MessageSender::instance()->sendMessage(message);
+	NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 }
 
 //消息气泡
@@ -242,7 +242,7 @@ void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixma
 	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
-	MessageBubble* bubble = new MessageBubble(avatar, pixmap, bubbleType, memberName, memberRole);
+	MessageBubble* bubble = new MessageBubble(user_id,avatar, pixmap, bubbleType, memberName, memberRole);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
@@ -252,7 +252,7 @@ void GroupChatPage::createTextMessageBubble(const QPixmap& avatar, const QString
 	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
-	MessageBubble* bubble = new MessageBubble(avatar, message, bubbleType, memberName, memberRole);
+	MessageBubble* bubble = new MessageBubble(user_id,avatar, message, bubbleType, memberName, memberRole);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();

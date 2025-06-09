@@ -6,7 +6,7 @@
 #include <QStandardPaths>
 
 #include "ImageUtil.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "ChatRecordManager.h"
 #include "EventBus.h"
@@ -30,7 +30,7 @@ FriendManager::FriendManager()
 			loadListObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 			QJsonDocument loadListDoc(loadListObj);
 			QByteArray loadListData = loadListDoc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("loadFriendList", loadListData, "application/json");
+			NetWorkServiceLocator::instance()->sendHttpRequest("loadFriendList", loadListData, "application/json");
 		});
 	//初始化好友中心
 	connect(EventBus::instance(), &EventBus::initFriendManager, this, [=](const QJsonObject& paramsObject)
@@ -107,7 +107,7 @@ void FriendManager::loadFriendAvatarFromServer(const QStringList& friend_idList)
 		loadFriendAvatarIdObj["friend_ids"] = loadFriendAvatarIdArray;
 		QJsonDocument loadFriendAvatarIdDoc(loadFriendAvatarIdObj);
 		auto data = loadFriendAvatarIdDoc.toJson(QJsonDocument::Compact);
-		MessageSender::instance()->sendHttpRequest("loadFriendAvatars", data, "application/json");
+		NetWorkServiceLocator::instance()->sendHttpRequest("loadFriendAvatars", data, "application/json");
 	}
 }
 

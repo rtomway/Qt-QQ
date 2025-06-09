@@ -40,25 +40,13 @@ QSqlDatabase SSqlConnectionPool::openConnection()
 
 	//当前总连接数
 	int count = m_useConnections.count() + m_unuseConnections.count();
-
-		//连接全部被使用
-	//if (count > 0)
-	//{
-		for (size_t i = 0; i < m_waitTime && m_unuseConnections.isEmpty() && count == m_maxConnectionCount; i+=m_waitInterval)
-		{
-			//等待其他连接关闭  等待其他线程唤醒信号 超时则退出
-			m_waitCondition.wait(&m_mutex, m_waitInterval);
-			//重新计算总连接数
-			count = m_useConnections.count() + m_unuseConnections.count();
-			//qDebug() << "wait:" << i;
-			/*qDebug() << "xall:" << count;
-			qDebug() << "xused:" << m_useConnections.count();
-			qDebug() << "xno use:" << m_unuseConnections.count();*/
-		}
-	//}
-	/*qDebug() << "all:" << count;
-	qDebug() << "used:" << m_useConnections.count();
-	qDebug() << "no use:" << m_unuseConnections.count();*/
+	for (size_t i = 0; i < m_waitTime && m_unuseConnections.isEmpty() && count == m_maxConnectionCount; i+=m_waitInterval)
+	{
+		//等待其他连接关闭  等待其他线程唤醒信号 超时则退出
+		m_waitCondition.wait(&m_mutex, m_waitInterval);
+		//重新计算总连接数
+		count = m_useConnections.count() + m_unuseConnections.count();
+	}
 	//判断是否创建新的连接
 	QString con_name;
 	if (m_unuseConnections.count() > 0)     //存在连接未使用
@@ -107,14 +95,6 @@ QSqlDatabase SSqlConnectionPool::CreateConnection(const QString& con_name)
 		qWarning() << "connection" << con_name << "has exit";
 		auto db= QSqlDatabase::database(con_name);
 		qDebug() << "------------------" << db.databaseName() << con_name;
-		/*if (db.open())
-		{
-			return db;
-			qDebug() << "------------------" << db.databaseName() << con_name;
-		}
-		else {
-			qDebug() << "------------------" << db.databaseName()<<con_name;
-		}*/
 		return db;
 	}
 	 

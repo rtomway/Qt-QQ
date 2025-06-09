@@ -1,5 +1,4 @@
 ﻿#include "Client_GroupHandle.h"
-#include "Client_GroupHandle.h"
 #include <QPixmap>
 
 #include "ImageUtil.h"

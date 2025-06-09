@@ -12,7 +12,7 @@
 #include "ImageUtil.h"
 #include "Friend.h"
 #include "FriendManager.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "AvatarManager.h"
 #include "GlobalTypes.h"
@@ -178,7 +178,6 @@ void FriendProfileEditWidget::init()
 		});
 	connect(m_birthdayEdit, &LineEditwithButton::clicked, this, [=]
 		{
-			qDebug() << "选择生日";
 			auto menu = m_birthdayEdit->getMenu();
 			if (!m_calendarAction)
 			{
@@ -248,7 +247,7 @@ void FriendProfileEditWidget::init()
 			friendObj.remove("avatar_path");
 			QJsonDocument doc(friendObj);
 			QByteArray data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
+			NetWorkServiceLocator::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
 			this->hide();
 		});
 }
@@ -265,23 +264,6 @@ void FriendProfileEditWidget::updateAvatar()
 	//通知内部客户端
 	AvatarManager::instance()->emit UpdateUserAvatar(m_userId);
 	//通知服务端
-	//QByteArray byteArray;
-	//QBuffer buffer(&byteArray);
-	//buffer.open(QIODevice::WriteOnly);
-	//// 将 QPixmap 转换为 PNG 并存入 QByteArray
-	//if (!m_headPix.save(&buffer, "PNG")) {
-	//	qDebug() << "Failed to convert avatar to PNG format.";
-	//	return;
-	//}
-	//QVariantMap params;
-	//params["user_id"] = m_userId;
-	//params["size"] = byteArray.size();
-	////二进制数据的发送
-	//auto packet = PacketCreate::binaryPacket("updateUserAvatar", params, byteArray);
-	//QByteArray userData;
-	//PacketCreate::addPacket(userData, packet);
-	//auto allData = PacketCreate::allBinaryPacket(userData);
-	//MessageSender::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 	QtConcurrent::run([=]() {
 		QByteArray byteArray;
 		QBuffer buffer(&byteArray);
@@ -300,8 +282,8 @@ void FriendProfileEditWidget::updateAvatar()
 		auto allData = PacketCreate::allBinaryPacket(userData);
 
 		// 发到主线程发信号
-		QMetaObject::invokeMethod(MessageSender::instance(), [=]() {
-			MessageSender::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+		QMetaObject::invokeMethod(NetWorkServiceLocator::instance(), [=]() {
+			NetWorkServiceLocator::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 			});
 		});
 }

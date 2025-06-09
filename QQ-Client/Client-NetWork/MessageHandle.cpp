@@ -14,7 +14,7 @@
 
 
 MessageHandle::MessageHandle(QObject* parent)
-	:QObject(parent)
+	: QObject(parent)
 {
 	initRequestHash();
 }
@@ -72,9 +72,10 @@ void MessageHandle::initRequestHash()
 }
 
 //消息处理接口
-void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
+void MessageHandle::handle_textMessage(const QString& message)
 {
 	qDebug() << "----------------------------接受到服务端的文本消息:-----------------------";
+	auto messageDoc = QJsonDocument::fromJson(message.toUtf8());
 	if (messageDoc.isObject())
 	{
 		QJsonObject obj = messageDoc.object();
@@ -90,11 +91,11 @@ void MessageHandle::handle_textMessage(const QJsonDocument& messageDoc)
 		}
 	}
 }
-void MessageHandle::handle_binaryMessage(const QByteArray& message)
+void MessageHandle::handle_binaryData(const QByteArray& data)
 {
 	qDebug() << "----------------------------接受到服务端的数据消息:-----------------------";
 
-	auto parsePacketList = PacketCreate::parseDataPackets(message);
+	auto parsePacketList = PacketCreate::parseDataPackets(data);
 	for (auto& parsePacket : parsePacketList)
 	{
 		// 根据类型给处理函数处理

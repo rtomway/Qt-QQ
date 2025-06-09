@@ -49,11 +49,9 @@ void GMessageItemWidget::refershItemWidget()
 	
 	AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group, [=](const QPixmap& pixmap)
 		{
-			qDebug() << "----------群组消息项头像回调";
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 			ui->headLab->setPixmap(headPix);
 		});
-	qDebug() << "GMessageItemWidget:" << m_group << m_group->getGroupName();
 	ui->nameLab->setText(m_group->getGroupName());
 	//最新消息
 	if (!m_unReadMesssage.isEmpty())

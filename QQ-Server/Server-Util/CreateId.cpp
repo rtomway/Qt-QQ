@@ -13,7 +13,6 @@ QString CreateId::getRandomID(int length)
 		int ram = randomID.bounded(0, 9);
 		user_id.append(QString::number(ram));
 	}
-	qDebug() << "RandomID:" << user_id;
 	return user_id;
 }
 
@@ -21,7 +20,6 @@ QString CreateId::generateUserID(Id type)
 {
 	QString id;
 	QString queryStr;
-	qDebug() << "typeid" << type;
 	if (type == User)
 	{
 		queryStr="select user_id from user where user_id=?";
@@ -30,12 +28,10 @@ QString CreateId::generateUserID(Id type)
 	{
 		queryStr = "select group_id from `group` where group_id=?";
 	}
-	qDebug() << "随机生成id:" << queryStr;
 	//注册唯一id
 	while (true) {
 		//服务器随机生成10位数用户id
 		id = getRandomID(10);
-		qDebug() << "RandomID后的:" << id;
 		//先查询生成id是否已存在
 		DataBaseQuery query;
 		QVariantList bindvalues;

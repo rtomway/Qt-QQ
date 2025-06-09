@@ -80,7 +80,6 @@ QStringList FriendDBUtils::queryFriendIdList(const QString& user_id, DataBaseQue
 		auto friend_idObj = friendIdValues.toObject();
 		auto friend_id = friend_idObj["friend_id"].toString();
 		friend_idList.append(friend_id);
-		qDebug() << "查询好友id----------:" << friend_id;
 	}
 	return friend_idList;
 }

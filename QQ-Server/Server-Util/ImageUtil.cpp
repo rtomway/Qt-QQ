@@ -103,7 +103,6 @@ QByteArray ImageUtils::loadImage(const QString& id, ChatType type)
 	}
 	QDir().mkpath(avatarFolder);  // 确保目录存在
 	auto avatarPath = avatarFolder + "/" + id + ".png";
-	qDebug() << "Attempting to load image from:" << avatarPath;
 	// 加载图片
 	QFile file(avatarPath);
 	if (!file.exists()) {

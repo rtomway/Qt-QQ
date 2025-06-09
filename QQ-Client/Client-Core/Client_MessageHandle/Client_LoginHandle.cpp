@@ -7,23 +7,16 @@
 #include <GroupManager.h>
 #include <Group.h>
 
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "EventBus.h"
 #include "ImageUtil.h"
 #include "AvatarManager.h"
 #include "LoginUserManager.h"
-#include "TokenManager.h"
-#include "Client.h"
 
 //登录认证成功
 void Client_LoginHandle::handle_loginValidationSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	auto user_id = paramsObject["user_id"].toString();
-	//保存token
-	auto token = paramsObject["token"].toString();
-	TokenManager::saveToken(token);
-	//连接登录
-	MessageSender::instance()->emit connectToServer(user_id);
+	EventBus::instance()->emit loginValidationSuccess(paramsObject);
 }
 
 //登录成功

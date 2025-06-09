@@ -5,7 +5,7 @@
 #include "EventBus.h"
 #include "AvatarManager.h"
 #include "ImageUtil.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 #include "ChatRecordManager.h"
 #include "ChatRecordMessage.h"
@@ -220,7 +220,7 @@ void GroupManager::loadGroupInfoFromServer(const QString& id, const QString& req
 	loadListObj["id"] = id;
 	QJsonDocument loadListDoc(loadListObj);
 	QByteArray loadListData = loadListDoc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest(requestType, loadListData, "application/json");
+	NetWorkServiceLocator::instance()->sendHttpRequest(requestType, loadListData, "application/json");
 }
 
 //申请头像的加载(10个一批)
@@ -243,7 +243,7 @@ void GroupManager::loadGroupAvatarFromServer(const QStringList& group_idList, co
 		loadGroupAvatarIdObj["applicateAvatar_idList"] = loadGroupAvatarIdArray;
 		QJsonDocument loadGroupAvatarIdDoc(loadGroupAvatarIdObj);
 		auto data = loadGroupAvatarIdDoc.toJson(QJsonDocument::Compact);
-		MessageSender::instance()->sendHttpRequest(requestType, data, "application/json");
+		NetWorkServiceLocator::instance()->sendHttpRequest(requestType, data, "application/json");
 	}
 }
 
@@ -270,7 +270,7 @@ void GroupManager::ensureGroupMemberLoad(const QString& group_id, const QString&
 	QJsonDocument doc(memberObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
 	// 发送加载请求
-	MessageSender::instance()->sendHttpRequest("groupMemberLoad", data, "application/json",
+	NetWorkServiceLocator::instance()->sendHttpRequest("groupMemberLoad", data, "application/json",
 		[=](const QJsonObject& params, const QByteArray& avatarData)
 		{
 			group->loadGroupMember(params);

@@ -11,7 +11,7 @@
 #include "Friend.h"
 #include "GroupManager.h"
 #include "EventBus.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 
 
@@ -105,7 +105,7 @@ void AddFriendWidget::init()
 				serachObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 				QJsonDocument doc(serachObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
-				MessageSender::instance()->sendHttpRequest("serachUser", data, "application/json");
+				NetWorkServiceLocator::instance()->sendHttpRequest("serachUser", data, "application/json");
 				return;
 			}
 			//群组搜索
@@ -115,7 +115,7 @@ void AddFriendWidget::init()
 			searchObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 			QJsonDocument doc(searchObj);
 			auto data = doc.toJson(QJsonDocument::Compact);
-			MessageSender::instance()->sendHttpRequest("searchGroup", data, "application/json");
+			NetWorkServiceLocator::instance()->sendHttpRequest("searchGroup", data, "application/json");
 		});
 
 	//搜索结果

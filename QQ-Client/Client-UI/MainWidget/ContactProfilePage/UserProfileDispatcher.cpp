@@ -5,7 +5,7 @@
 #include <QScreen>
 #include "FriendManager.h"
 #include "LoginUserManager.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "Friend.h"
 
 UserProfileDispatcher* UserProfileDispatcher::instance()
@@ -50,7 +50,7 @@ void UserProfileDispatcher::getUserData(const QString& user_id, std::function<vo
 	queryObj["query_id"] = user_id;
 	QJsonDocument doc(queryObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest("queryUser", data, "application/json",
+	NetWorkServiceLocator::instance()->sendHttpRequest("queryUser", data, "application/json",
 		[this,callback](const QJsonObject& params, const QByteArray& avatarData)
 		{
 			callback(params);

@@ -6,7 +6,7 @@
 
 #include "GroupManager.h"
 #include "LoginUserManager.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "GroupManager.h"
 #include "Group.h"
@@ -41,7 +41,7 @@ GroupDeleteMemberWidget::GroupDeleteMemberWidget(const QString& group_id, QWidge
 			}
 			groupMemberRemoveObj["removeMembers"] = inviteMembersArray;
 			auto message = PacketCreate::textPacket("groupMemberRemove", groupMemberRemoveObj);
-			MessageSender::instance()->sendMessage(message);
+			NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			//本地刷新
 			auto group = GroupManager::instance()->findGroup(m_group_id);
 			for (const QString& member_id : m_selectedList)

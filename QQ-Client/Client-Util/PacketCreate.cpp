@@ -4,7 +4,7 @@
 #include <QDataStream>
 #include <QIODevice>
 
-#include "TokenManager.h"
+#include "../Client-DataCenter/TokenManager.h"
 
 //json文本包
 QString PacketCreate::textPacket(const QString& type, const QJsonObject& paramsObj)
@@ -37,7 +37,6 @@ QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& pa
 	//token
 	paramsObject["token"] = TokenManager::getToken();
 	jsonData["params"] = paramsObject;
-	qDebug() << "params:" << jsonData;
 	QJsonDocument doc(jsonData);
 	QByteArray headerData = doc.toJson(QJsonDocument::Compact);
 
@@ -83,7 +82,6 @@ QByteArray PacketCreate::allBinaryPacket(const QByteArray& packet)
 {
 	QByteArray allData;
 	qint32 totalSize = sizeof(qint32) + packet.size(); // 计算总大小
-	qDebug() << "Server sending total size:" << totalSize;
 
 	QDataStream stream(&allData, QIODevice::WriteOnly);
 	stream.setVersion(QDataStream::Qt_6_5);

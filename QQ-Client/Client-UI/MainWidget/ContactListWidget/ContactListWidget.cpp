@@ -218,17 +218,11 @@ void ContactListWidget::externalSignals()
 		{
 			auto user = FriendManager::instance()->findFriend(user_id);
 			auto groupingItem = getFriendTopItem(user->getGrouping());
-			qDebug() << "--------------getGrouping------------" << user->getGrouping();
 			auto item = findItemByIdInGroup(groupingItem, user_id);
 			if (item)
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				itemWidget->setItemWidget(user_id);
-				qDebug() << "--------------user_id存在------------"<<user_id;
-			}
-			else
-			{
-				qDebug() << "--------------user_id不存在------------"<< user_id;
 			}
 		});
 	//头像更新

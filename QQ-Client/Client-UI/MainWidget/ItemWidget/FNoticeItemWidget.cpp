@@ -5,7 +5,7 @@
 #include "ImageUtil.h"
 #include "LoginUserManager.h"
 #include "PacketCreate.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include <QBoxLayout>
 
 FNoticeItemWidget::FNoticeItemWidget(QWidget* parent)
@@ -41,7 +41,7 @@ FNoticeItemWidget::FNoticeItemWidget(QWidget* parent)
 			replyObj["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 			replyObj["to"] = m_json["user_id"].toString();
 			auto message = PacketCreate::textPacket("friendAddFail", replyObj);
-			MessageSender::instance()->sendMessage(message);
+			NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 		});
 }
 

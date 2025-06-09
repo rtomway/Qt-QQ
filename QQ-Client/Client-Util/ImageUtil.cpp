@@ -137,11 +137,9 @@ bool ImageUtils::saveAvatarToLocalTask(const QImage& image, const QString& id, C
 	{
 	case ChatType::User:
 		avatarFolderPath = getUserAvatarFolderPath();
-		qDebug() << "新增图片:" << "User:" << id;
 		break;
 	case ChatType::Group:
 		avatarFolderPath = getGroupAvatarFolderPath();
-		qDebug() << "新增图片:" << "Group:" << id;
 		break;
 	default:
 		break;

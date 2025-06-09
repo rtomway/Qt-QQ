@@ -1,20 +1,24 @@
-﻿#include"MessageBubble.h"
-#include<QPainter>
-#include<QResizeEvent>
-#include<QPainterPath>
+﻿#include "MessageBubble.h"
+#include <QPainter>
+#include <QResizeEvent>
+#include <QPainterPath>
+#include <QMouseEvent>
+
+#include "UserProfileDispatcher.h"
 
 #define SpaceWidth() (_xOffset + m_profileRect.width() + 5 * m_textMargin)
 #define Text_yOffset 20
 
 MessageBubble::MessageBubble(QWidget* parent)
-	:MessageBubble(QPixmap(), "", MessageBubble::BubbleImageRight, "", "")
+	:MessageBubble("", QPixmap(), "", MessageBubble::BubbleImageRight, "", "")
 {
 
 }
 
 //文字构造
-MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
+MessageBubble::MessageBubble(const QString& user_id,const QPixmap& head_img, const QString& message, BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
 	:QLabel(parent)
+	, m_user_id(user_id)
 	, m_type(type)
 	, m_message(message)
 	, m_head_img(head_img)
@@ -50,8 +54,9 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QString& message, Bu
 }
 
 //图片构造
-MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
+MessageBubble::MessageBubble(const QString& user_id,const QPixmap& head_img, const QPixmap& pixmap, MessageBubble::BubbleType type, const QString& groupMemberName, const QString& groupRole, QWidget* parent)
 	:QLabel(parent)
+	, m_user_id(user_id)
 	, m_type(type)
 	, m_image(pixmap)
 	, m_head_img(head_img)
@@ -67,6 +72,7 @@ MessageBubble::MessageBubble(const QPixmap& head_img, const QPixmap& pixmap, Mes
 
 void MessageBubble::init()
 {
+	this->installEventFilter(this);
 	setAlignment(Qt::AlignTop);
 	setWordWrap(false);
 	setTextInteractionFlags(Qt::TextInteractionFlag::TextSelectableByMouse);
@@ -374,4 +380,26 @@ int MessageBubble::realLineNumber() const
 		}
 	}
 	return nLine;
+}
+
+bool MessageBubble::eventFilter(QObject* watched, QEvent* event)
+{
+	if (event->type() == QEvent::MouseButtonPress)
+	{
+		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+		QPoint clikedPos = this->mapFromGlobal(mouseEvent->globalPos());
+		if (m_profileRect.contains(clikedPos))
+		{
+			QPoint point=this->mapToGlobal(m_profileRect.topLeft());
+			PopUpPosition position=PopUpPosition::Left;
+			if (m_type == BubbleTextLeft || m_type == BubbleImageLeft)
+			{
+				position = PopUpPosition::Right;
+				point =this->mapToGlobal(m_profileRect.topRight());
+			}
+			UserProfileDispatcher::instance()->showUserProfile(m_user_id, point, position);
+			return true;
+		}
+	}
+	return false;
 }

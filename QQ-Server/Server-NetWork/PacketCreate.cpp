@@ -18,7 +18,6 @@ QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& pa
 		paramsObject[it.key()] = QJsonValue::fromVariant(it.value());
 	}
 	jsonData["params"] = paramsObject;
-	qDebug() << "params:" << jsonData;
 	QJsonDocument doc(jsonData);
 	QByteArray headerData = doc.toJson(QJsonDocument::Compact);
 
@@ -122,8 +121,6 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 		QJsonObject jsonObj = jsonDoc.object();
 		QString type = jsonObj["type"].toString();
 		QJsonObject params = jsonObj["params"].toObject();
-		qDebug() << "Received packet type:" << type;
-		qDebug() << "Params:" << params;
 		// 读取二进制数据（图片）
 		int imageSize = params["size"].toInt();
 		QByteArray imageData(imageSize, Qt::Uninitialized);

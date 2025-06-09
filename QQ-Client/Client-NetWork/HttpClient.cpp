@@ -1,4 +1,4 @@
-﻿#include "HttpWorker.h"
+﻿#include "HttpClient.h"
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QCoreApplication>
@@ -7,14 +7,14 @@
 #include "TokenManager.h"
 #include "LoginUserManager.h"
 
-HttpWorker::HttpWorker(QObject* parent)
+HttpClient::HttpClient(QObject* parent)
 	: QObject(parent),
 	m_networkManager(new QNetworkAccessManager(this))
 {
 
 }
 //发送http请求
-void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack)
+void HttpClient::sendRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack)
 {
 	QUrl url(m_baseUrl + type);
 	//请求
@@ -65,7 +65,7 @@ void HttpWorker::sendRequest(const QString& type, const QByteArray& data, const 
 }
 
 //错误码处理
-void HttpWorker::replyErrorHandle(QNetworkReply::NetworkError error)
+void HttpClient::replyErrorHandle(QNetworkReply::NetworkError error)
 {
 	switch (error)
 	{
@@ -85,7 +85,7 @@ void HttpWorker::replyErrorHandle(QNetworkReply::NetworkError error)
 }
 
 //响应数据处理
-void HttpWorker::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
+void HttpClient::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
 {
 	//处理响应
 	QByteArray responseData = reply->readAll();
@@ -109,12 +109,12 @@ void HttpWorker::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
 	if (contentType.contains("application/json"))
 	{
 		qDebug() << "接收http文本回复";
-		emit httpTextResponseReceived(responseData);
+		emit httpTextResponse(responseData);
 	}
 	else
 	{
 		qDebug() << "接收http数据回复";
-		emit httpDataResponseReceived(responseData);
+		emit httpDataResponse(responseData);
 	}
 }
 

@@ -1,15 +1,15 @@
-﻿#ifndef HTTPWORKER_H
-#define HTTPWORKER_H
+﻿#ifndef HTTPCLIENT_H
+#define HTTPCLIENT_H
 
 #include <QObject>
 #include <QNetWorkAccessManager>
 #include <QNetworkReply>
 
-class HttpWorker : public QObject
+class HttpClient : public QObject
 {
 	Q_OBJECT
 public:
-	explicit HttpWorker(QObject* parent = nullptr);
+	explicit HttpClient(QObject* parent = nullptr);
 	// 使用 std::function 定义回调类型
 	using HttpCallback = std::function<void(const QJsonObject&, const QByteArray&)>;
 	// 发送 HTTP 请求，接收回调函数
@@ -18,8 +18,8 @@ private:
 	void replyErrorHandle(QNetworkReply::NetworkError error);
 	void replyDataHandle(QNetworkReply* reply, HttpCallback callBack);
 signals:
-	void httpTextResponseReceived(const QByteArray& data);
-	void httpDataResponseReceived(const QByteArray& data);
+	void httpTextResponse(const QByteArray& data);
+	void httpDataResponse(const QByteArray& data);
 private:
 	QNetworkAccessManager* m_networkManager{};
 	QString m_baseUrl = "http://127.0.0.1:8889/";

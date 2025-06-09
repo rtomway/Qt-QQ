@@ -8,7 +8,7 @@
 #include <QJsonDocument>
 
 #include "EventBus.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "FriendManager.h"
 #include "ChatRecordManager.h"
@@ -172,7 +172,7 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		QPixmap pixmap(imagePath);
 		//消息显示至聊天框
 		this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight);
+		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight,user_id);
 		//将消息加入至聊天记录中
 		ChatMessage chatMessage;
 		chatMessage.sendId = user_id;
@@ -207,7 +207,7 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		PacketCreate::addPacket(userData, packet);
 		auto allData = PacketCreate::allBinaryPacket(userData);
 
-		MessageSender::instance()->sendBinaryData(allData);
+		NetWorkServiceLocator::instance()->sendWebBinaryData(allData);
 	}
 	ui->messageTextEdit->clear();
 }
@@ -218,7 +218,7 @@ void FriendChatPage::sendTextMessageToServer(const QString& user_id, const QPixm
 		return;
 	//消息显示至聊天框
 	this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-	createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight);
+	createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight, user_id);
 	//将消息加入至聊天记录中
 	ChatMessage chatMessage;
 	chatMessage.sendId = user_id;
@@ -239,20 +239,20 @@ void FriendChatPage::sendTextMessageToServer(const QString& user_id, const QPixm
 	textMessageObj["to"] = m_friend->getFriendId();
 	textMessageObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 	auto message = PacketCreate::textPacket("textCommunication", textMessageObj);
-	MessageSender::instance()->sendMessage(message);
+	NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 }
 
 //消息气泡
 void FriendChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
-	MessageBubble* bubble = new MessageBubble(avatar, pixmap, bubbleType);
+	MessageBubble* bubble = new MessageBubble(user_id,avatar, pixmap, bubbleType);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
 }
 void FriendChatPage::createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
-	MessageBubble* bubble = new MessageBubble(avatar, message, bubbleType);
+	MessageBubble* bubble = new MessageBubble(user_id,avatar, message, bubbleType);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();

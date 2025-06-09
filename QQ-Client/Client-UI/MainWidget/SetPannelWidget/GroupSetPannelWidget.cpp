@@ -5,7 +5,7 @@
 #include <QJsonArray>
 
 #include "EventBus.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 #include "GroupManager.h"
 
@@ -62,7 +62,6 @@ void GroupSetPannelWidget::loadGroupPannel(const QString& group_id)
 	{
 		initPannel();
 	}
-	qDebug() << "loadGroupPannel";
 	//界面数据刷新
 	refreshWidget();
 	m_groupMemberQueryWidget->loadGroupMemberList(group_id);
@@ -130,7 +129,6 @@ void GroupSetPannelWidget::initPannel()
 //数据刷新
 void GroupSetPannelWidget::refreshWidget()
 {
-	qDebug() << "refreshWidget";
 	m_groupListItemWidget->setItemWidget(m_group_id);
 	m_groupListItemWidget->showGroupId();
 	m_groupMemberGrid->setGroupMembersGrid(m_group_id);
@@ -147,7 +145,7 @@ void GroupSetPannelWidget::exitGroup()
 	deleteObj["group_id"] = m_group_id;
 	QJsonDocument doc(deleteObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest("exitGroup", data, "application/json");
+	NetWorkServiceLocator::instance()->sendHttpRequest("exitGroup", data, "application/json");
 }
 
 //解散群组
@@ -164,7 +162,7 @@ void GroupSetPannelWidget::disbandGroup()
 	deleteObj["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 	QJsonDocument doc(deleteObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest("disbandGroup", data, "application/json");
+	NetWorkServiceLocator::instance()->sendHttpRequest("disbandGroup", data, "application/json");
 	//退出群组
 	EventBus::instance()->emit exitGroup(m_group_id, loginUserId);
 }

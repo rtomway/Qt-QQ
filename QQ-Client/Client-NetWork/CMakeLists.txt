@@ -2,15 +2,12 @@
 
 # 创建一个静态库或者共享库
 add_library(Client-NetWork STATIC
-     "Client.h" "Client.cpp"
-     "PacketCreate.h" "PacketCreate.cpp"
-     "HttpWorker.h" "HttpWorker.cpp"
+     "WebClient.h" "WebClient.cpp"
+     "HttpClient.h" "HttpClient.cpp"
      "MessageHandle.h" "MessageHandle.cpp"
      "MessageSender.h" "MessageSender.cpp"
-     "Client_MessageHandle/Client_LoginHandle.h" "Client_MessageHandle/Client_LoginHandle.cpp"
-     "Client_MessageHandle/Client_FriendHandle.h" "Client_MessageHandle/Client_FriendHandle.cpp"
-     "Client_MessageHandle/Client_GroupHandle.cpp" "Client_MessageHandle/Client_GroupHandle.h"
-     "Client_MessageHandle/Client_UserHandle.h"  "Client_MessageHandle/Client_UserHandle.cpp" "TokenManager.h" "TokenManager.cpp")
+     "NetWorkService.h" "NetWorkService.cpp"
+     )
 
 # 设置包含目录（确保主程序能访问头文件）
 target_include_directories(Client-NetWork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

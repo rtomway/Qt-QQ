@@ -26,7 +26,6 @@ void FriendListItemWidget::setItemWidget(const QString& user_id)
 	}
 	//json信息
 	m_friendJson = m_friend->getFriend();
-	qDebug() << "m_friendJson:::::::::::::::" << m_friendJson;
 	refershItemWidget();
 }
 

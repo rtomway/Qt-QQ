@@ -8,7 +8,7 @@
 #include "LoginUserManager.h"
 #include "FriendManager.h"
 #include "PacketCreate.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 
 
 GroupCreateWidget::GroupCreateWidget(QWidget* parent)
@@ -39,8 +39,7 @@ GroupCreateWidget::GroupCreateWidget(QWidget* parent)
 			}
 			createGroupObj["inviteMembers"] = inviteMembersArray;
 			auto message = PacketCreate::textPacket("createGroup", createGroupObj);
-			MessageSender::instance()->sendMessage(message);
-			qDebug() << "群聊创建发送";
+			NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			clearFriendTree();
 			clearSearchList();
 			this->hide();

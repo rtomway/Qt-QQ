@@ -3,7 +3,7 @@
 #include <QBoxLayout>
 #include <QJsonObject>
 
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "Friend.h"
 #include "FriendManager.h"
 #include "ImageUtil.h"
@@ -68,12 +68,11 @@ void AddWidget::init()
 				applicateGroupObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 				applicateGroupObj["username"] = LoginUserManager::instance()->getLoginUserName();
 				applicateGroupObj["to"] = m_addId;
-				qDebug() << "applicateGroupObj[to] :" << m_addId;
 				applicateGroupObj["message"] = ui->messageEdit->text();
 				applicateGroupObj["noticeMessage"] = "请求加入群组" + m_addName;
 
 				auto message = PacketCreate::textPacket("addGroup", applicateGroupObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 				this->close();
 				return;
 			}
@@ -87,9 +86,8 @@ void AddWidget::init()
 				applicateFriendObj["message"] = ui->messageEdit->text();
 				applicateFriendObj["noticeMessage"] = "请求加为好友";
 				applicateFriendObj["Fgrouping"] = m_grouping->getLineEditText();
-				qDebug() << applicateFriendObj << m_addId;
 				auto message = PacketCreate::textPacket("addFriend", applicateFriendObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			}
 			else  //添加
 			{
@@ -100,7 +98,7 @@ void AddWidget::init()
 				friendObj["grouping"] = m_grouping->getLineEditText();
 				friendObj["replyMessage"] = "同意了你的好友申请";
 				auto message = PacketCreate::textPacket("friendAddSuccess", friendObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			}
 			this->close();
 		});

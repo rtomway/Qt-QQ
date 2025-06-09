@@ -10,7 +10,7 @@
 #include "Group.h"
 #include "FriendManager.h"
 #include "Friend.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 #include "SMaskWidget.h"
 #include "GroupInviteWidget.h"

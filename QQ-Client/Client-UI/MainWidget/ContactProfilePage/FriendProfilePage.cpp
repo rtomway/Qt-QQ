@@ -8,7 +8,7 @@
 #include "SMaskWidget.h"
 #include "ContactListWidget.h"
 #include "FriendManager.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "AvatarManager.h"
 #include "LoginUserManager.h"
 
@@ -112,7 +112,6 @@ void FriendProfilePage::init()
 			if (m_friend && !grouping.isEmpty())
 			{
 				auto oldGrouping = m_friend->getGrouping();
-				qDebug() << "oldGrouping" << oldGrouping;
 				m_friend->setGrouping(grouping);
 
 				FriendManager::instance()->emit updateFriendGrouping(m_friendId, oldGrouping);
@@ -124,7 +123,7 @@ void FriendProfilePage::init()
 				groupingObj["grouping"] = grouping;
 				QJsonDocument doc(groupingObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
-				MessageSender::instance()->sendHttpRequest("updateFriendGrouping", data, "application/json");
+				NetWorkServiceLocator::instance()->sendHttpRequest("updateFriendGrouping", data, "application/json");
 			}
 		});
 }

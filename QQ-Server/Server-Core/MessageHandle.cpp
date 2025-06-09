@@ -113,7 +113,6 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 		if (!client_id.isEmpty())
 		{
 			auto token = paramsObject["token"].toString();
-			qDebug() << "token" << token;
 			if (!tokenRight(token, client_id))
 			{
 				qDebug() << "token认证失败";

@@ -10,14 +10,15 @@
 #include "Client_MessageHandle/Client_GroupHandle.h"
 #include "Client_MessageHandle/Client_UserHandle.h"
 
+
 class MessageHandle :public QObject
 {
 	Q_OBJECT
 public:
 	MessageHandle(QObject* parent = nullptr);
 	//消息处理接口
-	void handle_textMessage(const QJsonDocument& messageDoc);
-	void handle_binaryMessage(const QByteArray& message);
+	void handle_textMessage(const QString& message);
+	void handle_binaryData(const QByteArray& data);
 	//消息注册
 	template <typename T>
 	void registerHandle(const QString& key, T& instance, void (T::* handler)(const QJsonObject&, const QByteArray&));

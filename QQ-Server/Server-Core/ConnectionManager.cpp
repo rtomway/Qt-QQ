@@ -64,7 +64,6 @@ QString ConnectionManager::findUserName(QWebSocket* client)
 //消息的发送
 void ConnectionManager::sendTextMessage(const QString& user_id, const QString& response)
 {
-	qDebug() << "sendTextMessage:user_id:" << user_id << m_clients;
 	if (!m_clients.contains(user_id))
 		return;
 	m_clients[user_id]->sendTextMessage(response);

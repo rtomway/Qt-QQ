@@ -8,7 +8,7 @@
 #include "LoginUserManager.h"
 #include "FriendManager.h"
 #include "PacketCreate.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 
 GroupInviteWidget::GroupInviteWidget(const QString& group_id, QWidget* parent)
 	:GroupMemberOperatorWidget(parent)
@@ -36,8 +36,7 @@ GroupInviteWidget::GroupInviteWidget(const QString& group_id, QWidget* parent)
 			}
 			groupInviteObj["inviteMembers"] = inviteMembersArray;
 			auto message = PacketCreate::textPacket("groupInvite", groupInviteObj);
-			MessageSender::instance()->sendMessage(message);
-			qDebug() << "群聊创建发送";
+			NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			clearFriendTree();
 			clearSearchList();
 			this->hide();
@@ -54,12 +53,11 @@ GroupInviteWidget::GroupInviteWidget(const QString& group_id, QWidget* parent)
 
 GroupInviteWidget::~GroupInviteWidget()
 {
-	qDebug() << "GroupInviteWidget has destoryed" << m_group_id;
+
 }
 
 void GroupInviteWidget::loadData(const QString& id)
 {
-	qDebug() << m_group_id;
 	m_group_id = id;
 	m_groupMemberIdList = GroupManager::instance()->findGroup(id)->getGroupMembersIdList();
 	loadFriendsList();

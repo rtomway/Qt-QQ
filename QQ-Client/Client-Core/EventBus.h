@@ -16,6 +16,7 @@ private:
 	EventBus() {};
 signals:   //接受到消息发送信号通知UI界面更新同步
 	//登录
+	void loginValidationSuccess(const QJsonObject& paramsObject);
 	void initLoginUser(const QJsonObject& paramsObject);
 	void initFriendManager(const QJsonObject& paramsObject);
 	void initGroupManager(const QJsonObject& paramsObject);

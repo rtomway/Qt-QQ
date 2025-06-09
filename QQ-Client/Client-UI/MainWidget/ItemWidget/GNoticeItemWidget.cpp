@@ -7,7 +7,7 @@
 #include "FriendManager.h"
 #include "ImageUtil.h"
 #include "LoginUserManager.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 
 GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
@@ -35,7 +35,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 				groupInviteObj["group_name"] = m_json["group_name"].toString();
 				groupInviteObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 				auto message = PacketCreate::textPacket("groupInviteSuccess", groupInviteObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			}
 			else if (m_type == GroupNoticeType::GroupRequestAdd)
 			{
@@ -46,7 +46,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 				groupAddObj["group_id"] = m_json["group_id"].toString();
 				groupAddObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 				auto message = PacketCreate::textPacket("groupAddSuccess", groupAddObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			}
 		});
 	//拒绝加入群组
@@ -65,7 +65,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 				groupInviteReplyObj["noticeMessage"] = "拒绝了你的群组邀请";
 				groupInviteReplyObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 				auto message = PacketCreate::textPacket("groupInviteFailed", groupInviteReplyObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			}
 			else if (m_type == GroupNoticeType::GroupRequestAdd)
 			{
@@ -78,7 +78,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 				groupAddReplyObj["noticeMessage"] = "拒绝了你加入群组"+ m_json["group_name"].toString();
 				groupAddReplyObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 				auto message = PacketCreate::textPacket("groupAddFailed", groupAddReplyObj);
-				MessageSender::instance()->sendMessage(message);
+				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
 			}
 		});
 }

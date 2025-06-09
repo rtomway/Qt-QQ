@@ -6,7 +6,7 @@
 #include <QJsonDocuMent>
 #include <QJsonArray>
 #include "EventBus.h"
-#include "MessageSender.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 
 FriendSetPannelWidget::FriendSetPannelWidget(QWidget* parent)
@@ -49,15 +49,13 @@ void FriendSetPannelWidget::deleteFriend()
 	deleteObj["friend_id"] = m_friend_id;
 	QJsonDocument doc(deleteObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	MessageSender::instance()->sendHttpRequest("deleteFriend", data, "application/json");
+	NetWorkServiceLocator::instance()->sendHttpRequest("deleteFriend", data, "application/json");
 }
 
 //加载好友面板
 void FriendSetPannelWidget::loadFriendPannel(const QString& friend_id)
 {
-	qDebug() << "FriendSetPannelWidget";
 	m_friend_id = friend_id;
-	qDebug() << m_friend_id << LoginUserManager::instance()->getLoginUserID();
 	if (m_friend_id == LoginUserManager::instance()->getLoginUserID())
 	{
 		m_pannelContains->setItemWidgetHidden(m_deleteBtn, true);
@@ -66,9 +64,6 @@ void FriendSetPannelWidget::loadFriendPannel(const QString& friend_id)
 	{
 		m_pannelContains->setItemWidgetHidden(m_deleteBtn, false);
 	}
-	qDebug() << "Button visible:" << m_deleteBtn->isVisible();
-	qDebug() << "Button geometry:" << m_deleteBtn->geometry();
-	qDebug() << "Button sizeHint:" << m_deleteBtn->sizeHint();
 }
 
 
