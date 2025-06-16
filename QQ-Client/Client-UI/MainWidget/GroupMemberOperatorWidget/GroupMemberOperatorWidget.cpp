@@ -10,7 +10,7 @@
 #include "SelectedItemWidget.h"
 #include "FriendManager.h"
 #include "EventBus.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "AvatarManager.h"
 #include "GroupManager.h"
 #include "Group.h"

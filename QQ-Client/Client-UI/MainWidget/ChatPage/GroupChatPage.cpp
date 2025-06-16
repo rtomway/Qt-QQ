@@ -14,7 +14,7 @@
 #include "EventBus.h"
 #include "GroupManager.h"
 #include "ChatRecordManager.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "AvatarManager.h"
 #include "GlobalTypes.h"
 #include "ImageUtil.h"

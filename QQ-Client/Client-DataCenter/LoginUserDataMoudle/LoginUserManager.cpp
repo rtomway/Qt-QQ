@@ -1,15 +1,14 @@
 ﻿#include "LoginUserManager.h"
-#include "FriendManager.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QVariantMap>
 
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "ImageUtil.h"
 #include "EventBus.h"
 #include "TokenManager.h"
 #include "PacketCreate.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "FriendManager.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 
 LoginUserManager* LoginUserManager::instance()
 {
@@ -19,24 +18,24 @@ LoginUserManager* LoginUserManager::instance()
 
 LoginUserManager::LoginUserManager()
 {
+	//保存token并连接登录
 	connect(EventBus::instance(), &EventBus::loginValidationSuccess, this, [=](const QJsonObject& paramsObject)
 		{
 			auto user_id = paramsObject["user_id"].toString();
-			m_loginUserId = user_id;
 			//保存token
 			auto token = paramsObject["token"].toString();
 			TokenManager::saveToken(token);
 
 			//连接登录
-			NetWorkServiceLocator::instance()->connectToServer();
+			NetWorkServiceLocator::instance()->connectToServer([=]
+				{
+					QJsonObject connectObj;
+					connectObj["user_id"] = user_id;
+					auto message = PacketCreate::textPacket("login", connectObj);
+					NetWorkServiceLocator::instance()->sendWebTextMessage(message);
+				});
 		});
-	connect(NetWorkServiceLocator::instance(), &NetWorkService::connectSuccess, this, [=]
-		{
-			QJsonObject connectObj;
-			connectObj["user_id"] = m_loginUserId;
-			auto message = PacketCreate::textPacket("login", connectObj);
-			NetWorkServiceLocator::instance()->sendWebTextMessage(message);
-		});
+	//登录用户初始化
 	connect(EventBus::instance(), &EventBus::initLoginUser, this, &LoginUserManager::initLoginUser);
 }
 

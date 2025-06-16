@@ -12,7 +12,7 @@
 #include "ImageUtil.h"
 #include "Friend.h"
 #include "FriendManager.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "AvatarManager.h"
 #include "GlobalTypes.h"

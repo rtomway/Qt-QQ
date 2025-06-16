@@ -7,7 +7,7 @@
 #include "FriendManager.h"
 #include "ImageUtil.h"
 #include "LoginUserManager.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 
 GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)

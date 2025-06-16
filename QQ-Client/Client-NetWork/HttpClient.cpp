@@ -8,7 +8,7 @@
 #include "LoginUserManager.h"
 
 HttpClient::HttpClient(QObject* parent)
-	: QObject(parent),
+	: HttpClientPort(parent),
 	m_networkManager(new QNetworkAccessManager(this))
 {
 

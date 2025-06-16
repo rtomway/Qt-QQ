@@ -8,7 +8,7 @@
 #include "SMaskWidget.h"
 #include "ContactListWidget.h"
 #include "FriendManager.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "AvatarManager.h"
 #include "LoginUserManager.h"
 

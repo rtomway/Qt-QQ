@@ -21,7 +21,7 @@
 #include "GroupManager.h"
 #include "FMessageItemWidget.h"
 #include "GMessageItemWidget.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "MessageRecord.h"
 #include "LoginUserManager.h"
 #include "GroupCreateWidget.h"
@@ -378,7 +378,7 @@ void MainWidget::initMoreMenu()
 		{
 			//数据管理
 			FriendManager::instance()->clearFriendManager();
-			GroupManager::instance()->clearGroupManager();
+			GroupManager::instance()->clearGroupRespository();
 			ChatRecordManager::instance()->clearAllChats();
 			//界面重置
 			m_btn_Itemgroup->button(-2)->setChecked(true);

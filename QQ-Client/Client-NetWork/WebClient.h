@@ -7,15 +7,16 @@
 #include <QUrl>
 #include <QThread>
 
-class WebClient :public QObject
+#include "WebClientPort.h"
+
+class WebClient :public WebClientPort
 {
 	Q_OBJECT
 public:
 	WebClient(QObject* parent = nullptr);
 	~WebClient();
 public:
-	//链式调用
-	WebClient* connectToServer(const QString& url);
+	void connectToServer(const QString& url,std::function<void()>callback=nullptr);
 	//事件回调
 	WebClient* ReciveMessage(std::function<void(const QString&)>callback);
 	WebClient* Error(std::function<void(const QString&)>callback);
@@ -35,13 +36,11 @@ private:
 	std::function<void()> m_disconnectedCallback{};
 private slots:
 	void onTextMessageReceived(const QString& message);
-	void onBinaryMessageReceived(const QByteArray& data);
+	void onBinaryDataReceived(const QByteArray& data);
 	void onErrorOccurred(QAbstractSocket::SocketError error);
 	void onConnected();
 	void onDisconnected();
-signals:
-	void textMessage(const QString& message);
-	void binaryData(const QByteArray& data);
+
 };
 
 

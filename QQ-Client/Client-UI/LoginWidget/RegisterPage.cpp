@@ -5,7 +5,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "EventBus.h"
 
 RegisterPage::RegisterPage(QWidget* parent)

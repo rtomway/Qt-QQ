@@ -2,18 +2,17 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "SConfigFile.h"
 #include "PacketCreate.h"
 
 WebClient::WebClient(QObject* parent)
-	:QObject(parent)
+	:WebClientPort(parent)
 	, m_webSocket(new QWebSocket())
 	, m_isConnected(false)
 {
 	//客户端接受信号
 	connect(m_webSocket, &QWebSocket::textMessageReceived, this, &WebClient::onTextMessageReceived);
-	connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebClient::onBinaryMessageReceived);
+	connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebClient::onBinaryDataReceived);
 	connect(m_webSocket, &QWebSocket::errorOccurred, this, &WebClient::onErrorOccurred);
 	connect(m_webSocket, &QWebSocket::connected, this, &WebClient::onConnected);
 	connect(m_webSocket, &QWebSocket::disconnected, this, &WebClient::onDisconnected);
@@ -25,14 +24,19 @@ WebClient::~WebClient()
 }
 
 //连接服务端
-WebClient* WebClient::connectToServer(const QString& url)
+void WebClient::connectToServer(const QString& url, std::function<void()>callback)
 {
-	if (!m_isConnected)
+	if (!isConnected())
 	{
+		this->Connected([callback]
+			{
+				if (callback)
+					callback();
+			});
+
 		m_webSocket->open(url);
-		m_isConnected = true;
 	}
-	return this;
+	
 }
 //回调
 WebClient* WebClient::ReciveMessage(std::function<void(const QString&)> callback)
@@ -64,7 +68,7 @@ void WebClient::onTextMessageReceived(const QString& message)
 }
 
 //接受Web二进制数据
-void WebClient::onBinaryMessageReceived(const QByteArray& data)
+void WebClient::onBinaryDataReceived(const QByteArray& data)
 {
 	qDebug() << "------------------------接受Web二进制数据-----------------------";
 	emit binaryData(data);
@@ -82,6 +86,7 @@ void WebClient::onConnected()
 	if (m_connectedCallback)
 	{
 		m_connectedCallback();
+		m_isConnected = true;
 	}
 }
 void WebClient::onDisconnected()
@@ -98,7 +103,6 @@ void WebClient::disconnect()
 		m_isConnected = false;
 	}
 }
-
 //连接状态
 bool WebClient::isConnected()const
 {

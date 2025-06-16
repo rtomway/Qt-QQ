@@ -8,7 +8,7 @@
 #include <QJsonDocument>
 
 #include "EventBus.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "FriendManager.h"
 #include "ChatRecordManager.h"

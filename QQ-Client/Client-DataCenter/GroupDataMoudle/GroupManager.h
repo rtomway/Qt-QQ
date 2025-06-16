@@ -1,34 +1,34 @@
 ﻿#ifndef GROUPMANAGER_H_
 #define GROUPMANAGER_H_
 
-#include <QHash>
-#include <QJsonObject>
+
 #include <QObject>
 #include <QSharedPointer>
 
 #include "Group.h"
+#include "GroupRespository.h"
+#include "GroupService.h"
 
 class GroupManager :public QObject
 {
 	Q_OBJECT
 public:
 	static GroupManager* instance();
-	//群组操作
+	void init();
+	//仓库操作接口
 	void addGroup(const QSharedPointer<Group>& group);
-	void removeGroup(const QString& groupId);
-	QSharedPointer<Group> findGroup(const QString& groupId) const;
+	void removeGroup(const QString& group_id);
+	QSharedPointer<Group> findGroup(const QString& group_id) const;
 	const QHash<QString, QSharedPointer<Group>>& getGroups()const;
-	void clearGroupManager();
+	void clearGroupRespository();
 private:
 	explicit GroupManager();
 	GroupManager(const GroupManager&) = delete;
 	GroupManager& operator=(const GroupManager&) = delete;
 private:
-	void loadGroupInfoFromServer(const QString& group_id, const QString& requestType);
-	void loadGroupAvatarFromServer(const QStringList& group_idList, const QString& requestType);
-	void ensureGroupMemberLoad(const QString& group_id, const QString& user_id, std::function<void()> callback)const;
-private:
-	QHash<QString, QSharedPointer<Group>> m_groups{};
+	GroupRespository* m_groupRespository;
+	GroupService* m_groupService;
+
 signals:
 	void loadLocalAvatarGroup(const QStringList& group_idList);
 	void createGroupSuccess(const QString& user_id);

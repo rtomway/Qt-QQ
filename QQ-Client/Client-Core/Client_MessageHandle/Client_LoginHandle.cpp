@@ -7,7 +7,7 @@
 #include <GroupManager.h>
 #include <Group.h>
 
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "EventBus.h"
 #include "ImageUtil.h"
 #include "AvatarManager.h"
@@ -23,13 +23,13 @@ void Client_LoginHandle::handle_loginValidationSuccess(const QJsonObject& params
 void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	QJsonObject loginUser = paramsObject;
-	EventBus::instance()->emit initLoginUser(loginUser);
 	auto user_id = loginUser["user_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
 		{
 			if (!result)
 				qDebug() << "头像保存失败";
 		});
+	EventBus::instance()->emit initLoginUser(loginUser);
 }
 
 //加载好友列表数据

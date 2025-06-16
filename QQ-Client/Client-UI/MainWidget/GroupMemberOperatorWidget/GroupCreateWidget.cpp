@@ -8,7 +8,7 @@
 #include "LoginUserManager.h"
 #include "FriendManager.h"
 #include "PacketCreate.h"
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 
 
 GroupCreateWidget::GroupCreateWidget(QWidget* parent)

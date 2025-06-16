@@ -1,5 +1,4 @@
 ﻿#include "GroupMemberQueryWidget.h"
-#include "GroupMemberQueryWidget.h"
 #include <QBoxLayout>
 
 #include "GroupManager.h"

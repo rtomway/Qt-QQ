@@ -1,11 +1,9 @@
 ﻿#include "NetWorkService.h"
-#include "NetWorkService.h"
 
 
-NetWorkService::NetWorkService(QObject* parent)
-	: m_webClient(new WebClient(this))
-	, m_httpClient(new HttpClient(this))
-	, m_messageSender(new MessageSender(this))
+NetWorkService::NetWorkService(WebClientPort* webClientPort, HttpClientPort* httpClientPort,QObject* parent)
+	: m_webClientPort(webClientPort)
+	, m_httpClientPort(httpClientPort)
 	, m_messageHandle(new MessageHandle(this))
 {
 	init();
@@ -16,45 +14,40 @@ NetWorkService::~NetWorkService()
 
 }
 
-void NetWorkService::connectToServer()
+void NetWorkService::connectToServer(std::function<void()>callBack)
 {
-	m_webClient->connectToServer("ws://localhost:8888")
-		->Connected([&]
-			{
-				emit connectSuccess();
-			});
+	m_webClientPort->connectToServer("ws://localhost:8888", [callBack]
+		{
+			if (callBack)
+				callBack();
+		});
 }
 
 void NetWorkService::disConnect()
 {
-	qDebug() << "客户端关闭连接";
-	m_webClient->disconnect();
+	m_webClientPort->disconnect();
 }
 
 void NetWorkService::sendWebTextMessage(const QString& message)
 {
-	m_messageSender->sendWebTextMessage(message);
+	m_webClientPort->sendTextMessage(message);
 }
 
 void NetWorkService::sendWebBinaryData(const QByteArray& data)
 {
-	m_messageSender->sendWebBinaryData(data);
+	m_webClientPort->sendBinaryData(data);
 }
 
 void NetWorkService::sendHttpRequest(const QString& type, const QByteArray& data, const QString& content_type, HttpCallback callBack)
 {
-	m_messageSender->sendHttpRequest(type, data, content_type, callBack);
+	m_httpClientPort->sendRequest(type, data, content_type, callBack);
 }
 
 void NetWorkService::init()
 {
-	//发送消息
-	connect(m_messageSender, &MessageSender::sendWebTextMessage_client, m_webClient, &WebClient::sendTextMessage);
-	connect(m_messageSender, &MessageSender::sendWebBinaryData_client, m_webClient, &WebClient::sendBinaryData);
-	connect(m_messageSender, &MessageSender::sendHttpRequest_client, m_httpClient, &HttpClient::sendRequest);
 	//接收消息
-	connect(m_webClient, &WebClient::textMessage, m_messageHandle, &MessageHandle::handle_textMessage);
-	connect(m_webClient, &WebClient::binaryData, m_messageHandle, &MessageHandle::handle_binaryData);
-	connect(m_httpClient, &HttpClient::httpTextResponse, m_messageHandle, &MessageHandle::handle_textMessage);
-	connect(m_httpClient, &HttpClient::httpTextResponse, m_messageHandle, &MessageHandle::handle_binaryData);
+	connect(m_webClientPort, &WebClientPort::textMessage, m_messageHandle, &MessageHandle::handle_textMessage);
+	connect(m_webClientPort, &WebClientPort::binaryData, m_messageHandle, &MessageHandle::handle_binaryData);
+	connect(m_httpClientPort, &HttpClientPort::httpTextResponse, m_messageHandle, &MessageHandle::handle_textMessage);
+	connect(m_httpClientPort, &HttpClientPort::httpDataResponse, m_messageHandle, &MessageHandle::handle_binaryData);
 }

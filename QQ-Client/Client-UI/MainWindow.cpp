@@ -80,13 +80,6 @@ void MainWindow::showLoginWidget()
 			cover->deleteLater();
 			});
 		});
-	/*setMaximumSize(m_loginWidget->size());
-	this->hide();
-	move(608, 207);
-	resize(m_loginWidget->size());
-	m_stackedWidget->setCurrentWidget(m_loginWidget);
-	m_loginWidget->setAutoFillBackground(true);
-	this->show();*/
 }
 
 //主窗口
@@ -107,20 +100,13 @@ void MainWindow::showMainWidget()
 		m_stackedWidget->setCurrentWidget(m_mainWidget);
 		m_mainWidget->setAutoFillBackground(true);
 		// 3. 添加20ms延迟确保系统完成渲染
-		QTimer::singleShot(18, [=] {
+	/*	QTimer::singleShot(18, [=] {
 			show();
 			cover->deleteLater();
-			});
+			});*/
+		show();
+		cover->deleteLater();
 		});
-	//this->hide();
-	//setMaximumSize(this->screen()->size());
-	//m_mainWidget->resize(1080, 680);
-	//this->hide();
-	//move(288, 107);
-	//resize(m_mainWidget->size());
-	//m_stackedWidget->setCurrentWidget(m_mainWidget);
-	//m_mainWidget->setAutoFillBackground(true);
-	//this->show();
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)

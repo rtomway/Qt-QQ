@@ -3,7 +3,7 @@
 #include <QBoxLayout>
 #include <QJsonObject>
 
-#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "Friend.h"
 #include "FriendManager.h"
 #include "ImageUtil.h"
