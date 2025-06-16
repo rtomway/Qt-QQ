@@ -35,6 +35,9 @@
 
 <img src="ResultPicture/editMessage.png" alt="Example Image" width="800" height="500">
 
-个人小窗口
+群聊群成员面板
 
-<img src="ResultPicture/personMessage.png" alt="Example Image" width="800" height="500">
+<img src="ResultPicture/groupSetPannel.png" alt="Example Image" width="800" height="500">
+
+<img src="ResultPicture/groupSetpannel_2.png" alt="Example Image" width="800" height="500">
+
