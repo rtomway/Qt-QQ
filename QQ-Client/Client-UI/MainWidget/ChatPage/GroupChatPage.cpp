@@ -21,6 +21,9 @@
 #include "TipMessageItemWidget.h"
 #include "PacketCreate.h"
 
+#include "ImageMessageBubble.h"
+#include "TextMessageBubble.h"
+
 
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
@@ -168,7 +171,7 @@ void GroupChatPage::sendImageMessageToServer(const QString& id, const QPixmap& h
 		QPixmap pixmap(imagePath);
 		//消息显示至聊天框
 		this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight, id);
+		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleRight, id);
 		//将消息加入至聊天记录中 
 		ChatMessage chatMessage;
 		chatMessage.sendId = id;
@@ -214,7 +217,7 @@ void GroupChatPage::sendTextMessageToServer(const QString& user_id, const QPixma
 		return;
 	//消息显示至聊天框
 	this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-	createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight, user_id);
+	createTextMessageBubble(headPix, msg, MessageBubble::BubbleRight, user_id);
 	//将消息加入至聊天记录中
 	ChatMessage chatMessage;
 	chatMessage.sendId = user_id;
@@ -242,7 +245,16 @@ void GroupChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixma
 	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
-	MessageBubble* bubble = new MessageBubble(user_id,avatar, pixmap, bubbleType, memberName, memberRole);
+
+	MessageBubble::MessageBubbleInitParams initParams;
+	initParams.user_id = user_id;
+	initParams.head_img = avatar;
+	initParams.data = QVariant(pixmap);
+	initParams.bubbleType = bubbleType;
+	initParams.group_memberName = memberName;
+	initParams.group_memberRole = memberRole;
+
+	MessageBubble* bubble = new ImageMessageBubble(initParams);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
@@ -252,7 +264,16 @@ void GroupChatPage::createTextMessageBubble(const QPixmap& avatar, const QString
 	auto member = m_group->getMember(user_id);
 	auto& memberName = member.member_name;
 	auto& memberRole = member.member_role;
-	MessageBubble* bubble = new MessageBubble(user_id,avatar, message, bubbleType, memberName, memberRole);
+
+	MessageBubble::MessageBubbleInitParams initParams;
+	initParams.user_id = user_id;
+	initParams.head_img = avatar;
+	initParams.data = QVariant(message);
+	initParams.bubbleType = bubbleType;
+	initParams.group_memberName = memberName;
+	initParams.group_memberRole = memberRole;
+
+	MessageBubble* bubble = new TextMessageBubble(initParams);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();

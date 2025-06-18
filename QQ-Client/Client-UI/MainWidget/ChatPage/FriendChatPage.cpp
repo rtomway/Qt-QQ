@@ -17,6 +17,9 @@
 #include "TipMessageItemWidget.h"
 #include "LoginUserManager.h"
 
+#include "ImageMessageBubble.h"
+#include "TextMessageBubble.h"
+
 
 FriendChatPage::FriendChatPage(QWidget* parent)
 	:ChatPage(parent)
@@ -172,7 +175,7 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		QPixmap pixmap(imagePath);
 		//消息显示至聊天框
 		this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageRight,user_id);
+		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleRight,user_id);
 		//将消息加入至聊天记录中
 		ChatMessage chatMessage;
 		chatMessage.sendId = user_id;
@@ -218,7 +221,7 @@ void FriendChatPage::sendTextMessageToServer(const QString& user_id, const QPixm
 		return;
 	//消息显示至聊天框
 	this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-	createTextMessageBubble(headPix, msg, MessageBubble::BubbleTextRight, user_id);
+	createTextMessageBubble(headPix, msg, MessageBubble::BubbleRight, user_id);
 	//将消息加入至聊天记录中
 	ChatMessage chatMessage;
 	chatMessage.sendId = user_id;
@@ -245,14 +248,27 @@ void FriendChatPage::sendTextMessageToServer(const QString& user_id, const QPixm
 //消息气泡
 void FriendChatPage::createImageMessageBubble(const QPixmap& avatar, const QPixmap& pixmap, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
-	MessageBubble* bubble = new MessageBubble(user_id,avatar, pixmap, bubbleType);
+	MessageBubble::MessageBubbleInitParams initParams;
+	initParams.user_id = user_id;
+	initParams.head_img = avatar;
+	initParams.data = QVariant(pixmap);
+	initParams.bubbleType = bubbleType;
+
+	MessageBubble* bubble = new ImageMessageBubble(initParams);
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();
 }
 void FriendChatPage::createTextMessageBubble(const QPixmap& avatar, const QString& message, MessageBubble::BubbleType bubbleType, const QString& user_id)
 {
-	MessageBubble* bubble = new MessageBubble(user_id,avatar, message, bubbleType);
+	MessageBubble::MessageBubbleInitParams initParams;
+	initParams.user_id = user_id;
+	initParams.head_img = avatar;
+	initParams.data = QVariant(message);
+	initParams.bubbleType = bubbleType;
+
+	MessageBubble* bubble = new TextMessageBubble(initParams);
+
 	ui->messageListWidget->addItem(bubble);
 	ui->messageListWidget->setItemWidget(bubble, bubble);
 	ui->messageListWidget->scrollToBottom();

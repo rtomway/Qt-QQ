@@ -103,7 +103,7 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 				{
 					auto textMessage = dynamic_cast<TextMessage*>(messagePtr.get());
 					auto& message = textMessage->getTextMessage();
-					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleTextRight : MessageBubble::BubbleTextLeft;
+					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleRight : MessageBubble::BubbleLeft;
 					createTextMessageBubble(headPix, message, bubbleType, messagePtr->getSenderId());
 					break;
 				}
@@ -111,7 +111,7 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 				{
 					auto imageMessage = dynamic_cast<ImageMessage*>(messagePtr.get());
 					auto& message = imageMessage->getImageMessage();
-					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleImageRight : MessageBubble::BubbleImageLeft;
+					MessageBubble::BubbleType bubbleType = isSelf ? MessageBubble::BubbleRight : MessageBubble::BubbleLeft;
 					createImageMessageBubble(headPix, message, bubbleType, messagePtr->getSenderId());
 					break;
 				}
@@ -141,7 +141,7 @@ void ChatPage::updateReceiveMessage(const QString& send_id, const QVariant& mess
 			{
 				insertTipMessage(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
 				auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
-				createTextMessageBubble(headPix, message, MessageBubble::BubbleTextLeft, send_id);
+				createTextMessageBubble(headPix, message, MessageBubble::BubbleLeft, send_id);
 			});
 		break;
 	}
@@ -152,7 +152,7 @@ void ChatPage::updateReceiveMessage(const QString& send_id, const QVariant& mess
 			{
 				insertTipMessage(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
 				auto headPix = ImageUtils::roundedPixmap(pixmap_2, QSize(40, 40));
-				createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleImageLeft, send_id);
+				createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleLeft, send_id);
 			});
 		break;
 	}
