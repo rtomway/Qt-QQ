@@ -6,6 +6,7 @@
 #include "PacketCreate.h"
 #include "TokenManager.h"
 #include "LoginUserManager.h"
+#include "Network_logger.h"
 
 HttpClient::HttpClient(QObject* parent)
 	: HttpClientPort(parent),
@@ -30,17 +31,17 @@ void HttpClient::sendRequest(const QString& type, const QByteArray& data, const 
 	auto& user_id = LoginUserManager::instance()->getLoginUserID();
 	request.setRawHeader("user_id", user_id.toUtf8());
 
-	qDebug() << "------------------发送http请求-----------------";
-	qDebug() << url;
+	Network_Logger::debug("[HTTP] Send Http Request:  " + type + "  to  " + m_baseUrl);
+
 	QNetworkReply* reply = m_networkManager->post(request, data);
-	
+
 	connect(reply, &QNetworkReply::finished, [this, reply, callBack]()
 		{
-			qDebug() << "------------------接收http回复-----------------";
+			Network_Logger::debug("[HTTP] Revice Http Reponse");
 			// 错误处理
 			if (reply->error() != QNetworkReply::NoError)
 			{
-				qDebug() << "HTTP Error:" << reply->errorString();
+				Network_Logger::error("[HTTP] HTTP Error:" + reply->errorString());
 				// 你可以根据不同的错误码做更细致的处理
 				replyErrorHandle(reply->error());
 				reply->deleteLater();
@@ -52,7 +53,7 @@ void HttpClient::sendRequest(const QString& type, const QByteArray& data, const 
 			if (statusCode == 204)
 			{
 				// 无响应体，但请求成功
-				qDebug() << "请求成功，但没有返回任何内容（204 No Content）";
+				Network_Logger::info("[HTTP] Http Request Success 204  No Content");
 				reply->deleteLater();
 				return;
 			}
@@ -90,7 +91,6 @@ void HttpClient::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
 	//处理响应
 	QByteArray responseData = reply->readAll();
 	QByteArray contentType = reply->rawHeader("Content-Type");
-	qDebug() << "http响应头:" << contentType;
 
 	//调用回调
 	if (callBack)
@@ -108,12 +108,12 @@ void HttpClient::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
 	//信号传出处理
 	if (contentType.contains("application/json"))
 	{
-		qDebug() << "接收http文本回复";
+		Network_Logger::debug("[HTTP] Revice Http  Text message reponse");
 		emit httpTextResponse(responseData);
 	}
 	else
 	{
-		qDebug() << "接收http数据回复";
+		Network_Logger::debug("[HTTP] Revice Http Binary data reponse");
 		emit httpDataResponse(responseData);
 	}
 }

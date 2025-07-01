@@ -51,6 +51,15 @@ void GroupMemberQueryWidget::loadGroupMemberList(const QString& group_id)
 	{
 		addListItemWidget(groupMember_id);
 	}
+
+	auto& groupMemberHash = group->getMembers();
+	for (auto it = groupMemberHash.cbegin(); it != groupMemberHash.cend(); ++it)
+	{
+		auto& member = it.value();
+		m_idList.append(member.member_id);
+		m_nameList.append(member.member_name);
+		m_groupHash[member.member_id] = member.member_name;
+	}
 }
 
 void GroupMemberQueryWidget::init()
@@ -66,9 +75,27 @@ void GroupMemberQueryWidget::init()
 	mlayout->addWidget(m_searchLine);
 	mlayout->addWidget(m_memberList);
 
+	//返回群面板
 	connect(m_backBtn, &QPushButton::clicked, this, [=]
 		{
 			emit backGroupPannel();
+		});
+	//群成员搜索
+	connect(m_searchLine, &QLineEdit::textChanged, this, [=](const QString&text)
+		{
+			if (text.isEmpty())
+			{
+				loadGroupMemberList(m_group_id);
+				return;
+			}
+				
+			auto match_list = matchText(text);
+			clearMemberListItem();
+			for (auto& id : match_list)
+			{
+				addListItemWidget(id);
+			}
+			update();
 		});
 }
 
@@ -86,6 +113,21 @@ void GroupMemberQueryWidget::addListItemWidget(const QString& groupMember_id)
 void GroupMemberQueryWidget::clearMemberListItem()
 {
 	m_memberList->clear();
+}
+
+//搜索匹配结果
+QStringList GroupMemberQueryWidget::matchText(const QString& text)
+{
+	QStringList match_list;
+
+	for (auto it=m_groupHash.cbegin();it!=m_groupHash.cend();++it)
+	{
+		if (it.key().contains(text) || it.value().contains(text))
+		{
+			match_list.append(it.key());
+		}
+	}
+	return match_list;
 }
 
 

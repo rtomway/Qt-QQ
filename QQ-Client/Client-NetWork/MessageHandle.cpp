@@ -3,7 +3,7 @@
 #include <QJsonArray>
 
 #include "PacketCreate.h"
-
+#include "Network_logger.h"
 
 
 MessageHandle::MessageHandle(QObject* parent)
@@ -67,15 +67,12 @@ void MessageHandle::initRequestHash()
 //文本消息处理
 void MessageHandle::handle_textMessage(const QString& message)
 {
-	qDebug() << "----------------------------接受到服务端的文本消息:-----------------------";
 	auto messageDoc = QJsonDocument::fromJson(message.toUtf8());
 	if (messageDoc.isObject())
 	{
 		QJsonObject obj = messageDoc.object();
 		auto type = obj["type"].toString();
 		auto paramsObject = obj["params"].toObject();
-		qDebug() << type << requestHash.contains(type);
-
 		QByteArray data;
 		if (requestHash.contains(type))
 		{
@@ -88,8 +85,6 @@ void MessageHandle::handle_textMessage(const QString& message)
 //二进制数据处理
 void MessageHandle::handle_binaryData(const QByteArray& data)
 {
-	qDebug() << "----------------------------接受到服务端的数据消息:-----------------------";
-
 	auto parsePacketList = PacketCreate::parseDataPackets(data);
 	for (auto& parsePacket : parsePacketList)
 	{
@@ -97,11 +92,11 @@ void MessageHandle::handle_binaryData(const QByteArray& data)
 		if (requestHash.contains(parsePacket.type))
 		{
 			auto& handle = requestHash[parsePacket.type];
-			handle(parsePacket.params, parsePacket.data); 
+			handle(parsePacket.params, parsePacket.data);
 		}
 		else
 		{
-			qDebug() << "未知的类型:" << parsePacket.type;
+			Network_Logger::debug("unknow type :" + parsePacket.type);
 		}
 	}
 }

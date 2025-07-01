@@ -16,5 +16,5 @@ target_include_directories(Client-NetWork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 #链接库
 target_link_libraries(Client-NetWork PUBLIC   #NetWork链接的库传递给链接NetWork库的使用者
     Qt6::Core Qt6::Gui Qt6::WebSockets 
-    Client-Core
+    Client-Core Client-Logger
 )

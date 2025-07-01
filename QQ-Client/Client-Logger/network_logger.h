@@ -3,11 +3,17 @@
 
 #include <spdlog/spdlog.h>
 #include <memory>
+#include <QString>
 
 class Network_Logger
 {
+public:
+	static void init();
+	static void debug(const QString& text);
+	static void info(const QString& text);
+	static void error(const QString& text);
 private:
-	static std::shared_ptr<spdlog::logger> instance;
+	static std::shared_ptr<spdlog::logger> m_instance;
 };
 
 

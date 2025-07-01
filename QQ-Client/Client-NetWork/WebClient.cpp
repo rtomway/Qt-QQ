@@ -4,6 +4,8 @@
 
 #include "SConfigFile.h"
 #include "PacketCreate.h"
+#include "Network_logger.h"
+
 
 WebClient::WebClient(QObject* parent)
 	:WebClientPort(parent)
@@ -28,15 +30,16 @@ void WebClient::connectToServer(const QString& url, std::function<void()>callbac
 {
 	if (!isConnected())
 	{
+		m_url = url;
+		Network_Logger::info("[WebSocket] Attemp connected to Server at:" + this->url());
 		this->Connected([callback]
 			{
 				if (callback)
 					callback();
 			});
-
 		m_webSocket->open(url);
 	}
-	
+
 }
 //回调
 WebClient* WebClient::ReciveMessage(std::function<void(const QString&)> callback)
@@ -52,25 +55,27 @@ WebClient* WebClient::Error(std::function<void(const QString&)> callback)
 WebClient* WebClient::Connected(std::function<void()> callback)
 {
 	m_connectedCallback = callback;
+	Network_Logger::info("[WebSocket] Successfully connected to server at: " + this->url());
 	return this;
 }
 WebClient* WebClient::DisconnectFromServer(std::function<void()> callback)
 {
 	m_disconnectedCallback = callback;
+	Network_Logger::info("[WebSocket] Disconnect from server at:" + this->url());
 	return this;
 }
 
 //接受Web文本信息
 void WebClient::onTextMessageReceived(const QString& message)
 {
-	qDebug() << "------------------------接受Web文本信息-----------------------";
+	Network_Logger::debug("[WebSocket] Accept Web Text message");
 	emit textMessage(message);
 }
 
 //接受Web二进制数据
 void WebClient::onBinaryDataReceived(const QByteArray& data)
 {
-	qDebug() << "------------------------接受Web二进制数据-----------------------";
+	Network_Logger::debug("[WebSocket] Accept Web Binary data");
 	emit binaryData(data);
 }
 
@@ -112,12 +117,19 @@ bool WebClient::isConnected()const
 //文本消息发送
 void WebClient::sendTextMessage(const QString& message)
 {
+	Network_Logger::debug("[WebSocket] Send web Text message: " + message + QString("to Server at : ") + this->url());
 	m_webSocket->sendTextMessage(message);
 }
 
 //二进制数据发送
 void WebClient::sendBinaryData(const QByteArray& data)
 {
+	Network_Logger::debug("[WebSocket] Send Web Binary data to Server at:" + this->url());
 	m_webSocket->sendBinaryMessage(data);
+}
+
+const QString& WebClient::url()
+{
+	return m_url;
 }
 

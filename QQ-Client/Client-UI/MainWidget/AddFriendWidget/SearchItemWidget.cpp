@@ -2,6 +2,8 @@
 #include "ui_SearchItemWidget.h"
 #include <QJsonObject>
 #include <QPointer>
+#include <QtConcurrent/QtConcurrent>
+#include <memory>
 
 #include "AddWidget.h"
 #include "ImageUtil.h"
@@ -115,9 +117,33 @@ QJsonObject SearchItemWidget::getGroup()
 //设置头像
 void SearchItemWidget::setPixmap(const QPixmap& pixmap)
 {
-	m_searchPix = pixmap;
-	auto headPix = ImageUtils::roundedPixmap(m_searchPix, QSize(40, 40));
-	ui->headLab->setPixmap(headPix);
+	QtConcurrent::run([=] 
+	{
+		 m_searchPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+	});
+	ui->headLab->setPixmap(m_searchPix);
+
+	// 先设置占位图
+	QPixmap placeholder = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/default.png"), QSize(40, 40));
+	ui->headLab->setPixmap(placeholder);
+
+	// 启动异步任务
+	QFuture<QPixmap> future = QtConcurrent::run([=]() 
+		{
+			return ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+		});
+
+	// 使用QFutureWatcher监控异步任务完成
+	std::unique_ptr<QFutureWatcher<QPixmap>> watcher = std::make_unique<QFutureWatcher<QPixmap>>();
+	watcher->setFuture(future);
+	// 连接信号槽
+	QFutureWatcher<QPixmap>* rawWatcher = watcher.get();
+	connect(rawWatcher, &QFutureWatcher<QPixmap>::finished, this,[this, watcher = std::move(watcher)]() 
+		{  
+			m_searchPix = watcher->result();
+			ui->headLab->setPixmap(m_searchPix);
+		});
+
 }
 
 //用户信息获取

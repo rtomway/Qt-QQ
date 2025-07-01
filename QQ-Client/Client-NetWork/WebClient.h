@@ -16,7 +16,7 @@ public:
 	WebClient(QObject* parent = nullptr);
 	~WebClient();
 public:
-	void connectToServer(const QString& url,std::function<void()>callback=nullptr);
+	void connectToServer(const QString& url, std::function<void()>callback = nullptr);
 	//事件回调
 	WebClient* ReciveMessage(std::function<void(const QString&)>callback);
 	WebClient* Error(std::function<void(const QString&)>callback);
@@ -27,8 +27,11 @@ public:
 	void sendTextMessage(const QString& message);
 	void sendBinaryData(const QByteArray& data);
 private:
+	const QString& url();
+private:
 	QWebSocket* m_webSocket{};
 	bool m_isConnected{};
+	QString m_url{};
 	//回调函数
 	std::function<void(const QString&)> m_messageCallback{};
 	std::function<void(const QString&)> m_errorCallback{};

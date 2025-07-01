@@ -2,8 +2,8 @@
 
 # 创建一个静态库或者共享库
 add_library(Client-Logger STATIC
-    network_logger.h
-    network_logger.cpp
+    "Network_logger.h"
+    "Network_logger.cpp"
 )
 
 
@@ -12,4 +12,6 @@ target_include_directories(Client-Logger PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
    )
 #
-target_link_libraries(Client-Logger PRIVATE )
+target_link_libraries(Client-Logger PRIVATE 
+Qt6::Core
+)

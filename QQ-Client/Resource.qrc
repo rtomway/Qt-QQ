@@ -5,6 +5,7 @@
         <file>Resource/Picture/h2.jpg</file>
         <file>Resource/Picture/h3.jpg</file>
         <file>Resource/Picture/invite.png</file>
+        <file>Resource/Picture/default.png</file>
     </qresource>
     <qresource prefix="/icon">
         <file>Resource/Icon/add.png</file>
