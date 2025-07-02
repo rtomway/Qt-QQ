@@ -31,34 +31,46 @@ QJsonObject UserDBUtils::queryUserDetail(const QString& user_id, DataBaseQuery& 
 }
 
 //搜索相关用户
-QJsonObject UserDBUtils::searchUser(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+QJsonObject UserDBUtils::searchUser(const QString& user_id,const searchPage&page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	QString queryStr = QString(
-		"select user_id,username from user where user_id like ?"
-	);
-	QVariantList bindValues;
-	bindValues.append(user_id);
-	auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
-	QJsonObject searchUserObj;
-	if (queryResult.contains("error"))
+    QString queryStr = QString(
+        "SELECT user_id, username FROM user \
+        WHERE user_id LIKE ? \
+		LIMIT ? OFFSET ?"  
+    );
+    QVariantList bindValues;
+    bindValues.append("%" + user_id + "%");
+    bindValues.append(page.pageSize);
+    bindValues.append((page.page - 1) * page.pageSize);  
+
+    auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
+    
+    QJsonObject searchUserObj;  
+    if (queryResult.contains("error")) 
 	{
-		qDebug() << "searchUser failed";
-		searchUserObj["error"] = "";
-		return searchUserObj;
-	}
-	QJsonArray searchUserListArray = queryResult["data"].toArray();
-	searchUserObj["searchUserList"] = searchUserListArray;
-	return searchUserObj;
+        qDebug() << "searchUser failed";
+        searchUserObj["error"] = "";  
+        return searchUserObj;
+    }
+    
+    QJsonArray searchUserListArray = queryResult["data"].toArray();
+    searchUserObj["searchUserList"] = searchUserListArray;
+    return searchUserObj;  
 }
 
-QJsonObject UserDBUtils::searchGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+QJsonObject UserDBUtils::searchGroup(const QString& group_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
 	QString queryStr = QString(
-		"select group_id,group_name from `group` where group_id like ?"
+		"select group_id,group_name from `group` where group_id like ? LIMIT ? OFFSET ?"
 	);
+
 	QVariantList bindValues;
 	bindValues.append(group_id);
+	bindValues.append(page.pageSize);
+	bindValues.append((page.page - 1) * page.pageSize);
+
 	auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
+
 	QJsonObject searchGroupObj;
 	if (queryResult.contains("error"))
 	{

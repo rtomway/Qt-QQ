@@ -15,12 +15,17 @@ struct UserInfo {
     QString signature;
 };
 
+struct searchPage {
+    int page;
+    int pageSize;
+};
+
 class UserDBUtils
 {
 public:
 	static QJsonObject queryUserDetail(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
-	static QJsonObject searchUser(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
-	static QJsonObject searchGroup(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static QJsonObject searchUser(const QString& user_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static QJsonObject searchGroup(const QString& user_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static bool updateUserMessage(const UserInfo& userInfo, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 };
 

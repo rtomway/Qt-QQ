@@ -34,7 +34,6 @@ void HttpClient::sendRequest(const QString& type, const QByteArray& data, const 
 	Network_Logger::debug("[HTTP] Send Http Request:  " + type + "  to  " + m_baseUrl);
 
 	QNetworkReply* reply = m_networkManager->post(request, data);
-
 	connect(reply, &QNetworkReply::finished, [this, reply, callBack]()
 		{
 			Network_Logger::debug("[HTTP] Revice Http Reponse");

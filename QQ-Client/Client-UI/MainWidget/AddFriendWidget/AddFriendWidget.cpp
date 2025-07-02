@@ -5,6 +5,7 @@
 #include <QJSonDocument>
 #include <QJSonObject>
 #include <QJSonArray>
+#include <QScrollBar>
 
 #include "SearchItemWidget.h"
 #include "FriendManager.h"
@@ -14,6 +15,8 @@
 #include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 
+constexpr int MaxPageSize = 20; //每次加载量
+constexpr int MinScrollBottom = 10; //滚动条底部更新距离
 
 AddFriendWidget::AddFriendWidget(QWidget* parent)
 	:QWidget(parent)
@@ -28,7 +31,6 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	{
 		this->setStyleSheet(file.readAll());
 	}
-	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
 }
 
 AddFriendWidget::~AddFriendWidget()
@@ -39,6 +41,8 @@ AddFriendWidget::~AddFriendWidget()
 void AddFriendWidget::init()
 {
 	resize(700, 500);
+	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
+
 	ui->searchLine->setPlaceholderText("用户搜索");
 	ui->stackedWidget->addWidget(m_userList);
 	ui->stackedWidget->addWidget(m_groupList);
@@ -56,7 +60,7 @@ void AddFriendWidget::init()
 			m_groupList->clear();
 			ui->stackedWidget->setCurrentWidget(m_userList);
 			ui->searchLine->setPlaceholderText("用户搜索");
-			m_seatchType = search_type::User;
+			m_searchType = search_type::User;
 			ui->userBtn->setStyleSheet(
 				"QPushButton{background-color:rgb(240,240,240)}"
 			);
@@ -72,7 +76,7 @@ void AddFriendWidget::init()
 			m_userList->clear();
 			ui->stackedWidget->setCurrentWidget(m_groupList);
 			ui->searchLine->setPlaceholderText("群聊搜索");
-			m_seatchType = search_type::Grouop;
+			m_searchType = search_type::Grouop;
 			ui->groupBtn->setStyleSheet(
 				"QPushButton{background-color:rgb(240,240,240)}"
 			);
@@ -93,32 +97,24 @@ void AddFriendWidget::init()
 	//搜索栏
 	connect(ui->searchidBtn, &QPushButton::clicked, this, [=]()
 		{
-			auto search_id = ui->searchLine->text();
-			if (search_id.isEmpty())
+			m_searchText = ui->searchLine->text();
+			if (m_searchText.isEmpty())
 				return;
-			//好友搜索
-			if (m_seatchType == search_type::User)
+			//重置页码
+			m_currentPage = 1;
+
+			if (m_searchType == search_type::User)
 			{
 				m_userList->clear();
-				QJsonObject serachObj;
-				serachObj["search_id"] = search_id;
-				serachObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-				QJsonDocument doc(serachObj);
-				auto data = doc.toJson(QJsonDocument::Compact);
-				NetWorkServiceLocator::instance()->sendHttpRequest("serachUser", data, "application/json");
-				return;
 			}
-			//群组搜索
-			m_groupList->clear();
-			QJsonObject searchObj;
-			searchObj["search_id"] = search_id;
-			searchObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-			QJsonDocument doc(searchObj);
-			auto data = doc.toJson(QJsonDocument::Compact);
-			NetWorkServiceLocator::instance()->sendHttpRequest("searchGroup", data, "application/json");
+			else
+			{
+				m_groupList->clear();
+			}
+			sendSearchRequest();
 		});
 
-	//搜索结果
+	//搜索结果 
 	connect(EventBus::instance(), &EventBus::searchUser, this, [=](const QJsonObject& paramsObject, const QPixmap& pixmap)
 		{
 			addListWidgetItem(m_userList, paramsObject, pixmap);
@@ -127,11 +123,22 @@ void AddFriendWidget::init()
 		{
 			addListWidgetItem(m_groupList, paramsObject, pixmap);
 		});
+
+	//滑动底部加载
+	connect(m_userList->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value)
+	{
+			onListScroll(m_userList->verticalScrollBar(), value);
+	});
+	connect(m_groupList->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value)
+		{
+			onListScroll(m_groupList->verticalScrollBar(), value);
+		});
 }
 
 //查询结果返回添加到对应list上
 void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& obj, const QPixmap& pixmap)
 {
+	m_loadCount++;
 	//为item设置用户id
 	auto item = new QListWidgetItem(list);
 	item->setSizeHint(QSize(list->width(), 70));
@@ -151,4 +158,41 @@ void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& ob
 	}
 	//关联item和widget
 	list->setItemWidget(item, itemWidget);
+
+	if (m_loadCount == 20)
+	{
+		m_isLoading = false;
+		m_loadCount = 0;
+	}
+}
+
+//发送搜索请求
+void AddFriendWidget::sendSearchRequest()
+{
+	QJsonObject searchObj;
+	searchObj["search_id"] = m_searchText;
+	searchObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+	searchObj["page"] = m_currentPage;
+	searchObj["pageSize"] = MaxPageSize;
+	QJsonDocument doc(searchObj);
+	auto data = doc.toJson(QJsonDocument::Compact);
+
+	if(m_searchType ==search_type::User)
+		NetWorkServiceLocator::instance()->sendHttpRequest("searchUser", data, "application/json");
+	else
+		NetWorkServiceLocator::instance()->sendHttpRequest("searchGroup", data, "application/json");
+
+}
+
+//监听滚动条
+void AddFriendWidget::onListScroll(QScrollBar* scrollBar,int scrollValue)
+{
+	if (m_isLoading)
+		return;
+	if (scrollBar->maximum() - scrollValue < MinScrollBottom)
+	{
+		m_isLoading = true;
+		m_currentPage++;
+		sendSearchRequest();
+	}
 }

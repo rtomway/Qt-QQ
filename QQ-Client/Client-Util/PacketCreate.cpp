@@ -139,8 +139,8 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 		QJsonObject jsonObj = jsonDoc.object();
 		QString type = jsonObj["type"].toString();
 		QJsonObject params = jsonObj["params"].toObject();
-		qDebug() << "Received packet type:" << type;
-		qDebug() << "Params:" << params;
+		//qDebug() << "Received packet type:" << type;
+		//qDebug() << "Params:" << params;
 		// 读取二进制数据（图片）
 		int imageSize = params["size"].toInt();
 		QByteArray imageData(imageSize, Qt::Uninitialized);

@@ -14,16 +14,18 @@
 void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
 	auto user_id = paramsObj["user_id"].toString();
-	auto search_id = paramsObj["search_id"].toString();
+	auto search_text = paramsObj["search_id"].toString();
+	searchPage page;
+	page.page= paramsObj["page"].toInt();
+	page.pageSize = paramsObj["pageSize"].toInt();
 	//数据库查询
 	DataBaseQuery query;
-	auto user = "%" + search_id + "%";
 	QJsonObject searchUserObj;
 	QStringList friend_idList;
 	QJsonArray searchUserListArray;
 	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
 		{
-			searchUserObj = UserDBUtils::searchUser(user, query, queryPtr);
+			searchUserObj = UserDBUtils::searchUser(search_text,page, query, queryPtr);
 			if (searchUserObj.contains("error"))
 			{
 				return false;
@@ -36,13 +38,14 @@ void UserHandle::handle_searchUser(const QJsonObject& paramsObj, const QByteArra
 	for (const auto& userValue : searchUserListArray)
 	{
 		QJsonObject userObj = userValue.toObject();
-		search_id = userObj["user_id"].toString();
+		QString user_id = userObj["user_id"].toString();
 		//判断是不是好友
-		if (friend_idList.contains(search_id))
+		if (friend_idList.contains(user_id))
 			userObj["hasAdd"] = true;
 		else
 			userObj["hasAdd"] = false;
-		QByteArray image = ImageUtils::loadImage(search_id, ChatType::User);
+
+		QByteArray image = ImageUtils::loadImage(user_id, ChatType::User);
 		//打包
 		auto userPacket = PacketCreate::binaryPacket("searchUser", userObj.toVariantMap(), image);
 		PacketCreate::addPacket(userData, userPacket);
@@ -77,6 +80,9 @@ void UserHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArr
 {
 	auto search_id = paramsObj["search_id"].toString();
 	auto user_id = paramsObj["user_id"].toString();
+	searchPage page;
+	page.page = paramsObj["page"].toInt();
+	page.pageSize = paramsObj["pageSize"].toInt();
 	//数据库查询
 	DataBaseQuery query;
 	QByteArray groupData;
@@ -87,7 +93,7 @@ void UserHandle::handle_searchGroup(const QJsonObject& paramsObj, const QByteArr
 		{
 			//查询相似群组
 			auto group_id = "%" + search_id + "%";
-			groupObj = UserDBUtils::searchGroup(group_id, query, queryPtr);
+			groupObj = UserDBUtils::searchGroup(group_id,page, query, queryPtr);
 			//错误返回
 			if (groupObj.contains("error")) {
 				return false;

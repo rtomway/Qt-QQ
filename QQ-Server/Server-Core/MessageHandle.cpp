@@ -56,7 +56,7 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["loadGroupMemberAvatar"] = &LoginHandle::handle_loadGroupMemberAvatar;
 	httpRequestHash["register"] = &RegisterHandle::handle_register;
 	//搜索
-	httpRequestHash["serachUser"] = &UserHandle::handle_searchUser;
+	httpRequestHash["searchUser"] = &UserHandle::handle_searchUser;
 	httpRequestHash["searchGroup"] = &UserHandle::handle_searchGroup;
 	httpRequestHash["queryUser"] = &UserHandle::handle_queryUser;
 	//更新

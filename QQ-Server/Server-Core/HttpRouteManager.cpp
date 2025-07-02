@@ -19,7 +19,7 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/loadGroupMemberAvatar");
 	registerHttpRoute("/loadGroupAvatars");
 	registerHttpRoute("/register");
-	registerHttpRoute("/serachUser");
+	registerHttpRoute("/searchUser");
 	registerHttpRoute("/searchGroup");
 	registerHttpRoute("/updateFriendGrouping");
 	registerHttpRoute("/updateUserMessage");

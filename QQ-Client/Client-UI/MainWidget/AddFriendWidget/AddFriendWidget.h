@@ -22,13 +22,17 @@ public:
 	void init();
 
 private:
-	search_type m_seatchType{search_type::User};
+	search_type m_searchType{search_type::User};
 	QListWidget* m_userList{};
 	QListWidget* m_groupList{};
-	QString m_lastUserId{};
-	QString m_lastGroupId{};
+	int m_currentPage = 1;
+	QString m_searchText;
+	bool m_isLoading{ false };
+	int m_loadCount = 0;
 private:
 	void addListWidgetItem(QListWidget*list,const QJsonObject&obj, const QPixmap& pixmap);
+	void sendSearchRequest();
+	void onListScroll(QScrollBar* scrollBar,int scrollValue);
 private:
 	Ui::AddFriendWidget* ui{};
 	
