@@ -23,10 +23,9 @@ void Client_GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const 
 void Client_GroupHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto group_id = paramsObject["group_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=](bool result)
+	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=]()
 		{
-			if (result)
-				EventBus::instance()->emit createGroupSuccess(paramsObject);
+			EventBus::instance()->emit createGroupSuccess(paramsObject);
 		});
 }
 
@@ -96,10 +95,8 @@ void Client_GroupHandle::handle_groupMemberLoad(const QJsonObject& paramsObject,
 void Client_GroupHandle::handle_newGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto group_id = paramsObject["group_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=](bool result)
+	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=]()
 		{
-			if (!result)
-				return;
 			EventBus::instance()->emit newGroup(paramsObject);
 		});
 

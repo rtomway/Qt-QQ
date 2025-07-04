@@ -97,6 +97,12 @@ QSharedPointer<Group> GroupManager::findGroup(const QString& group_id) const
 	return m_groupRespository->findGroup(group_id);
 }
 
+//搜索相关群组
+QHash<QString, QSharedPointer<Group>> GroupManager::searchGroups(const QString& text) const
+{
+	return m_groupRespository->searchGroups(text);
+}
+
 //获取群组列表
 const QHash<QString, QSharedPointer<Group>>& GroupManager::getGroups() const
 {

@@ -1,5 +1,5 @@
-﻿#include "AddFriendWidget.h"
-#include "ui_AddFriendWidget.h"
+﻿#include "SearchWidget.h"
+#include "ui_SearchWidget.h"
 #include <QMouseEvent>
 #include <QFile>
 #include <QJSonDocument>
@@ -18,9 +18,9 @@
 constexpr int MaxPageSize = 20; //每次加载量
 constexpr int MinScrollBottom = 10; //滚动条底部更新距离
 
-AddFriendWidget::AddFriendWidget(QWidget* parent)
+SearchWidget::SearchWidget(QWidget* parent)
 	:QWidget(parent)
-	, ui(new Ui::AddFriendWidget)
+	, ui(new Ui::SearchWidget)
 	, m_userList(new QListWidget(this))
 	, m_groupList(new QListWidget(this))
 {
@@ -33,12 +33,12 @@ AddFriendWidget::AddFriendWidget(QWidget* parent)
 	}
 }
 
-AddFriendWidget::~AddFriendWidget()
+SearchWidget::~SearchWidget()
 {
 	delete ui;
 }
 
-void AddFriendWidget::init()
+void SearchWidget::init()
 {
 	resize(700, 500);
 	this->setWindowIcon(QIcon(":/icon/Resource/Icon/search.png"));
@@ -87,8 +87,8 @@ void AddFriendWidget::init()
 		});
 
 	//会话界面窗口关闭
-	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, &AddFriendWidget::hide);
-	connect(GroupManager::instance(), &GroupManager::chatWithGroup, this, &AddFriendWidget::hide);
+	connect(FriendManager::instance(), &FriendManager::chatWithFriend, this, &SearchWidget::hide);
+	connect(GroupManager::instance(), &GroupManager::chatWithGroup, this, &SearchWidget::hide);
 
 	//搜索图标
 	ui->searchBtn->setCheckable(false);
@@ -124,11 +124,11 @@ void AddFriendWidget::init()
 			addListWidgetItem(m_groupList, paramsObject, pixmap);
 		});
 
-	//滑动底部加载
+	//滑动到底部加载
 	connect(m_userList->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value)
-	{
+		{
 			onListScroll(m_userList->verticalScrollBar(), value);
-	});
+		});
 	connect(m_groupList->verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value)
 		{
 			onListScroll(m_groupList->verticalScrollBar(), value);
@@ -136,38 +136,37 @@ void AddFriendWidget::init()
 }
 
 //查询结果返回添加到对应list上
-void AddFriendWidget::addListWidgetItem(QListWidget* list, const QJsonObject& obj, const QPixmap& pixmap)
+void SearchWidget::addListWidgetItem(QListWidget* list, const QJsonObject& obj, const QPixmap& pixmap)
 {
-	m_loadCount++;
 	//为item设置用户id
 	auto item = new QListWidgetItem(list);
 	item->setSizeHint(QSize(list->width(), 70));
 	//将用户相关信息添加到item关联窗口
-	SearchItemWidget* itemWidget = nullptr;
+	auto itemWidget = new SearchItemWidget(list);
 	if (list == m_userList)
 	{
-		itemWidget = new SearchItemWidget(ChatType::User, list);
 		itemWidget->setUser(obj);
-		itemWidget->setPixmap(pixmap);
 	}
 	else
 	{
-		itemWidget = new SearchItemWidget(ChatType::Group, list);
 		itemWidget->setGroup(obj);
-		itemWidget->setPixmap(pixmap);
 	}
+	itemWidget->setPixmap(pixmap);
 	//关联item和widget
 	list->setItemWidget(item, itemWidget);
 
-	if (m_loadCount == 20)
+	//一次性加载MaxPageSize
+	m_loadCount++;
+	if (m_loadCount == MaxPageSize)
 	{
 		m_isLoading = false;
 		m_loadCount = 0;
+		update();
 	}
 }
 
 //发送搜索请求
-void AddFriendWidget::sendSearchRequest()
+void SearchWidget::sendSearchRequest()
 {
 	QJsonObject searchObj;
 	searchObj["search_id"] = m_searchText;
@@ -177,7 +176,7 @@ void AddFriendWidget::sendSearchRequest()
 	QJsonDocument doc(searchObj);
 	auto data = doc.toJson(QJsonDocument::Compact);
 
-	if(m_searchType ==search_type::User)
+	if (m_searchType == search_type::User)
 		NetWorkServiceLocator::instance()->sendHttpRequest("searchUser", data, "application/json");
 	else
 		NetWorkServiceLocator::instance()->sendHttpRequest("searchGroup", data, "application/json");
@@ -185,7 +184,7 @@ void AddFriendWidget::sendSearchRequest()
 }
 
 //监听滚动条
-void AddFriendWidget::onListScroll(QScrollBar* scrollBar,int scrollValue)
+void SearchWidget::onListScroll(QScrollBar* scrollBar, int scrollValue)
 {
 	if (m_isLoading)
 		return;

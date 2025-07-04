@@ -39,6 +39,20 @@ QSharedPointer<Group> GroupRespository::findGroup(const QString& groupId) const
 	return m_groups.value(groupId, nullptr);
 }
 
+//搜索相关群组
+QHash<QString, QSharedPointer<Group>> GroupRespository::searchGroups(const QString& text) const
+{
+	QHash<QString, QSharedPointer<Group>> result;
+	for (auto it = m_groups.begin(); it != m_groups.end(); ++it)
+	{
+		if (it.key().contains(text, Qt::CaseInsensitive))
+		{
+			result.insert(it.key(), it.value());
+		}
+	}
+	return result;
+}
+
 //获取群组列表
 const QHash<QString, QSharedPointer<Group>>& GroupRespository::getGroups() const
 {

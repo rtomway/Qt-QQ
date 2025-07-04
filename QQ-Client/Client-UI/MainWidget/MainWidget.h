@@ -12,8 +12,8 @@
 #include "GroupProfilePage.h"
 #include "NoticeWidget.h"
 #include "ContactListWidget.h"
-#include "AddFriendWidget.h"
-#include "SearchFriend.h"
+#include "SearchWidget.h"
+#include "ContactSearch.h"
 #include "GroupMemberOperatorWidget.h"
 #include "GlobalTypes.h"
 
@@ -58,7 +58,7 @@ private:
 private:
 	//子列表界面
 	QListWidget* m_chatMessageListWidget{};
-	SearchFriend* m_friendSearchListWidget{};
+	ContactSearch* m_contactSearchListWidget{};
 	ContactListWidget* m_contactListWidget{};
 	//子页面
 	ChatWidget* m_chatWidget{};
@@ -68,7 +68,7 @@ private:
 	QWidget* m_emptyPage{};
 	//独立窗口
 	std::unique_ptr<FriendProfilePage> m_friendProfileWidget{};
-	std::unique_ptr<AddFriendWidget> m_addFriendWidget{};
+	std::unique_ptr<SearchWidget> m_addFriendWidget{};
 	GroupMemberOperatorWidget* m_groupInviteWidget{};
 signals:
 	void quitSuccess();

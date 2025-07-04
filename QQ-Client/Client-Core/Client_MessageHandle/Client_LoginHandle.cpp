@@ -24,11 +24,8 @@ void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, co
 {
 	QJsonObject loginUser = paramsObject;
 	auto user_id = loginUser["user_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
-		{
-			if (!result)
-				qDebug() << "头像保存失败";
-		});
+	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User);
+		
 	EventBus::instance()->emit initLoginUser(loginUser);
 }
 
@@ -42,11 +39,8 @@ void Client_LoginHandle::handle_loadFriendList(const QJsonObject& paramsObject, 
 void Client_LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto friend_id = paramsObject["friend_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, friend_id, ChatType::User, [=](bool result)
+	ImageUtils::saveAvatarToLocal(data, friend_id, ChatType::User, [=]()
 		{
-			if (!result)
-				qDebug() << "头像保存失败";
-			else
 				AvatarManager::instance()->emit loadFriendAvatarSuccess(friend_id);
 		});
 }
@@ -67,22 +61,15 @@ void Client_LoginHandle::handle_loadGroupMember(const QJsonObject& paramsObject,
 void Client_LoginHandle::handle_loadGroupMemberAvatar(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto user_id = paramsObject["user_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
-		{
-			if (!result)
-				qDebug() << "头像保存失败";
-		});
+	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User);
 }
 
 //加载群组头像
 void Client_LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto group_id = paramsObject["group_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=](bool result)
+	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=]()
 		{
-			if (!result)
-				qDebug() << "头像保存失败";
-			else
 				AvatarManager::instance()->emit loadGroupAvatarSuccess(group_id);
 		});
 }

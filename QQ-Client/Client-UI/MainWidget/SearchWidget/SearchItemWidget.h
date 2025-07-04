@@ -10,7 +10,7 @@ class SearchItemWidget :public QWidget
 {
 	Q_OBJECT
 public:
-	SearchItemWidget(ChatType type,QWidget* parent = nullptr);
+	SearchItemWidget(QWidget* parent = nullptr);
 	~SearchItemWidget();
 private:
 	void init();
@@ -26,8 +26,8 @@ private:
 	QString m_searchName{};
 	QString m_search_id{};
 	QPixmap m_searchPix{};
-	bool m_isAdded{true};
-	ChatType m_type;
+	bool m_isAdded{ true };
+	ChatType m_type = ChatType::User;
 };
 
 #endif // !SEARCHITEMWIDGET

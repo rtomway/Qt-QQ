@@ -8,7 +8,7 @@ file(GLOB UI_SOURCES
     MainWindow.cpp
     LoginWidget/*.cpp
     MainWidget/*.cpp
-    MainWidget/AddFriendWidget/*.cpp
+    MainWidget/SearchWidget/*.cpp
     MainWidget/ContactProfilePage/*.cpp
     MainWidget/ContactListWidget/*.cpp
     MainWidget/ChatPage/*.cpp
@@ -21,7 +21,7 @@ file(GLOB UI_HEADERS
     MainWindow.h
     LoginWidget/*.h
     MainWidget/*.h
-    MainWidget/AddFriendWidget/*.h
+    MainWidget/SearchWidget/*.h
     MainWidget/ContactProfilePage/*.h
     MainWidget/ContactListWidget/*.h
     MainWidget/ChatPage/*.h
@@ -39,7 +39,7 @@ target_include_directories(Client-UI PUBLIC
     #子文件互相访问
     ${CMAKE_CURRENT_SOURCE_DIR}/LoginWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget
-    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/AddFriendWidget
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/SearchWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactProfilePage
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ContactListWidget
     ${CMAKE_CURRENT_SOURCE_DIR}/MainWidget/ChatPage

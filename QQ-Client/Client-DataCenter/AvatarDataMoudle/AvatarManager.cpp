@@ -15,26 +15,15 @@ AvatarManager::AvatarManager()
 	//头像保存
 	connect(EventBus::instance(), &EventBus::saveAvatar, this, [=](const QString& id, ChatType type, const QByteArray& data)
 		{
-			ImageUtils::saveAvatarToLocal(data, id, type, [=](bool result)
-				{
-					if (!result)
-						qDebug() << "头像保存失败";
-				});
+			ImageUtils::saveAvatarToLocal(data, id, type);
 		});
 	//更新用户头像
 	connect(EventBus::instance(), &EventBus::updateUserAvatar, this, [=](const QString& user_id, const QPixmap& pixmap)
 		{
-			ImageUtils::saveAvatarToLocal(pixmap.toImage(), user_id, ChatType::User, [=](bool result)
+			ImageUtils::saveAvatarToLocal(pixmap.toImage(), user_id, ChatType::User, [=]()
 				{
-					if (result)
-					{
-						m_userAvatarCache.insert(user_id, new QPixmap(pixmap));  // 插入新的头像到缓存（qcatch自动管理）
-						emit UpdateUserAvatar(user_id);
-					}
-					else
-					{
-						qDebug() << "头像接收失败";
-					}
+					m_userAvatarCache.insert(user_id, new QPixmap(pixmap));  // 插入新的头像到缓存（qcatch自动管理）
+					emit UpdateUserAvatar(user_id);
 				});
 		});
 }

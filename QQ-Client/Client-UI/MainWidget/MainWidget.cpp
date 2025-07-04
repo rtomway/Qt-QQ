@@ -39,7 +39,7 @@ MainWidget::MainWidget(QWidget* parent)
 	, m_noticePage(new NoticeWidget(this))
 	, m_emptyPage(new QWidget(this))
 	, m_chatMessageListWidget(new QListWidget(this))
-	, m_friendSearchListWidget(new SearchFriend(this))
+	, m_contactSearchListWidget(new ContactSearch(this))
 	, m_contactListWidget(new ContactListWidget(this))
 	, m_groupInviteWidget(new GroupCreateWidget(this))
 {
@@ -50,10 +50,11 @@ MainWidget::MainWidget(QWidget* parent)
 	this->installEventFilter(this);
 	// m_searchList 中有子控件逐个安装过滤器
 	ui->searchEdit->installEventFilter(this);
-	m_friendSearchListWidget->setFocusPolicy(Qt::StrongFocus);
-	m_friendSearchListWidget->installEventFilter(this);
-	QList<QWidget*> childWidgets = m_friendSearchListWidget->findChildren<QWidget*>();
-	for (QWidget* child : childWidgets) {
+	m_contactSearchListWidget->setFocusPolicy(Qt::StrongFocus);
+	m_contactSearchListWidget->installEventFilter(this);
+	QList<QWidget*> childWidgets = m_contactSearchListWidget->findChildren<QWidget*>();
+	for (QWidget* child : childWidgets)
+	{
 		child->installEventFilter(this);
 	}
 	this->setFocusPolicy(Qt::StrongFocus);
@@ -332,7 +333,7 @@ void MainWidget::initLayout()
 	//添加好友界面
 	connect(addFriend, &QAction::triggered, [=]
 		{
-			m_addFriendWidget = std::make_unique<AddFriendWidget>();
+			m_addFriendWidget = std::make_unique<SearchWidget>();
 			m_addFriendWidget->show();
 		});
 	//群聊创建
@@ -353,7 +354,7 @@ void MainWidget::initStackedListWidget()
 {
 	//列表窗口
 	ui->listStackedWidget->addWidget(m_chatMessageListWidget);
-	ui->listStackedWidget->addWidget(m_friendSearchListWidget);
+	ui->listStackedWidget->addWidget(m_contactSearchListWidget);
 	ui->listStackedWidget->addWidget(m_contactListWidget);
 	ui->listStackedWidget->setCurrentWidget(m_chatMessageListWidget);
 	m_chatMessageListWidget->setObjectName("MessageList");
@@ -386,7 +387,7 @@ void MainWidget::initMoreMenu()
 			ui->messageStackedWidget->setCurrentWidget(m_emptyPage);
 			//界面清空
 			clearChatMessageListWidget();
-			m_friendSearchListWidget->clearFriendList();
+			//m_friendSearchListWidget->clearFriendList();
 			m_contactListWidget->clearContactList();
 			m_chatWidget->clearChatWidget();
 			m_friendProfilePage->clearWidget();
@@ -597,18 +598,21 @@ void MainWidget::connectWindowControlSignals()
 	//好友搜索
 	connect(ui->searchEdit, &QLineEdit::textChanged, this, [=](const QString& text)
 		{
-			m_friendSearchListWidget->clearFriendList();
 			if (text.isEmpty())
 				return;
-			auto searchResultHash = FriendManager::instance()->findFriends(text);
+
+			//m_friendSearchListWidget->clearFriendList();
+			m_contactSearchListWidget->searchText(text);
+			/*auto searchResultHash = FriendManager::instance()->findFriends(text);
 			if (searchResultHash.isEmpty()) {
 				qWarning() << "No friends found for text: " << text;
 				return;
 			}
 			for (auto it = searchResultHash.begin(); it != searchResultHash.end(); ++it) {
-				if (!it.value()) {
+				if (!it.value())
+				{
 					qWarning() << "Invalid QSharedPointer!";
-					continue;  // 跳过当前无效项
+					continue;
 				}
 				auto& obj = it.value()->getFriend();
 				AvatarManager::instance()->getAvatar(it.value()->getFriendId(), ChatType::User, [=](const QPixmap& pixmap)
@@ -616,7 +620,7 @@ void MainWidget::connectWindowControlSignals()
 						auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 						m_friendSearchListWidget->addSearchItem(obj, headPix);
 					});
-			}
+			}*/
 		});
 	//点击消息项 进入会话界面（加载用户信息）
 	connect(m_chatMessageListWidget, &QListWidget::itemClicked, this, [=](QListWidgetItem* item)
@@ -804,7 +808,7 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 	{
 		if (event->type() == QEvent::FocusIn)
 		{
-			ui->listStackedWidget->setCurrentWidget(m_friendSearchListWidget);
+			ui->listStackedWidget->setCurrentWidget(m_contactSearchListWidget);
 		}
 
 		if (event->type() == QEvent::KeyPress)
@@ -818,7 +822,7 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 		if (event->type() == QEvent::FocusOut)
 		{
 			QWidget* newFocusWidget = QApplication::focusWidget(); // 获取新焦点的控件
-			if (!m_friendSearchListWidget->isAncestorOf(newFocusWidget))
+			if (!m_contactSearchListWidget->isAncestorOf(newFocusWidget))
 			{		// 只有新焦点不在 m_searchList 里才切换
 				updateStackedListWidget();
 			}
@@ -826,12 +830,12 @@ bool MainWidget::eventFilter(QObject* watched, QEvent* event)
 	}
 	// 监听 m_searchList 和它的子控件
 	QWidget* watchedWidget = qobject_cast<QWidget*>(watched);
-	if (watchedWidget && (watchedWidget == m_friendSearchListWidget || m_friendSearchListWidget->isAncestorOf(watchedWidget)))
+	if (watchedWidget && (watchedWidget == m_contactSearchListWidget || m_contactSearchListWidget->isAncestorOf(watchedWidget)))
 	{
 		if (event->type() == QEvent::FocusOut)
 		{
 			QWidget* newFocusWidget = QApplication::focusWidget();
-			if (newFocusWidget && !m_friendSearchListWidget->isAncestorOf(newFocusWidget))
+			if (newFocusWidget && !m_contactSearchListWidget->isAncestorOf(newFocusWidget))
 			{
 				updateStackedListWidget();
 			}

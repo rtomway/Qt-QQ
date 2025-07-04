@@ -22,13 +22,8 @@ void Client_FriendHandle::handle_addFriend(const QJsonObject& paramsObject, cons
 void Client_FriendHandle::handle_newFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	auto user_id = paramsObject["user_id"].toString();
-	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=](bool result)
+	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User, [=]()
 		{
-			if (!result)
-			{
-				qDebug() << "头像保存失败";
-				return;
-			}
 			EventBus::instance()->emit newFriend(paramsObject);
 		});
 }

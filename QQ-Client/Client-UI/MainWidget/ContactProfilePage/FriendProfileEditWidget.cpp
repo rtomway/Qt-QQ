@@ -1,4 +1,5 @@
 ﻿#include "FriendProfileEditWidget.h"
+#include "FriendProfileEditWidget.h"
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QStandardPaths>
@@ -213,9 +214,10 @@ void FriendProfileEditWidget::init()
 			m_calendarAction->setDefaultWidget(m_calendarWidget.get());
 			menu->addAction(m_calendarAction.get());
 			menu->popup(m_birthdayEdit->mapToGlobal(QPoint(0, m_birthdayEdit->height() - 10)));
-			connect(m_calendarWidget.get(), &QCalendarWidget::clicked, this, [=](const QDate& date) {
-				m_birthdayEdit->setText(date.toString("MM-dd"));
-				menu->close();  // 关闭菜单
+			connect(m_calendarWidget.get(), &QCalendarWidget::clicked, this, [=](const QDate& date)
+				{
+					m_birthdayEdit->setText(date.toString("MM-dd"));
+					menu->close();
 				});
 		});
 	connect(cancelBtn, &QPushButton::clicked, [=]
@@ -224,31 +226,11 @@ void FriendProfileEditWidget::init()
 		});
 	connect(okBtn, &QPushButton::clicked, [=]
 		{
-			//头像更新
 			if (m_avatarIsChange)
 			{
 				updateAvatar();
 			}
-			m_json["avatar_path"] = m_userId + ".png";
-			m_json["username"] = m_nickNameEdit->getLineEditText();
-			m_json["signature"] = m_signaltureEdit->getLineEditText();
-			if (!m_genderEdit->getLineEditText().isEmpty())
-				m_json["gender"] = m_genderEdit->getLineEditText() == "男" ? 1 : 2;
-			m_json["birthday"] = m_birthdayEdit->getLineEditText();
-			m_json["age"] = m_ageEdit->getLineEditText().toInt();
-			auto user = FriendManager::instance()->findFriend(m_userId);
-			user->setFriend(m_json);
-			//向客户端其他控件更新信号
-			FriendManager::instance()->emit UpdateFriendMessage(m_userId);
-			//向服务端发送更新信息
-			QJsonObject friendObj = user->getFriend();
-			//客户端独立信息删除
-			friendObj.remove("Fgrouping");
-			friendObj.remove("avatar_path");
-			QJsonDocument doc(friendObj);
-			QByteArray data = doc.toJson(QJsonDocument::Compact);
-			NetWorkServiceLocator::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
-			this->hide();
+			updateMessage();
 		});
 }
 
@@ -256,11 +238,7 @@ void FriendProfileEditWidget::init()
 void FriendProfileEditWidget::updateAvatar()
 {
 	//更新头像文件和缓存
-	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User, [](bool result)
-		{
-			if (!result)
-				qDebug() << "头像保存失败";
-		});
+	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_userId, ChatType::User);
 	//通知内部客户端
 	AvatarManager::instance()->emit UpdateUserAvatar(m_userId);
 	//通知服务端
@@ -286,6 +264,31 @@ void FriendProfileEditWidget::updateAvatar()
 			NetWorkServiceLocator::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
 			});
 		});
+}
+
+//更新用户信息
+void FriendProfileEditWidget::updateMessage()
+{
+	m_json["avatar_path"] = m_userId + ".png";
+	m_json["username"] = m_nickNameEdit->getLineEditText();
+	m_json["signature"] = m_signaltureEdit->getLineEditText();
+	if (!m_genderEdit->getLineEditText().isEmpty())
+		m_json["gender"] = m_genderEdit->getLineEditText() == "男" ? 1 : 2;
+	m_json["birthday"] = m_birthdayEdit->getLineEditText();
+	m_json["age"] = m_ageEdit->getLineEditText().toInt();
+	auto user = FriendManager::instance()->findFriend(m_userId);
+	user->setFriend(m_json);
+	//向客户端其他控件更新信号
+	FriendManager::instance()->emit UpdateFriendMessage(m_userId);
+	//向服务端发送更新信息
+	QJsonObject friendObj = user->getFriend();
+	//客户端独立信息删除
+	friendObj.remove("Fgrouping");
+	friendObj.remove("avatar_path");
+	QJsonDocument doc(friendObj);
+	QByteArray data = doc.toJson(QJsonDocument::Compact);
+	NetWorkServiceLocator::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
+	this->hide();
 }
 
 //设置用户信息

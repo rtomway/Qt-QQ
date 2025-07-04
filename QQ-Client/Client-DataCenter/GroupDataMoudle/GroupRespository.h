@@ -18,6 +18,7 @@ public:
 	void addGroup(const QSharedPointer<Group>& group);
 	void removeGroup(const QString& groupId);
 	QSharedPointer<Group> findGroup(const QString& groupId) const;
+	QHash<QString, QSharedPointer<Group>> searchGroups(const QString& text)const;
 	const QHash<QString, QSharedPointer<Group>>& getGroups()const;
 	void clearGroupRespository();
 private:

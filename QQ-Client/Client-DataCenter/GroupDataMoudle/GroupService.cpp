@@ -274,12 +274,9 @@ void GroupService::ensureGroupMemberLoad(const QString& group_id, const QString&
 		[=](const QJsonObject& params, const QByteArray& avatarData)
 		{
 			group->loadGroupMember(params);
-			ImageUtils::saveAvatarToLocal(avatarData, user_id, ChatType::User, [=](bool result)
+			ImageUtils::saveAvatarToLocal(avatarData, user_id, ChatType::User, [=]()
 				{
-					if (result)
-					{
 						callback();
-					}
 				});
 		});
 }

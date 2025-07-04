@@ -18,11 +18,16 @@ public:
 	void setGroupProfile(const QString& group_id);
 	void refresh();
 	void clearWidget();
+protected:
+	bool eventFilter(QObject* watched, QEvent* event)override;
 private:
 	Ui::GroupProfilePage* ui{};
 	QSharedPointer<Group>m_group{};
 	QString m_groupId{};
 	QJsonObject m_groupJson{};
+	QString m_avatarNewPath;
+	QString m_avatarOldPath;
+	bool m_avatarIsChanged = false;
 signals:
 	void chatWithGroup(const QString& group_id);
 };

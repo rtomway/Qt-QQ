@@ -1,6 +1,8 @@
 ﻿#include "GroupProfilePage.h"
 #include "ui_GroupProfilePage.h"
 #include <QFile>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "GroupManager.h"
 #include "AvatarManager.h"
@@ -27,11 +29,14 @@ GroupProfilePage::GroupProfilePage(QWidget* parent)
 void GroupProfilePage::init()
 {
 	this->setWindowFlag(Qt::FramelessWindowHint);
+	ui->headLab->installEventFilter(this);
+
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
 		{
 			GroupManager::instance()->emit chatWithGroup(m_groupId);
 		});
+
 	//群信息更新
 	connect(GroupManager::instance(), &GroupManager::updateGroupProfile, this, [=](const QString& group_id)
 		{
@@ -70,4 +75,36 @@ void GroupProfilePage::refresh()
 void GroupProfilePage::clearWidget()
 {
 	m_group = nullptr;
+}
+
+bool GroupProfilePage::eventFilter(QObject* watched, QEvent* event)
+{
+	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
+	{
+		qDebug() << "-------------------------";
+		m_avatarNewPath = QFileDialog::getOpenFileName(this, "选择头像", "",
+			"Images(*.jpg *.png *.jpeg *.bnp)");
+		if (!m_avatarNewPath.isEmpty())
+		{
+			m_avatarIsChanged = false;
+			//头像是否更改
+			if (m_avatarNewPath == m_avatarOldPath)
+			{
+				return false;
+			}
+			QPixmap avatar(m_avatarNewPath);
+			if (avatar.isNull())
+			{
+				// 头像加载失败，给出提示
+				QMessageBox::warning(this, "错误", "无法加载图片，选择的文件不是有效的头像图片。");
+				return false;  // 如果头像无效，返回 false
+			}
+			ui->headLab->setPixmap(ImageUtils::roundedPixmap(avatar, QSize(80, 80)));
+			m_avatarOldPath = m_avatarNewPath;
+			m_avatarIsChanged = true;
+			ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_groupId, ChatType::Group);
+
+		}
+	}
+	return false;
 }

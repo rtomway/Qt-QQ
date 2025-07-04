@@ -9,9 +9,9 @@ class ImageUtils {
 public:
 	static QString getUserAvatarFolderPath();
 	static QString getGroupAvatarFolderPath();
-	static void saveAvatarToLocal(const QString& avatarPath, const QString& id, ChatType type, std::function<void(bool)>callBack=nullptr);
-	static void saveAvatarToLocal(const QImage& image, const QString& id, ChatType type, std::function<void(bool)>callBack=nullptr);
-	static void saveAvatarToLocal(const QByteArray& data, const QString& id, ChatType type, std::function<void(bool)>callBack=nullptr);
+	static void saveAvatarToLocal(const QString& avatarPath, const QString& id, ChatType type, std::function<void()>callBack = nullptr);
+	static void saveAvatarToLocal(const QImage& image, const QString& id, ChatType type, std::function<void()>callBack = nullptr);
+	static void saveAvatarToLocal(const QByteArray& data, const QString& id, ChatType type, std::function<void()>callBack = nullptr);
 	static QByteArray loadImage(const QString& user_id, ChatType type);
 private:
 	static bool saveAvatarToLocalTask(const QString& avatarPath, const QString& id, ChatType type);

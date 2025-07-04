@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QtConcurrent/QtConcurrent>
 
-QString ImageUtils::m_currentUser =QString("");
+QString ImageUtils::m_currentUser = QString("");
 //图片变形
 QPixmap ImageUtils::roundedPixmap(const QPixmap& pixmap, QSize size, int radius)
 {
@@ -69,7 +69,7 @@ QString ImageUtils::getGroupAvatarFolderPath()
 }
 
 //保存图片
-void ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& id, ChatType type, std::function<void(bool)>callBack)
+void ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& id, ChatType type, std::function<void()>callBack)
 {
 	QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QString&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), avatarPath, id, type);
 	// 创建 QFutureWatcher 来监听任务
@@ -79,7 +79,15 @@ void ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& id,
 		// 获取任务的结果
 		bool result = watcher->result();
 		// 调用回调处理结果
-		callBack(result);
+		if (result)
+		{
+			if (callBack)
+				callBack();
+		}
+		else
+		{
+
+		}
 		// 删除 watcher，释放内存
 		watcher->deleteLater();
 		});
@@ -113,7 +121,7 @@ bool ImageUtils::saveAvatarToLocalTask(const QString& avatarPath, const QString&
 }
 
 //保存图片
-void ImageUtils::saveAvatarToLocal(const QImage& image, const QString& id, ChatType type, std::function<void(bool)>callBack)
+void ImageUtils::saveAvatarToLocal(const QImage& image, const QString& id, ChatType type, std::function<void()>callBack)
 {
 	QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QImage&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), image, id, type);
 	// 创建 QFutureWatcher 来监听任务
@@ -123,7 +131,15 @@ void ImageUtils::saveAvatarToLocal(const QImage& image, const QString& id, ChatT
 		// 获取任务的结果
 		bool result = watcher->result();
 		// 调用回调处理结果
-		callBack(result);
+		if (result)
+		{
+			if (callBack)
+				callBack();
+		}
+		else
+		{
+
+		}
 		// 删除 watcher，释放内存
 		watcher->deleteLater();
 		});
@@ -156,7 +172,7 @@ bool ImageUtils::saveAvatarToLocalTask(const QImage& image, const QString& id, C
 }
 
 //保存图片
-void ImageUtils::saveAvatarToLocal(const QByteArray& data, const QString& id, ChatType type, std::function<void(bool)> callBack)
+void ImageUtils::saveAvatarToLocal(const QByteArray& data, const QString& id, ChatType type, std::function<void()> callBack)
 {
 	QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QByteArray&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), data, id, type);
 	// 创建 QFutureWatcher 来监听任务
@@ -166,14 +182,22 @@ void ImageUtils::saveAvatarToLocal(const QByteArray& data, const QString& id, Ch
 		// 获取任务的结果
 		bool result = watcher->result();
 		// 调用回调处理结果
-		callBack(result);
+		if (result)
+		{
+			if (callBack)
+				callBack();
+		}
+		else
+		{
+
+		}
 		// 删除 watcher，释放内存
 		watcher->deleteLater();
 		});
 	// 设置 QFutureWatcher 监听任务
 	watcher->setFuture(future);
 }
-bool ImageUtils::saveAvatarToLocalTask(const QByteArray & data, const QString & id, ChatType type)
+bool ImageUtils::saveAvatarToLocalTask(const QByteArray& data, const QString& id, ChatType type)
 {
 	QString avatarFolderPath;
 	switch (type)

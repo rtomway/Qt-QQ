@@ -20,6 +20,7 @@ public:
 	void init();
 private:
 	void updateAvatar();
+	void updateMessage();
 private:
 	QLabel* m_editDetail{};
 	QPushButton* m_exitBtn{};

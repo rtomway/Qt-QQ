@@ -11,10 +11,9 @@
 #include "GroupManager.h"
 
 
-SearchItemWidget::SearchItemWidget(ChatType type, QWidget* parent)
+SearchItemWidget::SearchItemWidget(QWidget* parent)
 	:QWidget(parent)
 	, ui(new Ui::SearchItemWidget)
-	, m_type(type)
 {
 	ui->setupUi(this);
 	init();
@@ -65,6 +64,7 @@ void SearchItemWidget::init()
 //设置用户信息
 void SearchItemWidget::setUser(const QJsonObject& obj)
 {
+	m_type = ChatType::User;
 	m_searchName = obj["username"].toString();
 	m_search_id = obj["user_id"].toString();
 	ui->nameLab->setText(m_searchName);
@@ -86,6 +86,7 @@ void SearchItemWidget::setUser(const QJsonObject& obj)
 //设置群组
 void SearchItemWidget::setGroup(const QJsonObject& obj)
 {
+	m_type = ChatType::Group;
 	m_search_id = obj["group_id"].toString();
 	m_searchName = obj["group_name"].toString();
 	ui->idLab->setText(m_search_id);
@@ -117,33 +118,23 @@ QJsonObject SearchItemWidget::getGroup()
 //设置头像
 void SearchItemWidget::setPixmap(const QPixmap& pixmap)
 {
-	QtConcurrent::run([=] 
-	{
-		 m_searchPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
-	});
-	ui->headLab->setPixmap(m_searchPix);
-
-	// 先设置占位图
+	//占位图
 	QPixmap placeholder = ImageUtils::roundedPixmap(QPixmap(":/picture/Resource/Picture/default.png"), QSize(40, 40));
 	ui->headLab->setPixmap(placeholder);
 
-	// 启动异步任务
-	QFuture<QPixmap> future = QtConcurrent::run([=]() 
-		{
-			return ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+	//启动异步任务
+	QFuture<QPixmap> future = QtConcurrent::run([=]() {
+		return ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
 		});
 
-	// 使用QFutureWatcher监控异步任务完成
-	std::unique_ptr<QFutureWatcher<QPixmap>> watcher = std::make_unique<QFutureWatcher<QPixmap>>();
-	watcher->setFuture(future);
-	// 连接信号槽
-	QFutureWatcher<QPixmap>* rawWatcher = watcher.get();
-	connect(rawWatcher, &QFutureWatcher<QPixmap>::finished, this,[this, watcher = std::move(watcher)]() 
-		{  
+	QFutureWatcher<QPixmap>* watcher = new QFutureWatcher<QPixmap>(this);
+	connect(watcher, &QFutureWatcher<QPixmap>::finished, this, [this, watcher]()
+		{
 			m_searchPix = watcher->result();
 			ui->headLab->setPixmap(m_searchPix);
+			watcher->deleteLater();
 		});
-
+	watcher->setFuture(future);
 }
 
 //用户信息获取
