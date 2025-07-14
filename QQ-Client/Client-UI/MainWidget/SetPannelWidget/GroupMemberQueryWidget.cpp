@@ -44,6 +44,7 @@ GroupMemberQueryWidget::~GroupMemberQueryWidget()
 void GroupMemberQueryWidget::loadGroupMemberList(const QString& group_id)
 {
 	clearMemberListItem();
+
 	m_group_id = group_id;
 	auto group= GroupManager::instance()->findGroup(m_group_id);
 	auto groupmember_idList = group->getGroupMembersIdList();

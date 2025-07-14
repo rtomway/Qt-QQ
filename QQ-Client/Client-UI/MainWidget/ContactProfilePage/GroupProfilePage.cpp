@@ -1,12 +1,17 @@
 ﻿#include "GroupProfilePage.h"
+#include "GroupProfilePage.h"
+#include "GroupProfilePage.h"
 #include "ui_GroupProfilePage.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QBoxLayout>
 
 #include "GroupManager.h"
 #include "AvatarManager.h"
 #include "ImageUtil.h"
+
+constexpr int LAOD_MEMBERAVATAR_COUNT = 6;
 
 GroupProfilePage::GroupProfilePage(QWidget* parent)
 	:QWidget(parent)
@@ -30,6 +35,10 @@ void GroupProfilePage::init()
 {
 	this->setWindowFlag(Qt::FramelessWindowHint);
 	ui->headLab->installEventFilter(this);
+
+	ui->GroupMemberBtn->setEnabled(false);
+	ui->GroupMemberBtn->setIcon(QIcon(":/icon/Resource/Icon/groupMember.png"));
+	ui->GroupMemberBtn->setText("群成员");
 
 	//发消息
 	connect(ui->sendmessageBtn, &QPushButton::clicked, this, [=]
@@ -56,12 +65,26 @@ void GroupProfilePage::setGroupProfile(const QString& group_id)
 	m_groupId = group_id;
 	m_groupJson = m_group->getGroupProfile();
 
+	//获取群主和部分成员id(显示头像)
+	m_loadAvatar_memberIdList.clear();
+	m_loadAvatar_memberIdList.append(m_group->getGroupOwerId());
+	auto member_idList = m_group->getGroupMembersIdList();
+	for (int i = 0; i < LAOD_MEMBERAVATAR_COUNT && i < m_group->count(); i++)
+	{
+		if (member_idList.at(i) != m_group->getGroupOwerId())
+			m_loadAvatar_memberIdList.append(member_idList.at(i));
+	}
+
 	refresh();
 }
 
 //界面更新
 void GroupProfilePage::refresh()
 {
+	//清除旧avatarLayout
+	if (ui->memberAvatarWidget->layout() != nullptr)
+		clearAvatarLayout();
+
 	AvatarManager::instance()->getAvatar(m_groupId, ChatType::Group, [=](const QPixmap& pixmap)
 		{
 			auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(100, 100));
@@ -70,11 +93,40 @@ void GroupProfilePage::refresh()
 	ui->nameLab->setText(m_groupJson["group_name"].toString() + "(" + QString::number(m_groupJson["groupMemberCount"].toInt()) + "人)");
 	ui->idPreLab->setText("群号:");
 	ui->idLab->setText(m_groupId);
+	addMemberAvatar();
 }
 
 void GroupProfilePage::clearWidget()
 {
 	m_group = nullptr;
+}
+
+//添加群成员头像
+void GroupProfilePage::addMemberAvatar()
+{
+	m_avatarLayout = new QHBoxLayout(ui->memberAvatarWidget);
+	ui->memberAvatarWidget->setLayout(m_avatarLayout);
+
+	for (auto& member_id : m_loadAvatar_memberIdList)
+	{
+		auto avatar_lab = new QLabel(this);
+		m_avatarContains.append(avatar_lab);
+		m_avatarLayout->addWidget(avatar_lab);
+		AvatarManager::instance()->getAvatar(member_id, ChatType::User, [=](const QPixmap& pixmap)
+			{
+				auto headPix = ImageUtils::roundedPixmap(pixmap, QSize(40, 40));
+				avatar_lab->setPixmap(headPix);
+			});
+	}
+	m_avatarLayout->addStretch();
+}
+
+void GroupProfilePage::clearAvatarLayout()
+{
+	delete m_avatarLayout;
+	m_avatarLayout = nullptr;
+	qDeleteAll(m_avatarContains);
+	m_avatarContains.clear();
 }
 
 bool GroupProfilePage::eventFilter(QObject* watched, QEvent* event)

@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QJsonObject>
+#include <QLabel>
+#include <QBoxLayout>
 
 #include "Group.h"
 
@@ -18,6 +20,9 @@ public:
 	void setGroupProfile(const QString& group_id);
 	void refresh();
 	void clearWidget();
+private:
+	void addMemberAvatar();
+	void clearAvatarLayout();
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 private:
@@ -28,6 +33,10 @@ private:
 	QString m_avatarNewPath;
 	QString m_avatarOldPath;
 	bool m_avatarIsChanged = false;
+private:
+	QStringList m_loadAvatar_memberIdList{};
+	QList<QLabel*>m_avatarContains;
+	QHBoxLayout* m_avatarLayout;
 signals:
 	void chatWithGroup(const QString& group_id);
 };

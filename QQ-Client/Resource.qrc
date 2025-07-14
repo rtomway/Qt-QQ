@@ -75,6 +75,7 @@
         <file>Resource/Icon/nogender.png</file>
         <file>Resource/Icon/check.png</file>
         <file>Resource/Icon/removeItem.png</file>
+        <file>Resource/Icon/groupMember.png</file>
     </qresource>
     <qresource prefix="/stylesheet">
         <file>Resource/StyleSheet/LineEditwithButton.css</file>
