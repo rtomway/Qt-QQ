@@ -53,7 +53,7 @@ void ChatPage::init()
 	m_setWidget->setObjectName("setPannel");
 	m_setWidget->setFixedWidth(250);
 	m_setWidget->setFocusPolicy(Qt::StrongFocus);
-	// 移除默认标志并添加无边框标志
+	//移除默认标志并添加无边框标志
 	m_setWidget->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool);
 	// 设置初始的裁剪区域，确保初始时不可见
 	QRegion region(0, 0, 0, height(), QRegion::Rectangle);
@@ -179,12 +179,12 @@ void ChatPage::clearMessageWidget()
 //event--设置面板
 bool ChatPage::eventFilter(QObject* watched, QEvent* event)
 {
-	if (event->type() == QEvent::MouseButtonPress) 
+	if (event->type() == QEvent::MouseButtonPress)
 	{
 		QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
 		QPoint globalPos = mouseEvent->globalPosition().toPoint();
 		// 检查点击位置是否在 m_setWidget 内
-		if (!m_setWidget->geometry().contains(globalPos)) 
+		if (!m_setWidget->geometry().contains(globalPos) && !m_setWidget->isHidden())
 		{
 			hideSetWidget();
 		}
@@ -214,6 +214,7 @@ void ChatPage::showSetWidget()
 	// 设置动画的起始和结束位置（全局坐标系）
 	m_showAnimation->setStartValue(QRect(windowRight, windowTopLeft.y() + ui->setWidget->height(), 0, setHeight));  // 从外部开始
 	m_showAnimation->setEndValue(QRect(windowRight - m_setWidget->width(), windowTopLeft.y() + ui->setWidget->height(), m_setWidget->width(), setHeight));  // 结束时的位置
+
 	// 动画过程中更新裁剪区域
 	connect(m_showAnimation, &QPropertyAnimation::valueChanged, [=](const QVariant& value)
 		{
@@ -227,18 +228,22 @@ void ChatPage::showSetWidget()
 			QRegion region(0, 0, visibleWidthAdjusted, height(), QRegion::Rectangle);
 			m_setWidget->setMask(region);  // 更新裁剪区域
 		});
-	m_setWidget->show();
-	m_setWidget->activateWindow();
-	m_setWidget->setFocus();
-	// 延迟执行动画，确保 isVisible() 状态稳定
+	//延迟执行动画，确保 isVisible() 状态稳定
 	QTimer::singleShot(10, this, [this]() {
 		m_showAnimation->start();
+		// 延迟显示控件，避免闪烁
+		QTimer::singleShot(30, this, [this]() {
+			m_setWidget->show();
+			m_setWidget->activateWindow();
+			m_setWidget->setFocus();
+			});
 		});
 }
 
 //隐藏设置面板
 void ChatPage::hideSetWidget()
 {
+	m_isAnimationFinished = false;
 	// 计算窗口右边界（全局坐标）
 	QPoint windowTopLeft = this->mapToGlobal(QPoint(0, 0));
 	int windowRight = windowTopLeft.x() + this->width();
@@ -258,20 +263,25 @@ void ChatPage::hideSetWidget()
 	));
 
 	// 动画过程中更新裁剪区域（与显示动画对称）
-	connect(m_hideAnimation, &QPropertyAnimation::valueChanged, [=](const QVariant& value) {
-		QRect rect = value.toRect();
-		int visibleWidth = windowRight - rect.x();  // 计算可见宽度
-		QRegion region(0, 0, visibleWidth, height(), QRegion::Rectangle);
-		m_setWidget->setMask(region);
-
-
+	connect(m_hideAnimation, &QPropertyAnimation::valueChanged, [=](const QVariant& value) 
+		{
+			QRect rect = value.toRect();
+			int visibleWidth = windowRight - rect.x();  // 计算可见宽度
+			QRegion region(0, 0, visibleWidth, height(), QRegion::Rectangle);
+			m_setWidget->setMask(region);
 		});
 
-	// 动画结束时完全隐藏
-	connect(m_hideAnimation, &QPropertyAnimation::finished, [=]() {
-		m_setWidget->hide();
-		m_setWidget->clearMask();  // 清除裁剪区域
-		});
+	//动画结束时完全隐藏
+	connect(m_hideAnimation, &QPropertyAnimation::finished, [=]() 
+	{
+		if (!m_isAnimationFinished) //利用标志位避免valueChanged,进入多次
+		{
+			m_isAnimationFinished = true;  
+			m_setWidget->clearMask();
+			m_setWidget->hide();
+			//m_setWidget->clearMask();   
+		}
+	});
 
 	// 启动动画
 	m_hideAnimation->start();

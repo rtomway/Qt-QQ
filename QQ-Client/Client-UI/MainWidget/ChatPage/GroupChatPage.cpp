@@ -27,7 +27,7 @@
 
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
-	, m_groupPannel(new GroupSetPannelWidget(m_setWidget))
+	,m_groupPannel(new GroupSetPannelWidget(m_setWidget))
 {
 	init();
 }
@@ -104,6 +104,7 @@ void GroupChatPage::init()
 	//设置面板
 	connect(ui->moreBtn, &QPushButton::clicked, this, [=]
 		{
+			qDebug() << "m_setWidget->isHidden():" << m_setWidget->isHidden();
 			if (!m_setWidget->isHidden())
 			{
 				hideSetWidget();

@@ -48,6 +48,7 @@ protected:
 	QWidget* m_setWidget{};
 	QPropertyAnimation* m_showAnimation{};
 	QPropertyAnimation* m_hideAnimation{};
+	bool m_isAnimationFinished = false;
 	bool m_currentChat{ false };
 };
 
