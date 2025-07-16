@@ -46,6 +46,7 @@ private:
 	QListWidgetItem* findListItem(const QString& user_id);
 	void clearChatMessageListWidget();
 	void updateStackedListWidget();
+	void installEventFilterToWidget(QWidget* parentWidget);
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 private:

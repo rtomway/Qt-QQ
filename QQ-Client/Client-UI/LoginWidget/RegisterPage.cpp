@@ -44,6 +44,7 @@ void RegisterPage::init()
 
 	ui->nickNameEdit->setPlaceholderText("输入昵称");
 	ui->passwordEdit->setPlaceholderText("输入密码");
+	ui->confidential->setPlaceholderText("输入个人密保");
 	ui->phoneEdit->setPlaceholderText("输入手机号码");
 	ui->verifyEdit->setPlaceholderText("输入短信验证码");
 
@@ -53,27 +54,31 @@ void RegisterPage::init()
 	ui->verifyEdit->setAlignment(Qt::AlignCenter);
 	ui->passwordLab->setVisible(false);
 	//注册
-	connect(ui->registerBtn, &QPushButton::clicked, this, [=]
-		{
-			if (ui->nickNameEdit->text().isEmpty())
-			{
-				QMessageBox::warning(this, "警告", "昵称不能为空");
-				return;
-			}
-			if (ui->passwordEdit->text().isEmpty())
-			{
-				QMessageBox::warning(this, "警告", "密码不能为空");
-				return;
-			}
-			//向服务器发送注册信息
-			QJsonObject registerObj;
-			registerObj["username"] = ui->nickNameEdit->text();
-			registerObj["password"] = ui->passwordEdit->text();
-			QJsonDocument doc(registerObj);
-			auto data = doc.toJson(QJsonDocument::Compact);
-			NetWorkServiceLocator::instance()->sendHttpRequest("register", data, "application/json");
-		});
+	connect(ui->registerBtn, &QPushButton::clicked, this, &RegisterPage::onRegisterUser);
 	connect(EventBus::instance(), &EventBus::registerSuccess, this, &RegisterPage::hide);
+}
+
+//用户注册
+void RegisterPage::onRegisterUser()
+{
+	if (ui->nickNameEdit->text().isEmpty())
+	{
+		QMessageBox::warning(this, "警告", "昵称不能为空");
+		return;
+	}
+	if (ui->passwordEdit->text().isEmpty())
+	{
+		QMessageBox::warning(this, "警告", "密码不能为空");
+		return;
+	}
+	//向服务器发送注册信息
+	QJsonObject registerObj;
+	registerObj["username"] = ui->nickNameEdit->text();
+	registerObj["password"] = ui->passwordEdit->text();
+	registerObj["confidential"] = ui->confidential->text();
+	QJsonDocument doc(registerObj);
+	auto data = doc.toJson(QJsonDocument::Compact);
+	NetWorkServiceLocator::instance()->sendHttpRequest("register", data, "application/json");
 }
 
 //控件事件重写

@@ -14,6 +14,7 @@ public:
 	~RegisterPage();
 private:
 	void init();
+	void onRegisterUser();
 private:
 	Ui::RegisterPage* ui{};
 protected:

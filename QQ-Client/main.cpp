@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
 	WebClient webClient;
 	HttpClient httpClient;
 	NetWorkService service(&webClient, &httpClient);
+
 	NetWorkServiceLocator::setNetService(&service);
 	
 	//Ui

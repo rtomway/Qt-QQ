@@ -104,7 +104,6 @@ void GroupChatPage::init()
 	//设置面板
 	connect(ui->moreBtn, &QPushButton::clicked, this, [=]
 		{
-			qDebug() << "m_setWidget->isHidden():" << m_setWidget->isHidden();
 			if (!m_setWidget->isHidden())
 			{
 				hideSetWidget();

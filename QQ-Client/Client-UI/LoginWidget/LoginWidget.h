@@ -8,8 +8,9 @@
 #include <memory>
 
 #include "AngleRoundedWidget.h"
-#include "RegisterPage.h"
 #include "LineEditwithButton.h"
+#include "RegisterPage.h"
+#include "PassWordChangePage.h"
 
 
 
@@ -37,6 +38,7 @@ private:
 	QPushButton* m_moreBtn{};
 	QPoint m_pressPos{};
 	std::unique_ptr<RegisterPage> m_registerPage{};
+	std::unique_ptr<PassWordChangePage> m_passwordChangePage{};
 };
 
 

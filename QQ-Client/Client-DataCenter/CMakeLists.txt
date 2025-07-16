@@ -13,12 +13,10 @@ add_library(Client-DataCenter STATIC
     GroupDataMoudle/GroupService.h        GroupDataMoudle/GroupService.cpp
 
     AvatarDataMoudle/AvatarManager.h      AvatarDataMoudle/AvatarManager.cpp
-
     TempDataMoudle/TempManager.h          TempDataMoudle/TempManager.cpp
-
     LoginUserDataMoudle/LoginUserManager.h    LoginUserDataMoudle/LoginUserManager.cpp
 
-    TokenManager.h          TokenManager.cpp   
+    TokenManager/TokenManager.h         TokenManager/TokenManager.cpp   
 )
 
 

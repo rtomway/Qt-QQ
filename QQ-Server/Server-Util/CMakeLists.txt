@@ -2,9 +2,12 @@
 # 为 UI 模块添加一个目标
 add_library(Server-Util STATIC 
     SResultCode.h
- "ImageUtil.h" "ImageUtil.cpp" 
- "CreateId.h"   "CreateId.cpp"
- "GlobalTypes.h")
+    ImageUtil.h ImageUtil.cpp
+    CreateId.h   CreateId.cpp
+    GlobalTypes.h
+    PacketCreate.h
+    PacketCreate.cpp
+)
 
 #库
 #find_package(Qt6 REQUIRED COMPONENTS Core Sql WebSockets)

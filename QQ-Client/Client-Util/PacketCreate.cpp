@@ -4,7 +4,7 @@
 #include <QDataStream>
 #include <QIODevice>
 
-#include "../Client-DataCenter/TokenManager.h"
+#include "TokenManager.h"
 
 //json文本包
 QString PacketCreate::textPacket(const QString& type, const QJsonObject& paramsObj)

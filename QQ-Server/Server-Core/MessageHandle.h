@@ -21,10 +21,13 @@ private:
 	//消息处理函数表
 	QHash<QString, void(*)(const QJsonObject&, const QByteArray&)>webRequestHash{};
 	QHash<QString, void(*)(const QJsonObject&,const QByteArray&, QHttpServerResponder&)> httpRequestHash{};
+	//公开界面操作列表(无需token认证)
+	QStringList m_publicPage_list;
 private:
 	void initWebRequestHash();
 	void initHttpRequestHash();
-	bool tokenRight(const QString&token,const QString&user_id);
+	void initPublicPageType();
+	bool tokenRight(const QString&token,const QString&user_id,const QString&type);
 signals:
 	void addClient(const QString& user_id, QWebSocket* client);
 };

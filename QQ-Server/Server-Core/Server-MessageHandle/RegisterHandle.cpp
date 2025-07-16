@@ -16,6 +16,7 @@ void RegisterHandle::handle_register(const QJsonObject& paramsObj,const QByteArr
 	registerMessage.user_id = CreateId::generateUserID(CreateId::Id::User);
 	registerMessage.username = paramsObj["username"].toString();
 	registerMessage.password = paramsObj["password"].toString();
+	registerMessage.confidential = paramsObj["confidential"].toString();
 	//注册信息插入
 	DataBaseQuery query;
 	auto registerResult = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool

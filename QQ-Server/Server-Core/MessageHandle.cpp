@@ -20,6 +20,7 @@ MessageHandle::MessageHandle(QObject* parent)
 {
 	initWebRequestHash();
 	initHttpRequestHash();
+	initPublicPageType();
 }
 //映射表
 void MessageHandle::initWebRequestHash()
@@ -70,9 +71,20 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["disbandGroup"] = &GroupHandle::handle_disbandGroup;
 }
 
-//token验证
-bool MessageHandle::tokenRight(const QString& token, const QString& user_id)
+void MessageHandle::initPublicPageType()
 {
+	m_publicPage_list.append("register");
+	m_publicPage_list.append("loginValidation");
+}
+
+//token验证
+bool MessageHandle::tokenRight(const QString& token, const QString& user_id, const QString& type)
+{
+	if (m_publicPage_list.contains(type))
+	{
+		return true;
+	}
+
 	try {
 		auto decoded = jwt::decode(token.toStdString());
 
@@ -113,7 +125,7 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 		if (!client_id.isEmpty())
 		{
 			auto token = paramsObject["token"].toString();
-			if (!tokenRight(token, client_id))
+			if (!tokenRight(token, client_id,type))
 			{
 				qDebug() << "token认证失败";
 				return;
@@ -142,7 +154,7 @@ void MessageHandle::handle_message(const QByteArray& message, QWebSocket* socket
 		//验证token
 		auto token = parsePacket.params["token"].toString();
 		auto user_id = parsePacket.params["user_id"].toString();
-		if (!tokenRight(token, user_id))
+		if (!tokenRight(token, user_id, parsePacket.type))
 		{
 			qDebug() << "token认证失败";
 			return;
@@ -162,29 +174,26 @@ void MessageHandle::handle_message(const QByteArray& message, QWebSocket* socket
 void MessageHandle::handle_message(const QString& type, const QHttpServerRequest& request, QHttpServerResponder& response)
 {
 	//token验证
-	if (type != "loginValidation")
+	QString token;
+	QString user_id;
+	for (auto& requestHeader : request.headers())
 	{
-		QString token;
-		QString user_id;
-		for (auto& requestHeader : request.headers())
+		if (requestHeader.first == "user_id")
 		{
-			if (requestHeader.first == "user_id")
-			{
-				user_id = requestHeader.second;
-			}
-			if (requestHeader.first == "Authorization")
-			{
-				token = requestHeader.second;
-			}
+			user_id = requestHeader.second;
 		}
-		// 可能是 Bearer 开头，记得处理
-		if (token.startsWith("Bearer "))
-			token = token.mid(7);
-		if (!tokenRight(token, user_id))
+		if (requestHeader.first == "Authorization")
 		{
-			qDebug() << "token认证失败";
-			return;
+			token = requestHeader.second;
 		}
+	}
+	// 可能是 Bearer 开头，记得处理
+	if (token.startsWith("Bearer "))
+		token = token.mid(7);
+	if (!tokenRight(token, user_id,type))
+	{
+		qDebug() << "token认证失败";
+		return;
 	}
 
 	auto requestBody = request.body();
@@ -214,19 +223,22 @@ void MessageHandle::handle_message(const QHttpServerRequest& request, QHttpServe
 			token = requestHeader.second;
 		}
 	}
-	// 可能是 Bearer 开头，记得处理
-	if (token.startsWith("Bearer "))
-		token = token.mid(7);
-	if (!tokenRight(token, user_id))
-	{
-		qDebug() << "token认证失败";
-		return;
-	}
+	
 	auto message = request.body();
 	auto parsePacketList = PacketCreate::parseDataPackets(message);
 	for (auto& parsePacket : parsePacketList)
 	{
 		qDebug() << "客户端发来消息type:" << parsePacket.type;
+
+		// 可能是 Bearer 开头，记得处理
+		if (token.startsWith("Bearer "))
+			token = token.mid(7);
+		if (!tokenRight(token, user_id, parsePacket.type))
+		{
+			qDebug() << "token认证失败";
+			return;
+		}
+
 		// 根据类型给处理函数处理
 		if (httpRequestHash.contains(parsePacket.type)) {
 			auto handle = httpRequestHash[parsePacket.type];

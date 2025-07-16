@@ -72,7 +72,7 @@ void ChatPage::init()
 	ui->messageListWidget->verticalScrollBar()->setSingleStep(10);
 	ui->messageTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	//在自己信息中心加载完成后读取
+	//在登录用户信息中心加载完成后读取
 	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, this, [=]
 		{
 			m_loginUser = LoginUserManager::instance()->getLoginUser();
@@ -229,14 +229,16 @@ void ChatPage::showSetWidget()
 			m_setWidget->setMask(region);  // 更新裁剪区域
 		});
 	//延迟执行动画，确保 isVisible() 状态稳定
-	QTimer::singleShot(10, this, [this]() {
-		m_showAnimation->start();
-		// 延迟显示控件，避免闪烁
-		QTimer::singleShot(30, this, [this]() {
-			m_setWidget->show();
-			m_setWidget->activateWindow();
-			m_setWidget->setFocus();
-			});
+	QTimer::singleShot(10, this, [this]() 
+		{
+		   m_showAnimation->start();
+		   // 延迟显示控件，避免闪烁
+		   QTimer::singleShot(30, this, [this]() 
+			  {
+		   		m_setWidget->show();
+		   		m_setWidget->activateWindow();
+		   		m_setWidget->setFocus();
+		   	});
 		});
 }
 
@@ -279,7 +281,6 @@ void ChatPage::hideSetWidget()
 			m_isAnimationFinished = true;  
 			m_setWidget->clearMask();
 			m_setWidget->hide();
-			//m_setWidget->clearMask();   
 		}
 	});
 

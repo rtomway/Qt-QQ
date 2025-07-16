@@ -10,6 +10,7 @@ struct RegisterMessage
 	QString user_id;
 	QString username;
 	QString password;
+	QString confidential;
 };
 
 class LoginDBUtils

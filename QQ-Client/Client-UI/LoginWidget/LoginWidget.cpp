@@ -64,7 +64,8 @@ void LoginWidget::init()
 	//密码更新
 	moreMenu->addAction("忘记密码", this, [=]
 		{
-
+			m_passwordChangePage = std::make_unique<PassWordChangePage>();
+			m_passwordChangePage->show();
 		});
 
 	//窗口关闭
