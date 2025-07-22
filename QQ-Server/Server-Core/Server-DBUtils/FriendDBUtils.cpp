@@ -64,7 +64,6 @@ bool FriendDBUtils::deleteFriend(const MyFriend& myFriend, DataBaseQuery& query,
 //查询好友id
 QStringList FriendDBUtils::queryFriendIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------查询所有好友ID---------------------------------------";
 	QString queryStr = QString("select friend_id from friendship where user_id=?");
 	QVariantList bindValues;
 	bindValues.append(user_id);

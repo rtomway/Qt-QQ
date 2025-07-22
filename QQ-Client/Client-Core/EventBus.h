@@ -24,6 +24,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void loadLocalAvatarGroup(const QStringList& group_idList);
 	void loadLocalAvatarFriend(const QStringList& friend_idList);
 	void registerSuccess(const QJsonObject& obj);
+	void passwordChangeSuccess();
 	//好友操作
 	void textCommunication(const QJsonObject& paramsObject);
 	void pictureCommunication(const QJsonObject& paramsObject, const QPixmap& pixmap);
@@ -41,6 +42,7 @@ signals:   //接受到消息发送信号通知UI界面更新同步
 	void disbandGroup(const QString& group_id);
 	void groupMemberDeleted(const QJsonObject& paramsObject);
 	void batch_groupMemberDeleted(const QJsonObject& paramsObject);
+	void updateGroupAvatar(const QString& group_id, const QPixmap& pixmap);
 	//用户操作
 	void searchUser(const QJsonObject& paramsObject, const QPixmap& pixmap);
 	void searchGroup(const QJsonObject& paramsObject, const QPixmap& pixmap);

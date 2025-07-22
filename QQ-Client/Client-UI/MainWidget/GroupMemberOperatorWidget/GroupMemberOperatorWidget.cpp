@@ -26,9 +26,6 @@ GroupMemberOperatorWidget::GroupMemberOperatorWidget(QWidget* parent)
 {
 	ui->setupUi(this);
 	init();
-	this->setFixedSize(530, 580);
-	m_searchList->setObjectName("searchListWidget");
-	ui->selectedFriendList->setObjectName("selectedFriendList");
 	QFile file(":/stylesheet/Resource/StyleSheet/GroupMemberOperatorWidget.css");
 	if (file.open(QIODevice::ReadOnly))
 	{
@@ -46,6 +43,10 @@ GroupMemberOperatorWidget::~GroupMemberOperatorWidget()
 
 void GroupMemberOperatorWidget::init()
 {
+	this->setFixedSize(530, 580);
+	m_searchList->setObjectName("searchListWidget");
+	ui->selectedFriendList->setObjectName("selectedFriendList");
+
 	ui->friendStackedList->addWidget(m_selectTree);
 	ui->friendStackedList->addWidget(m_searchList);
 	ui->friendStackedList->setCurrentWidget(m_selectTree);

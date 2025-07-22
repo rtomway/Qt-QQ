@@ -59,13 +59,11 @@ void LoginHandle::handle_loginValidation(const QJsonObject& paramsObj, const QBy
 //登录
 void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "--------------------------登录用户数据的加载------------------------";
 	auto user_id = paramsObject["user_id"].toString();
 	auto password = paramsObject["password"].toString();
 	//数据库查询
 	DataBaseQuery query;
 	auto loginUserObj = UserDBUtils::queryUserDetail(user_id, query);
-	qDebug() << "登录用户信息:" << loginUserObj;
 	if (loginUserObj.contains("error"))
 	{
 
@@ -81,7 +79,6 @@ void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray
 //加载好友列表
 void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	qDebug() << "--------------------------加载好友列表------------------------";
 	auto user_id = paramsObj["user_id"].toString();
 	//数据库查询
 	DataBaseQuery query;
@@ -100,7 +97,6 @@ void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByt
 //加载群组列表
 void LoginHandle::handle_loadGroupList(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	qDebug() << "--------------------------加载群组列表------------------------";
 	auto user_id = paramsObj["id"].toString();
 	//查询相关群组信息以及用户角色
 	DataBaseQuery query;

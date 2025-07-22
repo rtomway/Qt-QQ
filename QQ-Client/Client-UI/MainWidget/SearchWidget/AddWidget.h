@@ -22,6 +22,8 @@ public:
 	void setUser(const QJsonObject& obj, const QPixmap& pixmap);
 	void setGroup(const QJsonObject& obj, const QPixmap& pixmap);
 private:
+	void onAdd();
+private:
 	Ui::AddWidget* ui{};
 	LineEditwithButton* m_grouping{};
 	QString m_addName{};

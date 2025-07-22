@@ -59,54 +59,9 @@ void AddWidget::init()
 	ui->groupWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
 	//发送
-	connect(ui->sendBtn, &QPushButton::clicked, [=]
-		{
-			//群组
-			if (m_type == ChatType::Group)
-			{
-				QJsonObject applicateGroupObj;
-				applicateGroupObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-				applicateGroupObj["username"] = LoginUserManager::instance()->getLoginUserName();
-				applicateGroupObj["to"] = m_addId;
-				applicateGroupObj["message"] = ui->messageEdit->text();
-				applicateGroupObj["noticeMessage"] = "请求加入群组" + m_addName;
-
-				auto message = PacketCreate::textPacket("addGroup", applicateGroupObj);
-				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
-				this->close();
-				return;
-			}
-			//好友
-			if (m_isSend)//申请
-			{
-				QJsonObject applicateFriendObj;
-				applicateFriendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-				applicateFriendObj["username"] = LoginUserManager::instance()->getLoginUserName();
-				applicateFriendObj["to"] = m_addId;
-				applicateFriendObj["message"] = ui->messageEdit->text();
-				applicateFriendObj["noticeMessage"] = "请求加为好友";
-				applicateFriendObj["Fgrouping"] = m_grouping->getLineEditText();
-				auto message = PacketCreate::textPacket("addFriend", applicateFriendObj);
-				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
-			}
-			else  //添加
-			{
-				//用户信息
-				QJsonObject friendObj;
-				friendObj["to"] = m_addId;
-				friendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
-				friendObj["grouping"] = m_grouping->getLineEditText();
-				friendObj["replyMessage"] = "同意了你的好友申请";
-				auto message = PacketCreate::textPacket("friendAddSuccess", friendObj);
-				NetWorkServiceLocator::instance()->sendWebTextMessage(message);
-			}
-			this->close();
-		});
+	connect(ui->sendBtn, &QPushButton::clicked, this, &AddWidget::onAdd);
 	//取消
-	connect(ui->cancelBtn, &QPushButton::clicked, [=]
-		{
-			this->close();
-		});
+	connect(ui->cancelBtn, &QPushButton::clicked, this, &AddWidget::close);
 
 }
 
@@ -152,4 +107,49 @@ void AddWidget::setGroup(const QJsonObject& obj, const QPixmap& pixmap)
 		ui->groupIngLab->setVisible(false);
 		ui->messageLab->setText("群组申请信息");
 	}
+}
+
+//添加
+void AddWidget::onAdd()
+{
+	//群组
+	if (m_type == ChatType::Group)
+	{
+		QJsonObject applicateGroupObj;
+		applicateGroupObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+		applicateGroupObj["username"] = LoginUserManager::instance()->getLoginUserName();
+		applicateGroupObj["to"] = m_addId;
+		applicateGroupObj["message"] = ui->messageEdit->text();
+		applicateGroupObj["noticeMessage"] = "请求加入群组" + m_addName;
+
+		auto message = PacketCreate::textPacket("addGroup", applicateGroupObj);
+		NetWorkServiceLocator::instance()->sendWebTextMessage(message);
+		this->close();
+		return;
+	}
+	//好友
+	if (m_isSend)//申请
+	{
+		QJsonObject applicateFriendObj;
+		applicateFriendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+		applicateFriendObj["username"] = LoginUserManager::instance()->getLoginUserName();
+		applicateFriendObj["to"] = m_addId;
+		applicateFriendObj["message"] = ui->messageEdit->text();
+		applicateFriendObj["noticeMessage"] = "请求加为好友";
+		applicateFriendObj["Fgrouping"] = m_grouping->getLineEditText();
+		auto message = PacketCreate::textPacket("addFriend", applicateFriendObj);
+		NetWorkServiceLocator::instance()->sendWebTextMessage(message);
+	}
+	else  //添加
+	{
+		//用户信息
+		QJsonObject friendObj;
+		friendObj["to"] = m_addId;
+		friendObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
+		friendObj["grouping"] = m_grouping->getLineEditText();
+		friendObj["replyMessage"] = "同意了你的好友申请";
+		auto message = PacketCreate::textPacket("friendAddSuccess", friendObj);
+		NetWorkServiceLocator::instance()->sendWebTextMessage(message);
+	}
+	this->close();
 }

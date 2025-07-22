@@ -40,6 +40,43 @@ GroupMemberQueryWidget::~GroupMemberQueryWidget()
 
 }
 
+void GroupMemberQueryWidget::init()
+{
+	auto mlayout = new QVBoxLayout(this);
+	auto hlayout = new QHBoxLayout();
+	mlayout->addLayout(hlayout);
+	m_backBtn->setText("<返回群组");
+	hlayout->addWidget(m_backBtn);
+	hlayout->addStretch();
+
+	m_searchLine->setPlaceholderText("搜索");
+	mlayout->addWidget(m_searchLine);
+	mlayout->addWidget(m_memberList);
+
+	//返回群面板
+	connect(m_backBtn, &QPushButton::clicked, this, [=]
+		{
+			emit backGroupPannel();
+		});
+	//群成员搜索
+	connect(m_searchLine, &QLineEdit::textChanged, this, [=](const QString& text)
+		{
+			if (text.isEmpty())
+			{
+				loadGroupMemberList(m_group_id);
+				return;
+			}
+
+			auto match_list = matchText(text);
+			clearMemberListItem();
+			for (auto& id : match_list)
+			{
+				addListItemWidget(id);
+			}
+			update();
+		});
+}
+
 //加载群成员列表
 void GroupMemberQueryWidget::loadGroupMemberList(const QString& group_id)
 {
@@ -61,43 +98,6 @@ void GroupMemberQueryWidget::loadGroupMemberList(const QString& group_id)
 		m_nameList.append(member.member_name);
 		m_groupHash[member.member_id] = member.member_name;
 	}
-}
-
-void GroupMemberQueryWidget::init()
-{
-	auto mlayout = new QVBoxLayout(this);
-	auto hlayout = new QHBoxLayout();
-	mlayout->addLayout(hlayout);
-	m_backBtn->setText("<返回群组");
-	hlayout->addWidget(m_backBtn);
-	hlayout->addStretch();
-
-	m_searchLine->setPlaceholderText("搜索");
-	mlayout->addWidget(m_searchLine);
-	mlayout->addWidget(m_memberList);
-
-	//返回群面板
-	connect(m_backBtn, &QPushButton::clicked, this, [=]
-		{
-			emit backGroupPannel();
-		});
-	//群成员搜索
-	connect(m_searchLine, &QLineEdit::textChanged, this, [=](const QString&text)
-		{
-			if (text.isEmpty())
-			{
-				loadGroupMemberList(m_group_id);
-				return;
-			}
-				
-			auto match_list = matchText(text);
-			clearMemberListItem();
-			for (auto& id : match_list)
-			{
-				addListItemWidget(id);
-			}
-			update();
-		});
 }
 
 //添加群成员项

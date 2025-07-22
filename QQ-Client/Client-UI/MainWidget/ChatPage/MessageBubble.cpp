@@ -1,6 +1,4 @@
 ﻿#include "MessageBubble.h"
-#include "MessageBubble.h"
-#include "MessageBubble.h"
 #include <QPainter>
 #include <QResizeEvent>
 #include <QPainterPath>

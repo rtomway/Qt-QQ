@@ -22,6 +22,7 @@ public:
 private:
 	void init();
 	void initLayout();
+	void onLoginRequest();
 protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 signals:

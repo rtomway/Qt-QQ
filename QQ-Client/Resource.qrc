@@ -76,6 +76,8 @@
         <file>Resource/Icon/check.png</file>
         <file>Resource/Icon/removeItem.png</file>
         <file>Resource/Icon/groupMember.png</file>
+        <file>Resource/Icon/hidePassword.png</file>
+        <file>Resource/Icon/showPassword.png</file>
     </qresource>
     <qresource prefix="/stylesheet">
         <file>Resource/StyleSheet/LineEditwithButton.css</file>
@@ -90,5 +92,6 @@
         <file>Resource/StyleSheet/ContactListWidget.css</file>
         <file>Resource/StyleSheet/UserProfilePage.css</file>
         <file>Resource/StyleSheet/GroupMemberOperatorWidget.css</file>
+        <file>Resource/StyleSheet/PasswordChangePage.css</file>
     </qresource>
 </RCC>

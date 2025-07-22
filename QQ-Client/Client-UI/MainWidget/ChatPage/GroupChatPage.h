@@ -39,9 +39,7 @@ private:
 	QSharedPointer<Group>m_group{};
 	std::shared_ptr<ChatRecordMessage>m_chat{};
 private:
-	QStringList m_imageMessagePath{};
 	QString m_textMessage{};
-	bool m_isImageInTextEdit{ false };
 	GroupSetPannelWidget* m_groupPannel{};
 };
 

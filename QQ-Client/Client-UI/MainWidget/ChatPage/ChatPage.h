@@ -36,6 +36,7 @@ protected:
 	virtual void insertTipMessage(const QString& text) = 0;
 protected:
 	void loadChatMessage(const ChatRecordMessage& chatMessage);
+	void onloadPictureInTextEdit();
 protected:
 	void showSetWidget();
 	void hideSetWidget();
@@ -50,6 +51,8 @@ protected:
 	QPropertyAnimation* m_hideAnimation{};
 	bool m_isAnimationFinished = false;
 	bool m_currentChat{ false };
+	QStringList m_imageMessagePath{};
+	bool m_isImageInTextEdit{ false };
 };
 
 #endif // !CHATPAGE

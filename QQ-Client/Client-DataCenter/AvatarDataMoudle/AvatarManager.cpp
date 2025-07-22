@@ -26,6 +26,15 @@ AvatarManager::AvatarManager()
 					emit UpdateUserAvatar(user_id);
 				});
 		});
+	//更新群组头像
+	connect(EventBus::instance(), &EventBus::updateGroupAvatar, this, [=](const QString& group_id, const QPixmap& pixmap)
+		{
+			ImageUtils::saveAvatarToLocal(pixmap.toImage(), group_id, ChatType::Group, [=]()
+				{
+					m_groupAvatarCache.insert(group_id, new QPixmap(pixmap));  // 插入新的头像到缓存（qcatch自动管理）
+					emit UpdateGroupAvatar(group_id);
+				});
+		});
 }
 
 //检测本地是否有该id头像缓存

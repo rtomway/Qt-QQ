@@ -8,6 +8,10 @@ CreateFriendgrouping::CreateFriendgrouping(QWidget* parent)
 {
 	ui->setupUi(this);
 	init();
+}
+
+void CreateFriendgrouping::init()
+{
 	this->setFixedSize(300, 170);
 	this->setStyleSheet(R"(
 			QWidget{ border: none;border-radius:10px;background-color:white;}
@@ -24,10 +28,7 @@ CreateFriendgrouping::CreateFriendgrouping(QWidget* parent)
 			)");
 	setAttribute(Qt::WA_StyledBackground);
 	setAttribute(Qt::WA_StyleSheet);
-}
 
-void CreateFriendgrouping::init()
-{
 	ui->groupingEdit->setPlaceholderText("填写新分组");
 	//取消
 	connect(ui->cancelBtn, &QPushButton::clicked, this, [=]

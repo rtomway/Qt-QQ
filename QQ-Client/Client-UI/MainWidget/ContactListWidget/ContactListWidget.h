@@ -38,6 +38,7 @@ public:
 	QTreeWidgetItem* getGroupTopItem(QString groupName);
 	//item获取
 	QTreeWidgetItem* findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId);
+	QTreeWidgetItem* findItemByIdInAll(QTreeWidget* treeWidget, const QString& id);
 	//通知
 	void updateFriendNoticeCount();
 	void updateGroupNoticeCount();

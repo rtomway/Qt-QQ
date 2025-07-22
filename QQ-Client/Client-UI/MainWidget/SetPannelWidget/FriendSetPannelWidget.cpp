@@ -1,10 +1,10 @@
 ﻿#include "FriendSetPannelWidget.h"
-
 #include <QMessageBox>
 #include <QPushButton>
 #include <QJsonObject>
 #include <QJsonDocuMent>
 #include <QJsonArray>
+
 #include "EventBus.h"
 #include "Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"

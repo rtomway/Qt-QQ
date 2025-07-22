@@ -22,6 +22,7 @@ public:
 	void handle_disbandGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_beRemovedGroup(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 	void handle_batch_groupMemberDeleted(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
+	void handle_updateGroupAvatar(const QJsonObject& paramsObject = QJsonObject(), const QByteArray& data = QByteArray());
 
 };
 

@@ -56,6 +56,7 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["loadGroupMember"] = &LoginHandle::handle_loadGroupMember;
 	httpRequestHash["loadGroupMemberAvatar"] = &LoginHandle::handle_loadGroupMemberAvatar;
 	httpRequestHash["register"] = &RegisterHandle::handle_register;
+	httpRequestHash["passwordChange"] = &UserHandle::handle_passwordChange;
 	//搜索
 	httpRequestHash["searchUser"] = &UserHandle::handle_searchUser;
 	httpRequestHash["searchGroup"] = &UserHandle::handle_searchGroup;
@@ -69,12 +70,15 @@ void MessageHandle::initHttpRequestHash()
 	httpRequestHash["groupMemberLoad"] = &GroupHandle::handle_groupMemberLoad;
 	httpRequestHash["exitGroup"] = &GroupHandle::handle_exitGroup;
 	httpRequestHash["disbandGroup"] = &GroupHandle::handle_disbandGroup;
+	httpRequestHash["updateGroupAvatar"] = &GroupHandle::handle_updateGroupAvatar;
 }
 
+//无需token验证
 void MessageHandle::initPublicPageType()
 {
 	m_publicPage_list.append("register");
 	m_publicPage_list.append("loginValidation");
+	m_publicPage_list.append("passwordChange");
 }
 
 //token验证
@@ -97,15 +101,16 @@ bool MessageHandle::tokenRight(const QString& token, const QString& user_id, con
 
 		// 检查 payload 中的 user_id
 		std::string payload_user_id = decoded.get_payload_claim("user_id").as_string();
-		if (payload_user_id != user_id.toStdString()) {
+		if (payload_user_id != user_id.toStdString()) 
+		{
 			qDebug() << "[Token无效] user_id不匹配";
 			return false;
 		}
 
-		qDebug() << "[Token验证成功]";
 		return true;
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception& e) 
+	{
 		qDebug() << "[Token验证失败]" << e.what();
 		return false;
 	}
@@ -125,7 +130,7 @@ void MessageHandle::handle_message(const QString& message, QWebSocket* socket)
 		if (!client_id.isEmpty())
 		{
 			auto token = paramsObject["token"].toString();
-			if (!tokenRight(token, client_id,type))
+			if (!tokenRight(token, client_id, type))
 			{
 				qDebug() << "token认证失败";
 				return;
@@ -190,7 +195,7 @@ void MessageHandle::handle_message(const QString& type, const QHttpServerRequest
 	// 可能是 Bearer 开头，记得处理
 	if (token.startsWith("Bearer "))
 		token = token.mid(7);
-	if (!tokenRight(token, user_id,type))
+	if (!tokenRight(token, user_id, type))
 	{
 		qDebug() << "token认证失败";
 		return;
@@ -223,7 +228,7 @@ void MessageHandle::handle_message(const QHttpServerRequest& request, QHttpServe
 			token = requestHeader.second;
 		}
 	}
-	
+
 	auto message = request.body();
 	auto parsePacketList = PacketCreate::parseDataPackets(message);
 	for (auto& parsePacket : parsePacketList)

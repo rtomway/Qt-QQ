@@ -23,6 +23,7 @@ public:
 private:
 	void addMemberAvatar();
 	void clearAvatarLayout();
+	void updateGroupAvatar();
 protected:
 	bool eventFilter(QObject* watched, QEvent* event)override;
 private:

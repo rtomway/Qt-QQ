@@ -1,4 +1,5 @@
 ﻿#include "Client_GroupHandle.h"
+#include "Client_GroupHandle.h"
 #include <QPixmap>
 
 #include "ImageUtil.h"
@@ -126,21 +127,24 @@ void Client_GroupHandle::handle_groupMemberExitGroup(const QJsonObject& paramsOb
 void Client_GroupHandle::handle_rejectAddGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]() {
-		QPixmap pixmap;
-		if (data.isEmpty() || !pixmap.loadFromData(data))
+	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+		[paramsObject, data]() 
 		{
-			qDebug() << "load Data Failed";
-			pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
-		}
-		EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
+			QPixmap pixmap;
+			if (data.isEmpty() || !pixmap.loadFromData(data))
+			{
+				qDebug() << "load Data Failed";
+				pixmap = QPixmap(":/picture/Resource/Picture/qq.png");
+			}
+			EventBus::instance()->emit notice_groupReply(paramsObject, pixmap);
 		});
 }
 
 void Client_GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
+	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+		[paramsObject, data]()
 		{
 			QPixmap pixmap;
 			if (data.isEmpty() || !pixmap.loadFromData(data))
@@ -157,7 +161,8 @@ void Client_GroupHandle::handle_disbandGroup(const QJsonObject& paramsObject, co
 	auto group_id = paramsObject["group_id"].toString();
 	EventBus::instance()->emit disbandGroup(group_id);
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
+	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+		[paramsObject, data]()
 		{
 			QPixmap pixmap;
 			if (data.isEmpty() || !pixmap.loadFromData(data))
@@ -173,7 +178,8 @@ void Client_GroupHandle::handle_beRemovedGroup(const QJsonObject& paramsObject, 
 {
 	EventBus::instance()->emit removeGroup(paramsObject);
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
+	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+		[paramsObject, data]()
 		{
 			QPixmap pixmap;
 			if (data.isEmpty() || !pixmap.loadFromData(data))
@@ -188,4 +194,20 @@ void Client_GroupHandle::handle_beRemovedGroup(const QJsonObject& paramsObject, 
 void Client_GroupHandle::handle_batch_groupMemberDeleted(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	EventBus::instance()->emit batch_groupMemberDeleted(paramsObject);
+}
+
+void Client_GroupHandle::handle_updateGroupAvatar(const QJsonObject& paramsObject, const QByteArray& data)
+{
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [paramsObject, data]()
+		{
+			auto group_id = paramsObject["group_id"].toString();
+			QPixmap avatar;
+			if (!avatar.loadFromData(data))
+			{
+				qWarning() << "Failed to load avatar for group:" << group_id;
+				return;
+			}
+			EventBus::instance()->emit updateGroupAvatar(group_id, avatar);
+		});
 }

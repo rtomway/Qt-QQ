@@ -537,6 +537,17 @@ void MainWidget::connectGroupManagerSignals()
 				}
 			}
 		});
+	//群组头像更新,消息项相关信息更新
+	connect(AvatarManager::instance(), &AvatarManager::UpdateGroupAvatar, [=](const QString& group_id)
+		{
+			auto key = itemKey(group_id, ChatType::Group);
+			auto messageItem = findListItem(key);
+			if (messageItem)
+			{
+				auto itemWidget = qobject_cast<GMessageItemWidget*>(m_chatMessageListWidget->itemWidget(messageItem));
+				itemWidget->setItemWidget(group_id);
+			}
+		});
 }
 
 //连接成员对象控件等信号

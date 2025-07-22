@@ -1,15 +1,16 @@
 ﻿#include "GroupProfilePage.h"
-#include "GroupProfilePage.h"
-#include "GroupProfilePage.h"
 #include "ui_GroupProfilePage.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QBoxLayout>
+#include <QtConcurrent/QtConcurrent>
 
 #include "GroupManager.h"
 #include "AvatarManager.h"
 #include "ImageUtil.h"
+#include "PacketCreate.h"
+#include "Client-ServiceLocator/NetWorkServiceLocator.h"
 
 constexpr int LAOD_MEMBERAVATAR_COUNT = 6;
 
@@ -129,11 +130,49 @@ void GroupProfilePage::clearAvatarLayout()
 	m_avatarContains.clear();
 }
 
+//更改群组头像
+void GroupProfilePage::updateGroupAvatar()
+{
+	//本地保存
+	ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_groupId, ChatType::Group);
+	//向服务器发送
+	AvatarManager::instance()->emit UpdateGroupAvatar(m_groupId);
+	//通知服务端
+	QtConcurrent::run([=]() 
+	{
+		auto pixmap = QPixmap(m_avatarNewPath);
+		qDebug() << "pximap:" << m_avatarNewPath;
+		QByteArray byteArray;
+		QBuffer buffer(&byteArray);
+		buffer.open(QIODevice::WriteOnly);
+		if (!pixmap.save(&buffer, "PNG"))
+		{
+			qDebug() << "Failed to convert avatar to PNG format.";
+			return;
+		}
+		
+		QVariantMap params;
+		params["group_id"] = m_groupId;
+		params["size"] = byteArray.size();
+
+		auto packet = PacketCreate::binaryPacket("updateGroupAvatar", params, byteArray);
+		QByteArray groupData;
+		PacketCreate::addPacket(groupData, packet);
+		auto allData = PacketCreate::allBinaryPacket(groupData);
+
+		// 发到主线程发信号
+		QMetaObject::invokeMethod(NetWorkServiceLocator::instance(), [=]() 
+		{
+			NetWorkServiceLocator::instance()->sendHttpRequest("updateGroupAvatar", allData, "application/octet-stream");
+		});
+	});
+
+}
+
 bool GroupProfilePage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
 	{
-		qDebug() << "-------------------------";
 		m_avatarNewPath = QFileDialog::getOpenFileName(this, "选择头像", "",
 			"Images(*.jpg *.png *.jpeg *.bnp)");
 		if (!m_avatarNewPath.isEmpty())
@@ -154,8 +193,8 @@ bool GroupProfilePage::eventFilter(QObject* watched, QEvent* event)
 			ui->headLab->setPixmap(ImageUtils::roundedPixmap(avatar, QSize(80, 80)));
 			m_avatarOldPath = m_avatarNewPath;
 			m_avatarIsChanged = true;
-			ImageUtils::saveAvatarToLocal(m_avatarNewPath, m_groupId, ChatType::Group);
 
+			this->updateGroupAvatar();
 		}
 	}
 	return false;

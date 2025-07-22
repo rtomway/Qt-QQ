@@ -24,10 +24,12 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/updateFriendGrouping");
 	registerHttpRoute("/updateUserMessage");
 	registerHttpRoute("/updateUserAvatar");
+	registerHttpRoute("/updateGroupAvatar");
 	registerHttpRoute("/deleteFriend");
 	registerHttpRoute("/exitGroup");
 	registerHttpRoute("/disbandGroup");
 	registerHttpRoute("/queryUser");
+	registerHttpRoute("/passwordChange");
 }
 
 void HttpRouteManager::registerHttpRoute(const QString& path)

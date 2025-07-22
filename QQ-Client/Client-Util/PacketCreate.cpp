@@ -101,7 +101,8 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 	stream.setByteOrder(QDataStream::BigEndian);
 	stream.setVersion(QDataStream::Qt_6_5);
 	// 1️⃣ 读取 `allData` 的总大小（4 字节）
-	if (allData.size() < sizeof(qint32)) {
+	if (allData.size() < sizeof(qint32)) 
+	{
 		qDebug() << "Incomplete packet: waiting for more data...";
 		return parsedPacketList;
 	}
@@ -112,14 +113,16 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 	// 2️⃣ 开始循环解析多个数据包
 	while (!stream.atEnd())
 	{
-		if (allData.size() - stream.device()->pos() < sizeof(qint32)) {
+		if (allData.size() - stream.device()->pos() < sizeof(qint32)) 
+		{
 			qDebug() << "Incomplete packet header size!";
 			return parsedPacketList;
 		}
 		// 读取当前数据包的大小
 		qint32 packetSize;
 		stream >> packetSize;
-		if (allData.size() - stream.device()->pos() < packetSize) {
+		if (allData.size() - stream.device()->pos() < packetSize) 
+		{
 			qDebug() << "Incomplete full packet!";
 			return parsedPacketList;
 		}
@@ -131,7 +134,8 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 		stream.readRawData(headerData.data(), headerSize);
 		// 解析 JSON
 		QJsonDocument jsonDoc = QJsonDocument::fromJson(headerData);
-		if (jsonDoc.isNull()) {
+		if (jsonDoc.isNull()) 
+		{
 			qDebug() << "Invalid JSON data!";
 			return parsedPacketList;
 		}
@@ -139,8 +143,7 @@ QList<ParsedPacket> PacketCreate::parseDataPackets(const QByteArray& allData)
 		QJsonObject jsonObj = jsonDoc.object();
 		QString type = jsonObj["type"].toString();
 		QJsonObject params = jsonObj["params"].toObject();
-		//qDebug() << "Received packet type:" << type;
-		//qDebug() << "Params:" << params;
+
 		// 读取二进制数据（图片）
 		int imageSize = params["size"].toInt();
 		QByteArray imageData(imageSize, Qt::Uninitialized);

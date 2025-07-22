@@ -33,6 +33,7 @@ private:
 	QMap<QString, QList<std::function<void(const QPixmap&)>>> m_pendingCallbacks{};
 signals:
 	void UpdateUserAvatar(const QString& user_id);
+	void UpdateGroupAvatar(const QString& group_id);
 	void loadGroupAvatarSuccess(const QString& id);
 	void loadFriendAvatarSuccess(const QString& id);
 };

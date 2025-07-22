@@ -5,19 +5,19 @@
 #include "DataBaseQuery.h"
 
 struct UserInfo {
-    QString user_id;
-    QString username;
-    int gender;
-    int age;
-    QString phone_number;
-    QString email;
-    QDateTime birthday;
-    QString signature;
+	QString user_id;
+	QString username;
+	int gender;
+	int age;
+	QString phone_number;
+	QString email;
+	QDateTime birthday;
+	QString signature;
 };
 
 struct searchPage {
-    int page;
-    int pageSize;
+	int page;
+	int pageSize;
 };
 
 class UserDBUtils
@@ -27,6 +27,7 @@ public:
 	static QJsonObject searchUser(const QString& user_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static QJsonObject searchGroup(const QString& user_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 	static bool updateUserMessage(const UserInfo& userInfo, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
+	static bool passwordChange(const QString& user_id, const QString& password, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr = nullptr);
 };
 
 #endif // !USERDBUTILS_H_

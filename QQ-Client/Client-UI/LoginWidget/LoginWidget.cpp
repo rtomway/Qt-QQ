@@ -46,6 +46,7 @@ void LoginWidget::init()
 	this->setWindowFlag(Qt::FramelessWindowHint);
 	setFixedSize(320, 450);
 	this->installEventFilter(this);
+
 	initLayout();
 
 	//更多的菜单
@@ -67,12 +68,13 @@ void LoginWidget::init()
 			m_passwordChangePage = std::make_unique<PassWordChangePage>();
 			m_passwordChangePage->show();
 		});
+	connect(EventBus::instance(), &EventBus::passwordChangeSuccess, this, [this]()
+		{
+			m_password->setText(QString());
+		});
 
 	//窗口关闭
-	connect(m_exitBtn, &QPushButton::clicked, [=]
-		{
-			hide();
-		});
+	connect(m_exitBtn, &QPushButton::clicked, this, &LoginWidget::hide);
 
 	//点击别处使lineedit失去焦点
 	connect(this, &LoginWidget::editfinish, m_account, &LineEditwithButton::editfinished);
@@ -85,27 +87,7 @@ void LoginWidget::init()
 	m_password->setText(config.value("password").toString());
 
 	//发送登录信号
-	connect(m_loginBtn, &QPushButton::clicked, [=]
-		{
-			auto user_id = m_account->getLineEditText();
-			auto password = m_password->getLineEditText();
-			if (user_id.isEmpty() || password.isEmpty())
-			{
-				QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
-				return;
-			}
-			QJsonObject loginObj;
-			loginObj["user_id"] = user_id;
-			loginObj["password"] = password;
-			QJsonDocument doc(loginObj);
-			auto data = doc.toJson(QJsonDocument::Compact);
-
-			NetWorkServiceLocator::instance()->sendHttpRequest("loginValidation", data, "application/json");
-
-			SConfigFile config("config.ini");
-			config.setValue("user_id", user_id);
-			config.setValue("password", password);
-		});
+	connect(m_loginBtn, &QPushButton::clicked, this, &LoginWidget::onLoginRequest);
 
 	//登录成功
 	connect(LoginUserManager::instance(), &LoginUserManager::loginUserLoadSuccess, [=]
@@ -201,6 +183,29 @@ void LoginWidget::initLayout()
 
 	mlayout->addStretch();
 	mlayout->addLayout(lastLayout);
+}
+
+//发送登录请求
+void LoginWidget::onLoginRequest()
+{
+	auto user_id = m_account->getLineEditText();
+	auto password = m_password->getLineEditText(); 
+	if (user_id.isEmpty() || password.isEmpty())
+	{
+		QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
+		return;
+	}
+	QJsonObject loginObj;
+	loginObj["user_id"] = user_id;
+	loginObj["password"] = password;
+	QJsonDocument doc(loginObj);
+	auto data = doc.toJson(QJsonDocument::Compact);
+
+	NetWorkServiceLocator::instance()->sendHttpRequest("loginValidation", data, "application/json");
+
+	SConfigFile config("config.ini");
+	config.setValue("user_id", user_id);
+	config.setValue("password", password);
 }
 
 //event--退出编辑

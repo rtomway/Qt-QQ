@@ -6,7 +6,6 @@
 //插入新群组
 bool GroupDBUtils::insertGroup(const Group& groupParams,DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------插入新群组---------------------------------------";
 	QString queryStr = QString(
 		"insert into `group` \
 		(group_id,group_name,owner_id,create_time,group_avatarPath)\
@@ -30,7 +29,6 @@ bool GroupDBUtils::insertGroup(const Group& groupParams,DataBaseQuery& query, st
 //插入群成员
 bool GroupDBUtils::insertGroupMember(const GroupMember& groupMemberParams, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------插入群成员---------------------------------------";
 	QString queryStr = QString(
 		"insert into groupMembers\
 		(group_id, user_id, username, group_role)\
@@ -53,7 +51,6 @@ bool GroupDBUtils::insertGroupMember(const GroupMember& groupMemberParams, DataB
 //群人数加1
 bool GroupDBUtils::groupMemberCountAdd(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------群人数加1---------------------------------------";
 	QString queryStr = QString(
 		"update `group`\
 		set groupMemberCount=groupMemberCount+1\
@@ -73,7 +70,6 @@ bool GroupDBUtils::groupMemberCountAdd(const QString& group_id, DataBaseQuery& q
 //群人数减1
 bool GroupDBUtils::groupMemberCountSub(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------群人数减1---------------------------------------";
 	QString queryStr = QString(
 		"update `group`\
 		set groupMemberCount=groupMemberCount-1\
@@ -93,7 +89,6 @@ bool GroupDBUtils::groupMemberCountSub(const QString& group_id, DataBaseQuery& q
 //群组查询
 Group GroupDBUtils::queryGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------群组查询---------------------------------------";
 	QString queryStr = QString("select* from `group` where group_id=?");
 	QVariantList bindValues;
 	bindValues.append(group_id);
@@ -122,7 +117,6 @@ Group GroupDBUtils::queryGroup(const QString& group_id, DataBaseQuery& query, st
 //查询所有群成员ID
 QStringList GroupDBUtils::queryGroupMemberIdList(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------查询所有群成员ID---------------------------------------";
 	QString queryStr = QString("select user_id from groupmembers where group_id=?");
 	QVariantList bindValues;
 	bindValues.append(group_id);
@@ -138,7 +132,6 @@ QStringList GroupDBUtils::queryGroupMemberIdList(const QString& group_id, DataBa
 		auto member_idObj = memberIdValues.toObject();
 		auto member_id = member_idObj["user_id"].toString();
 		groupMember_idList.append(member_id);
-		qDebug() << "查询群成员id----------:" << member_id;
 	}
 	return groupMember_idList;
 }
@@ -173,7 +166,6 @@ GroupMember GroupDBUtils::queryGroupMember(const QString& group_id, const QStrin
 //查询群组id
 QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------查询所有群组ID---------------------------------------";
 	QString queryStr = QString("select group_id from groupmembers where user_id=?");
 	QVariantList bindValues;
 	bindValues.append(user_id);
@@ -189,7 +181,6 @@ QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery
 		auto group_idObj = groupIdValues.toObject();
 		auto group_id = group_idObj["group_id"].toString();
 		group_idList.append(group_id);
-		qDebug() << "查询所有群组id----------:" << group_id;
 	}
 	return group_idList;
 }
@@ -197,7 +188,6 @@ QStringList GroupDBUtils::queryGroupIdList(const QString& user_id, DataBaseQuery
 //删除群成员
 bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------删除群成员---------------------------------------";
 	QString queryStr = QString(
 		"delete from groupMembers\
 		where group_id=? and user_id=?"
@@ -218,7 +208,6 @@ bool GroupDBUtils::deleteGroupMember(const GroupMember& groupMember, DataBaseQue
 bool GroupDBUtils::batch_deleteGroupMember(const QString& group_id, const QStringList& id_list, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
 
-	qDebug() << "------------------------------------删除群成员---------------------------------------";
 	if (id_list.isEmpty())
 		return true;
 
@@ -251,7 +240,6 @@ bool GroupDBUtils::batch_deleteGroupMember(const QString& group_id, const QStrin
 //删除群组
 bool GroupDBUtils::deleteGroup(const QString& group_id, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	qDebug() << "------------------------------------删除群组---------------------------------------";
 	QString queryStr = QString(
 		"delete from `group` where group_id=?"
 	);

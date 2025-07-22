@@ -62,6 +62,7 @@ void MessageHandle::initRequestHash()
 	registerHandle("disbandGroup", m_groupHandle, &Client_GroupHandle::handle_disbandGroup);
 	registerHandle("beRemovedGroup", m_groupHandle, &Client_GroupHandle::handle_beRemovedGroup);
 	registerHandle("batch_groupMemberDeleted", m_groupHandle, &Client_GroupHandle::handle_batch_groupMemberDeleted);
+	registerHandle("updateGroupAvatar", m_groupHandle, &Client_GroupHandle::handle_updateGroupAvatar);
 }
 
 //文本消息处理

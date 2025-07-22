@@ -129,6 +129,45 @@ void ChatPage::loadChatMessage(const ChatRecordMessage& chatMessage)
 	}
 }
 
+void ChatPage::onloadPictureInTextEdit()
+{
+	auto imageMessagePath = QFileDialog::getOpenFileNames(this, "选择图片", "",
+		"Images(*.jpg *.png *.jpeg *.bnp)");
+	m_imageMessagePath.append(imageMessagePath);
+	// 如果选择了有效的图片文件路径
+	if (!imageMessagePath.isEmpty()) {
+		// 获取 QTextEdit 的文档对象
+		QTextDocument* doc = ui->messageTextEdit->document();
+		// 创建文本光标
+		QTextCursor cursor = ui->messageTextEdit->textCursor();
+		// 获取最大显示宽度
+		int maxWidth = 100;  // 可以根据需要调整
+		for (const QString& imagePath : imageMessagePath)
+		{
+			// 使用 QImage 加载图片
+			QImage image(imagePath);
+
+			// 获取原始尺寸
+			QSize originalSize = image.size();
+
+			// 按比例缩放图片
+			QSize scaledSize = originalSize.scaled(maxWidth, 1000, Qt::KeepAspectRatio); // 限制最大宽度，并保持比例
+
+			// 创建图片格式
+			QTextImageFormat imageFormat;
+			imageFormat.setWidth(scaledSize.width());  // 设置缩放后的宽度
+			imageFormat.setHeight(scaledSize.height());  // 设置缩放后的高度
+			imageFormat.setName(imagePath);  // 设置图片路径
+
+			// 插入图片到光标所在的位置
+			cursor.insertImage(imageFormat);
+
+			// 保证文本框自动滚动到底部
+			ui->messageTextEdit->setTextCursor(cursor);
+		}
+	}
+}
+
 //当前界面接受消息更新
 void ChatPage::updateReceiveMessage(const QString& send_id, const QVariant& messageData, MessageType type)
 {

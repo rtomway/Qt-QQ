@@ -1,4 +1,5 @@
 ﻿#include "ContactListWidget.h"
+#include "ContactListWidget.h"
 #include "ui_ContactListWidget.h"
 #include <QFile>
 #include <QLabel>
@@ -129,10 +130,8 @@ void ContactListWidget::init()
 			int y = (mainWidgetSize.height() - m_createFriendgrouping->height()) / 2;
 			SMaskWidget::instance()->setPopGeometry(QRect(x, y, m_createFriendgrouping->width(), m_createFriendgrouping->height()));
 		});
-	connect(m_createFriendgrouping, &CreateFriendgrouping::createGrouping, this, [=](const QString& grouping)
-		{
-			addFriendTopItem(grouping);
-		});
+	//创建分组
+	connect(m_createFriendgrouping, &CreateFriendgrouping::createGrouping, this, &ContactListWidget::addFriendTopItem);
 }
 
 //外部信号
@@ -235,6 +234,15 @@ void ContactListWidget::externalSignals()
 			{
 				auto itemWidget = qobject_cast<ItemWidget*>(m_friendList->itemWidget(item, 0));
 				itemWidget->setItemWidget(user_id);
+			}
+		});
+	connect(AvatarManager::instance(), &AvatarManager::UpdateGroupAvatar, this, [=](const QString& group_id)
+		{
+			auto item = findItemByIdInAll(m_groupList, group_id);
+			if (item)
+			{
+				auto itemWidget = qobject_cast<ItemWidget*>(m_groupList->itemWidget(item, 0));
+				itemWidget->setItemWidget(group_id);
 			}
 		});
 	//好友分组更改
@@ -370,17 +378,40 @@ QTreeWidgetItem* ContactListWidget::getFriendTopItem(QString friendName)
 	return nullptr;
 }
 
-//获取子item
+//在单个分组中获取子item
 QTreeWidgetItem* ContactListWidget::findItemByIdInGroup(QTreeWidgetItem* group, const QString& userId) {
 	if (!group)
 		return nullptr;  // 避免空指针
-	for (int i = 0; i < group->childCount(); ++i) {
+	for (int i = 0; i < group->childCount(); ++i) 
+	{
 		QTreeWidgetItem* item = group->child(i);
-		if (item->data(0, Qt::UserRole).toString() == userId) {
+		if (item->data(0, Qt::UserRole).toString() == userId) 
+		{
 			return item;  // 找到匹配 ID，返回 item
 		}
 	}
 	return nullptr;  // 没找到
+}
+//在整个列表中搜索
+QTreeWidgetItem* ContactListWidget::findItemByIdInAll(QTreeWidget* treeWidget, const QString& id)
+{
+	for (int i = 0; i < treeWidget->topLevelItemCount(); ++i)
+	{
+		for (int j = 0; j < treeWidget->topLevelItem(i)->childCount(); ++j)
+		{
+			QTreeWidgetItem* item = treeWidget->topLevelItem(i)->child(j);
+			if (!item)
+			{
+				continue;
+			}
+			if (item->data(0, Qt::UserRole).toString() == id) 
+			{
+				return item;  // 找到匹配 ID，返回 item
+			}
+		}
+	}
+
+	return nullptr;  // 没有找到，返回nullptr
 }
 
 //添加分组item

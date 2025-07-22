@@ -13,8 +13,11 @@ public:
 	~PassWordChangePage();
 private:
 	void init();
+	void onPasswordVisable();
+	void onChangePassword();
 private:
 	Ui::PassWordChangePage* ui{};
+	bool m_passwordIsVisable = false;
 };
 
 

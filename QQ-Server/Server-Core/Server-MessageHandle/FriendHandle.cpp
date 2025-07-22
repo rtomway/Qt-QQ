@@ -15,9 +15,6 @@ QString FriendHandle::m_receiveGrouping = QString();
 //好友添加
 void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "添加好友"<< paramsObject;
-	qDebug() << "发送方:" << paramsObject["user_id"].toString();
-	qDebug() << "接受方:" << paramsObject["to"].toString();
 	auto send_id = paramsObject["user_id"].toString();
 	auto receive_id = paramsObject["to"].toString();
 	//保存分组信息
@@ -34,14 +31,11 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
 	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
-	qDebug() << "发送了申请信息";
 }
 
 //文字交流
 void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "发送方:" << paramsObject["user_id"].toString();
-	qDebug() << "接受方:" << paramsObject["to"].toString();
 	QJsonObject jsondate;
 	jsondate["type"] = "textCommunication";
 	jsondate["params"] = paramsObject;
@@ -55,8 +49,6 @@ void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, con
 //图片交流
 void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "发送方:" << paramsObject["user_id"].toString();
-	qDebug() << "接受方:" << paramsObject["to"].toString();
 	//数据打包
 	auto userPacket = PacketCreate::binaryPacket("pictureCommunication", paramsObject.toVariantMap(), data);
 	QByteArray userData;
@@ -64,15 +56,11 @@ void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, 
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	auto client_id = paramsObject["to"].toString();
 	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
-	qDebug() << "图片发送";
 }
 
 //好友添加成功
 void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
-	qDebug() << "好友添加结果";
-	qDebug() << "发送方:" << paramsObject["user_id"].toString();
-	qDebug() << "接受方:" << paramsObject["to"].toString();
 	auto send_id = paramsObject["user_id"].toString();
 	auto receive_id = paramsObject["to"].toString();
 	//保存分组信息
@@ -161,7 +149,6 @@ void FriendHandle::handle_updateFriendGrouping(const QJsonObject& paramsObj, con
 //好友删除
 void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
-	qDebug() << "删除好友"<< paramsObj;
 	auto user_id = paramsObj["user_id"].toString();
 	auto friend_id = paramsObj["friend_id"].toString();
 	MyFriend myFriend_1(user_id, friend_id);

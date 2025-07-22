@@ -11,7 +11,7 @@ QJsonObject UserDBUtils::queryUserDetail(const QString& user_id, DataBaseQuery& 
 	);
 	QVariantList bindValues;
 	bindValues.append(user_id);
-	auto queryResult = query.executeQuery(queryStr, bindValues,queryPtr);
+	auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
 	QJsonObject queryUserObj;
 	if (queryResult.contains("error"))
 	{
@@ -26,38 +26,38 @@ QJsonObject UserDBUtils::queryUserDetail(const QString& user_id, DataBaseQuery& 
 		return queryUserObj;
 	}
 	queryUserObj = dataArray.at(0).toObject();
-	queryUserObj.remove("password");
 	return queryUserObj;
 }
 
 //搜索相关用户
-QJsonObject UserDBUtils::searchUser(const QString& user_id,const searchPage&page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+QJsonObject UserDBUtils::searchUser(const QString& user_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-    QString queryStr = QString(
-        "SELECT user_id, username FROM user \
+	QString queryStr = QString(
+		"SELECT user_id, username FROM user \
         WHERE user_id LIKE ? \
-		LIMIT ? OFFSET ?"  
-    );
-    QVariantList bindValues;
-    bindValues.append("%" + user_id + "%");
-    bindValues.append(page.pageSize);
-    bindValues.append((page.page - 1) * page.pageSize);  
+		LIMIT ? OFFSET ?"
+	);
+	QVariantList bindValues;
+	bindValues.append("%" + user_id + "%");
+	bindValues.append(page.pageSize);
+	bindValues.append((page.page - 1) * page.pageSize);
 
-    auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
-    
-    QJsonObject searchUserObj;  
-    if (queryResult.contains("error")) 
+	auto queryResult = query.executeQuery(queryStr, bindValues, queryPtr);
+
+	QJsonObject searchUserObj;
+	if (queryResult.contains("error"))
 	{
-        qDebug() << "searchUser failed";
-        searchUserObj["error"] = "";  
-        return searchUserObj;
-    }
-    
-    QJsonArray searchUserListArray = queryResult["data"].toArray();
-    searchUserObj["searchUserList"] = searchUserListArray;
-    return searchUserObj;  
+		qDebug() << "searchUser failed";
+		searchUserObj["error"] = "";
+		return searchUserObj;
+	}
+
+	QJsonArray searchUserListArray = queryResult["data"].toArray();
+	searchUserObj["searchUserList"] = searchUserListArray;
+	return searchUserObj;
 }
 
+//搜索相关群组
 QJsonObject UserDBUtils::searchGroup(const QString& group_id, const searchPage& page, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
 	QString queryStr = QString(
@@ -83,9 +83,10 @@ QJsonObject UserDBUtils::searchGroup(const QString& group_id, const searchPage& 
 	return searchGroupObj;
 }
 
+//更新用户信息
 bool UserDBUtils::updateUserMessage(const UserInfo& userInfo, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
 {
-	QString queryStr =QString(
+	QString queryStr = QString(
 		"UPDATE user \
 		SET username=?, gender=?, age=?, phone_number=?, \
 		email=?, birthday=?, signature=? \
@@ -97,10 +98,20 @@ bool UserDBUtils::updateUserMessage(const UserInfo& userInfo, DataBaseQuery& que
 	bindValues.append(userInfo.age);
 	// 使用 QVariant() 表示 NULL
 	bindValues.append(userInfo.phone_number.isEmpty() ? QVariant(QVariant::String).toString() : userInfo.phone_number);
-	bindValues.append(userInfo.email.isEmpty() ? QVariant(QVariant::String).toString() :userInfo.email);
+	bindValues.append(userInfo.email.isEmpty() ? QVariant(QVariant::String).toString() : userInfo.email);
 	bindValues.append(userInfo.birthday);
 	bindValues.append(userInfo.signature.isEmpty() ? QVariant(QVariant::String).toString() : userInfo.signature);
 	bindValues.append(userInfo.user_id);
 
+	return query.executeNonQuery(queryStr, bindValues, queryPtr);
+}
+
+//修改密码
+bool UserDBUtils::passwordChange(const QString& user_id, const QString& password, DataBaseQuery& query, std::shared_ptr<QSqlQuery> queryPtr)
+{
+	QString queryStr = QString("UPDATE user	SET password=?	WHERE user_id=?");
+	QVariantList bindValues;
+	bindValues.append(password);
+	bindValues.append(user_id);
 	return query.executeNonQuery(queryStr, bindValues, queryPtr);
 }

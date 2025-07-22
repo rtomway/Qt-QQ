@@ -24,6 +24,17 @@ GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const 
 	, m_nameLab(new QLabel(groupMember_name, this))
 	, m_type(type)
 {
+	init();
+}
+
+GroupMemberAvatarWidget::~GroupMemberAvatarWidget()
+{
+	qDebug() << "GroupMemberAvatarWidget destroyed: " << this;
+}
+
+void GroupMemberAvatarWidget::init()
+{
+
 	this->setAttribute(Qt::WA_Hover, true);
 	this->setMouseTracking(true);
 	this->setAttribute(Qt::WA_StyledBackground, true);
@@ -37,7 +48,7 @@ GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const 
 	{
 	case Avatar:
 	{
-		AvatarManager::instance()->getAvatar(groupMember_id, ChatType::User, [&](const QPixmap& pixmap)
+		AvatarManager::instance()->getAvatar(m_groupMember_id, ChatType::User, [&](const QPixmap& pixmap)
 			{
 				m_avatarLab->setPixmap(ImageUtils::roundedPixmap(pixmap, QSize(30, 30)));
 			});
@@ -59,17 +70,6 @@ GroupMemberAvatarWidget::GroupMemberAvatarWidget(const QString& group_id, const 
 		break;
 	}
 
-
-	init();
-}
-
-GroupMemberAvatarWidget::~GroupMemberAvatarWidget()
-{
-	qDebug() << "GroupMemberAvatarWidget destroyed: " << this;
-}
-
-void GroupMemberAvatarWidget::init()
-{
 	this->setFixedSize(40, 65);
 	this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	m_avatarLab->setFixedHeight(40);

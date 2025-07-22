@@ -22,6 +22,8 @@ private:
 	void updateAvatar();
 	void updateMessage();
 private:
+	void onBirthdaySelect();
+private:
 	QLabel* m_editDetail{};
 	QPushButton* m_exitBtn{};
 	QLabel* m_headLab{};

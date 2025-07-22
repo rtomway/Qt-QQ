@@ -23,6 +23,7 @@ public:
 	static void handle_groupMemberLoad(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_exitGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 	static void handle_disbandGroup(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
+	static void handle_updateGroupAvatar(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder);
 };
 
 #endif // !GROUPHANDLE_H_

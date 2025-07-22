@@ -1,5 +1,4 @@
 ﻿#include "FriendProfileEditWidget.h"
-#include "FriendProfileEditWidget.h"
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QStandardPaths>
@@ -177,53 +176,9 @@ void FriendProfileEditWidget::init()
 		{
 			this->hide();
 		});
-	connect(m_birthdayEdit, &LineEditwithButton::clicked, this, [=]
-		{
-			auto menu = m_birthdayEdit->getMenu();
-			if (!m_calendarAction)
-			{
-				m_calendarAction = std::make_unique<QWidgetAction>(menu);
-			}
-			// 创建 QCalendarWidget 并放入菜单
-			if (!m_calendarWidget)
-			{
-				m_calendarWidget = std::make_unique<QCalendarWidget>();
-				m_calendarWidget->setGridVisible(true);
-				m_calendarWidget->setNavigationBarVisible(true);
-				// 让 QCalendarWidget 宽度和 m_birthdayEdit 相同
-				m_calendarWidget->setFixedWidth(m_birthdayEdit->width());
-			}
-			m_calendarWidget->setStyleSheet(R"(
-            QCalendarWidget QWidget {
-                background-color: #f0f0f0;
-                border: none;
-            }
-            QCalendarWidget QToolButton {
-                border: none;
-                color: black;
-                font-size: 16px;
-                padding: 5px;
-            }
-            QCalendarWidget QToolButton
-          {
-                color: black;
-                font-size: 16px;
-                font-weight: bold;
-            }
-        )");
-			m_calendarAction->setDefaultWidget(m_calendarWidget.get());
-			menu->addAction(m_calendarAction.get());
-			menu->popup(m_birthdayEdit->mapToGlobal(QPoint(0, m_birthdayEdit->height() - 10)));
-			connect(m_calendarWidget.get(), &QCalendarWidget::clicked, this, [=](const QDate& date)
-				{
-					m_birthdayEdit->setText(date.toString("MM-dd"));
-					menu->close();
-				});
-		});
-	connect(cancelBtn, &QPushButton::clicked, [=]
-		{
-			this->hide();
-		});
+	connect(m_exitBtn, &QPushButton::clicked, this, &FriendProfileEditWidget::hide);
+	connect(m_birthdayEdit, &LineEditwithButton::clicked, this, &FriendProfileEditWidget::onBirthdaySelect);
+	connect(cancelBtn, &QPushButton::clicked, this, &FriendProfileEditWidget::hide);
 	connect(okBtn, &QPushButton::clicked, [=]
 		{
 			if (m_avatarIsChange)
@@ -269,6 +224,7 @@ void FriendProfileEditWidget::updateAvatar()
 //更新用户信息
 void FriendProfileEditWidget::updateMessage()
 {
+
 	m_json["avatar_path"] = m_userId + ".png";
 	m_json["username"] = m_nickNameEdit->getLineEditText();
 	m_json["signature"] = m_signaltureEdit->getLineEditText();
@@ -289,6 +245,51 @@ void FriendProfileEditWidget::updateMessage()
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
 	NetWorkServiceLocator::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
 	this->hide();
+}
+
+//选择生日
+void FriendProfileEditWidget::onBirthdaySelect()
+{
+	auto menu = m_birthdayEdit->getMenu();
+	if (!m_calendarAction)
+	{
+		m_calendarAction = std::make_unique<QWidgetAction>(menu);
+	}
+	// 创建 QCalendarWidget 并放入菜单
+	if (!m_calendarWidget)
+	{
+		m_calendarWidget = std::make_unique<QCalendarWidget>();
+		m_calendarWidget->setGridVisible(true);
+		m_calendarWidget->setNavigationBarVisible(true);
+		// 让 QCalendarWidget 宽度和 m_birthdayEdit 相同
+		m_calendarWidget->setFixedWidth(m_birthdayEdit->width());
+	}
+	m_calendarWidget->setStyleSheet(R"(
+            QCalendarWidget QWidget {
+                background-color: #f0f0f0;
+                border: none;
+            }
+            QCalendarWidget QToolButton {
+                border: none;
+                color: black;
+                font-size: 16px;
+                padding: 5px;
+            }
+            QCalendarWidget QToolButton
+          {
+                color: black;
+                font-size: 16px;
+                font-weight: bold;
+            }
+        )");
+	m_calendarAction->setDefaultWidget(m_calendarWidget.get());
+	menu->addAction(m_calendarAction.get());
+	menu->popup(m_birthdayEdit->mapToGlobal(QPoint(0, m_birthdayEdit->height() - 10)));
+	connect(m_calendarWidget.get(), &QCalendarWidget::clicked, this, [=](const QDate& date)
+		{
+			m_birthdayEdit->setText(date.toString("MM-dd"));
+			menu->close();
+		});
 }
 
 //设置用户信息

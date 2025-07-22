@@ -35,11 +35,8 @@ private:
 private:
 	QSharedPointer<Friend>m_friend{};
 	std::shared_ptr<ChatRecordMessage>m_chat{};
-
 private:
-	QStringList m_imageMessagePath{};
 	QString m_textMessage{};
-	bool m_isImageInTextEdit{ false };
 	FriendSetPannelWidget* m_friendPannel{};
 };
 

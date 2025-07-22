@@ -2,6 +2,7 @@
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QCoreApplication>
+#include <QJsonDocument>
 
 #include "PacketCreate.h"
 #include "TokenManager.h"
@@ -90,10 +91,20 @@ void HttpClient::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
 	//处理响应
 	QByteArray responseData = reply->readAll();
 	QByteArray contentType = reply->rawHeader("Content-Type");
-
+	qDebug() << "responseData:" << responseData;
 	//调用回调
 	if (callBack)
 	{
+		//返回json信息
+		if (contentType.contains("application/json"))
+		{
+			//回调,主线程进行，GuI操作
+			QMetaObject::invokeMethod(QCoreApplication::instance(), [callBack, responseData]()
+				{
+					callBack(QJsonDocument::fromJson(responseData).object(), QByteArray());
+				});
+			return;
+		}
 		//解析返回数据包
 		auto parsePacketList = PacketCreate::parseDataPackets(responseData);
 		//回调,主线程进行，GuI操作
