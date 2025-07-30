@@ -5,6 +5,7 @@
 
 namespace Ui { class PassWordChangePage; }
 
+
 class PassWordChangePage :public QWidget
 {
 	Q_OBJECT

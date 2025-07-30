@@ -37,11 +37,11 @@ add_executable(${PROJECT_NAME}
 		Resource.qrc
   "Client-ServiceLocator/NetWorkServiceLocator.h" "Client-ServiceLocator/NetWorkServiceLocator.cpp")
 
-
-  target_include_directories(Client-DataCenter PUBLIC
+    target_include_directories(Client-DataCenter PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/ServiceLocator
+    ${CMAKE_CURRENT_SOURCE_DIR}/Client-ServiceLocator
 )
+
 
 #链接库（）
 target_link_libraries(${PROJECT_NAME} PRIVATE 

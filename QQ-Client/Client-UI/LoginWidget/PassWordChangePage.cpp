@@ -19,6 +19,7 @@ PassWordChangePage::PassWordChangePage(QWidget* parent)
 	{
 		this->setStyleSheet(file.readAll());
 	}
+	
 }
 
 PassWordChangePage::~PassWordChangePage()
