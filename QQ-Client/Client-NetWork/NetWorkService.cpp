@@ -1,7 +1,9 @@
 ﻿#include "NetWorkService.h"
+#include "NetWorkService.h"
+#include "NetWorkService.h"
 
 
-NetWorkService::NetWorkService(WebClientPort* webClientPort, HttpClientPort* httpClientPort,QObject* parent)
+NetWorkService::NetWorkService(WebClientPort* webClientPort, HttpClientPort* httpClientPort, QObject* parent)
 	: m_webClientPort(webClientPort)
 	, m_httpClientPort(httpClientPort)
 	, m_messageHandle(new MessageHandle(this))
@@ -38,10 +40,27 @@ void NetWorkService::sendWebBinaryData(const QByteArray& data)
 	m_webClientPort->sendBinaryData(data);
 }
 
-void NetWorkService::sendHttpRequest(const QString& type, const QByteArray& data, const QString& content_type, HttpCallback callBack)
+
+void NetWorkService::sendHttpGetRequest(const QString& path, const QUrlQuery& params, const QMap<QString, QString>& headers, HttpCallback callback)
 {
-	m_httpClientPort->sendRequest(type, data, content_type, callBack);
+	m_httpClientPort->get(path, params, headers, callback);
 }
+
+void NetWorkService::sendHttpPostRequest(const QString& path, const QByteArray& data, const QMap<QString, QString>& headers, HttpCallback callback)
+{
+	m_httpClientPort->post(path, data, headers, callback);
+}
+
+void NetWorkService::sendHttpGetRequest(const QString& path, const QUrlQuery& params, HttpCallback callback)
+{
+	m_httpClientPort->get(path, params, callback);
+}
+
+void NetWorkService::sendHttpPostRequest(const QString& path, const QByteArray& data, HttpCallback callback)
+{
+	m_httpClientPort->post(path, data, callback);
+}
+
 
 void NetWorkService::init()
 {

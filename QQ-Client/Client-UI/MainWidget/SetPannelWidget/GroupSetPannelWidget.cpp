@@ -145,7 +145,10 @@ void GroupSetPannelWidget::exitGroup()
 	deleteObj["group_id"] = m_group_id;
 	QJsonDocument doc(deleteObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("exitGroup", data, "application/json");
+
+	QMap<QString, QString>headers;
+	headers.insert("Content-Type", "application/octet-stream");
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("exitGroup", data, headers);
 }
 
 //解散群组
@@ -162,7 +165,8 @@ void GroupSetPannelWidget::disbandGroup()
 	deleteObj["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 	QJsonDocument doc(deleteObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("disbandGroup", data, "application/json");
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("disbandGroup", data);
 	//退出群组
 	EventBus::instance()->emit exitGroup(m_group_id, loginUserId);
 }

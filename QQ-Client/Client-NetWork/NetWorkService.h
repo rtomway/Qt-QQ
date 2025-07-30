@@ -11,17 +11,20 @@ class NetWorkService :public QObject
 {
 	Q_OBJECT
 public:
-	NetWorkService(WebClientPort*webClientPort,HttpClientPort*httpClientPort,QObject* parent = nullptr);
+	NetWorkService(WebClientPort* webClientPort, HttpClientPort* httpClientPort, QObject* parent = nullptr);
 	~NetWorkService();
 public:
 	//连接建立
-	void connectToServer(std::function<void()>callBack=nullptr);
+	void connectToServer(std::function<void()>callBack = nullptr);
 	void disConnect();
 	//消息发送
 	void sendWebTextMessage(const QString& message);
 	void sendWebBinaryData(const QByteArray& data);
 	using HttpCallback = std::function<void(const QJsonObject&, const QByteArray&)>;
-	void sendHttpRequest(const QString& type, const QByteArray& data, const QString& Content_type, HttpCallback callBack = nullptr);
+	void sendHttpGetRequest(const QString& path, const QUrlQuery& params, const QMap<QString, QString>& headers, HttpCallback callback = nullptr);
+	void sendHttpPostRequest(const QString& path, const QByteArray& data, const QMap<QString, QString>& headers, HttpCallback callback = nullptr);
+	void sendHttpGetRequest(const QString& path, const QUrlQuery& params, HttpCallback callback = nullptr);
+	void sendHttpPostRequest(const QString& path, const QByteArray& data, HttpCallback callback = nullptr);
 private:
 	void init();
 private:

@@ -78,7 +78,8 @@ void RegisterPage::onRegisterUser()
 	registerObj["confidential"] = ui->confidential->text();
 	QJsonDocument doc(registerObj);
 	auto data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("register", data, "application/json");
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("register", data);
 }
 
 //控件事件重写

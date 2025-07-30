@@ -19,7 +19,7 @@ PassWordChangePage::PassWordChangePage(QWidget* parent)
 	{
 		this->setStyleSheet(file.readAll());
 	}
-	
+
 }
 
 PassWordChangePage::~PassWordChangePage()
@@ -32,7 +32,7 @@ void PassWordChangePage::init()
 	this->setFixedSize(700, 400);
 	this->setObjectName("PassWordChangePage");
 	this->setWindowIconText("密码修改");
-	
+
 	ui->accountEdit->setPlaceholderText("账号输入");
 	ui->confidentialEdit->setPlaceholderText("密保输入");
 	ui->passwordEdit->setPlaceholderText("输入新密码");
@@ -94,7 +94,8 @@ void PassWordChangePage::onChangePassword()
 	passwordChangeObj["confidential"] = ui->confidentialEdit->text();
 	QJsonDocument doc(passwordChangeObj);
 	auto data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("passwordChange", data, "application/json",
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("passwordChange", data,
 		[this](const QJsonObject& obj, const QByteArray& data)
 		{
 			auto changeObj = obj["params"].toObject();
@@ -113,4 +114,23 @@ void PassWordChangePage::onChangePassword()
 			}
 
 		});
+	/*NetWorkServiceLocator::instance()->sendHttpRequest("passwordChange", data, "application/json",
+		[this](const QJsonObject& obj, const QByteArray& data)
+		{
+			auto changeObj = obj["params"].toObject();
+			auto error = changeObj["error"].toBool();
+			qDebug() << "error:" << error;
+			if (error)
+			{
+				QMessageBox::warning(this, "错误", "账号或个人密保错误");
+				return;
+			}
+			else
+			{
+				QMessageBox::information(this, "成功", "密码修改成功");
+				this->hide();
+				EventBus::instance()->emit passwordChangeSuccess();
+			}
+
+		});*/
 }

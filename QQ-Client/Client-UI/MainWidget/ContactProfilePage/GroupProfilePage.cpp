@@ -7,6 +7,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "GroupManager.h"
+#include "LoginUserManager.h"
 #include "AvatarManager.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
@@ -138,34 +139,36 @@ void GroupProfilePage::updateGroupAvatar()
 	//向服务器发送
 	AvatarManager::instance()->emit UpdateGroupAvatar(m_groupId);
 	//通知服务端
-	QtConcurrent::run([=]() 
-	{
-		auto pixmap = QPixmap(m_avatarNewPath);
-		qDebug() << "pximap:" << m_avatarNewPath;
-		QByteArray byteArray;
-		QBuffer buffer(&byteArray);
-		buffer.open(QIODevice::WriteOnly);
-		if (!pixmap.save(&buffer, "PNG"))
+	QtConcurrent::run([=]()
 		{
-			qDebug() << "Failed to convert avatar to PNG format.";
-			return;
-		}
-		
-		QVariantMap params;
-		params["group_id"] = m_groupId;
-		params["size"] = byteArray.size();
+			auto pixmap = QPixmap(m_avatarNewPath);
+			qDebug() << "pximap:" << m_avatarNewPath;
+			QByteArray byteArray;
+			QBuffer buffer(&byteArray);
+			buffer.open(QIODevice::WriteOnly);
+			if (!pixmap.save(&buffer, "PNG"))
+			{
+				qDebug() << "Failed to convert avatar to PNG format.";
+				return;
+			}
 
-		auto packet = PacketCreate::binaryPacket("updateGroupAvatar", params, byteArray);
-		QByteArray groupData;
-		PacketCreate::addPacket(groupData, packet);
-		auto allData = PacketCreate::allBinaryPacket(groupData);
+			QVariantMap params;
+			params["group_id"] = m_groupId;
+			params["size"] = byteArray.size();
 
-		// 发到主线程发信号
-		QMetaObject::invokeMethod(NetWorkServiceLocator::instance(), [=]() 
-		{
-			NetWorkServiceLocator::instance()->sendHttpRequest("updateGroupAvatar", allData, "application/octet-stream");
+			auto packet = PacketCreate::binaryPacket("updateGroupAvatar", params, byteArray);
+			QByteArray groupData;
+			PacketCreate::addPacket(groupData, packet);
+			auto allData = PacketCreate::allBinaryPacket(groupData);
+
+			// 发到主线程发信号
+			QMetaObject::invokeMethod(NetWorkServiceLocator::instance(), [=]()
+				{
+					QMap<QString, QString>headers;
+					headers.insert("Content-Type", "application/octet-stream");
+					NetWorkServiceLocator::instance()->sendHttpPostRequest("updateGroupAvatar", allData, headers);
+				});
 		});
-	});
 
 }
 
@@ -173,6 +176,10 @@ bool GroupProfilePage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == ui->headLab && event->type() == QEvent::MouseButtonPress)
 	{
+		//群主可修改头像
+		if (m_group->getGroupOwerId() != LoginUserManager::instance()->getLoginUserID())
+			return false;
+
 		m_avatarNewPath = QFileDialog::getOpenFileName(this, "选择头像", "",
 			"Images(*.jpg *.png *.jpeg *.bnp)");
 		if (!m_avatarNewPath.isEmpty())

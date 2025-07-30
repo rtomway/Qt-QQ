@@ -10,23 +10,23 @@
 
 UserProfileDispatcher* UserProfileDispatcher::instance()
 {
-    static UserProfileDispatcher instance;
-    return &instance;
+	static UserProfileDispatcher instance;
+	return &instance;
 }
 
 //显示用户信息弹窗
 void UserProfileDispatcher::showUserProfile(const QString& user_id, const QPoint& anchor, PopUpPosition position)
 {
-    //获取用户信息后弹出
-	this->getUserData(user_id, [=](const QJsonObject&userObj)
+	//获取用户信息后弹出
+	this->getUserData(user_id, [=](const QJsonObject& userObj)
 		{
 			//获取用户关系
 			auto userRelation = getUserRelation(user_id);
 			//加载userProfilePage数据
 			m_userProfilePage.setUserProfilePage(userObj, userRelation);
 			//将userProfilePage弹出在合适的位置
-			auto popupPosition = calculatePopupPosition(anchor, m_userProfilePage.size(),position);
-			m_userProfilePage.setGeometry(QRect(popupPosition.x(),popupPosition.y(), 0, 0));
+			auto popupPosition = calculatePopupPosition(anchor, m_userProfilePage.size(), position);
+			m_userProfilePage.setGeometry(QRect(popupPosition.x(), popupPosition.y(), 0, 0));
 			//显示弹窗
 			m_userProfilePage.show();
 		});
@@ -50,8 +50,9 @@ void UserProfileDispatcher::getUserData(const QString& user_id, std::function<vo
 	queryObj["query_id"] = user_id;
 	QJsonDocument doc(queryObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("queryUser", data, "application/json",
-		[this,callback](const QJsonObject& params, const QByteArray& avatarData)
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("queryUser", data,
+		[this, callback](const QJsonObject& params, const QByteArray& avatarData)
 		{
 			callback(params);
 		});
@@ -64,11 +65,11 @@ QPoint UserProfileDispatcher::calculatePopupPosition(const QPoint& anchor, const
 	switch (position)
 	{
 	case PopUpPosition::Left:
-		position_=QPoint(anchor.x() - popupSize.width() - 10,  
-			anchor.y());  
+		position_ = QPoint(anchor.x() - popupSize.width() - 10,
+			anchor.y());
 		break;
 	case PopUpPosition::Right:
-		position_ = QPoint(anchor.x(),  anchor.y()); 
+		position_ = QPoint(anchor.x(), anchor.y());
 		break;
 	default:
 		break;

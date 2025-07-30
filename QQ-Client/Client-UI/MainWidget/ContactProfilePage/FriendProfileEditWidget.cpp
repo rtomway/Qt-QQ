@@ -216,7 +216,9 @@ void FriendProfileEditWidget::updateAvatar()
 
 		// 发到主线程发信号
 		QMetaObject::invokeMethod(NetWorkServiceLocator::instance(), [=]() {
-			NetWorkServiceLocator::instance()->sendHttpRequest("updateUserAvatar", allData, "application/octet-stream");
+			QMap<QString, QString>headers;
+			headers.insert("Content-Type", "application/octet-stream");
+			NetWorkServiceLocator::instance()->sendHttpPostRequest("updateUserAvatar", allData, headers);
 			});
 		});
 }
@@ -243,7 +245,9 @@ void FriendProfileEditWidget::updateMessage()
 	friendObj.remove("avatar_path");
 	QJsonDocument doc(friendObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("updateUserMessage", data, "application/json");
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("updateUserMessage", data);
+
 	this->hide();
 }
 

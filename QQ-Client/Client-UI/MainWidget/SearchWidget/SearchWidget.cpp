@@ -177,9 +177,13 @@ void SearchWidget::sendSearchRequest()
 	auto data = doc.toJson(QJsonDocument::Compact);
 
 	if (m_searchType == search_type::User)
-		NetWorkServiceLocator::instance()->sendHttpRequest("searchUser", data, "application/json");
+	{
+		NetWorkServiceLocator::instance()->sendHttpPostRequest("searchUser", data);
+	}
 	else
-		NetWorkServiceLocator::instance()->sendHttpRequest("searchGroup", data, "application/json");
+	{
+		NetWorkServiceLocator::instance()->sendHttpPostRequest("searchGroup", data);
+	}
 
 }
 

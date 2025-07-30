@@ -14,9 +14,9 @@
 constexpr int MIN_GROUPMEMBER_COUNT_FOR_LOADING = 50;  // 低于此人数时加载群信息
 constexpr int BATCHSIZE_LOADAVATAR = 10;       //一次申请加载的数量
 
-GroupService::GroupService(GroupRespository* groupRespository,QObject* parent)
+GroupService::GroupService(GroupRespository* groupRespository, QObject* parent)
 	:QObject(parent)
-	,m_groupRespository(groupRespository)
+	, m_groupRespository(groupRespository)
 {
 
 }
@@ -191,7 +191,7 @@ void GroupService::groupMemberDeleted(const QJsonObject& obj)
 {
 	auto group_id = obj["group_id"].toString();
 	auto user_id = obj["user_id"].toString();
-	auto group = m_groupRespository-> findGroup(group_id);
+	auto group = m_groupRespository->findGroup(group_id);
 	group->removeMember(user_id);
 
 	emit g_updateGroupProfile(group_id);
@@ -222,7 +222,8 @@ void GroupService::loadGroupInfoFromServer(const QString& id, const QString& req
 	loadListObj["id"] = id;
 	QJsonDocument loadListDoc(loadListObj);
 	QByteArray loadListData = loadListDoc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest(requestType, loadListData, "application/json");
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest(requestType, loadListData);
 }
 
 void GroupService::loadGroupAvatarFromServer(const QStringList& group_idList, const QString& requestType)
@@ -244,7 +245,8 @@ void GroupService::loadGroupAvatarFromServer(const QStringList& group_idList, co
 		loadGroupAvatarIdObj["applicateAvatar_idList"] = loadGroupAvatarIdArray;
 		QJsonDocument loadGroupAvatarIdDoc(loadGroupAvatarIdObj);
 		auto data = loadGroupAvatarIdDoc.toJson(QJsonDocument::Compact);
-		NetWorkServiceLocator::instance()->sendHttpRequest(requestType, data, "application/json");
+
+		NetWorkServiceLocator::instance()->sendHttpPostRequest(requestType, data);
 	}
 }
 
@@ -270,7 +272,17 @@ void GroupService::ensureGroupMemberLoad(const QString& group_id, const QString&
 	QJsonDocument doc(memberObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
 	// 发送加载请求
-	NetWorkServiceLocator::instance()->sendHttpRequest("groupMemberLoad", data, "application/json",
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("groupMemberLoad", data,
+		[=](const QJsonObject& params, const QByteArray& avatarData)
+		{
+			group->loadGroupMember(params);
+			ImageUtils::saveAvatarToLocal(avatarData, user_id, ChatType::User, [=]()
+				{
+					callback();
+				});
+		});
+
+	/*NetWorkServiceLocator::instance()->sendHttpRequest("groupMemberLoad", data, "application/json",
 		[=](const QJsonObject& params, const QByteArray& avatarData)
 		{
 			group->loadGroupMember(params);
@@ -278,5 +290,5 @@ void GroupService::ensureGroupMemberLoad(const QString& group_id, const QString&
 				{
 						callback();
 				});
-		});
+		});*/
 }

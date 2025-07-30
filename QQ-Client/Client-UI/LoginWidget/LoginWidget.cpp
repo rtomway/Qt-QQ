@@ -189,7 +189,7 @@ void LoginWidget::initLayout()
 void LoginWidget::onLoginRequest()
 {
 	auto user_id = m_account->getLineEditText();
-	auto password = m_password->getLineEditText(); 
+	auto password = m_password->getLineEditText();
 	if (user_id.isEmpty() || password.isEmpty())
 	{
 		QMessageBox::warning(nullptr, "警告", "账号或密码不能为空");
@@ -201,7 +201,8 @@ void LoginWidget::onLoginRequest()
 	QJsonDocument doc(loginObj);
 	auto data = doc.toJson(QJsonDocument::Compact);
 
-	NetWorkServiceLocator::instance()->sendHttpRequest("loginValidation", data, "application/json");
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("loginValidation", data);
 
 	SConfigFile config("config.ini");
 	config.setValue("user_id", user_id);

@@ -49,7 +49,7 @@ void FriendSetPannelWidget::deleteFriend()
 	deleteObj["friend_id"] = m_friend_id;
 	QJsonDocument doc(deleteObj);
 	QByteArray data = doc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("deleteFriend", data, "application/json");
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("deleteFriend", data);
 }
 
 //加载好友面板

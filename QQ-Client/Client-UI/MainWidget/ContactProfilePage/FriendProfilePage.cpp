@@ -123,7 +123,8 @@ void FriendProfilePage::init()
 				groupingObj["grouping"] = grouping;
 				QJsonDocument doc(groupingObj);
 				auto data = doc.toJson(QJsonDocument::Compact);
-				NetWorkServiceLocator::instance()->sendHttpRequest("updateFriendGrouping", data, "application/json");
+
+				NetWorkServiceLocator::instance()->sendHttpPostRequest("updateFriendGrouping", data);
 			}
 		});
 }

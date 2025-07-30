@@ -36,7 +36,8 @@ void FriendService::loadFriendList()
 	loadListObj["user_id"] = LoginUserManager::instance()->getLoginUserID();
 	QJsonDocument loadListDoc(loadListObj);
 	QByteArray loadListData = loadListDoc.toJson(QJsonDocument::Compact);
-	NetWorkServiceLocator::instance()->sendHttpRequest("loadFriendList", loadListData, "application/json");
+
+	NetWorkServiceLocator::instance()->sendHttpPostRequest("loadFriendList", loadListData);
 }
 
 //初始化好友中心
@@ -116,6 +117,7 @@ void FriendService::loadFriendAvatarFromServer(const QStringList& friend_idList)
 		loadFriendAvatarIdObj["friend_ids"] = loadFriendAvatarIdArray;
 		QJsonDocument loadFriendAvatarIdDoc(loadFriendAvatarIdObj);
 		auto data = loadFriendAvatarIdDoc.toJson(QJsonDocument::Compact);
-		NetWorkServiceLocator::instance()->sendHttpRequest("loadFriendAvatars", data, "application/json");
+
+		NetWorkServiceLocator::instance()->sendHttpPostRequest("loadFriendAvatars", data);
 	}
 }
