@@ -1,12 +1,11 @@
 ﻿#include "NetWorkService.h"
-#include "NetWorkService.h"
-#include "NetWorkService.h"
 
 
 NetWorkService::NetWorkService(WebClientPort* webClientPort, HttpClientPort* httpClientPort, QObject* parent)
 	: m_webClientPort(webClientPort)
 	, m_httpClientPort(httpClientPort)
-	, m_messageHandle(new MessageHandle(this))
+	, m_messageQueue(new MessageQueue(this))
+	, m_messageHandle(new MessageHandle)
 {
 	init();
 }
@@ -65,8 +64,15 @@ void NetWorkService::sendHttpPostRequest(const QString& path, const QByteArray& 
 void NetWorkService::init()
 {
 	//接收消息
-	connect(m_webClientPort, &WebClientPort::textMessage, m_messageHandle, &MessageHandle::handle_textMessage);
-	connect(m_webClientPort, &WebClientPort::binaryData, m_messageHandle, &MessageHandle::handle_binaryData);
-	connect(m_httpClientPort, &HttpClientPort::httpTextResponse, m_messageHandle, &MessageHandle::handle_textMessage);
-	connect(m_httpClientPort, &HttpClientPort::httpDataResponse, m_messageHandle, &MessageHandle::handle_binaryData);
+	//connect(m_webClientPort, &WebClientPort::textMessage, m_messageHandle, &MessageHandle::handle_textMessage);
+	//connect(m_webClientPort, &WebClientPort::binaryData, m_messageHandle, &MessageHandle::handle_binaryData);
+	//connect(m_httpClientPort, &HttpClientPort::httpTextResponse, m_messageHandle, &MessageHandle::handle_textMessage);
+	//connect(m_httpClientPort, &HttpClientPort::httpDataResponse, m_messageHandle, &MessageHandle::handle_binaryData);
+
+	m_messageHandle->setMessageSrc(m_messageQueue);
+
+	connect(m_webClientPort, &WebClientPort::textMessage, m_messageQueue, &MessageQueue::pushText);
+	connect(m_webClientPort, &WebClientPort::binaryData, m_messageQueue, &MessageQueue::pushBinary);
+	connect(m_httpClientPort, &HttpClientPort::httpTextResponse, m_messageQueue, &MessageQueue::pushText);
+	connect(m_httpClientPort, &HttpClientPort::httpDataResponse, m_messageQueue, &MessageQueue::pushBinary);
 }

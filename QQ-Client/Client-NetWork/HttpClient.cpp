@@ -166,7 +166,8 @@ void HttpClient::replyDataHandle(QNetworkReply* reply, HttpCallback callBack)
 	//信号传出处理
 	if (contentType.contains("application/json"))
 	{
-		emit httpTextResponse(responseData);
+		QString text = QString::fromUtf8(responseData);
+		emit httpTextResponse(text);
 	}
 	else
 	{

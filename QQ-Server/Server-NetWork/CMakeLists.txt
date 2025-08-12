@@ -5,6 +5,7 @@ add_library(Server-NetWork STATIC
         HttpRouteManager.h    HttpRouteManager.cpp
         ConnectionManager.h   ConnectionManager.cpp 
         Server.h  Server.cpp
+        MessageQueue.h MessageQueue.cpp
 )
 
 # 设置包含目录（确保主程序能访问头文件）

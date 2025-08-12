@@ -6,8 +6,9 @@
 #include "Network_logger.h"
 
 
-MessageHandle::MessageHandle(QObject* parent)
-	: QObject(parent)
+MessageHandle::MessageHandle()
+	: QObject(nullptr)
+	, m_consumerThread(new QThread(this))
 {
 	initRequestHash();
 }
@@ -101,3 +102,62 @@ void MessageHandle::handle_binaryData(const QByteArray& data)
 		}
 	}
 }
+
+//设置消息来源
+void MessageHandle::setMessageSrc(MessageQueue* messageQueue)
+{
+	m_messageQueue = messageQueue;
+	startConsumerThread();
+}
+
+//启动线程
+void MessageHandle::startConsumerThread()
+{
+	if (m_running) return;
+
+	m_running = true;
+	// 将消费者对象移到新线程
+	this->moveToThread(&m_consumerThread);
+	// 连接线程启动信号
+	connect(&m_consumerThread, &QThread::started, this, &MessageHandle::consumerLoop);
+	m_consumerThread.start();
+}
+
+//停止线程
+void MessageHandle::stopConsumerThread()
+{
+	m_running = false;
+	m_consumerThread.quit();
+	m_consumerThread.wait();
+}
+
+//消息处理
+void MessageHandle::consumerLoop()
+{
+	while (m_running)
+	{
+		if (!m_messageQueue)
+		{
+			QThread::msleep(10);
+			continue;
+		}
+
+		auto msg = m_messageQueue->pop(100); // 带超时的pop
+		if (msg.data.isNull())
+		{
+			continue;
+		}
+
+		// 处理消息 (注意: 现在在消费者线程上下文)
+		switch (msg.type)
+		{
+		case MessageQueue::Text:
+			handle_textMessage(QString::fromUtf8(msg.data));
+			break;
+		case MessageQueue::Binary:
+			handle_binaryData(msg.data);
+			break;
+		}
+	}
+}
+

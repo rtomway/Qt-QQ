@@ -6,6 +6,7 @@
 #include "WebClientPort.h"
 #include "HttpClientPort.h"
 #include "MessageHandle.h"
+#include "MessageQueue.h"
 
 class NetWorkService :public QObject
 {
@@ -31,6 +32,7 @@ private:
 	WebClientPort* m_webClientPort;
 	HttpClientPort* m_httpClientPort;
 	MessageHandle* m_messageHandle;
+	MessageQueue* m_messageQueue;
 };
 
 

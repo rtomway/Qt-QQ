@@ -22,7 +22,7 @@ public:
 	virtual void get(const QString& path, const QUrlQuery& params, HttpCallback callback = nullptr) = 0;
 	virtual void post(const QString& path, const QByteArray& data, HttpCallback callback = nullptr) = 0;
 signals:
-	void httpTextResponse(const QByteArray& data);
+	void httpTextResponse(const QString& text);
 	void httpDataResponse(const QByteArray& data);
 };
 

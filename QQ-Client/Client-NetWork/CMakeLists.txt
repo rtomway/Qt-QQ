@@ -5,11 +5,11 @@ add_library(Client-NetWork STATIC
      WebClient.h    WebClient.cpp
      HttpClient.h   HttpClient.cpp
      MessageHandle.h    MessageHandle.cpp
-     MessageSender.h    MessageSender.cpp
      NetWorkService.h   NetWorkService.cpp
      HttpClientPort.h   
      WebClientPort.h
-    )
+     MessageQueue.h MessageQueue.cpp
+)
 
 # 设置包含目录（确保主程序能访问头文件）
 target_include_directories(Client-NetWork PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
