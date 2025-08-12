@@ -5,7 +5,7 @@
 #include <QScreen>
 #include "FriendManager.h"
 #include "LoginUserManager.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "Friend.h"
 
 UserProfileDispatcher* UserProfileDispatcher::instance()

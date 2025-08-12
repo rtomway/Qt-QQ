@@ -6,7 +6,7 @@
 
 #include "GroupManager.h"
 #include "LoginUserManager.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "GroupManager.h"
 #include "Group.h"
@@ -35,7 +35,7 @@ GroupDeleteMemberWidget::GroupDeleteMemberWidget(const QString& group_id, QWidge
 			groupMemberRemoveObj["group_name"] = m_group_name;
 			groupMemberRemoveObj["time"] = QDateTime::currentDateTime().toString("yyyy-MM-dd");
 			QJsonArray inviteMembersArray;
-			for (const QString& member_id : m_selectedList) 
+			for (const QString& member_id : m_selectedList)
 			{
 				inviteMembersArray.append(member_id);
 			}
@@ -48,7 +48,7 @@ GroupDeleteMemberWidget::GroupDeleteMemberWidget(const QString& group_id, QWidge
 			{
 				group->removeMember(member_id);
 			}
-			EventBus::instance()->emit updateChatWidget(ChatType::Group,m_group_id);
+			EventBus::instance()->emit updateChatWidget(ChatType::Group, m_group_id);
 			//清除
 			clearFriendTree();
 			clearSearchList();

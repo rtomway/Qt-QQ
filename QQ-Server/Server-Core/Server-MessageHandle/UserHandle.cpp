@@ -3,7 +3,7 @@
 #include <QJsonDocument>
 
 #include "DataBaseQuery.h"
-#include "ConnectionManager.h"
+#include "../Server-ServiceLocator/NetWorkServiceLocator.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
 #include "UserDBUtils.h"
@@ -157,7 +157,7 @@ void UserHandle::handle_updateUserMessage(const QJsonObject& paramsObj, const QB
 	QStringList friend_idList = FriendDBUtils::queryFriendIdList(userInfo.user_id, query);
 	for (auto& friend_id : friend_idList)
 	{
-		ConnectionManager::instance()->sendTextMessage(friend_id, message);
+		NetWorkServiceLocator::instance()->sendTextMessage(friend_id, message);
 	}
 }
 
@@ -237,6 +237,6 @@ void UserHandle::handle_updateUserAvatar(const QJsonObject& paramsObj, const QBy
 	QStringList friend_idList = FriendDBUtils::queryFriendIdList(user_id, query);
 	for (const auto& friend_id : friend_idList)
 	{
-		ConnectionManager::instance()->sendBinaryMessage(friend_id, allData);
+		NetWorkServiceLocator::instance()->sendBinaryMessage(friend_id, allData);
 	}
 }

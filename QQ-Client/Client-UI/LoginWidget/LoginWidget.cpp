@@ -14,7 +14,7 @@
 #include "Friend.h"
 #include "EventBus.h"
 #include "LoginUserManager.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 
 
 LoginWidget::LoginWidget(QWidget* parent)

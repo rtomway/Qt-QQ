@@ -9,8 +9,7 @@ NetWorkService* NetWorkServiceLocator::instance()
 
 void NetWorkServiceLocator::setNetService(NetWorkService* service)
 {
-	if (service) 
-	{
-		delete m_instance.exchange(service, std::memory_order_release);
+	if (service) {
+		m_instance.store(service, std::memory_order_release);
 	}
 }

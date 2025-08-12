@@ -6,7 +6,7 @@
 #include <QStandardPaths>
 
 #include "ImageUtil.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "ChatRecordManager.h"
 #include "EventBus.h"

@@ -11,7 +11,7 @@
 #include "AvatarManager.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 
 constexpr int LAOD_MEMBERAVATAR_COUNT = 6;
 

@@ -2,10 +2,11 @@
 
 # 创建一个静态库或者共享库
 add_library(Server-NetWork STATIC
-        HttpRouteManager.h    HttpRouteManager.cpp
-        ConnectionManager.h   ConnectionManager.cpp 
-        Server.h  Server.cpp
+        NetWorkService.h   NetWorkService.cpp
+        WebSocketServer.h WebSocketServer.cpp
+        HttpServer.h HttpServer.cpp
         MessageQueue.h MessageQueue.cpp
+        MessageHandle.h    MessageHandle.cpp
 )
 
 # 设置包含目录（确保主程序能访问头文件）

@@ -35,7 +35,9 @@ add_subdirectory(Server-DataBase)
 
 
 # 添加可执行文件
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_QRC})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_QRC}
+"Server-ServiceLocator/NetWorkServiceLocator.h" "Server-ServiceLocator/NetWorkServiceLocator.cpp"
+)
 
 # 链接库
 target_link_libraries(${PROJECT_NAME} PRIVATE 

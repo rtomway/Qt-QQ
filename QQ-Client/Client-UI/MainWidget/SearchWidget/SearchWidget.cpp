@@ -12,7 +12,7 @@
 #include "Friend.h"
 #include "GroupManager.h"
 #include "EventBus.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 
 constexpr int MaxPageSize = 20; //每次加载量

@@ -6,7 +6,7 @@
 #include <QJsonArray>
 
 #include "EventBus.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 
 FriendSetPannelWidget::FriendSetPannelWidget(QWidget* parent)

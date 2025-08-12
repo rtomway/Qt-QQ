@@ -35,13 +35,8 @@ add_subdirectory(Client-Logger)
 add_executable(${PROJECT_NAME}
 		main.cpp
 		Resource.qrc
-  "Client-ServiceLocator/NetWorkServiceLocator.h" "Client-ServiceLocator/NetWorkServiceLocator.cpp")
-
-    target_include_directories(Client-DataCenter PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/Client-ServiceLocator
+  "Client-ServiceLocator/NetWorkServiceLocator.h" "Client-ServiceLocator/NetWorkServiceLocator.cpp"
 )
-
 
 #链接库（）
 target_link_libraries(${PROJECT_NAME} PRIVATE 

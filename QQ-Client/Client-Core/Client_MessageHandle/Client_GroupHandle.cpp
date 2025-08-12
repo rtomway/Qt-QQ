@@ -1,5 +1,4 @@
 ﻿#include "Client_GroupHandle.h"
-#include "Client_GroupHandle.h"
 #include <QPixmap>
 
 #include "ImageUtil.h"
@@ -23,11 +22,15 @@ void Client_GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const 
 
 void Client_GroupHandle::handle_createGroupSuccess(const QJsonObject& paramsObject, const QByteArray& data)
 {
+
+	qDebug() << "handle_createGroupSuccess:" << paramsObject;
 	auto group_id = paramsObject["group_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=]()
 		{
+			qDebug() << "handle_createGroupSuccess_33" << paramsObject;
 			EventBus::instance()->emit createGroupSuccess(paramsObject);
 		});
+
 }
 
 void Client_GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByteArray& data)
@@ -127,8 +130,8 @@ void Client_GroupHandle::handle_groupMemberExitGroup(const QJsonObject& paramsOb
 void Client_GroupHandle::handle_rejectAddGroup(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), 
-		[paramsObject, data]() 
+	QMetaObject::invokeMethod(QCoreApplication::instance(),
+		[paramsObject, data]()
 		{
 			QPixmap pixmap;
 			if (data.isEmpty() || !pixmap.loadFromData(data))
@@ -143,7 +146,7 @@ void Client_GroupHandle::handle_rejectAddGroup(const QJsonObject& paramsObject, 
 void Client_GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const QByteArray& data)
 {
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+	QMetaObject::invokeMethod(QCoreApplication::instance(),
 		[paramsObject, data]()
 		{
 			QPixmap pixmap;
@@ -161,7 +164,7 @@ void Client_GroupHandle::handle_disbandGroup(const QJsonObject& paramsObject, co
 	auto group_id = paramsObject["group_id"].toString();
 	EventBus::instance()->emit disbandGroup(group_id);
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+	QMetaObject::invokeMethod(QCoreApplication::instance(),
 		[paramsObject, data]()
 		{
 			QPixmap pixmap;
@@ -178,7 +181,7 @@ void Client_GroupHandle::handle_beRemovedGroup(const QJsonObject& paramsObject, 
 {
 	EventBus::instance()->emit removeGroup(paramsObject);
 	// 将操作抛到主线程执行
-	QMetaObject::invokeMethod(QCoreApplication::instance(), 
+	QMetaObject::invokeMethod(QCoreApplication::instance(),
 		[paramsObject, data]()
 		{
 			QPixmap pixmap;

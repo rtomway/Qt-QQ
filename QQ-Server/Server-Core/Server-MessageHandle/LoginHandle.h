@@ -5,7 +5,7 @@
 #include <QByteArray>
 #include <QHttpServerResponder>
 
-class LoginHandle
+class LoginHandle:public QObject
 {
 public:
 	static void handle_login(const QJsonObject& paramsObject, const QByteArray& data = QByteArray());

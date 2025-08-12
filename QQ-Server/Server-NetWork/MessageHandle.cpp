@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QIODevice>
 #include <QWebSocket>
+#include <QCoreApplication>
 
 #include "ImageUtil.h"
 #include "CreateId.h"
@@ -72,6 +73,7 @@ void MessageHandle::initHttpRequestHash()
 	m_httpRequestHash["/exitGroup"] = &GroupHandle::handle_exitGroup;
 	m_httpRequestHash["/disbandGroup"] = &GroupHandle::handle_disbandGroup;
 	m_httpRequestHash["/updateGroupAvatar"] = &GroupHandle::handle_updateGroupAvatar;
+
 }
 
 void MessageHandle::initPublicPageType()
@@ -113,30 +115,55 @@ bool MessageHandle::webTokenVerify(const QString& token, const QString& user_id,
 		return false;
 	}
 }
-bool MessageHandle::httpToeknVerify(const QString& type, const QHttpServerRequest& request)
+bool MessageHandle::httpToeknVerify(const QString& type, const QVariantMap& requestHttpData)
 {
+
 	//公共界面访问无需验证
 	if (m_publicPageList.contains(type))
 	{
 		return true;
 	}
-	//获取需验证的信息
 	QString token;
 	QString user_id;
-	for (auto& requestHeader : request.headers())
+	if (requestHttpData.contains("headers"))
 	{
-		if (requestHeader.first == "user_id")
+		QVariantMap headers = requestHttpData["headers"].toMap();
+
+		if (headers.contains("user_id"))
 		{
-			user_id = requestHeader.second;
+			QVariant userIdVar = headers["user_id"];
+			user_id = userIdVar.type() == QVariant::ByteArray
+				? QString::fromUtf8(userIdVar.toByteArray())
+				: userIdVar.toString();
 		}
-		if (requestHeader.first == "Authorization")
+
+		// 优先从 Authorization 头获取 token
+		if (headers.contains("Authorization"))
 		{
-			token = requestHeader.second;
+			QVariant authVar = headers["Authorization"];
+			token = authVar.type() == QVariant::ByteArray
+				? QString::fromUtf8(authVar.toByteArray())
+				: authVar.toString();
+		}
+		// 回退到 token 字段
+		else if (headers.contains("token"))
+		{
+			QVariant tokenVar = headers["token"];
+			token = tokenVar.type() == QVariant::ByteArray
+				? QString::fromUtf8(tokenVar.toByteArray())
+				: tokenVar.toString();
 		}
 	}
-	// 可能是 Bearer 开头，记得处理
+
+	if (token.isEmpty()) {
+		qDebug() << "[Token验证失败] Token为空";
+		return false;
+	}
 	if (token.startsWith("Bearer "))
+	{
 		token = token.mid(7);
+	}
+
 	//验证
 	try {
 		auto decoded = jwt::decode(token.toStdString());
@@ -225,82 +252,200 @@ void MessageHandle::webBinaryHandler(const QByteArray& message, QWebSocket* sock
 }
 
 //http消息处理
-void MessageHandle::httpGetHandler(const QHttpServerRequest& request, QHttpServerResponder& response)
+void MessageHandle::httpGetHandler(const QVariantMap& requestHttpData, QHttpServerResponder& response)
 {
-	auto url = request.url();
-	auto type = url.path();
-	//token验证
-	if (!httpToeknVerify(type, request))
+	QUrl url = requestHttpData["url"].toUrl();
+	QString type = url.path();
+
+	//token
+	if (!httpToeknVerify(type, requestHttpData))
 	{
 		qDebug() << "token验证失败";
 		return;
 	}
-	//参数数据
+
 	QUrlQuery query(url);
 	QJsonObject paramsObj;
 	for (const auto& item : query.queryItems())
 	{
 		paramsObj[item.first] = item.second;
 	}
+	//调用对应的处理函数
+	if (m_httpRequestHash.contains(type))
+	{
+		auto handle = m_httpRequestHash[type];
+		handle(paramsObj, QByteArray(), response);
+	}
+	else
+	{
+		qDebug() << "未知的类型:" << type;
+	}
 
-	// 根据类型给处理函数处理
+}
+void MessageHandle::httpPostTextHandler(const QVariantMap& requestHttpData, QHttpServerResponder& response)
+{
+	QUrl url = requestHttpData["url"].toUrl();
+	QString type = url.path();
+
+	//token
+	if (!httpToeknVerify(type, requestHttpData))
+	{
+		qDebug() << "Token 验证失败";
+		return;
+	}
+
+	QByteArray requestBody = requestHttpData["body"].toByteArray();
+	QJsonObject paramsObj = QJsonDocument::fromJson(requestBody).object();
+
+	//调用对应的处理函数
 	if (m_httpRequestHash.contains(type))
 	{
 		auto handle = m_httpRequestHash[type];
-		handle(paramsObj, QByteArray(), response);  // 调用对应的处理函数
+		handle(paramsObj, QByteArray(), response);
 	}
 	else
 	{
 		qDebug() << "未知的类型:" << type;
 	}
+
+
 }
-void MessageHandle::httpPostTextHandler(const QHttpServerRequest& request, QHttpServerResponder& response)
+void MessageHandle::httpPostBinaryHandler(const QVariantMap& requestHttpData, QHttpServerResponder& response)
 {
-	auto url = request.url();
-	auto type = url.path();
-	//token验证
-	if (!httpToeknVerify(type, request))
+	QUrl url = requestHttpData["url"].toUrl();
+	QString type = url.path();
+
+	//token
+	if (!httpToeknVerify(type, requestHttpData))
 	{
-		qDebug() << "token验证失败";
+		qDebug() << "Token 验证失败";
 		return;
 	}
-	//数据
-	auto requestBody = request.body();
-	auto paramsObj = QJsonDocument::fromJson(requestBody).object();
-	// 根据类型给处理函数处理
-	if (m_httpRequestHash.contains(type))
-	{
-		auto handle = m_httpRequestHash[type];
-		handle(paramsObj, QByteArray(), response);  // 调用对应的处理函数
-	}
-	else
-	{
-		qDebug() << "未知的类型:" << type;
-	}
-}
-void MessageHandle::httpPostBinaryHandler(const QHttpServerRequest& request, QHttpServerResponder& response)
-{
-	auto url = request.url();
-	auto type = url.path();
-	//token验证
-	if (!httpToeknVerify(type, request))
-	{
-		qDebug() << "token验证失败";
-		return;
-	}
-	auto message = request.body();
+
+	QByteArray message = requestHttpData["body"].toByteArray();
+
+	//调用对应的处理函数
 	auto parsePacketList = PacketCreate::parseDataPackets(message);
 	for (auto& parsePacket : parsePacketList)
 	{
-		// 根据类型给处理函数处理
+
 		if (m_httpRequestHash.contains(type))
 		{
 			auto handle = m_httpRequestHash[type];
-			handle(parsePacket.params, parsePacket.data, response);  // 调用对应的处理函数
+			handle(parsePacket.params, parsePacket.data, response);
 		}
 		else
 		{
 			qDebug() << "未知的类型:" << type;
+		}
+
+	}
+}
+
+//设置消息来源
+void MessageHandle::setServerMessageSrc(MessageQueue* messageQueue)
+{
+	m_messageQueue = messageQueue;
+	startServerConsumerThread();
+}
+
+//启动线程
+void MessageHandle::startServerConsumerThread()
+{
+	if (m_running) return;
+
+	m_running = true;
+	// 将消费者对象移到新线程
+	this->moveToThread(&m_consumerThread);
+	// 连接线程启动信号
+	connect(&m_consumerThread, &QThread::started, this, &MessageHandle::serverConsumer);
+	m_consumerThread.start();
+}
+
+//停止线程
+void MessageHandle::stopServerConsumerThread()
+{
+	m_running = false;
+	m_consumerThread.quit();
+	m_consumerThread.wait();
+}
+
+//消息处理
+void MessageHandle::serverConsumer()
+{
+	while (m_running)
+	{
+		if (!m_messageQueue)
+		{
+			QThread::msleep(10);
+			continue;
+		}
+
+		auto msg = m_messageQueue->pop(100);
+		if (msg.data.isNull())
+		{
+			continue;
+		}
+
+		switch (msg.type)
+		{
+		case MessageQueue::WS_Text:
+		{
+			QString text = msg.data.toString();
+			QWebSocket* socket = msg.sender.value<QWebSocket*>();
+			QMetaObject::invokeMethod(QCoreApplication::instance(),
+				[this, text, socket]()
+				{
+					webTextHandler(text, socket);
+				});
+		}
+		break;
+		case MessageQueue::WS_Binary:
+		{
+			QByteArray data = msg.data.toByteArray();
+			QWebSocket* socket = msg.sender.value<QWebSocket*>();
+			QMetaObject::invokeMethod(QCoreApplication::instance(),
+				[this, data, socket]()
+				{
+					webBinaryHandler(data, socket);
+				});
+		}
+		break;
+		case MessageQueue::Http_Get:
+		{
+			QVariantMap httpData = msg.data.toMap();
+			auto responder_ptr = msg.sender.value<QSharedPointer<QHttpServerResponder>>();
+			QMetaObject::invokeMethod(QCoreApplication::instance(),
+				[this, responder_ptr, httpData]()
+				{
+					httpGetHandler(httpData, *responder_ptr);
+				});
+		}
+		break;
+		case MessageQueue::Http_PostText:
+		{
+			QVariantMap httpData = msg.data.toMap();
+			auto responder_ptr = msg.sender.value<QSharedPointer<QHttpServerResponder>>();
+			QMetaObject::invokeMethod(QCoreApplication::instance(),
+				[this, responder_ptr, httpData]()
+				{
+					httpPostTextHandler(httpData, *responder_ptr);
+				});
+		}
+		break;
+		case MessageQueue::Http_PostBinary:
+		{
+			QVariantMap httpData = msg.data.toMap();
+			auto responder_ptr = msg.sender.value<QSharedPointer<QHttpServerResponder>>();
+			QMetaObject::invokeMethod(QCoreApplication::instance(),
+				[this, responder_ptr, httpData]()
+				{
+					httpPostBinaryHandler(httpData, *responder_ptr);
+				});
+		}
+		break;
+		default:
+			break;
 		}
 	}
 }

@@ -8,24 +8,16 @@ MessageQueue::MessageQueue(QObject* parent)
 }
 
 //text消息
-void MessageQueue::pushText(const QString& text)
+void MessageQueue::push(Message&& message)
 {
 	QMutexLocker lock(&m_mutex);
 	if (m_shutdownRequested)
 		return;
-	m_queue.enqueue({ Text, text.toUtf8() });
+	m_queue.enqueue(message);
 	m_condition.wakeOne();
 }
 
-//二进制消息
-void MessageQueue::pushBinary(const QByteArray& data)
-{
-	QMutexLocker lock(&m_mutex);
-	if (m_shutdownRequested)
-		return;
-	m_queue.enqueue({ Binary, data });
-	m_condition.wakeOne();
-}
+
 
 //消息出队
 MessageQueue::Message MessageQueue::pop(int timeoutMs)
@@ -37,13 +29,13 @@ MessageQueue::Message MessageQueue::pop(int timeoutMs)
 	{
 		if (!m_condition.wait(&m_mutex, deadline))
 		{
-			return { Text, QByteArray() };
+			return { WS_Text, QByteArray(),QVariant() };
 		}
 	}
 
 	if (m_shutdownRequested && m_queue.isEmpty())
 	{
-		return { Text, QByteArray() };
+		return { WS_Text, QByteArray(),QVariant() };
 	}
 
 	return m_queue.dequeue();

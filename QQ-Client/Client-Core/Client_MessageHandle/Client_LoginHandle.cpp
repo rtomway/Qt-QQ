@@ -7,7 +7,7 @@
 #include <GroupManager.h>
 #include <Group.h>
 
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "EventBus.h"
 #include "ImageUtil.h"
 #include "AvatarManager.h"
@@ -25,7 +25,7 @@ void Client_LoginHandle::handle_loginSuccess(const QJsonObject& paramsObject, co
 	QJsonObject loginUser = paramsObject;
 	auto user_id = loginUser["user_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, user_id, ChatType::User);
-		
+
 	EventBus::instance()->emit initLoginUser(loginUser);
 }
 
@@ -41,7 +41,7 @@ void Client_LoginHandle::handle_loadFriendAvatars(const QJsonObject& paramsObjec
 	auto friend_id = paramsObject["friend_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, friend_id, ChatType::User, [=]()
 		{
-				AvatarManager::instance()->emit loadFriendAvatarSuccess(friend_id);
+			AvatarManager::instance()->emit loadFriendAvatarSuccess(friend_id);
 		});
 }
 
@@ -70,7 +70,7 @@ void Client_LoginHandle::handle_loadGroupAvatars(const QJsonObject& paramsObject
 	auto group_id = paramsObject["group_id"].toString();
 	ImageUtils::saveAvatarToLocal(data, group_id, ChatType::Group, [=]()
 		{
-				AvatarManager::instance()->emit loadGroupAvatarSuccess(group_id);
+			AvatarManager::instance()->emit loadGroupAvatarSuccess(group_id);
 		});
 }
 

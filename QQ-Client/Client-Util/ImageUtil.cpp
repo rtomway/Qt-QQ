@@ -71,28 +71,32 @@ QString ImageUtils::getGroupAvatarFolderPath()
 //保存图片
 void ImageUtils::saveAvatarToLocal(const QString& avatarPath, const QString& id, ChatType type, std::function<void()>callBack)
 {
-	QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QString&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), avatarPath, id, type);
-	// 创建 QFutureWatcher 来监听任务
-	QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
-	// 连接 finished 信号，当任务完成时触发
-	QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
-		// 获取任务的结果
-		bool result = watcher->result();
-		// 调用回调处理结果
-		if (result)
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [avatarPath, callBack, id, type]()
 		{
-			if (callBack)
-				callBack();
-		}
-		else
-		{
+			QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QString&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), avatarPath, id, type);
+			// 创建 QFutureWatcher 来监听任务
+			QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
+			// 连接 finished 信号，当任务完成时触发
+			QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
+				// 获取任务的结果
+				bool result = watcher->result();
+				// 调用回调处理结果
+				if (result)
+				{
+					if (callBack)
+						callBack();
+				}
+				else
+				{
 
-		}
-		// 删除 watcher，释放内存
-		watcher->deleteLater();
+				}
+				// 删除 watcher，释放内存
+				watcher->deleteLater();
+				});
+			// 设置 QFutureWatcher 监听任务
+			watcher->setFuture(future);
 		});
-	// 设置 QFutureWatcher 监听任务
-	watcher->setFuture(future);
 }
 bool ImageUtils::saveAvatarToLocalTask(const QString& avatarPath, const QString& id, ChatType type)
 {
@@ -123,28 +127,32 @@ bool ImageUtils::saveAvatarToLocalTask(const QString& avatarPath, const QString&
 //保存图片
 void ImageUtils::saveAvatarToLocal(const QImage& image, const QString& id, ChatType type, std::function<void()>callBack)
 {
-	QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QImage&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), image, id, type);
-	// 创建 QFutureWatcher 来监听任务
-	QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
-	// 连接 finished 信号，当任务完成时触发
-	QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
-		// 获取任务的结果
-		bool result = watcher->result();
-		// 调用回调处理结果
-		if (result)
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [image, callBack, id, type]()
 		{
-			if (callBack)
-				callBack();
-		}
-		else
-		{
+			QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QImage&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), image, id, type);
+			// 创建 QFutureWatcher 来监听任务
+			QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
+			// 连接 finished 信号，当任务完成时触发
+			QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
+				// 获取任务的结果
+				bool result = watcher->result();
+				// 调用回调处理结果
+				if (result)
+				{
+					if (callBack)
+						callBack();
+				}
+				else
+				{
 
-		}
-		// 删除 watcher，释放内存
-		watcher->deleteLater();
+				}
+				// 删除 watcher，释放内存
+				watcher->deleteLater();
+				});
+			// 设置 QFutureWatcher 监听任务
+			watcher->setFuture(future);
 		});
-	// 设置 QFutureWatcher 监听任务
-	watcher->setFuture(future);
 }
 bool ImageUtils::saveAvatarToLocalTask(const QImage& image, const QString& id, ChatType type)
 {
@@ -174,28 +182,32 @@ bool ImageUtils::saveAvatarToLocalTask(const QImage& image, const QString& id, C
 //保存图片
 void ImageUtils::saveAvatarToLocal(const QByteArray& data, const QString& id, ChatType type, std::function<void()> callBack)
 {
-	QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QByteArray&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), data, id, type);
-	// 创建 QFutureWatcher 来监听任务
-	QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
-	// 连接 finished 信号，当任务完成时触发
-	QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
-		// 获取任务的结果
-		bool result = watcher->result();
-		// 调用回调处理结果
-		if (result)
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [data, callBack, id, type]()
 		{
-			if (callBack)
-				callBack();
-		}
-		else
-		{
+			QFuture<bool> future = QtConcurrent::run(static_cast<bool(*)(const QByteArray&, const QString&, ChatType)>(&ImageUtils::saveAvatarToLocalTask), data, id, type);
+			// 创建 QFutureWatcher 来监听任务
+			QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
+			// 连接 finished 信号，当任务完成时触发
+			QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
+				// 获取任务的结果
+				bool result = watcher->result();
+				// 调用回调处理结果
+				if (result)
+				{
+					if (callBack)
+						callBack();
+				}
+				else
+				{
 
-		}
-		// 删除 watcher，释放内存
-		watcher->deleteLater();
+				}
+				// 删除 watcher，释放内存
+				watcher->deleteLater();
+				});
+			// 设置 QFutureWatcher 监听任务
+			watcher->setFuture(future);
 		});
-	// 设置 QFutureWatcher 监听任务
-	watcher->setFuture(future);
 }
 bool ImageUtils::saveAvatarToLocalTask(const QByteArray& data, const QString& id, ChatType type)
 {
@@ -231,20 +243,24 @@ bool ImageUtils::saveAvatarToLocalTask(const QByteArray& data, const QString& id
 //加载图片
 void ImageUtils::loadAvatarFromFile(const QString& avatarPath, std::function<void(QImage)>callBack)
 {
-	QFuture<QImage> future = QtConcurrent::run(static_cast<QImage(*)(const QString&)>(&ImageUtils::loadAvatarFromFileTask), avatarPath);
-	// 创建 QFutureWatcher 来监听任务
-	QFutureWatcher<QImage>* watcher = new QFutureWatcher<QImage>();
-	// 连接 finished 信号，当任务完成时触发
-	QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
-		// 获取任务的结果
-		QImage image = watcher->result();
-		// 调用回调处理结果
-		callBack(image);
-		// 删除 watcher，释放内存
-		watcher->deleteLater();
+	// 将操作抛到主线程执行
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [avatarPath, callBack]()
+		{
+			QFuture<QImage> future = QtConcurrent::run(static_cast<QImage(*)(const QString&)>(&ImageUtils::loadAvatarFromFileTask), avatarPath);
+			// 创建 QFutureWatcher 来监听任务
+			QFutureWatcher<QImage>* watcher = new QFutureWatcher<QImage>();
+			// 连接 finished 信号，当任务完成时触发
+			QObject::connect(watcher, &QFutureWatcher<bool>::finished, [watcher, callBack]() {
+				// 获取任务的结果
+				QImage image = watcher->result();
+				// 调用回调处理结果
+				callBack(image);
+				// 删除 watcher，释放内存
+				watcher->deleteLater();
+				});
+			// 设置 QFutureWatcher 监听任务
+			watcher->setFuture(future);
 		});
-	// 设置 QFutureWatcher 监听任务
-	watcher->setFuture(future);
 }
 QImage  ImageUtils::loadAvatarFromFileTask(const QString& avatarPath)
 {

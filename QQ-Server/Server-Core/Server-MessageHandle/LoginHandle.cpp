@@ -2,9 +2,10 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QImage>
+#include <QCoreApplication>
 
 #include "DataBaseQuery.h"
-#include "ConnectionManager.h"
+#include "../Server-ServiceLocator/NetWorkServiceLocator.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
 #include "LoginDBUtils.h"
@@ -14,10 +15,11 @@
 #include <picojson/picojson.h>
 
 
- 
+
 //登录认证
 void LoginHandle::handle_loginValidation(const QJsonObject& paramsObj, const QByteArray& data, QHttpServerResponder& responder)
 {
+
 	auto user_id = paramsObj["user_id"].toString();
 	auto password = paramsObj["password"].toString();
 	//数据库查询
@@ -73,7 +75,7 @@ void LoginHandle::handle_login(const QJsonObject& paramsObject, const QByteArray
 	QByteArray loginUserData;
 	PacketCreate::addPacket(loginUserData, packet);
 	auto allData = PacketCreate::allBinaryPacket(loginUserData);
-	ConnectionManager::instance()->sendBinaryMessage(user_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(user_id, allData);
 }
 
 //加载好友列表
@@ -92,6 +94,7 @@ void LoginHandle::handle_loadFriendList(const QJsonObject& paramsObj, const QByt
 	replyObj["type"] = "loadFriendList";
 	QJsonDocument friendListDoc(replyObj);
 	responder.write(friendListDoc);
+
 }
 
 //加载群组列表

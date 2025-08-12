@@ -2,7 +2,6 @@
 
 # 创建一个静态库或者共享库
 add_library(Server-Core STATIC
-  MessageHandle.h     MessageHandle.cpp
 
   Server-MessageHandle/LoginHandle.h        Server-MessageHandle/LoginHandle.cpp
   Server-MessageHandle/RegisterHandle.h     Server-MessageHandle/RegisterHandle.cpp

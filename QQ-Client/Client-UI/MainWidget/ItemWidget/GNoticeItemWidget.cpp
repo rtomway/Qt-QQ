@@ -7,7 +7,7 @@
 #include "FriendManager.h"
 #include "ImageUtil.h"
 #include "LoginUserManager.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 
 GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
@@ -75,7 +75,7 @@ GNoticeItemWidget::GNoticeItemWidget(QWidget* parent)
 				groupAddReplyObj["to"] = m_json["user_id"].toString();
 				groupAddReplyObj["group_id"] = m_json["group_id"].toString();
 				groupAddReplyObj["group_name"] = m_json["group_name"].toString();
-				groupAddReplyObj["noticeMessage"] = "拒绝了你加入群组"+ m_json["group_name"].toString();
+				groupAddReplyObj["noticeMessage"] = "拒绝了你加入群组" + m_json["group_name"].toString();
 				groupAddReplyObj["time"] = QDateTime::currentDateTime().toString("MM-dd hh:mm");
 				auto message = PacketCreate::textPacket("groupAddFailed", groupAddReplyObj);
 				NetWorkServiceLocator::instance()->sendWebTextMessage(message);

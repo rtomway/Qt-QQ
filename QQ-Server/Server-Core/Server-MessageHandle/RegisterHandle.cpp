@@ -3,7 +3,7 @@
 #include <QJsonDocument>
 
 #include "DataBaseQuery.h"
-#include "ConnectionManager.h"
+#include "../Server-ServiceLocator/NetWorkServiceLocator.h"
 #include "CreateId.h"
 #include "GlobalTypes.h"
 #include "LoginDBUtils.h"

@@ -6,9 +6,10 @@
 #include "CreateId.h"
 #include "DataBaseQuery.h"
 #include "ImageUtil.h"
-#include "ConnectionManager.h"
 #include "PacketCreate.h"
 #include "GroupDBUtils.h"
+
+#include "../Server-ServiceLocator/NetWorkServiceLocator.h"
 
 //添加群组
 void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByteArray& data)
@@ -61,7 +62,7 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 	QByteArray groupData;
 	PacketCreate::addPacket(groupData, groupPacket);
 	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
-	ConnectionManager::instance()->sendBinaryMessage(groupParams.owner_id, groupAllData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(groupParams.owner_id, groupAllData);
 	//通知邀请好友
 	QVariantMap groupInviteMap;
 	groupInviteMap["user_id"] = groupParams.owner_id;
@@ -79,7 +80,7 @@ void GroupHandle::handle_createGroup(const QJsonObject& paramsObject, const QByt
 	for (const auto& friendIdValue : friendIdListArray)
 	{
 		QString friendId = friendIdValue.toString();
-		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
+		NetWorkServiceLocator::instance()->sendBinaryMessage(friendId, allData);
 	}
 }
 
@@ -105,7 +106,7 @@ void GroupHandle::handle_addGroup(const QJsonObject& paramsObject, const QByteAr
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
-	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
 }
 
 //群聊文本交流
@@ -125,7 +126,7 @@ void GroupHandle::handle_groupTextCommunication(const QJsonObject& paramsObject,
 	for (auto& member_id : memberId_list)
 	{
 		if (member_id != user_id)
-			ConnectionManager::instance()->sendTextMessage(member_id, message);
+			NetWorkServiceLocator::instance()->sendTextMessage(member_id, message);
 	}
 }
 
@@ -145,7 +146,7 @@ void GroupHandle::handle_groupPictureCommunication(const QJsonObject& paramsObje
 	for (auto& member_id : memberId_list)
 	{
 		if (member_id != user_id)
-			ConnectionManager::instance()->sendBinaryMessage(member_id, allData);
+			NetWorkServiceLocator::instance()->sendBinaryMessage(member_id, allData);
 	}
 }
 
@@ -221,7 +222,7 @@ void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, con
 	for (auto& member_id : member_idList)
 	{
 		if (member_id != groupMember.user_id)
-			ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
+			NetWorkServiceLocator::instance()->sendBinaryMessage(member_id, newMemberAllData);
 	}
 	//通知群主邀请成功
 	QVariantMap inviteReplyMap;
@@ -234,7 +235,7 @@ void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, con
 	PacketCreate::addPacket(replyData, replyPacket);
 	auto replyAllData = PacketCreate::allBinaryPacket(replyData);
 	//向群主发送通知信息
-	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, replyAllData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(queryGroup.owner_id, replyAllData);
 	//包装群聊信息
 	QVariantMap groupMap;
 	groupMap["group_id"] = group_id;
@@ -247,7 +248,7 @@ void GroupHandle::handle_groupInviteSuccess(const QJsonObject& paramsObject, con
 	PacketCreate::addPacket(groupData, packet);
 	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
 	//向新成员发送群组信息
-	ConnectionManager::instance()->sendBinaryMessage(user_id, groupAllData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(user_id, groupAllData);
 }
 
 //群组申请加入成功
@@ -302,7 +303,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	for (auto& member_id : member_idList)
 	{
 		if (member_id != newGroupMember.user_id)
-			ConnectionManager::instance()->sendBinaryMessage(member_id, newMemberAllData);
+			NetWorkServiceLocator::instance()->sendBinaryMessage(member_id, newMemberAllData);
 	}
 	//包装群聊信息
 	QVariantMap groupMap;
@@ -316,7 +317,7 @@ void GroupHandle::handle_groupAddSuccess(const QJsonObject& paramsObject, const 
 	PacketCreate::addPacket(groupData, packet);
 	auto groupAllData = PacketCreate::allBinaryPacket(groupData);
 	//向新成员发送群组信息
-	ConnectionManager::instance()->sendBinaryMessage(newGroupMember.user_id, groupAllData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(newGroupMember.user_id, groupAllData);
 }
 
 //群聊邀请成员失败
@@ -334,7 +335,7 @@ void GroupHandle::handle_groupInviteFailed(const QJsonObject& paramsObject, cons
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
-	ConnectionManager::instance()->sendBinaryMessage(groupOwner_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(groupOwner_id, allData);
 }
 
 //群组申请加入失败
@@ -353,7 +354,7 @@ void GroupHandle::handle_groupAddFailed(const QJsonObject& paramsObject, const Q
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
-	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(receive_id, allData);
 }
 
 //群聊邀请
@@ -376,7 +377,7 @@ void GroupHandle::handle_groupInvite(const QJsonObject& paramsObject, const QByt
 	for (const auto& friendIdValue : friendIdListArray)
 	{
 		QString friendId = friendIdValue.toString();
-		ConnectionManager::instance()->sendBinaryMessage(friendId, allData);
+		NetWorkServiceLocator::instance()->sendBinaryMessage(friendId, allData);
 	}
 }
 
@@ -430,7 +431,7 @@ void GroupHandle::handle_groupMemberRemove(const QJsonObject& paramsObj, const Q
 
 	for (auto& groupMember_id : removedMember_idList)
 	{
-		ConnectionManager::instance()->sendBinaryMessage(groupMember_id, allData);
+		NetWorkServiceLocator::instance()->sendBinaryMessage(groupMember_id, allData);
 	}
 	member_idList.removeOne(user_id);
 	//通知其余成员
@@ -451,7 +452,7 @@ void GroupHandle::handle_groupMemberRemove(const QJsonObject& paramsObj, const Q
 	for (auto& member_id : member_idList)
 	{
 		if (!removedMember_idList.contains(member_id))
-			ConnectionManager::instance()->sendTextMessage(member_id, message);
+			NetWorkServiceLocator::instance()->sendTextMessage(member_id, message);
 	}
 }
 
@@ -500,7 +501,7 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 	PacketCreate::addPacket(MemberExitGroupData, packet);
 	auto allData = PacketCreate::allBinaryPacket(MemberExitGroupData);
 	//向群主发送通知信息
-	ConnectionManager::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(queryGroup.owner_id, allData);
 	//通知群组其他成员
 	QJsonObject exitGroupObj;
 	exitGroupObj["type"] = "groupMemberDeleted";
@@ -509,7 +510,7 @@ void GroupHandle::handle_exitGroup(const QJsonObject& paramsObj, const QByteArra
 	auto message = QString(doc.toJson(QJsonDocument::Compact));
 	for (auto& member_id : groupMember_idList)
 	{
-		ConnectionManager::instance()->sendTextMessage(member_id, message);
+		NetWorkServiceLocator::instance()->sendTextMessage(member_id, message);
 	}
 	//返回客户端操作结果
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
@@ -549,7 +550,7 @@ void GroupHandle::handle_disbandGroup(const QJsonObject& paramsObj, const QByteA
 	for (auto& groupMember_id : groupMember_idList)
 	{
 		if (groupMember_id != user_id)
-			ConnectionManager::instance()->sendBinaryMessage(groupMember_id, allData);
+			NetWorkServiceLocator::instance()->sendBinaryMessage(groupMember_id, allData);
 	}
 
 }
@@ -578,6 +579,6 @@ void GroupHandle::handle_updateGroupAvatar(const QJsonObject& paramsObj, const Q
 	QStringList groupMember_idList = GroupDBUtils::queryGroupMemberIdList(group_id, query);
 	for (const auto& member_id : groupMember_idList)
 	{
-		ConnectionManager::instance()->sendBinaryMessage(member_id, allData);
+		NetWorkServiceLocator::instance()->sendBinaryMessage(member_id, allData);
 	}
 }

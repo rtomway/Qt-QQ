@@ -1,5 +1,4 @@
 ﻿#include "FriendChatPage.h"
-#include "FriendChatPage.h"
 #include "ui_ChatPage.h"
 #include <QBuffer>
 #include <QMouseEvent>
@@ -9,7 +8,7 @@
 #include <QJsonDocument>
 
 #include "EventBus.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "PacketCreate.h"
 #include "FriendManager.h"
 #include "ChatRecordManager.h"
@@ -95,7 +94,7 @@ void FriendChatPage::init()
 void FriendChatPage::setChatWidget(const QString& id)
 {
 	//数据加载
-	if (!m_friend|| m_friend->getFriendId() != id)
+	if (!m_friend || m_friend->getFriendId() != id)
 	{
 		m_currentChat = false;
 		m_friend = FriendManager::instance()->findFriend(id);
@@ -139,7 +138,7 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		QPixmap pixmap(imagePath);
 		//消息显示至聊天框
 		this->insertTipMessage(QDateTime::currentDateTime().toString("MM-dd hh:mm"));
-		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleRight,user_id);
+		createImageMessageBubble(headPix, pixmap, MessageBubble::BubbleRight, user_id);
 		//将消息加入至聊天记录中
 		ChatMessage chatMessage;
 		chatMessage.sendId = user_id;
@@ -156,7 +155,7 @@ void FriendChatPage::sendImageMessageToServer(const QString& user_id, const QPix
 		QBuffer buffer(&byteArray);
 		buffer.open(QIODevice::WriteOnly);
 		// 将 QPixmap 转换为 PNG 并存入 QByteArray
-		if (!pixmap.save(&buffer, "PNG")) 
+		if (!pixmap.save(&buffer, "PNG"))
 		{
 			qDebug() << "Failed to convert avatar to PNG format.";
 			return;

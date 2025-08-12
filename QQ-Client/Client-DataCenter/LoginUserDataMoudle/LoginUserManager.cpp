@@ -8,7 +8,7 @@
 #include "TokenManager.h"
 #include "PacketCreate.h"
 #include "FriendManager.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 
 LoginUserManager* LoginUserManager::instance()
 {
@@ -25,6 +25,8 @@ LoginUserManager::LoginUserManager()
 			//保存token
 			auto token = paramsObject["token"].toString();
 			TokenManager::saveToken(token);
+
+			qDebug() << "---------验证成功";
 
 			//连接登录
 			NetWorkServiceLocator::instance()->connectToServer([=]

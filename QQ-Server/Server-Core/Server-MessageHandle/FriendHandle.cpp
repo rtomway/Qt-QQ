@@ -3,11 +3,12 @@
 #include <QJsonDocument>
 
 #include "DataBaseQuery.h"
-#include "ConnectionManager.h"
 #include "ImageUtil.h"
 #include "PacketCreate.h"
 #include "FriendDBUtils.h"
 #include "UserDBUtils.h"
+
+#include "../Server-ServiceLocator/NetWorkServiceLocator.h"
 
 QString FriendHandle::m_sendGrouping = QString();
 QString FriendHandle::m_receiveGrouping = QString();
@@ -30,7 +31,7 @@ void FriendHandle::handle_addFriend(const QJsonObject& paramsObject, const QByte
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
-	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(receive_id, allData);
 }
 
 //文字交流
@@ -43,7 +44,7 @@ void FriendHandle::handle_textCommunication(const QJsonObject& paramsObject, con
 
 	QJsonDocument doc(jsondate);
 	QString message = QString(doc.toJson(QJsonDocument::Compact));
-	ConnectionManager::instance()->sendTextMessage(client_id, message);
+	NetWorkServiceLocator::instance()->sendTextMessage(client_id, message);
 }
 
 //图片交流
@@ -55,7 +56,7 @@ void FriendHandle::handle_pictureCommunication(const QJsonObject& paramsObject, 
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	auto client_id = paramsObject["to"].toString();
-	ConnectionManager::instance()->sendBinaryMessage(client_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(client_id, allData);
 }
 
 //好友添加成功
@@ -65,15 +66,15 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 	auto receive_id = paramsObject["to"].toString();
 	//保存分组信息
 	m_receiveGrouping = paramsObject["grouping"].toString();
-	MyFriend friend_1(send_id,receive_id,m_sendGrouping);
+	MyFriend friend_1(send_id, receive_id, m_sendGrouping);
 	MyFriend friend_2(receive_id, send_id, m_receiveGrouping);
 	//好友列表新增
 	DataBaseQuery query;
 	QVariantMap sendMap;
 	QVariantMap receiveMap;
 	auto result = query.executeTransaction([&](std::shared_ptr<QSqlQuery>queryPtr)->bool
-	{
-			if (!FriendDBUtils::insertFriend(friend_1,query,queryPtr))
+		{
+			if (!FriendDBUtils::insertFriend(friend_1, query, queryPtr))
 			{
 				return false;
 			}
@@ -93,7 +94,7 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 			{
 				return false;
 			}
-	});
+		});
 	if (!result)
 		return;
 	//通知两边客户端
@@ -109,8 +110,8 @@ void FriendHandle::handle_friendAddSuccess(const QJsonObject& paramsObject, cons
 	PacketCreate::addPacket(sendData, sendPacket);
 	auto sendAllData = PacketCreate::allBinaryPacket(sendData);
 	//发送
-	ConnectionManager::instance()->sendBinaryMessage(send_id, receiveAllData);
-	ConnectionManager::instance()->sendBinaryMessage(receive_id, sendAllData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(send_id, receiveAllData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(receive_id, sendAllData);
 }
 
 //好友添加失败
@@ -128,7 +129,7 @@ void FriendHandle::handle_friendAddFail(const QJsonObject& paramsObject, const Q
 	PacketCreate::addPacket(userData, userPacket);
 	auto allData = PacketCreate::allBinaryPacket(userData);
 	//发送数据
-	ConnectionManager::instance()->sendBinaryMessage(receive_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(receive_id, allData);
 }
 
 //好友分组更新
@@ -181,7 +182,7 @@ void FriendHandle::handle_deleteFriend(const QJsonObject& paramsObj, const QByte
 	PacketCreate::addPacket(deleteNoticeData, packet);
 	auto allData = PacketCreate::allBinaryPacket(deleteNoticeData);
 	//通知被移除好友
-	ConnectionManager::instance()->sendBinaryMessage(friend_id, allData);
+	NetWorkServiceLocator::instance()->sendBinaryMessage(friend_id, allData);
 	//回复客户端
 	responder.write(QHttpServerResponder::StatusCode::NoContent);
 }

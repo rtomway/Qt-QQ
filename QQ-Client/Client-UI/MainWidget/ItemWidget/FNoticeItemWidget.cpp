@@ -5,7 +5,7 @@
 #include "ImageUtil.h"
 #include "LoginUserManager.h"
 #include "PacketCreate.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include <QBoxLayout>
 
 FNoticeItemWidget::FNoticeItemWidget(QWidget* parent)

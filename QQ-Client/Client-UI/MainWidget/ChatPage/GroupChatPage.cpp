@@ -14,7 +14,7 @@
 #include "EventBus.h"
 #include "GroupManager.h"
 #include "ChatRecordManager.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "AvatarManager.h"
 #include "GlobalTypes.h"
 #include "ImageUtil.h"
@@ -27,7 +27,7 @@
 
 GroupChatPage::GroupChatPage(QWidget* parent)
 	:ChatPage(parent)
-	,m_groupPannel(new GroupSetPannelWidget(m_setWidget))
+	, m_groupPannel(new GroupSetPannelWidget(m_setWidget))
 {
 	init();
 }
@@ -76,7 +76,7 @@ void GroupChatPage::init()
 		});
 	//隐藏群面板
 	connect(EventBus::instance(), &EventBus::hideGroupSetPannel, this, &GroupChatPage::hideSetWidget);
-	//群成员移除
+	//群成员信息更新
 	connect(GroupManager::instance(), &GroupManager::updateGroupProfile, this, [=](const QString& group_id)
 		{
 			if (m_group && group_id == m_group->getGroupId())

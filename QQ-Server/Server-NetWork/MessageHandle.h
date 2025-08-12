@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QWebSocket>
 #include <QHttpServer>
+#include "MessageQueue.h"
 
 class MessageHandle :public QObject
 {
@@ -16,9 +17,9 @@ public:
 	void webTextHandler(const QString& message, QWebSocket* socket);
 	void webBinaryHandler(const QByteArray& message, QWebSocket* socket);
 
-	void httpGetHandler(const QHttpServerRequest& request, QHttpServerResponder& response);
-	void httpPostBinaryHandler(const QHttpServerRequest& request, QHttpServerResponder& response);
-	void httpPostTextHandler(const QHttpServerRequest& request, QHttpServerResponder& response);
+	void httpGetHandler(const QVariantMap& requestHttpData, QHttpServerResponder& response);
+	void httpPostBinaryHandler(const QVariantMap& requestHttpData, QHttpServerResponder& response);
+	void httpPostTextHandler(const QVariantMap& requestHttpData, QHttpServerResponder& response);
 private:
 	//消息处理函数表
 	QHash<QString, void(*)(const QJsonObject&, const QByteArray&)>m_webRequestHash{};
@@ -30,9 +31,20 @@ private:
 	void initHttpRequestHash();
 	void initPublicPageType();
 	bool webTokenVerify(const QString& token, const QString& user_id, const QString& type);
-	bool httpToeknVerify(const QString& type, const QHttpServerRequest& request);
+	bool httpToeknVerify(const QString& type, const QVariantMap& requestHttpData);
 signals:
 	void addClient(const QString& user_id, QWebSocket* client);
+public:
+	void setServerMessageSrc(MessageQueue* messageQueue);
+	void startServerConsumerThread();
+	void stopServerConsumerThread();
+private slots:
+	void serverConsumer();
+
+private:
+	QThread m_consumerThread;
+	std::atomic<bool> m_running{ false };
+	MessageQueue* m_messageQueue;
 };
 
 #endif // !MESSAGEHANDLE_H_

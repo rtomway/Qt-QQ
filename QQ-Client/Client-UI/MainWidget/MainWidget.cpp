@@ -21,7 +21,7 @@
 #include "GroupManager.h"
 #include "FMessageItemWidget.h"
 #include "GMessageItemWidget.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "MessageRecord.h"
 #include "LoginUserManager.h"
 #include "GroupCreateWidget.h"
@@ -45,7 +45,7 @@ MainWidget::MainWidget(QWidget* parent)
 {
 	ui->setupUi(this);
 	init();
-	
+
 	this->setStyleSheet(R"(QWidget#MainWidget{border-radius: 10px;})");
 	QFile file(":/stylesheet/Resource/StyleSheet/MainWidget.css");
 	if (file.open(QIODevice::ReadOnly))
@@ -77,7 +77,7 @@ void MainWidget::init()
 	this->installEventFilterToWidget(m_contactSearchListWidget);
 	this->installEventFilterToWidget(ui->headLab);
 	this->installEventFilterToWidget(ui->searchEdit);
-	
+
 	//界面
 	initMoreMenu();
 	initStackedListWidget();
@@ -406,6 +406,7 @@ void MainWidget::connectGroupManagerSignals()
 			auto group = GroupManager::instance()->findGroup(group_id);
 			auto member = group->getMember(user_id);
 			auto& user_name = member.member_name;
+
 			//更新聊天记录
 			ChatMessage chatMessage;
 			chatMessage.sendId = user_id;
@@ -417,6 +418,7 @@ void MainWidget::connectGroupManagerSignals()
 			chatMessage.messageType = MessageType::System;
 			chatMessage.chatType = ChatType::Group;
 			ChatRecordManager::instance()->addMessageToChat(chatMessage);
+
 			auto key = itemKey(group_id, ChatType::Group);
 			auto item = findListItem(key);
 			if (item)

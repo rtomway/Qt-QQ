@@ -1,14 +1,16 @@
-﻿#include "HttpRouteManager.h"
+﻿#include "HttpServer.h"
 #include <QDebug>
+#include <QCoreApplication>
 
-HttpRouteManager::HttpRouteManager(QHttpServer* server, QObject* parent)
+HttpServer::HttpServer(QObject* parent)
 	: QObject(parent)
+	, m_httpServer(new QHttpServer(this))
 {
-	m_httpServer = server;
 	setupRoutes();
+	m_httpServer->listen(QHostAddress::Any, 8889);
 }
 
-void HttpRouteManager::setupRoutes()
+void HttpServer::setupRoutes()
 {
 	registerHttpRoute("/loginValidation");
 	registerHttpRoute("/loadFriendList");
@@ -32,7 +34,8 @@ void HttpRouteManager::setupRoutes()
 	registerHttpRoute("/passwordChange");
 }
 
-void HttpRouteManager::registerHttpRoute(const QString& path)
+
+void HttpServer::registerHttpRoute(const QString& path)
 {
 	//http请求路由并注册
 	m_httpServer->route(path, [this](const QHttpServerRequest& request, QHttpServerResponder&& response)
@@ -42,7 +45,7 @@ void HttpRouteManager::registerHttpRoute(const QString& path)
 			{
 			case QHttpServerRequest::Method::Get:
 			{
-				m_messageHandle.httpGetHandler(request, response);
+				emit httpGetReceive(request, response);
 			}
 			break;
 			case QHttpServerRequest::Method::Post:
@@ -50,11 +53,11 @@ void HttpRouteManager::registerHttpRoute(const QString& path)
 				auto content_type = request.value("Content-Type");
 				if (content_type.contains("application/json"))
 				{
-					m_messageHandle.httpPostTextHandler(request, response);
+					emit httpPostTextReceive(request, response);
 				}
 				else if (content_type.contains("application/octet-stream"))
 				{
-					m_messageHandle.httpPostBinaryHandler(request, response);
+					emit httpPostBinaryReceive(request, response);
 				}
 			}
 			break;

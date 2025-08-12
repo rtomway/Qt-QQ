@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QDataStream>
 #include <QIODevice>
+#include <QCoreApplication>
 
 //单个数据包
 QByteArray PacketCreate::binaryPacket(const QString& type, const QVariantMap& params, const QByteArray& data)

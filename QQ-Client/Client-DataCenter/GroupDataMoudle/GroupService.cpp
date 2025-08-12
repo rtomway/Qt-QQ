@@ -5,7 +5,7 @@
 #include "EventBus.h"
 #include "AvatarManager.h"
 #include "ImageUtil.h"
-#include "Client-ServiceLocator/NetWorkServiceLocator.h"
+#include "../Client-ServiceLocator/NetWorkServiceLocator.h"
 #include "LoginUserManager.h"
 #include "ChatRecordManager.h"
 #include "ChatRecordMessage.h"
@@ -110,6 +110,8 @@ void GroupService::createGroupSuccess(const QJsonObject& obj)
 	auto myGroup = QSharedPointer<Group>::create();
 	myGroup->setGroup(obj);
 	m_groupRespository->addGroup(myGroup);
+
+	qDebug() << "创建群组成功:" << obj;
 
 	//群主
 	QJsonObject groupMemberObj;
@@ -281,14 +283,4 @@ void GroupService::ensureGroupMemberLoad(const QString& group_id, const QString&
 					callback();
 				});
 		});
-
-	/*NetWorkServiceLocator::instance()->sendHttpRequest("groupMemberLoad", data, "application/json",
-		[=](const QJsonObject& params, const QByteArray& avatarData)
-		{
-			group->loadGroupMember(params);
-			ImageUtils::saveAvatarToLocal(avatarData, user_id, ChatType::User, [=]()
-				{
-						callback();
-				});
-		});*/
 }
