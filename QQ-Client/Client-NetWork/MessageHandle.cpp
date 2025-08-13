@@ -148,7 +148,6 @@ void MessageHandle::consumerLoop()
 			continue;
 		}
 
-		// 处理消息 (注意: 现在在消费者线程上下文)
 		switch (msg.type)
 		{
 		case MessageQueue::Text:

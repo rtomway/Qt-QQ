@@ -37,9 +37,9 @@ void NetWorkService::init()
 		{
 			m_messageQueue->push({ MessageQueue::WS_Text,QVariant::fromValue(text),QVariant::fromValue(webSocket) });
 		});
-	connect(m_webSocketServer, &WebSocketServer::binaryReceive, this, [=](QWebSocket* webSocket, const QString& text)
+	connect(m_webSocketServer, &WebSocketServer::binaryReceive, this, [=](QWebSocket* webSocket, const QByteArray& data)
 		{
-			m_messageQueue->push({ MessageQueue::WS_Binary,QVariant::fromValue(text),QVariant::fromValue(webSocket) });
+			m_messageQueue->push({ MessageQueue::WS_Binary,QVariant::fromValue(data),QVariant::fromValue(webSocket) });
 		});
 	connect(m_httpServer, &HttpServer::httpGetReceive, this, [=](const QHttpServerRequest& request, QHttpServerResponder& response)
 		{

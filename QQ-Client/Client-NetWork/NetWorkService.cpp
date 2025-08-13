@@ -63,11 +63,6 @@ void NetWorkService::sendHttpPostRequest(const QString& path, const QByteArray& 
 
 void NetWorkService::init()
 {
-	//接收消息
-	//connect(m_webClientPort, &WebClientPort::textMessage, m_messageHandle, &MessageHandle::handle_textMessage);
-	//connect(m_webClientPort, &WebClientPort::binaryData, m_messageHandle, &MessageHandle::handle_binaryData);
-	//connect(m_httpClientPort, &HttpClientPort::httpTextResponse, m_messageHandle, &MessageHandle::handle_textMessage);
-	//connect(m_httpClientPort, &HttpClientPort::httpDataResponse, m_messageHandle, &MessageHandle::handle_binaryData);
 
 	m_messageHandle->setMessageSrc(m_messageQueue);
 
