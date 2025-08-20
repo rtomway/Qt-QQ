@@ -29,7 +29,7 @@
 
 
 MainWidget::MainWidget(QWidget* parent)
-	:AngleRoundedWidget(parent)
+	:QWidget(parent)
 	, ui(new Ui::MainWidget)
 	, m_addpersonMenu(new QMenu(this))
 	, m_moreMenu(new QMenu(this))
@@ -46,6 +46,10 @@ MainWidget::MainWidget(QWidget* parent)
 	ui->setupUi(this);
 	init();
 
+	//this->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	//this->setAttribute(Qt::WA_TranslucentBackground); //子窗口圆角父类背景需透明
+
+	this->setAttribute(Qt::WA_StyledBackground, true);
 	this->setStyleSheet(R"(QWidget#MainWidget{border-radius: 10px;})");
 	QFile file(":/stylesheet/Resource/StyleSheet/MainWidget.css");
 	if (file.open(QIODevice::ReadOnly))
@@ -55,6 +59,11 @@ MainWidget::MainWidget(QWidget* parent)
 	else {
 		qDebug() << "样式表打开失败";
 	}
+
+	this->style()->unpolish(this);  // 清除旧样式
+	this->style()->polish(this);    // 应用新样式
+	this->update();                   // 触发重绘
+
 	//编辑信息蒙层主窗口
 	SMaskWidget::instance()->setMainWidget(this);
 	setMouseTracking(true);  // 主窗口自身

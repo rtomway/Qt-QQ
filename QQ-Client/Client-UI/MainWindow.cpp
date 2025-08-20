@@ -75,10 +75,13 @@ void MainWindow::showLoginWidget()
 		m_stackedWidget->setCurrentWidget(m_loginWidget);
 		m_mainWidget->setAutoFillBackground(true);
 		// 3. 添加20ms延迟确保系统完成渲染
-		QTimer::singleShot(15, [=] {
+		/*QTimer::singleShot(15, [=] {
 			show();
 			cover->deleteLater();
-			});
+			}
+		);*/
+		show();
+		cover->deleteLater();
 		});
 }
 

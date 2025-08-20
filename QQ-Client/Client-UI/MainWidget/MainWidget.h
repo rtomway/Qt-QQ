@@ -22,7 +22,7 @@
 
 namespace Ui { class MainWidget; }
 
-class MainWidget :public AngleRoundedWidget
+class MainWidget :public QWidget
 {
 	Q_OBJECT
 public:
